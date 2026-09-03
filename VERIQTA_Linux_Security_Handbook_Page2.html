@@ -102,23 +102,23 @@
          The SVG paths are the exact original design:
            - Upper ring: M32 27 ... bulges LEFT to x=10 ... returns to x=32 ...
            - Bottom ring: M32 34 ... bulges LEFT to x=10 ... returns to x=32 ...
-         background-position: -2px 0 = shifted LEFT by 2px.
-         background-size: 57.6px 61.6px = width reduced 20% (72*0.80), height
-         increased 10% (56*1.10) from the previous 72px x 56px.
-         This makes the ring NARROWER and TALLER (more vertical spacing between rings).
+         background-position: 8px 0 = shifted RIGHT by 10px from previous -2px.
+         background-size: 57.6px 67.76px = width kept (57.6px), height increased
+         10% (61.6 * 1.10 = 67.76px) from the previous 57.6px x 61.6px.
+         This makes the ring TALLER (more vertical spacing between rings).
          Single stroke per ring: #111, 4.5px. No shadow, no core, no highlight. */
   .spiral{
     position:absolute;
     z-index:7;                                    /* ON TOP of spine */
     top:0;
     left:0;
-    width:58px;                                   /* matches new scaled tile width */
+    width:58px;                                   /* matches scaled tile width */
     height:100%;
     pointer-events:none;
     background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
-    background-position: -2px 0;                   /* shifted left by 2px */
-    background-size: 57.6px 61.6px;                /* width -20%, height +10% */
+    background-position: 8px 0;                    /* shifted right by 10px */
+    background-size: 57.6px 67.76px;               /* height +10% (67.76px) */
   }
 
   /* (5) Soft drop-shadow on the cream paper, immediately right of the
