@@ -102,12 +102,12 @@
     box-shadow:inset 2px 0 5px rgba(0,0,0,0.38);
   }
 
-  /* (2) D-shaped punch holes on CREAM PAPER at x=32.
+  /* (2) D-shaped punch holes on CREAM PAPER at x=50.
          Four holes per 70px tile, aligned with wire entry/exit points:
-           - (32, 27) — upper ring ENTRY (top of upper arch)
-           - (32, 34) — bottom ring ENTRY (top of bottom arch)
-           - (32, 44) — upper ring EXIT → RIGHT extension comes OUT here
-           - (32, 51) — bottom ring EXIT → RIGHT extension comes OUT here
+           - (50, 27) — upper ring ENTRY (top of upper arch)
+           - (50, 34) — bottom ring ENTRY (top of bottom arch)
+           - (50, 44) — upper ring EXIT → RIGHT extension comes OUT here
+           - (50, 51) — bottom ring EXIT → RIGHT extension comes OUT here
          Each hole = horizontal D-shaped slot on cream paper:
            - Outer dark ellipse (depth shadow, low opacity)
            - BLACK interior ellipse (#000 = the void) */
@@ -118,17 +118,17 @@
     width:90px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%3E%3Cellipse%20cx='32'%20cy='27'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='32'%20cy='27'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='34'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='32'%20cy='34'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='44'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='32'%20cy='44'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='51'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='32'%20cy='51'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%3E%3Cellipse%20cx='50'%20cy='27'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='50'%20cy='27'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='50'%20cy='34'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='50'%20cy='34'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='50'%20cy='44'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='50'%20cy='44'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='50'%20cy='51'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='50'%20cy='51'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3C/svg%3E");
     background-size:90px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
   }
 
-  /* (3) Black wire — user-provided SVG design, PLAIN #111 only.
+  /* (3) Black wire — ring starts at x=0, hole at x=50.
          Each 90x70 tile contains TWO rings (upper + bottom) representing the
          front and back of the spiral wire (double-wire 3D view).
-         Wire path: bulges LEFT to x=10 (over the navy spine), entry/exit
-         at x=32 (on cream paper), extends RIGHT to x=82 (onto cream paper).
+         Wire path: starts at x=0 (far-left edge), bulges through hole at x=50,
+         extends RIGHT to x=82 (onto cream paper).
          Single stroke per ring: #111, 4.5px. No shadow, no core, no highlight.
          z-index=7 so wire renders ON TOP of holes and spine. */
   .spiral{
@@ -139,17 +139,17 @@
     width:90px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M50%2027%20C40%2028%200%2032%200%2035%20C0%2040%2039%2043%2050%2044%20C60%2045%2075%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M50%2034%20C40%2035%200%2039%200%2042%20C0%2047%2039%2050%2050%2051%20C60%2052%2075%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
     background-position: 0 0;
     background-size: 90px 70px;
   }
 
   /* (4) Wire passing THROUGH each hole — small #111 dots at all 4 hole
-         positions on the cream paper. The BLACK void is visible around each
-         dot. Both the entry (top) and exit (bottom) holes show the wire
-         passing through, so the RIGHT extension appears to come OUT of the
-         exit holes at y=44 and y=51. */
+         positions (x=50) on the cream paper. The BLACK void is visible
+         around each dot. Both the entry (top) and exit (bottom) holes show
+         the wire passing through, so the RIGHT extension appears to come
+         OUT of the exit holes at y=44 and y=51. */
   .spiral-front{
     position:absolute;
     z-index:11;
@@ -157,7 +157,7 @@
     width:90px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%3E%3Ccircle%20cx='32'%20cy='27'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='34'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='44'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='51'%20r='1.8'%20fill='%23111'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%3E%3Ccircle%20cx='50'%20cy='27'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='50'%20cy='34'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='50'%20cy='44'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='50'%20cy='51'%20r='1.8'%20fill='%23111'/%3E%3C/svg%3E");
     background-size:90px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
