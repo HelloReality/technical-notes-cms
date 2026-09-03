@@ -102,13 +102,13 @@
          The SVG paths are the exact original design:
            - Upper ring: M32 27 ... bulges LEFT to x=10 ... returns to x=32 ...
            - Bottom ring: M32 34 ... bulges LEFT to x=10 ... returns to x=32 ...
-         background-position: 0 0 = no shift, so the WHOLE ring is visible.
+         background-position: -2px 0 = shifted LEFT by 2px.
          background-size: 72px 56px = 0.8x scale (reduced from 90x70).
-         Resulting page positions (SVG coord × 0.8):
-           - Bulge apex (SVG x=10) → page x=8 (over the navy spine)
-           - Entry/exit (SVG x=32) → page x=25.6 (on cream paper, past the 20px spine)
-           - Right extension ends (SVG x=82) → page x=65.6 (on cream paper)
-         The whole ring is visible from page x=0 to x=65.6.
+         Resulting page positions (SVG coord × 0.8, shifted -2px):
+           - Bulge apex (SVG x=10) → page x=6 (over the navy spine)
+           - Entry/exit (SVG x=32) → page x=23.6 (on cream paper, past the 20px spine)
+           - Right extension ends (SVG x=82) → page x=63.6 (on cream paper)
+         The whole ring is visible from page x=-2 to x=63.6.
          Single stroke per ring: #111, 4.5px (scales to ~3.6px visually).
          No shadow, no core, no highlight. */
   .spiral{
@@ -121,7 +121,7 @@
     pointer-events:none;
     background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
-    background-position: 0 0;                     /* no shift — whole ring visible */
+    background-position: -2px 0;                   /* shifted left by 2px */
     background-size: 72px 56px;                    /* 0.8x scale (reduced size) */
   }
 
