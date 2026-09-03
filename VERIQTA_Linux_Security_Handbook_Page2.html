@@ -68,11 +68,15 @@
 
   /* ============================================================
      LEFT-EDGE BINDING (matches reference image — 3D enhanced)
-       1) .spiral          — black wire arches BEHIND the navy strip; only
-                            the parts that bulge past the strip's right edge
-                            (x>46) are visible. THICKER wire with metallic
-                            specular highlight + dark core shadow.
+       1) .spiral          — black wire using the user-provided SVG design.
+                            Wire bulges LEFT (visible loop on the navy strip)
+                            and extends RIGHT (onto the cream paper). Each tile
+                            contains TWO rings (front + back of the spiral wire)
+                            giving a 3D double-wire appearance. Enhanced with
+                            drop shadow + dark core + white metallic highlight.
+                            z-index=7 so wire is visible ON TOP of the navy strip.
        2) .binding-strip  — solid navy vertical strip with 3D punch holes.
+                            Holes at x=32 (aligned with wire entry/exit).
                             Each hole has a DARK CENTER (the visible “inside”
                             of the cutout) surrounded by a WHITE RIM (paper
                             edge) and an outer dark shadow ring.
@@ -90,31 +94,37 @@
      left padding).
      ============================================================ */
 
-  /* (1) Black wire arches — rendered BEHIND the navy strip so only the
-         right-bulging portion (x>46) is visible. THICKER wire (6px body)
-         with layered strokes: wide drop shadow + dark body + dark core +
-         sharp WHITE specular highlight on the upper-left of each arch. */
+  /* (1) Black wire — user-provided SVG design with 3D metallic enhancement.
+         Each 90x70 tile contains TWO rings (upper + bottom) representing the
+         front and back of the spiral wire (double-wire 3D view).
+         Wire path: bulges LEFT to x=10 (visible loop on strip), entry/exit
+         at x=32, extends RIGHT to x=82 (onto cream paper).
+         Layered strokes: drop shadow (7px) + body (#111, 4.5px) + dark core
+         (1.8px) + white metallic highlight (1.3px + 0.5px).
+         z-index=7 so wire renders ON TOP of the navy strip (z=5). */
   .spiral{
     position:absolute;
-    z-index:3;                                    /* BEHIND the navy strip */
+    z-index:7;                                    /* ON TOP of navy strip */
     top:0;
     left:0;
-    width:80px;
+    width:90px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%23000000' stroke-width='9' stroke-linecap='round' opacity='0.38' transform='translate(2.5 3)'/%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%23000000' stroke-width='1.4' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%230a0a0a' stroke-width='6.2' stroke-linecap='round'/%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%23000000' stroke-width='2.6' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M 21 1 C 72 6 72 54 21 59' fill='none' stroke='%23ffffff' stroke-width='1.3' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M 21 2 C 71 7 71 53 21 58' fill='none' stroke='%23ffffff' stroke-width='0.5' stroke-linecap='round' opacity='0.4'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23000'%20stroke-width='7'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.4'%20transform='translate(1.8%202.5)'/%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23000'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.55'/%3E%3Cpath%20d='M31%2026%20C19%2027%209%2031%209%2034%20C9%2039%2018%2042%2031%2043%20C51%2044%2069%2041%2081%2037'%20stroke='%23fff'%20stroke-width='1.3'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.6'/%3E%3Cpath%20d='M31%2026%20C19%2027%209%2031%209%2034%20C9%2039%2018%2042%2031%2043%20C51%2044%2069%2041%2081%2037'%20stroke='%23fff'%20stroke-width='0.5'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.4'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23000'%20stroke-width='7'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.4'%20transform='translate(1.8%202.5)'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23000'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.55'/%3E%3Cpath%20d='M31%2033%20C19%2034%209%2038%209%2041%20C9%2046%2018%2049%2031%2050%20C51%2051%2069%2048%2081%2044'%20stroke='%23fff'%20stroke-width='1.3'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.6'/%3E%3Cpath%20d='M31%2033%20C19%2034%209%2038%209%2041%20C9%2046%2018%2049%2031%2050%20C51%2051%2069%2048%2081%2044'%20stroke='%23fff'%20stroke-width='0.5'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.4'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
     background-position: 0 0;
-    background-size: 80px 60px;
+    background-size: 90px 70px;
   }
 
   /* (2) Navy binding strip + 3D punch holes (SVG background).
+         Holes at x=32 (aligned with wire entry/exit points in the SVG).
          Each hole has:
            - DARK CENTER (#0a0a0a) = visible “inside” of the cutout
            - WHITE RIM (paper edge catching light)
            - Dark outer shadow ring (depth)
-         Holes sit at tile boundaries (y=0 and y=60) so each circle is
-         formed by the bottom half of one tile + the top half of the next. */
+         Holes sit at tile boundaries (y=0 and y=70) so each circle is
+         formed by the bottom half of one tile + the top half of the next.
+         Tile height=70px matches the wire SVG tile height. */
   .binding-strip{
     position:absolute;
     z-index:5;
@@ -123,8 +133,8 @@
     height:100%;
     pointer-events:none;
     background-color:var(--navy);                 /* #15264d solid navy */
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='60' viewBox='0 0 46 60'%3E%3Crect width='3' height='60' fill='%23000' opacity='0.18'/%3E%3Ccircle cx='23' cy='0' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='23' cy='0' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='0' r='5' fill='%23ffffff'/%3E%3Ccircle cx='23' cy='0' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='23' cy='-0.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3Ccircle cx='23' cy='60' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='23' cy='60' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='60' r='5' fill='%23ffffff'/%3E%3Ccircle cx='23' cy='60' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='23' cy='59.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3C/svg%3E");
-    background-size:46px 60px;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='70' viewBox='0 0 46 70'%3E%3Crect width='3' height='70' fill='%23000' opacity='0.18'/%3E%3Ccircle cx='32' cy='0' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='32' cy='0' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='0' r='5' fill='%23ffffff'/%3E%3Ccircle cx='32' cy='0' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='31.5' cy='-0.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3Ccircle cx='32' cy='70' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='32' cy='70' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='70' r='5' fill='%23ffffff'/%3E%3Ccircle cx='32' cy='70' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='31.5' cy='69.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3C/svg%3E");
+    background-size:46px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
     /* Subtle vertical inner shading on the strip (left edge slightly darker) */
@@ -132,8 +142,8 @@
   }
 
   /* (3) Wire shadow on strip — soft shadow cast by each wire arch onto
-         the navy strip, just to the right of each hole. Suggests the wire
-         sits above the strip surface. */
+         the navy strip, near each hole (at x=32, y=0 and y=70).
+         Suggests the wire sits above the strip surface. */
   .wire-shadow{
     position:absolute;
     z-index:6;
@@ -141,16 +151,16 @@
     width:46px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='60' viewBox='0 0 46 60'%3E%3Cellipse cx='32' cy='2' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3Cellipse cx='32' cy='58' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3C/svg%3E");
-    background-size:46px 60px;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='70' viewBox='0 0 46 70'%3E%3Cellipse cx='32' cy='2' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3Cellipse cx='32' cy='68' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3C/svg%3E");
+    background-size:46px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
   }
 
   /* (4) Wire “stubs” on TOP of each punch hole — small black discs that
-         sit on the dark hole center, making the wire appear to enter/exit
-         each hole. Slightly smaller than the dark center so the white rim
-         remains visible around the stub. */
+         sit on the dark hole center (at x=32), making the wire appear to
+         enter/exit each hole. Slightly smaller than the dark center so
+         the white rim remains visible around the stub. */
   .spiral-front{
     position:absolute;
     z-index:11;
@@ -158,8 +168,8 @@
     width:46px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='60' viewBox='0 0 46 60'%3E%3Ccircle cx='23' cy='0' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='0' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='22.5' cy='-0.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3Ccircle cx='23' cy='60' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='60' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='22.5' cy='59.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3C/svg%3E");
-    background-size:46px 60px;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='70' viewBox='0 0 46 70'%3E%3Ccircle cx='32' cy='0' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='0' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='31.5' cy='-0.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3Ccircle cx='32' cy='70' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='70' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='31.5' cy='69.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3C/svg%3E");
+    background-size:46px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
   }
