@@ -67,25 +67,33 @@
   }
 
   /* ============================================================
-     LEFT-EDGE BINDING (matches reference image)
+     LEFT-EDGE BINDING (matches reference image — 3D enhanced)
        1) .spiral          — black wire arches BEHIND the navy strip; only
                             the parts that bulge past the strip's right edge
-                            (x>46) are visible. Wire emerges from one
-                            punch hole, arches right, re-enters next hole.
-       2) .binding-strip  — solid navy vertical strip on far-left edge
-                            with white punch-hole circles (depth rim) repeating down
-       3) .spiral-front    — small black wire “stubs” on TOP of each punch
-                            hole so the wire appears to enter/exit each hole
-       4) .page-shadow     — soft drop-shadow cast onto the cream paper
-                            immediately right of the navy strip
-     All four sit OUTSIDE the content area (page has 92px left padding).
+                            (x>46) are visible. THICKER wire with metallic
+                            specular highlight + dark core shadow.
+       2) .binding-strip  — solid navy vertical strip with 3D punch holes.
+                            Each hole has a DARK CENTER (the visible “inside”
+                            of the cutout) surrounded by a WHITE RIM (paper
+                            edge) and an outer dark shadow ring.
+       3) .wire-shadow     — soft shadow cast by each wire arch onto the
+                            navy strip, near each hole.
+       4) .spiral-front    — small black wire “stubs” on TOP of each punch
+                            hole so the wire appears to enter/exit each hole.
+       5) .page-shadow     — soft drop-shadow cast onto the cream paper
+                            immediately right of the navy strip.
+       6) .page-top-edge  — thin band at TOP of page showing page-stack
+                            thickness (3D block effect).
+       7) .page-bottom-edge — thin band at BOTTOM of page showing stack
+                            thickness.
+     All binding elements sit OUTSIDE the content area (page has 92px
+     left padding).
      ============================================================ */
 
   /* (1) Black wire arches — rendered BEHIND the navy strip so only the
-         right-bulging portion (x>46) is visible. The path starts at the
-         top punch-hole position, bulges out to x≈75, returns to the next
-         punch-hole position. Multiple layered strokes create a 3D
-         cylindrical wire (highlight + body + shadow). */
+         right-bulging portion (x>46) is visible. THICKER wire (6px body)
+         with layered strokes: wide drop shadow + dark body + dark core +
+         sharp WHITE specular highlight on the upper-left of each arch. */
   .spiral{
     position:absolute;
     z-index:3;                                    /* BEHIND the navy strip */
@@ -94,15 +102,19 @@
     width:80px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'%3E%3Cpath d='M 23 0 C 75 5 75 55 23 60' fill='none' stroke='%23000000' stroke-width='6.5' stroke-linecap='round' opacity='0.32' transform='translate(2 2.5)'/%3E%3Cpath d='M 22 1 C 76 5 76 55 22 59' fill='none' stroke='%23000000' stroke-width='0.9' stroke-linecap='round' opacity='0.55'/%3E%3Cpath d='M 23 0 C 75 5 75 55 23 60' fill='none' stroke='%230a0a0a' stroke-width='4.6' stroke-linecap='round'/%3E%3Cpath d='M 24 1 C 72 6 72 54 24 59' fill='none' stroke='%234a4a4a' stroke-width='1' stroke-linecap='round' opacity='0.55'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%23000000' stroke-width='9' stroke-linecap='round' opacity='0.38' transform='translate(2.5 3)'/%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%23000000' stroke-width='1.4' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%230a0a0a' stroke-width='6.2' stroke-linecap='round'/%3E%3Cpath d='M 23 0 C 76 5 76 55 23 60' fill='none' stroke='%23000000' stroke-width='2.6' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M 21 1 C 72 6 72 54 21 59' fill='none' stroke='%23ffffff' stroke-width='1.3' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M 21 2 C 71 7 71 53 21 58' fill='none' stroke='%23ffffff' stroke-width='0.5' stroke-linecap='round' opacity='0.4'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
     background-position: 0 0;
     background-size: 80px 60px;
   }
 
-  /* (2) Navy binding strip + punch holes (single layered background).
-         Punch holes have a multi-stop dark rim to look like actual cutouts
-         (inner shadow ring + outer paper-edge shadow). */
+  /* (2) Navy binding strip + 3D punch holes (SVG background).
+         Each hole has:
+           - DARK CENTER (#0a0a0a) = visible “inside” of the cutout
+           - WHITE RIM (paper edge catching light)
+           - Dark outer shadow ring (depth)
+         Holes sit at tile boundaries (y=0 and y=60) so each circle is
+         formed by the bottom half of one tile + the top half of the next. */
   .binding-strip{
     position:absolute;
     z-index:5;
@@ -111,20 +123,7 @@
     height:100%;
     pointer-events:none;
     background-color:var(--navy);                 /* #15264d solid navy */
-    /* Punch-hole circles (14px outer dia). Multi-stop gradient simulates:
-         - white hole interior (0–5px)
-         - soft gray inner depth (5–5.8px)
-         - dark gray shadow rim (5.8–6.4px)
-         - near-black inner shadow ring (6.4–7px) — looks like a real cutout
-         - transparent outside (7.2px+) so navy shows through */
-    background-image:
-      radial-gradient(circle at 23px 0px,
-        #ffffff 0px, #ffffff 4.8px,
-        #d0d0d0 4.8px, #d0d0d0 5.4px,
-        #7a7a7a 5.4px, #7a7a7a 5.9px,
-        #2a2a2a 5.9px, #2a2a2a 6.4px,
-        rgba(0,0,0,0.6) 6.4px, rgba(0,0,0,0.6) 7px,
-        transparent 7.4px);
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='60' viewBox='0 0 46 60'%3E%3Crect width='3' height='60' fill='%23000' opacity='0.18'/%3E%3Ccircle cx='23' cy='0' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='23' cy='0' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='0' r='5' fill='%23ffffff'/%3E%3Ccircle cx='23' cy='0' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='23' cy='-0.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3Ccircle cx='23' cy='60' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='23' cy='60' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='60' r='5' fill='%23ffffff'/%3E%3Ccircle cx='23' cy='60' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='23' cy='59.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3C/svg%3E");
     background-size:46px 60px;
     background-repeat:repeat-y;
     background-position:0 0;
@@ -132,10 +131,26 @@
     box-shadow:inset 2px 0 5px rgba(0,0,0,0.38);
   }
 
-  /* (3) Wire “stubs” on TOP of each punch hole — small black discs that
-         sit on the white hole, making the wire appear to enter/exit each
-         hole. Slightly smaller than the hole so the white ring remains
-         visible around the stub. */
+  /* (3) Wire shadow on strip — soft shadow cast by each wire arch onto
+         the navy strip, just to the right of each hole. Suggests the wire
+         sits above the strip surface. */
+  .wire-shadow{
+    position:absolute;
+    z-index:6;
+    top:0; left:0;
+    width:46px;
+    height:100%;
+    pointer-events:none;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='60' viewBox='0 0 46 60'%3E%3Cellipse cx='32' cy='2' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3Cellipse cx='32' cy='58' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3C/svg%3E");
+    background-size:46px 60px;
+    background-repeat:repeat-y;
+    background-position:0 0;
+  }
+
+  /* (4) Wire “stubs” on TOP of each punch hole — small black discs that
+         sit on the dark hole center, making the wire appear to enter/exit
+         each hole. Slightly smaller than the dark center so the white rim
+         remains visible around the stub. */
   .spiral-front{
     position:absolute;
     z-index:11;
@@ -143,19 +158,14 @@
     width:46px;
     height:100%;
     pointer-events:none;
-    background-image:
-      radial-gradient(circle at 23px 0px,
-        #0a0a0a 0px, #0a0a0a 2.8px,
-        #2a2a2a 2.8px, #2a2a2a 3.3px,
-        #444444 3.3px, #444444 3.6px,
-        transparent 3.8px);
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='60' viewBox='0 0 46 60'%3E%3Ccircle cx='23' cy='0' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='0' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='22.5' cy='-0.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3Ccircle cx='23' cy='60' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='23' cy='60' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='22.5' cy='59.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3C/svg%3E");
     background-size:46px 60px;
     background-repeat:repeat-y;
     background-position:0 0;
   }
 
-  /* (4) Soft drop-shadow on the cream paper, immediately right of the
-         navy strip (starts at x=46, fades out by x=92). The shadow gives
+  /* (5) Soft drop-shadow on the cream paper, immediately right of the
+         navy strip (starts at x=46, fades out by x=110). The shadow gives
          the navy strip physical “thickness” so it reads as a raised spine. */
   .page-shadow{
     position:absolute;
@@ -175,6 +185,61 @@
       transparent 110px
     );
     border-radius:14px 0 0 14px;
+  }
+
+  /* (6) Page TOP edge — thin band showing page-stack thickness (3D block).
+         Lighter cream at the very top (edge of paper stack), with subtle
+         horizontal sheet lines, transitioning to the page color. A thin
+         shadow line at the bottom of the band creates the 3D fold. */
+  .page-top-edge{
+    position:absolute;
+    z-index:8;
+    top:0; left:0; right:0;
+    height:11px;
+    pointer-events:none;
+    background:
+      /* Subtle horizontal sheet lines (stacked pages) */
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(140,120,80,0.12) 2px,
+        rgba(140,120,80,0.12) 2.4px
+      ),
+      /* Base gradient: lighter at top (edge), transitioning to page color */
+      linear-gradient(
+        to bottom,
+        #fbf8ef 0%,
+        #f7f3e8 55%,
+        var(--paper) 100%
+      );
+    border-bottom:1px solid rgba(100,80,40,0.22);
+    box-shadow:0 1px 2px rgba(0,0,0,0.10);
+  }
+
+  /* (7) Page BOTTOM edge — mirror of top edge. */
+  .page-bottom-edge{
+    position:absolute;
+    z-index:8;
+    bottom:0; left:0; right:0;
+    height:11px;
+    pointer-events:none;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(140,120,80,0.12) 2px,
+        rgba(140,120,80,0.12) 2.4px
+      ),
+      linear-gradient(
+        to top,
+        #fbf8ef 0%,
+        #f7f3e8 55%,
+        var(--paper) 100%
+      );
+    border-top:1px solid rgba(100,80,40,0.22);
+    box-shadow:0 -1px 2px rgba(0,0,0,0.10);
   }
 
   /* Content wrapper sits above grid */
@@ -376,11 +441,20 @@
   <!-- Black wire arches BEHIND the strip (only right-bulging portion visible) -->
   <div class="spiral" aria-hidden="true"></div>
 
-  <!-- Navy binding strip with white punch holes -->
+  <!-- Navy binding strip with 3D punch holes -->
   <div class="binding-strip" aria-hidden="true"></div>
+
+  <!-- Soft shadow cast by each wire arch onto the navy strip -->
+  <div class="wire-shadow" aria-hidden="true"></div>
 
   <!-- Small black wire stubs ON TOP of each punch hole -->
   <div class="spiral-front" aria-hidden="true"></div>
+
+  <!-- Page-stack thickness: top edge (3D block effect) -->
+  <div class="page-top-edge" aria-hidden="true"></div>
+
+  <!-- Page-stack thickness: bottom edge (3D block effect) -->
+  <div class="page-bottom-edge" aria-hidden="true"></div>
 
   <div class="content">
 
