@@ -110,9 +110,11 @@
   }
 
   /* (2) Navy binding strip + D-shaped punch holes (per reference SVG).
-         Two holes per 70px tile, at x=32, aligned with the two wire rings:
-           - Upper hole at (32, 35.5) — center of upper ring (y=27–44)
-           - Bottom hole at (32, 42.5) — center of bottom ring (y=34–51)
+         FOUR holes per 70px tile, at x=32, aligned with wire entry/exit points:
+           - (32, 27) — upper ring ENTRY (top of upper arch)
+           - (32, 34) — bottom ring ENTRY (top of bottom arch)
+           - (32, 44) — upper ring EXIT → RIGHT extension comes OUT here
+           - (32, 51) — bottom ring EXIT → RIGHT extension comes OUT here
          Each hole = horizontal D-shaped slot:
            - Outer dark ellipse (depth shadow, low opacity)
            - WHITE rim ellipse (#ffffff = paper edge)
@@ -125,7 +127,7 @@
     height:100%;
     pointer-events:none;
     background-color:var(--navy);                 /* #15264d solid navy */
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='70'%20viewBox='0%200%2046%2070'%3E%3Crect%20width='3'%20height='70'%20fill='%23000'%20opacity='0.18'/%3E%3Cellipse%20cx='32'%20cy='35.5'%20rx='8.5'%20ry='5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='35.5'%20rx='7.5'%20ry='4'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='35.5'%20rx='6'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='42.5'%20rx='8.5'%20ry='5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='42.5'%20rx='7.5'%20ry='4'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='42.5'%20rx='6'%20ry='2.8'%20fill='%23000'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='70'%20viewBox='0%200%2046%2070'%3E%3Crect%20width='3'%20height='70'%20fill='%23000'%20opacity='0.18'/%3E%3Cellipse%20cx='32'%20cy='27'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='27'%20rx='6'%20ry='2.8'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='27'%20rx='4.5'%20ry='1.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='34'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='34'%20rx='6'%20ry='2.8'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='34'%20rx='4.5'%20ry='1.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='44'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='44'%20rx='6'%20ry='2.8'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='44'%20rx='4.5'%20ry='1.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='51'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='51'%20rx='6'%20ry='2.8'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='51'%20rx='4.5'%20ry='1.8'%20fill='%23000'/%3E%3C/svg%3E");
     background-size:46px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
@@ -133,10 +135,12 @@
     box-shadow:inset 2px 0 5px rgba(0,0,0,0.38);
   }
 
-  /* (3) Wire passing THROUGH each hole — small #111 dots at each hole center,
-         representing the wire's circular cross-section seen through the
-         punched hole. The BLACK void is visible around the dot, and the
-         WHITE rim frames the hole — matching the reference SVG design. */
+  /* (3) Wire passing THROUGH each hole — small #111 dots at all 4 hole
+         positions, representing the wire's circular cross-section seen
+         through each punched hole. The BLACK void is visible around each
+         dot, and the WHITE rim frames the hole. Both the entry (top) and
+         exit (bottom) holes show the wire passing through, so the RIGHT
+         extension appears to come OUT of the exit holes at y=44 and y=51. */
   .spiral-front{
     position:absolute;
     z-index:11;
@@ -144,7 +148,7 @@
     width:46px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='70'%20viewBox='0%200%2046%2070'%3E%3Ccircle%20cx='32'%20cy='35.5'%20r='2'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='42.5'%20r='2'%20fill='%23111'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='70'%20viewBox='0%200%2046%2070'%3E%3Ccircle%20cx='32'%20cy='27'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='34'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='44'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='51'%20r='1.8'%20fill='%23111'/%3E%3C/svg%3E");
     background-size:46px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
