@@ -67,41 +67,34 @@
   }
 
   /* ============================================================
-     LEFT-EDGE BINDING (matches reference image — 3D enhanced)
+     LEFT-EDGE BINDING (matches reference SVG)
        1) .spiral          — black wire using the user-provided SVG design.
-                            Wire bulges LEFT (visible loop on the navy strip)
-                            and extends RIGHT (onto the cream paper). Each tile
-                            contains TWO rings (front + back of the spiral wire)
-                            giving a 3D double-wire appearance. Enhanced with
-                            drop shadow + dark core + white metallic highlight.
-                            z-index=7 so wire is visible ON TOP of the navy strip.
-       2) .binding-strip  — solid navy vertical strip with 3D punch holes.
-                            Holes at x=32 (aligned with wire entry/exit).
-                            Each hole has a DARK CENTER (the visible “inside”
-                            of the cutout) surrounded by a WHITE RIM (paper
-                            edge) and an outer dark shadow ring.
-       3) .wire-shadow     — soft shadow cast by each wire arch onto the
-                            navy strip, near each hole.
-       4) .spiral-front    — small black wire “stubs” on TOP of each punch
-                            hole so the wire appears to enter/exit each hole.
-       5) .page-shadow     — soft drop-shadow cast onto the cream paper
-                            immediately right of the navy strip.
-       6) .page-top-edge  — thin band at TOP of page showing page-stack
-                            thickness (3D block effect).
-       7) .page-bottom-edge — thin band at BOTTOM of page showing stack
-                            thickness.
+                            Each tile contains TWO rings (upper + bottom)
+                            giving the 3D double-wire appearance.
+                            PLAIN #111 wire only — NO shadow, NO highlight.
+                            z-index=7 so wire renders ON TOP of the navy strip.
+       2) .binding-strip  — solid navy vertical strip with D-shaped punch
+                            holes (per reference SVG). Each hole has:
+                              - BLACK interior (#000) = the void
+                              - WHITE rim (#fff) = paper edge
+                            Two holes per 70px tile at x=32, aligned with
+                            the two rings.
+       3) .spiral-front    — wire segments crossing THROUGH each hole,
+                            showing the wire passing through the paper.
+       4) .page-shadow     — soft drop-shadow on cream paper right of the
+                            navy strip (gives the strip physical thickness).
+       5) .page-top-edge  — thin band at TOP showing page-stack thickness.
+       6) .page-bottom-edge — thin band at BOTTOM showing stack thickness.
      All binding elements sit OUTSIDE the content area (page has 92px
      left padding).
      ============================================================ */
 
-  /* (1) Black wire — user-provided SVG design with 3D depth.
+  /* (1) Black wire — user-provided SVG design, PLAIN #111 only.
          Each 90x70 tile contains TWO rings (upper + bottom) representing the
          front and back of the spiral wire (double-wire 3D view).
          Wire path: bulges LEFT to x=10 (visible loop on strip), entry/exit
          at x=32, extends RIGHT to x=82 (onto cream paper).
-         Layered strokes: drop shadow (7px) + body (#111, 4.5px) + dark core
-         (1.8px). No white highlight — matte black wire only.
-         z-index=7 so wire renders ON TOP of the navy strip (z=5). */
+         Single stroke per ring: #111, 4.5px. No shadow, no core, no highlight. */
   .spiral{
     position:absolute;
     z-index:7;                                    /* ON TOP of navy strip */
@@ -110,21 +103,20 @@
     width:90px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23000'%20stroke-width='7'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.4'%20transform='translate(1.8%202.5)'/%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23000'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.55'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23000'%20stroke-width='7'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.4'%20transform='translate(1.8%202.5)'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23000'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%20opacity='0.55'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
     background-position: 0 0;
     background-size: 90px 70px;
   }
 
-  /* (2) Navy binding strip + 3D punch holes (SVG background).
-         Holes at x=32 (aligned with wire entry/exit points in the SVG).
-         Each hole has:
-           - DARK CENTER (#0a0a0a) = visible “inside” of the cutout
-           - WHITE RIM (paper edge catching light)
-           - Dark outer shadow ring (depth)
-         Holes sit at tile boundaries (y=0 and y=70) so each circle is
-         formed by the bottom half of one tile + the top half of the next.
-         Tile height=70px matches the wire SVG tile height. */
+  /* (2) Navy binding strip + D-shaped punch holes (per reference SVG).
+         Two holes per 70px tile, at x=32, aligned with the two wire rings:
+           - Upper hole at (32, 35.5) — center of upper ring (y=27–44)
+           - Bottom hole at (32, 42.5) — center of bottom ring (y=34–51)
+         Each hole = horizontal D-shaped slot:
+           - Outer dark ellipse (depth shadow, low opacity)
+           - WHITE rim ellipse (#ffffff = paper edge)
+           - BLACK interior ellipse (#000 = the void) */
   .binding-strip{
     position:absolute;
     z-index:5;
@@ -133,7 +125,7 @@
     height:100%;
     pointer-events:none;
     background-color:var(--navy);                 /* #15264d solid navy */
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='70' viewBox='0 0 46 70'%3E%3Crect width='3' height='70' fill='%23000' opacity='0.18'/%3E%3Ccircle cx='32' cy='0' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='32' cy='0' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='0' r='5' fill='%23ffffff'/%3E%3Ccircle cx='32' cy='0' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='31.5' cy='-0.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3Ccircle cx='32' cy='70' r='6.5' fill='%23000' opacity='0.5'/%3E%3Ccircle cx='32' cy='70' r='5.8' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='70' r='5' fill='%23ffffff'/%3E%3Ccircle cx='32' cy='70' r='4' fill='%231a1a1a'/%3E%3Ccircle cx='31.5' cy='69.5' r='3.2' fill='%23333333' opacity='0.7'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='70'%20viewBox='0%200%2046%2070'%3E%3Crect%20width='3'%20height='70'%20fill='%23000'%20opacity='0.18'/%3E%3Cellipse%20cx='32'%20cy='35.5'%20rx='8.5'%20ry='5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='35.5'%20rx='7.5'%20ry='4'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='35.5'%20rx='6'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='32'%20cy='42.5'%20rx='8.5'%20ry='5'%20fill='%23000'%20opacity='0.3'/%3E%3Cellipse%20cx='32'%20cy='42.5'%20rx='7.5'%20ry='4'%20fill='%23ffffff'/%3E%3Cellipse%20cx='32'%20cy='42.5'%20rx='6'%20ry='2.8'%20fill='%23000'/%3E%3C/svg%3E");
     background-size:46px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
@@ -141,26 +133,10 @@
     box-shadow:inset 2px 0 5px rgba(0,0,0,0.38);
   }
 
-  /* (3) Wire shadow on strip — soft shadow cast by each wire arch onto
-         the navy strip, near each hole (at x=32, y=0 and y=70).
-         Suggests the wire sits above the strip surface. */
-  .wire-shadow{
-    position:absolute;
-    z-index:6;
-    top:0; left:0;
-    width:46px;
-    height:100%;
-    pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='70' viewBox='0 0 46 70'%3E%3Cellipse cx='32' cy='2' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3Cellipse cx='32' cy='68' rx='9' ry='3.5' fill='%23000' opacity='0.4'/%3E%3C/svg%3E");
-    background-size:46px 70px;
-    background-repeat:repeat-y;
-    background-position:0 0;
-  }
-
-  /* (4) Wire “stubs” on TOP of each punch hole — small black discs that
-         sit on the dark hole center (at x=32), making the wire appear to
-         enter/exit each hole. Slightly smaller than the dark center so
-         the white rim remains visible around the stub. */
+  /* (3) Wire passing THROUGH each hole — small #111 dots at each hole center,
+         representing the wire's circular cross-section seen through the
+         punched hole. The BLACK void is visible around the dot, and the
+         WHITE rim frames the hole — matching the reference SVG design. */
   .spiral-front{
     position:absolute;
     z-index:11;
@@ -168,7 +144,7 @@
     width:46px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='70' viewBox='0 0 46 70'%3E%3Ccircle cx='32' cy='0' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='0' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='31.5' cy='-0.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3Ccircle cx='32' cy='70' r='3.5' fill='%230a0a0a'/%3E%3Ccircle cx='32' cy='70' r='2.8' fill='%232a2a2a'/%3E%3Ccircle cx='31.5' cy='69.5' r='1.2' fill='%23555555' opacity='0.7'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='46'%20height='70'%20viewBox='0%200%2046%2070'%3E%3Ccircle%20cx='32'%20cy='35.5'%20r='2'%20fill='%23111'/%3E%3Ccircle%20cx='32'%20cy='42.5'%20r='2'%20fill='%23111'/%3E%3C/svg%3E");
     background-size:46px 70px;
     background-repeat:repeat-y;
     background-position:0 0;
@@ -448,16 +424,13 @@
   <!-- Inner paper shadow near binding -->
   <div class="page-shadow" aria-hidden="true"></div>
 
-  <!-- Black wire arches BEHIND the strip (only right-bulging portion visible) -->
+  <!-- Black double-ring wire (plain #111, no shadow/highlight) -->
   <div class="spiral" aria-hidden="true"></div>
 
-  <!-- Navy binding strip with 3D punch holes -->
+  <!-- Navy binding strip with D-shaped punch holes -->
   <div class="binding-strip" aria-hidden="true"></div>
 
-  <!-- Soft shadow cast by each wire arch onto the navy strip -->
-  <div class="wire-shadow" aria-hidden="true"></div>
-
-  <!-- Small black wire stubs ON TOP of each punch hole -->
+  <!-- Wire segments crossing THROUGH each punch hole -->
   <div class="spiral-front" aria-hidden="true"></div>
 
   <!-- Page-stack thickness: top edge (3D block effect) -->
