@@ -68,30 +68,23 @@
 
   /* ============================================================
      LEFT-EDGE BINDING (matches reference SVG)
-       1) .binding-strip  — thin navy spine on far-left edge (width=24px).
-                            Just the colored spine, NO holes on it.
-       2) .holes          — D-shaped punch holes on the CREAM PAPER at x=32.
-                            Four holes per 70px tile, aligned with wire
-                            entry/exit points. Dark outer ring + BLACK
-                            interior (the void). Sits on cream paper.
-       3) .spiral          — black wire using the user-provided SVG design.
+       1) .binding-strip  — thin navy spine on far-left edge (width=20px).
+                            Just the colored spine, NO holes.
+       2) .spiral          — black wire using the user-provided SVG design.
                             PLAIN #111 wire only — NO shadow, NO highlight.
-                            Wire bulges LEFT to x=10 (over the navy spine),
-                            entry/exit at x=32 (on cream paper), extends
-                            RIGHT to x=82 (onto cream paper).
-       4) .spiral-front    — wire dots at each hole center, showing wire
-                            passing through the holes on cream paper.
-       5) .page-shadow     — soft drop-shadow on cream paper right of the
+                            Wire shifted LEFT so entry/exit points land at
+                            page x=-22 (off the left edge). Only the RIGHT
+                            EXTENSION of the wire is visible on the page,
+                            emerging from the left edge.
+       3) .page-shadow     — soft drop-shadow on cream paper right of the
                             navy spine (gives the spine physical thickness).
-       6) .page-top-edge  — thin band at TOP showing page-stack thickness.
-       7) .page-bottom-edge — thin band at BOTTOM showing stack thickness.
+       4) .page-top-edge  — thin band at TOP showing page-stack thickness.
+       5) .page-bottom-edge — thin band at BOTTOM showing stack thickness.
      All binding elements sit OUTSIDE the content area (page has 92px
      left padding).
      ============================================================ */
 
-  /* (1) Thin navy spine on far-left edge (width=20px) — NO holes on it.
-         Narrowed so the wire's entry/exit points (at page x=22) land on
-         the cream paper, not on the navy spine. */
+  /* (1) Thin navy spine on far-left edge (width=20px) — NO holes. */
   .binding-strip{
     position:absolute;
     z-index:5;
@@ -104,43 +97,20 @@
     box-shadow:inset 2px 0 5px rgba(0,0,0,0.38);
   }
 
-  /* (2) D-shaped punch holes on CREAM PAPER at x=22 (where ring ends).
-         Four holes per 70px tile, aligned with wire entry/exit points:
-           - (22, 27) — upper ring ENTRY (top of upper arch)
-           - (22, 34) — bottom ring ENTRY (top of bottom arch)
-           - (22, 44) — upper ring EXIT → RIGHT extension comes OUT here
-           - (22, 51) — bottom ring EXIT → RIGHT extension comes OUT here
-         Each hole = horizontal D-shaped slot on cream paper:
-           - Outer dark ellipse (depth shadow, low opacity)
-           - BLACK interior ellipse (#000 = the void) */
-  .holes{
-    position:absolute;
-    z-index:4;
-    top:0; left:0;
-    width:80px;
-    height:100%;
-    pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='70'%20viewBox='0%200%2080%2070'%3E%3Cellipse%20cx='22'%20cy='27'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='22'%20cy='27'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='22'%20cy='34'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='22'%20cy='34'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='22'%20cy='44'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='22'%20cy='44'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3Cellipse%20cx='22'%20cy='51'%20rx='7'%20ry='3.5'%20fill='%23000'%20opacity='0.25'/%3E%3Cellipse%20cx='22'%20cy='51'%20rx='5.5'%20ry='2.8'%20fill='%23000'/%3E%3C/svg%3E");
-    background-size:80px 70px;
-    background-repeat:repeat-y;
-    background-position:0 0;
-  }
-
-  /* (3) Black wire — ORIGINAL user-provided SVG paths, shifted LEFT by 10px.
+  /* (2) Black wire — ORIGINAL user-provided SVG paths, shifted LEFT by 54px.
          The SVG paths are the exact original design:
            - Upper ring: M32 27 ... bulges LEFT to x=10 ... returns to x=32 ...
            - Bottom ring: M32 34 ... bulges LEFT to x=10 ... returns to x=32 ...
-         The background-position: -10px 0 shifts the entire SVG LEFT by 10px,
-         so the bulge apex (originally at x=10 in SVG coords) lands at
-         page x=0 — the ring STARTS where the blue strip starts.
-         The entry/exit points (originally at x=32) land at page x=22,
-         which is on the cream paper (past the 20px navy spine) — where
-         the ring ENDS and the hole is placed.
-         Element width=80px to show the full right extension (ends at page x=72).
+         The background-position: -54px 0 shifts the entire SVG LEFT by 54px:
+           - Bulge apex (SVG x=10) → page x=-44 (off-screen left)
+           - Entry/exit (SVG x=32) → page x=-22 (off-screen left) ✓
+           - Right extension ends (SVG x=82) → page x=28
+         Only the RIGHT EXTENSION of the wire is visible on the page,
+         emerging from the left edge (x=0 to x=28).
          Single stroke per ring: #111, 4.5px. No shadow, no core, no highlight. */
   .spiral{
     position:absolute;
-    z-index:7;                                    /* ON TOP of holes and spine */
+    z-index:7;                                    /* ON TOP of spine */
     top:0;
     left:0;
     width:80px;
@@ -148,26 +118,8 @@
     pointer-events:none;
     background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
-    background-position: -10px 0;                 /* shift SVG left by 10px */
+    background-position: -54px 0;                 /* shift SVG left by 54px */
     background-size: 90px 70px;
-  }
-
-  /* (4) Wire passing THROUGH each hole — small #111 dots at all 4 hole
-         positions (x=22) on the cream paper. The BLACK void is visible
-         around each dot. Both the entry (top) and exit (bottom) holes show
-         the wire passing through, so the RIGHT extension appears to come
-         OUT of the exit holes at y=44 and y=51. */
-  .spiral-front{
-    position:absolute;
-    z-index:11;
-    top:0; left:0;
-    width:80px;
-    height:100%;
-    pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='70'%20viewBox='0%200%2080%2070'%3E%3Ccircle%20cx='22'%20cy='27'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='22'%20cy='34'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='22'%20cy='44'%20r='1.8'%20fill='%23111'/%3E%3Ccircle%20cx='22'%20cy='51'%20r='1.8'%20fill='%23111'/%3E%3C/svg%3E");
-    background-size:80px 70px;
-    background-repeat:repeat-y;
-    background-position:0 0;
   }
 
   /* (5) Soft drop-shadow on the cream paper, immediately right of the
@@ -447,14 +399,8 @@
   <!-- Navy spine (thin, far-left edge, no holes) -->
   <div class="binding-strip" aria-hidden="true"></div>
 
-  <!-- D-shaped punch holes on cream paper at x=32 -->
-  <div class="holes" aria-hidden="true"></div>
-
-  <!-- Black double-ring wire (plain #111, no shadow/highlight) -->
+  <!-- Black double-ring wire (entry/exit shifted off-screen left, only right extension visible) -->
   <div class="spiral" aria-hidden="true"></div>
-
-  <!-- Wire dots crossing THROUGH each punch hole -->
-  <div class="spiral-front" aria-hidden="true"></div>
 
   <!-- Page-stack thickness: top edge (3D block effect) -->
   <div class="page-top-edge" aria-hidden="true"></div>
