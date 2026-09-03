@@ -124,24 +124,27 @@
     background-position:0 0;
   }
 
-  /* (3) Black wire — ring starts at x=0, hole at x=50.
-         Each 90x70 tile contains TWO rings (upper + bottom) representing the
-         front and back of the spiral wire (double-wire 3D view).
-         Wire path: starts at x=0 (far-left edge), bulges through hole at x=50,
-         extends RIGHT to x=82 (onto cream paper).
-         Single stroke per ring: #111, 4.5px. No shadow, no core, no highlight.
-         z-index=7 so wire renders ON TOP of holes and spine. */
+  /* (3) Black wire — ORIGINAL user-provided SVG paths, shifted right by 18px.
+         The SVG paths are the exact original design:
+           - Upper ring: M32 27 ... bulges LEFT to x=10 ... returns to x=32 ...
+           - Bottom ring: M32 34 ... bulges LEFT to x=10 ... returns to x=32 ...
+         The background-position: 18px 0 shifts the entire SVG right by 18px,
+         so the entry/exit points (originally at x=32 in SVG coords) land at
+         page x=50 (32+18) — aligned with the holes on the cream paper.
+         Element width=110px (wider than 90px SVG) so the right extension
+         (ending at x=82 in SVG coords = x=100 on page) is not clipped.
+         Single stroke per ring: #111, 4.5px. No shadow, no core, no highlight. */
   .spiral{
     position:absolute;
     z-index:7;                                    /* ON TOP of holes and spine */
     top:0;
     left:0;
-    width:90px;
+    width:110px;                                  /* wider to fit shifted SVG */
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M50%2027%20C40%2028%200%2032%200%2035%20C0%2040%2039%2043%2050%2044%20C60%2045%2075%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M50%2034%20C40%2035%200%2039%200%2042%20C0%2047%2039%2050%2050%2051%20C60%2052%2075%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
-    background-position: 0 0;
+    background-position: 18px 0;                  /* shift SVG right by 18px */
     background-size: 90px 70px;
   }
 
