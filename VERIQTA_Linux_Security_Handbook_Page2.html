@@ -122,29 +122,7 @@
     background-position:0 0;
   }
 
-  /* (4) Page fold with shadow strip — covers ONLY the start (left bulge) of
-         the wire ring, making it appear to tuck BEHIND the shadow. The wire
-         body remains visible.
-         Cream cover on the left (x=0-10), then a distinct dark shadow strip
-         (x=10-14) that the wire bulge disappears behind.
-         z-index=8 (above wire at z=7) so the bulge is hidden behind it. */
-  .page-fold-left{
-    position:absolute;
-    z-index:8;                                    /* above wire (z=7) */
-    top:0; left:0;
-    width:14px;                                   /* covers bulge + shadow edge */
-    height:100%;
-    pointer-events:none;
-    background:linear-gradient(
-      90deg,
-      var(--paper) 0%,                            /* cream cover */
-      var(--paper) 65%,                           /* solid cream until x=9 */
-      rgba(0,0,0,0.18) 78%,                      /* shadow starts */
-      rgba(0,0,0,0.35) 88%,                      /* darkest shadow */
-      rgba(0,0,0,0.12) 96%,                      /* shadow fades */
-      transparent 100%                            /* wire emerges visible */
-    );
-  }
+  /* (4) Page fold REMOVED — only the 3px left move is kept. */
 
   /* (5) Soft drop-shadow on the cream paper, near the binding area. */
   .page-shadow{
@@ -423,9 +401,6 @@
 
   <!-- Black double-ring wire (fully visible on cream paper) -->
   <div class="spiral" aria-hidden="true"></div>
-
-  <!-- Page fold covering ONLY the start (left bulge) of the wire -->
-  <div class="page-fold-left" aria-hidden="true"></div>
 
   <!-- Page-stack thickness: top edge (3D block effect) -->
   <div class="page-top-edge" aria-hidden="true"></div>
