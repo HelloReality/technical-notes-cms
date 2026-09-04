@@ -97,11 +97,11 @@
     box-shadow:inset 2px 0 5px rgba(0,0,0,0.38);
   }
 
-  /* (2) Black wire — both wire ends MERGE and FADE into the page.
-         Modified SVG paths so both right extensions converge to a single
-         merge point at (82, 41.5). A fade mask (linear gradient) makes the
-         wire fade from solid to transparent on the right side (x>49.5),
-         so the merged end dissolves into the cream paper.
+  /* (2) Black wire — ORIGINAL SVG paths (reverted, no merge/fade).
+         Both wire ends are obscured to give a continuous spiral feel:
+           - LEFT start (bulge): hidden BEHIND the page shadow at x=20
+           - RIGHT end: covered BY the hole at x=72.2
+         background-position: 11.5px 0 shifts wire right so bulge lands at x=20.
          Single stroke per ring: #111, 4.5px. No shadow, no highlight. */
   .spiral{
     position:absolute;
@@ -111,18 +111,18 @@
     width:76.5px;                                 /* 15% reduction (90 * 0.85) */
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cdefs%3E%3ClinearGradient%20id='fade'%20x1='0'%20y1='0'%20x2='1'%20y2='0'%3E%3Cstop%20offset='0%25'%20stop-color='%23fff'/%3E%3Cstop%20offset='55%25'%20stop-color='%23fff'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask%20id='m'%3E%3Crect%20width='90'%20height='70'%20fill='url(%23fade)'/%3E%3C/mask%3E%3C/defs%3E%3Cg%20mask='url(%23m)'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2043%2082%2041.5'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2047%2082%2041.5'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='4.5'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: repeat-y;
-    background-position: -8.5px 0;                 /* ring start at page x=0 */
+    background-position: 11.5px 0;                /* bulge at x=20 (behind shadow) */
     background-size: 76.5px 59.5px;                /* 15% reduction (90*0.85 x 70*0.85) */
   }
 
   /* (3) Punch hole — user-provided SVG hole design, single hole covering
-         BOTH wire right extension ends.
-         One hole per 59.5px tile at (61.2, 35.275) with radius 9:
+         BOTH wire right extension ends at x=72.2.
+         One hole per 59.5px tile at (72.2, 35.275) with radius 9:
            - Upper ring right end at y=32.3 (within radius)
            - Bottom ring right end at y=38.25 (within radius)
-         Both wire ends pass through the SAME hole.
+         Both wire ends pass through the SAME hole, giving a continuous feel.
          Uses the user's radial gradient (transparent left, 85% black on right). */
   .holes{
     position:absolute;
@@ -131,7 +131,7 @@
     width:76.5px;
     height:100%;
     pointer-events:none;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='76.5'%20height='59.5'%20viewBox='0%200%2076.5%2059.5'%3E%3Cdefs%3E%3CradialGradient%20id='h'%20cx='0%25'%20cy='45%25'%20r='105%25'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='22%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='48%25'%20stop-color='%23111'%20stop-opacity='.12'/%3E%3Cstop%20offset='63%25'%20stop-color='%23000'%20stop-opacity='.55'/%3E%3Cstop%20offset='76%25'%20stop-color='%23000'%20stop-opacity='.90'/%3E%3Cstop%20offset='85%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/radialGradient%3E%3ClinearGradient%20id='r'%20x1='0'%20y1='0'%20x2='1'%20y2='0'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='42%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='58%25'%20stop-color='%23000'%20stop-opacity='.25'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='.75'/%3E%3Cstop%20offset='82%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/linearGradient%3E%3CclipPath%20id='c1'%3E%3Ccircle%20cx='61.2'%20cy='35.275'%20r='9'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle%20cx='61.2'%20cy='35.275'%20r='9'%20fill='url(%23h)'/%3E%3Ccircle%20cx='61.2'%20cy='35.275'%20r='9'%20fill='url(%23r)'%20clip-path='url(%23c1)'/%3E%3Ccircle%20cx='61.2'%20cy='35.275'%20r='9'%20fill='none'%20stroke='%23000'%20stroke-width='0.5'%20opacity='.18'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='76.5'%20height='59.5'%20viewBox='0%200%2076.5%2059.5'%3E%3Cdefs%3E%3CradialGradient%20id='h'%20cx='0%25'%20cy='45%25'%20r='105%25'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='22%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='48%25'%20stop-color='%23111'%20stop-opacity='.12'/%3E%3Cstop%20offset='63%25'%20stop-color='%23000'%20stop-opacity='.55'/%3E%3Cstop%20offset='76%25'%20stop-color='%23000'%20stop-opacity='.90'/%3E%3Cstop%20offset='85%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/radialGradient%3E%3ClinearGradient%20id='r'%20x1='0'%20y1='0'%20x2='1'%20y2='0'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='42%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='58%25'%20stop-color='%23000'%20stop-opacity='.25'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='.75'/%3E%3Cstop%20offset='82%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/linearGradient%3E%3CclipPath%20id='c1'%3E%3Ccircle%20cx='72.2'%20cy='35.275'%20r='9'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle%20cx='72.2'%20cy='35.275'%20r='9'%20fill='url(%23h)'/%3E%3Ccircle%20cx='72.2'%20cy='35.275'%20r='9'%20fill='url(%23r)'%20clip-path='url(%23c1)'/%3E%3Ccircle%20cx='72.2'%20cy='35.275'%20r='9'%20fill='none'%20stroke='%23000'%20stroke-width='0.5'%20opacity='.18'/%3E%3C/svg%3E");
     background-size:76.5px 59.5px;
     background-repeat:repeat-y;
     background-position:0 0;
