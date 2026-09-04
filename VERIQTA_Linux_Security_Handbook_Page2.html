@@ -122,23 +122,27 @@
     background-position:0 0;
   }
 
-  /* (4) Page fold — covers ONLY the start (left bulge) of the wire ring,
-         giving the impression the wire starts from BEHIND the page fold.
-         A cream-colored strip with a soft shadow on the right edge,
-         creating a subtle page-fold effect. The rest of the wire is visible. */
+  /* (4) Page fold with shadow strip — covers ONLY the start (left bulge) of
+         the wire ring, making it appear to tuck BEHIND the shadow. The wire
+         body remains visible.
+         Cream cover on the left (x=0-10), then a distinct dark shadow strip
+         (x=10-14) that the wire bulge disappears behind.
+         z-index=8 (above wire at z=7) so the bulge is hidden behind it. */
   .page-fold-left{
     position:absolute;
     z-index:8;                                    /* above wire (z=7) */
     top:0; left:0;
-    width:9px;                                    /* covers bulge at x=5.5 */
+    width:14px;                                   /* covers bulge + shadow edge */
     height:100%;
     pointer-events:none;
     background:linear-gradient(
       90deg,
-      var(--paper) 0%,                            /* cream paper color */
-      var(--paper) 60%,
-      rgba(0,0,0,0.06) 85%,                       /* soft fold shadow */
-      transparent 100%
+      var(--paper) 0%,                            /* cream cover */
+      var(--paper) 65%,                           /* solid cream until x=9 */
+      rgba(0,0,0,0.18) 78%,                      /* shadow starts */
+      rgba(0,0,0,0.35) 88%,                      /* darkest shadow */
+      rgba(0,0,0,0.12) 96%,                      /* shadow fades */
+      transparent 100%                            /* wire emerges visible */
     );
   }
 
