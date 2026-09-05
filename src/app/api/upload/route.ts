@@ -88,6 +88,57 @@ export async function POST(request: NextRequest) {
 
       try {
         const zip = new AdmZip(tempZipPath);
+        // Security: validate each entry before extraction to prevent path traversal
+        const entries = zip.getEntries();
+        const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB per file
+        const MAX_TOTAL_SIZE = 200 * 1024 * 1024; // 200MB total
+        const DANGEROUS_EXTENSIONS = ['.exe', '.bat', '.cmd', '.sh', '.so', '.dll', '.dylib', '.app'];
+        
+        let totalSize = 0;
+        for (const entry of entries) {
+          const entryName = entry.entryName;
+          
+          // Prevent path traversal: reject entries with ../ or absolute paths
+          if (entryName.includes('..') || path.isAbsolute(entryName)) {
+            return NextResponse.json(
+              { success: false, error: `Security violation: path traversal detected in "${entryName}"` },
+              { status: 400 }
+            );
+          }
+          
+          // Prevent symlinks
+          if (entry.header.attributes & 0xA000) {
+            return NextResponse.json(
+              { success: false, error: `Security violation: symlink detected in "${entryName}"` },
+              { status: 400 }
+            );
+          }
+          
+          // Check file size
+          if (entry.header.size > MAX_FILE_SIZE) {
+            return NextResponse.json(
+              { success: false, error: `File too large: "${entryName}" exceeds 50MB limit` },
+              { status: 413 }
+            );
+          }
+          totalSize += entry.header.size;
+          if (totalSize > MAX_TOTAL_SIZE) {
+            return NextResponse.json(
+              { success: false, error: "ZIP contents exceed 200MB total limit (potential ZIP bomb)" },
+              { status: 413 }
+            );
+          }
+          
+          // Block dangerous file types
+          const lowerName = entryName.toLowerCase();
+          if (DANGEROUS_EXTENSIONS.some(ext => lowerName.endsWith(ext))) {
+            return NextResponse.json(
+              { success: false, error: `Blocked file type: "${entryName}"` },
+              { status: 400 }
+            );
+          }
+        }
+        
         zip.extractAllTo(targetDir, true);
       } finally {
         // Remove the zip after extraction

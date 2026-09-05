@@ -16,9 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Technical Notes — Knowledge Base CMS",
+  title: {
+    default: "Technical Notes — Knowledge Base",
+    template: "%s | Technical Notes",
+  },
   description:
-    "A curated knowledge base for cybersecurity, development, DevOps, cloud, and networking notes.",
+    "A curated, searchable knowledge base of technical notes covering cybersecurity, development, DevOps, cloud, networking, databases, and system design.",
   keywords: [
     "technical notes",
     "knowledge base",
@@ -26,9 +29,35 @@ export const metadata: Metadata = {
     "development",
     "devops",
     "cloud",
-    "CMS",
+    "networking",
+    "databases",
+    "system design",
+    "programming",
+    "operating systems",
   ],
   authors: [{ name: "Technical Notes" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    title: "Technical Notes — Knowledge Base",
+    description:
+      "A curated, searchable knowledge base of technical notes for engineers.",
+    siteName: "Technical Notes",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Technical Notes — Knowledge Base",
+    description:
+      "A curated, searchable knowledge base of technical notes for engineers.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export default function RootLayout({

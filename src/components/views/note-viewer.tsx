@@ -177,9 +177,10 @@ export function NoteViewer() {
               title={note.title}
               className="note-iframe min-h-[60vh]"
               src={note.contentPath}
-              // Allow same-origin so relative CSS/JS/image assets resolve
-              // against /uploads; sandbox is relaxed intentionally for trust.
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+              // Sandbox: allow-same-origin so relative CSS/image assets resolve,
+              // but DO NOT allow-scripts — uploaded HTML cannot execute JS,
+              // access cookies, localStorage, or modify the parent page.
+              sandbox="allow-same-origin allow-popups"
             />
           </div>
 

@@ -35,9 +35,8 @@ import { cn } from "@/lib/utils";
 export function SiteHeader() {
   const user = useAppStore((s) => s.user);
   const view = useAppStore((s) => s.view);
-  const openLoginModal = useAppStore((s) => s.openLoginModal);
-  const logout = useAppStore((s) => s.logout);
   const goHome = useAppStore((s) => s.goHome);
+  const logout = useAppStore((s) => s.logout);
   const goSearch = useAppStore((s) => s.goSearch);
   const goToDashboard = useAppStore((s) => s.goToDashboard);
   const searchQuery = useAppStore((s) => s.searchQuery);
@@ -153,7 +152,8 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-1.5 lg:ml-2">
           <ModeToggle />
 
-          {user ? (
+          {/* Admin controls — only visible when authenticated */}
+          {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="outline" className="gap-2">
@@ -193,15 +193,6 @@ export function SiteHeader() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Button
-              size="sm"
-              onClick={openLoginModal}
-              className="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-            >
-              <ShieldCheck className="size-4" />
-              <span className="hidden sm:inline">Admin</span>
-            </Button>
           )}
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -256,7 +247,7 @@ export function SiteHeader() {
                     />
                   </div>
                 </form>
-                {user ? (
+                {user && (
                   <>
                     <Button
                       variant="outline"
@@ -281,17 +272,6 @@ export function SiteHeader() {
                       Sign out
                     </Button>
                   </>
-                ) : (
-                  <Button
-                    className="mt-2 bg-emerald-600 text-white hover:bg-emerald-700"
-                    onClick={() => {
-                      openLoginModal();
-                      setMobileOpen(false);
-                    }}
-                  >
-                    <ShieldCheck className="size-4" />
-                    Admin Login
-                  </Button>
                 )}
               </div>
             </SheetContent>
