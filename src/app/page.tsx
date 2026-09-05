@@ -48,7 +48,8 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <SiteHeader />
+      {/* Hide global header/footer when in note-viewer (reader has its own top bar) */}
+      {effectiveView !== "note-viewer" && <SiteHeader />}
 
       <main className="flex flex-1 flex-col">
         {authLoading ? (
@@ -66,7 +67,7 @@ export default function Home() {
         )}
       </main>
 
-      <SiteFooter />
+      {effectiveView !== "note-viewer" && <SiteFooter />}
 
       {/* Admin login dialog — always mounted (accessible via Ctrl+Shift+A) */}
       <AdminLoginDialog />
