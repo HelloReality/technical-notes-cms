@@ -33,6 +33,20 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# database
+db/*.db
+db/*.db-journal
+
+# uploads (user-generated content)
+public/uploads/
+
+# agent context (internal work logs)
+agent-ctx/
+worklog.md
+exact_text/
+instagram_*/
+upload/
+
 # vercel
 .vercel
 
