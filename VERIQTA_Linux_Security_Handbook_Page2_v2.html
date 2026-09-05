@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERIQTA — Linux Security Handbook — Page 2 of 20</title>
+<style>
+  /* ============================================================
+     RESET & ROOT VARIABLES
+     ============================================================ */
+  :root{
+    --paper:#f5f1e8;          /* warm cream paper */
+    --paper-2:#efe9dd;
+    --grid-line:#bcc8d6;      /* faint graph paper grid */
+    --navy:#15264d;           /* primary dark navy */
+    --navy-2:#1e3160;
+    --ink:#1c1c1c;
+    --ink-2:#3a3f47;
+    --blue:#2563eb;
+    --blue-soft:#cfe0ff;      /* stronger pastel blue */
+    --green:#16a34a;
+    --green-soft:#cdf3da;     /* stronger pastel green */
+    --purple:#7c3aed;
+    --purple-soft:#e2d4ff;    /* stronger pastel purple */
+    --red:#dc2626;
+    --red-soft:#ffd4d4;       /* stronger pastel red */
+    --gold:#d4a017;
+    --gold-soft:#fce9b6;      /* stronger pastel gold */
+    --orange:#ef6c00;
+    --term-bg:#0d1117;
+    --term-fg:#e6edf3;
+    --watermark:rgba(21,38,77,0.055);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#cfc9bb;}
+  body{
+    font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    color:var(--ink);
+    display:flex;justify-content:center;align-items:flex-start;
+    padding:24px 12px;
+  }
+
+  /* ============================================================
+     PAGE / NOTEBOOK SHEET
+     ============================================================ */
+  .page{
+    position:relative;
+    width:1080px;              /* fixed design width */
+    background:var(--paper);
+    border-radius:14px;
+    box-shadow:0 22px 60px rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.06) inset;
+    overflow:hidden;
+    padding:42px 50px 26px 78px;  /* extra left padding for spiral binding */
+  }
+
+  /* Graph paper grid */
+  .page::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size:26px 26px;
+    opacity:.5;
+    pointer-events:none;
+    z-index:0;
+  }
+  /* Diagonal VERIQTA watermark - tiled across page */
+  .page::after{
+    content:"";
+    position:absolute;inset:-20%;
+    background-image:
+      repeating-linear-gradient(
+        -32deg,
+        transparent 0,
+        transparent 220px,
+        rgba(21,38,77,0.045) 220px,
+        rgba(21,38,77,0.045) 470px
+      );
+    pointer-events:none;
+    z-index:0;
+  }
+  .watermark-layer{
+    position:absolute;
+    top:0;left:0;right:0;bottom:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .watermark-layer span{
+    position:absolute;
+    font-size:120px;
+    font-weight:800;
+    letter-spacing:18px;
+    color:rgba(21,38,77,0.05);
+    transform:rotate(-32deg);
+    transform-origin:center;
+    white-space:nowrap;
+  }
+  .watermark-layer span:nth-child(1){top:8%;left:-10%;}
+  .watermark-layer span:nth-child(2){top:38%;left:30%;}
+  .watermark-layer span:nth-child(3){top:68%;left:-10%;}
+  .watermark-layer span:nth-child(4){top:90%;left:40%;}
+
+  /* Page bend shadow at the very left edge — simulates the page
+     curving down into the spiral binding gutter. */
+  .page-bend{
+    position:absolute;
+    z-index:1;
+    top:0;left:0;
+    width:18px;height:100%;
+    pointer-events:none;
+    background:linear-gradient(
+      90deg,
+      rgba(0,0,0,0.45) 0%,        /* darkest at very edge */
+      rgba(0,0,0,0.30) 3px,
+      rgba(0,0,0,0.18) 7px,
+      rgba(0,0,0,0.08) 12px,
+      rgba(0,0,0,0.03) 16px,
+      transparent 18px
+    );
+    border-radius:14px 0 0 14px;
+  }
+
+  /* Spiral binding on left edge - realistic coil (moved to very left) */
+  .spiral{
+    position:absolute;
+    left:0;top:18px;bottom:18px;
+    width:50px;
+    z-index:3;
+    pointer-events:none;
+    display:flex;flex-direction:column;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .coil{
+    width:42px;height:24px;
+    position:relative;
+  }
+  .coil::before{
+    content:"";
+    position:absolute;inset:0;
+    border:5px solid #151515;
+    border-bottom-color:#000;
+    border-radius:50%;
+    background:transparent;
+    box-shadow:
+      inset 0 -3px 4px rgba(0,0,0,0.45),
+      inset 0 2px 3px rgba(255,255,255,0.25),
+      1px 1px 1px rgba(0,0,0,0.3);
+  }
+  .coil::after{
+    content:"";
+    position:absolute;
+    left:6px;right:6px;bottom:-3px;height:9px;
+    background:linear-gradient(to bottom, rgba(0,0,0,0.35), transparent);
+    border-radius:50%;
+  }
+
+  /* Content wrapper sits above grid + watermark */
+  .content{position:relative;z-index:2;}
+
+  /* ============================================================
+     TOP STRIP — brand + badges
+     ============================================================ */
+  .top-strip{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:6px;
+  }
+  .brand{
+    font-size:14px;font-weight:700;letter-spacing:6px;
+    color:var(--navy);
+  }
+  .brand-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--navy);margin:0 6px 2px 0;vertical-align:middle;}
+
+  .badges{display:flex;gap:10px;}
+  .badge{
+    background:var(--navy);
+    color:#fff;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:1.6px;
+    padding:8px 16px;
+    border-radius:999px;
+    text-transform:uppercase;
+    box-shadow:0 2px 4px rgba(21,38,77,0.25);
+  }
+
+  /* ============================================================
+     TITLE BLOCK
+     ============================================================ */
+  .title-block{
+    margin:22px 0 6px 0;
+  }
+  .title{
+    font-size:46px;
+    line-height:1.04;
+    font-weight:800;
+    color:var(--navy);
+    letter-spacing:-0.6px;
+    text-transform:uppercase;
+  }
+  .title .num{color:var(--navy);}
+  .divider{
+    display:flex;align-items:center;
+    margin:14px 0 22px 0;
+  }
+  .divider .line{
+    flex:1;height:2px;background:var(--navy);
+  }
+  .divider .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--navy);margin:0 10px;
+  }
+
+  /* ============================================================
+     BODY — 2 column layout
+     ============================================================ */
+  .body{
+    display:grid;
+    grid-template-columns:1.85fr 1fr;
+    gap:24px;
+  }
+
+  /* LEFT — list of rows */
+  .rows{display:flex;flex-direction:column;gap:13px;}
+  .row{
+    display:grid;
+    grid-template-columns:58px 1fr;
+    gap:14px;
+    align-items:flex-start;
+    padding:10px 12px 10px 4px;
+    border-bottom:1px dashed rgba(22,38,77,0.18);
+  }
+  .row:last-child{border-bottom:none;}
+  .row .icon{
+    width:58px;height:58px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:13px;
+    background:#fff;
+    border:1px solid rgba(22,38,77,0.10);
+    box-shadow:0 2px 5px rgba(0,0,0,0.07);
+  }
+  .row .icon svg{width:36px;height:36px;display:block;}
+  .row .text{padding-top:2px;}
+  .row h3{
+    font-size:13.5px;
+    font-weight:800;
+    letter-spacing:0.7px;
+    color:var(--navy);
+    text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .row p{
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--ink-2);
+    font-weight:400;
+  }
+
+  /* Color tints per row icon background */
+  .bg-blue{background:var(--blue-soft)!important;}
+  .bg-green{background:var(--green-soft)!important;}
+  .bg-purple{background:var(--purple-soft)!important;}
+  .bg-red{background:var(--red-soft)!important;}
+  .bg-gold{background:var(--gold-soft)!important;}
+
+  /* RIGHT — sidebar boxes */
+  .sidebar{display:flex;flex-direction:column;gap:14px;}
+  .card{
+    background:#fff;
+    border-radius:14px;
+    border:1px solid rgba(22,38,77,0.10);
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    overflow:hidden;
+  }
+  .card .head{
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;font-weight:700;letter-spacing:1.4px;
+    text-transform:uppercase;
+    padding:9px 14px;
+  }
+  .card .body-pad{padding:12px 14px 14px 14px;}
+
+  /* file list rows in card 1 */
+  .file-row{
+    display:grid;grid-template-columns:30px 1fr;
+    gap:10px;align-items:center;
+    padding:6px 0;
+  }
+  .file-row + .file-row{border-top:1px solid rgba(22,38,77,0.07);}
+  .file-row .ficon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+  .file-row .ficon svg{width:24px;height:24px;}
+  .file-row .ftext{line-height:1.25;}
+  .file-row .fpath{font-size:12px;font-weight:700;color:var(--ink);font-family:"JetBrains Mono","Consolas",monospace;}
+  .file-row .fdesc{font-size:10.5px;color:var(--ink-2);}
+
+  .card .dashed{
+    border-top:1.5px dashed rgba(22,38,77,0.30);
+    margin:8px 0 8px 0;
+  }
+  .warn{
+    display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:center;
+    padding:6px 4px 0 4px;
+  }
+  .warn svg{width:22px;height:22px;}
+  .warn p{font-size:11px;color:var(--ink);font-weight:600;line-height:1.35;}
+
+  /* card 2 — commands */
+  .cmd-head-row{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 14px;background:#f4f1ea;border-bottom:1px solid rgba(22,38,77,0.08);
+  }
+  .term-pill{
+    display:inline-flex;align-items:center;
+    background:var(--term-bg);color:var(--term-fg);
+    font-family:"JetBrains Mono","Consolas",monospace;
+    font-size:11px;font-weight:700;
+    padding:3px 7px;border-radius:4px;
+  }
+  .term-pill .arrow{color:#7ee787;}
+  .cmd-head-row span.lbl{font-size:11px;color:var(--ink-2);font-weight:600;letter-spacing:.4px;}
+  .cmd-list{padding:6px 14px 12px 14px;display:flex;flex-direction:column;gap:6px;}
+  .cmd-row{display:grid;grid-template-columns:74px 1fr;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed rgba(22,38,77,0.10);}
+  .cmd-row:last-child{border-bottom:none;}
+  .cmd-row code{
+    font-family:"JetBrains Mono","Consolas",monospace;
+    font-size:12.5px;font-weight:700;
+    color:var(--navy);
+    background:#eef1f8;
+    border-radius:4px;padding:2px 6px;
+    display:inline-block;
+  }
+  .cmd-row span{font-size:11.5px;color:var(--ink-2);line-height:1.35;}
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .footer{
+    margin-top:26px;
+    padding-top:14px;
+    border-top:1.5px solid rgba(22,38,77,0.18);
+    text-align:center;
+  }
+  .footer .brand-bottom{
+    font-size:15px;font-weight:700;letter-spacing:6px;color:var(--navy);
+    margin-bottom:12px;
+  }
+  .socials{
+    display:flex;justify-content:center;gap:26px;flex-wrap:wrap;
+  }
+  .social{
+    display:flex;align-items:center;gap:7px;
+  }
+  .social .ic{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    box-shadow:0 2px 4px rgba(0,0,0,0.15);
+  }
+  .social .ic svg{width:18px;height:18px;fill:currentColor;}
+  .ic-yt{background:#ff0000;}
+  .ic-gh{background:#181717;}
+  .ic-li{background:#0a66c2;}
+  .ic-x{background:#000000;}
+  .ic-ig{background:linear-gradient(45deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888);}
+  .ic-tg{background:#26a5e4;}
+  .social .handle{font-size:12.5px;color:var(--ink-2);font-weight:600;}
+
+  /* ============================================================
+     PRINT / PDF
+     ============================================================ */
+  @page{
+    size:1080px 1353px;   /* matches design aspect ratio */
+    margin:0;
+  }
+  @media print{
+    html,body{background:#fff;padding:0;}
+    .page{
+      box-shadow:none;
+      border-radius:0;
+      width:1080px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Page bend shadow at the very left edge -->
+  <div class="page-bend" aria-hidden="true"></div>
+
+  <!-- Spiral binding - realistic coil -->
+  <div class="spiral" aria-hidden="true">
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+    <span class="coil"></span><span class="coil"></span><span class="coil"></span>
+  </div>
+
+  <!-- Diagonal VERIQTA watermark - tiled across page -->
+  <div class="watermark-layer" aria-hidden="true">
+    <span>VERIQTA</span>
+    <span>VERIQTA</span>
+    <span>VERIQTA</span>
+    <span>VERIQTA</span>
+  </div>
+
+  <div class="content">
+
+    <!-- TOP STRIP -->
+    <div class="top-strip">
+      <div class="brand"><span class="brand-dot"></span>VERIQTA</div>
+      <div class="badges">
+        <span class="badge">LINUX SECURITY HANDBOOK</span>
+        <span class="badge">PAGE 2 OF 20</span>
+      </div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="title-block">
+      <h1 class="title">2. USERS, GROUPS,<br>AND IDENTITY SECURITY</h1>
+    </div>
+    <div class="divider">
+      <span class="line"></span><span class="dot"></span><span class="line"></span>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <!-- LEFT COLUMN -->
+      <div class="rows">
+
+        <!-- Row 1 -->
+        <div class="row">
+          <div class="icon bg-blue">
+            <!-- Two people -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="8" r="3.4" fill="#2563eb"/>
+              <circle cx="15.5" cy="9" r="2.7" fill="#16a34a"/>
+              <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
+              <path d="M13.5 20c0-2.5 1.8-4.5 4-4.5s4 2 4 4.5" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>LOCAL USERS AND SYSTEM ACCOUNTS</h3>
+            <p>Linux uses local users and system accounts to manage access and ownership. System accounts usually have low UIDs and no login shell.</p>
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="row">
+          <div class="icon bg-blue">
+            <!-- File with label /etc/passwd -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 2.5h9l4 4v15h-13z" fill="#ffffff" stroke="#2563eb" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M15 2.5v4h4" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linejoin="round"/>
+              <line x1="8.5" y1="10" x2="16" y2="10" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="8.5" y1="12.8" x2="16" y2="12.8" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="8.5" y1="15.6" x2="13" y2="15.6" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round"/>
+              <rect x="6" y="18" width="13" height="3.5" rx="1" fill="#2563eb"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>/ETC/PASSWD</h3>
+            <p>Stores user account information including username, UID, GID, home directory, and default shell.</p>
+          </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="row">
+          <div class="icon bg-green">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 2.5h9l4 4v15h-13z" fill="#ffffff" stroke="#16a34a" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M15 2.5v4h4" fill="none" stroke="#16a34a" stroke-width="1.6" stroke-linejoin="round"/>
+              <rect x="8.5" y="9.4" width="7.5" height="2" rx="1" fill="#16a34a"/>
+              <rect x="8.5" y="12.4" width="7.5" height="2" rx="1" fill="#16a34a"/>
+              <rect x="8.5" y="15.4" width="4.5" height="2" rx="1" fill="#16a34a"/>
+              <rect x="6" y="18" width="13" height="3.5" rx="1" fill="#16a34a"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>/ETC/SHADOW</h3>
+            <p>Stores encrypted passwords and password aging information. Access is restricted to the root user.</p>
+          </div>
+        </div>
+
+        <!-- Row 4 -->
+        <div class="row">
+          <div class="icon bg-purple">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 2.5h9l4 4v15h-13z" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M15 2.5v4h4" fill="none" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round"/>
+              <line x1="8.5" y1="10" x2="16" y2="10" stroke="#7c3aed" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="8.5" y1="12.8" x2="16" y2="12.8" stroke="#7c3aed" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="8.5" y1="15.6" x2="13" y2="15.6" stroke="#7c3aed" stroke-width="1.4" stroke-linecap="round"/>
+              <rect x="6" y="18" width="13" height="3.5" rx="1" fill="#7c3aed"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>/ETC/GROUP</h3>
+            <p>Stores group information including GID and member list.</p>
+          </div>
+        </div>
+
+        <!-- Row 5 -->
+        <div class="row">
+          <div class="icon bg-blue">
+            <!-- Shield with person -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2 L20 5 V12 C20 17 16 20.5 12 22 C8 20.5 4 17 4 12 V5 Z"
+                    fill="#2563eb" stroke="#1e40af" stroke-width="1.2" stroke-linejoin="round"/>
+              <circle cx="12" cy="10.5" r="2.4" fill="#ffffff"/>
+              <path d="M8 17 c0-2.6 1.8-4.2 4-4.2 s4 1.6 4 4.2 z" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>UID AND GID SECURITY</h3>
+            <p>Every user and group has a unique UID and GID. Protect UID 0 (root) and other privileged IDs.</p>
+          </div>
+        </div>
+
+        <!-- Row 6 -->
+        <div class="row">
+          <div class="icon bg-gold">
+            <!-- Magnifying glass -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#e0a517" stroke-width="2.4"/>
+              <line x1="15.5" y1="15.5" x2="20" y2="20" stroke="#e0a517" stroke-width="2.6" stroke-linecap="round"/>
+              <circle cx="10.5" cy="10.5" r="3.2" fill="none" stroke="#e0a517" stroke-width="1.3"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>DETECTING UNEXPECTED ACCOUNTS</h3>
+            <p>Regularly check for unknown or suspicious user accounts and groups.</p>
+          </div>
+        </div>
+
+        <!-- Row 7 -->
+        <div class="row">
+          <div class="icon bg-red">
+            <!-- Padlock -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 10 V8 a5 5 0 0 1 10 0 V10" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round"/>
+              <rect x="5" y="10" width="14" height="10" rx="2.4" fill="#dc2626"/>
+              <circle cx="12" cy="14.5" r="1.5" fill="#ffffff"/>
+              <rect x="11.2" y="14.5" width="1.6" height="3" fill="#ffffff" rx="0.5"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>LOCKING AND DISABLING ACCOUNTS</h3>
+            <p>Lock or disable unused or compromised accounts to prevent unauthorized access.</p>
+          </div>
+        </div>
+
+        <!-- Row 8 -->
+        <div class="row">
+          <div class="icon bg-gold">
+            <!-- Crown -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 8 L7 13 L12 6 L17 13 L21 8 L19 18 H5 Z"
+                    fill="#e0a517" stroke="#a9780d" stroke-width="1.1" stroke-linejoin="round"/>
+              <circle cx="3" cy="8" r="1.3" fill="#a9780d"/>
+              <circle cx="12" cy="6" r="1.3" fill="#a9780d"/>
+              <circle cx="21" cy="8" r="1.3" fill="#a9780d"/>
+              <rect x="5" y="18.5" width="14" height="2" rx="0.5" fill="#a9780d"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>REVIEWING PRIVILEGED USERS</h3>
+            <p>Review users with UID 0 and sudo access. Limit privileged access to only what is necessary.</p>
+          </div>
+        </div>
+
+        <!-- Row 9 -->
+        <div class="row">
+          <div class="icon">
+            <!-- Terminal -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/>
+              <rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/>
+              <circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/>
+              <circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/>
+              <circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/>
+              <path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="text">
+            <h3>KEY MANAGEMENT COMMANDS</h3>
+            <p>Use Linux commands to inspect and manage users, groups, and account settings.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN — SIDEBAR -->
+      <div class="sidebar">
+
+        <!-- Card 1 — Key Account Files -->
+        <div class="card">
+          <div class="head">KEY ACCOUNT FILES</div>
+          <div class="body-pad">
+
+            <div class="file-row">
+              <div class="ficon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 2.5h9l4 4v15h-13z" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+                  <path d="M15 2.5v4h4" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+                  <line x1="8.5" y1="10" x2="16" y2="10" stroke="#2563eb" stroke-width="1.3"/>
+                  <line x1="8.5" y1="12.5" x2="16" y2="12.5" stroke="#2563eb" stroke-width="1.3"/>
+                  <line x1="8.5" y1="15" x2="13" y2="15" stroke="#2563eb" stroke-width="1.3"/>
+                </svg>
+              </div>
+              <div class="ftext">
+                <div class="fpath">/etc/passwd</div>
+                <div class="fdesc">User account information</div>
+              </div>
+            </div>
+
+            <div class="file-row">
+              <div class="ficon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 2.5h9l4 4v15h-13z" fill="#ffffff" stroke="#16a34a" stroke-width="1.5"/>
+                  <path d="M15 2.5v4h4" fill="none" stroke="#16a34a" stroke-width="1.5"/>
+                  <rect x="8.5" y="9.5" width="7.5" height="1.7" rx="0.8" fill="#16a34a"/>
+                  <rect x="8.5" y="12.2" width="7.5" height="1.7" rx="0.8" fill="#16a34a"/>
+                  <rect x="8.5" y="14.9" width="4.5" height="1.7" rx="0.8" fill="#16a34a"/>
+                </svg>
+              </div>
+              <div class="ftext">
+                <div class="fpath">/etc/shadow</div>
+                <div class="fdesc">Encrypted passwords and aging info</div>
+              </div>
+            </div>
+
+            <div class="file-row">
+              <div class="ficon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 2.5h9l4 4v15h-13z" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+                  <path d="M15 2.5v4h4" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+                  <line x1="8.5" y1="10" x2="16" y2="10" stroke="#7c3aed" stroke-width="1.3"/>
+                  <line x1="8.5" y1="12.5" x2="16" y2="12.5" stroke="#7c3aed" stroke-width="1.3"/>
+                  <line x1="8.5" y1="15" x2="13" y2="15" stroke="#7c3aed" stroke-width="1.3"/>
+                </svg>
+              </div>
+              <div class="ftext">
+                <div class="fpath">/etc/group</div>
+                <div class="fdesc">Group information and members</div>
+              </div>
+            </div>
+
+            <div class="dashed"></div>
+
+            <div class="warn">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2 L20 5 V12 C20 17 16 20.5 12 22 C8 20.5 4 17 4 12 V5 Z" fill="#2563eb"/>
+                <rect x="8.5" y="11.5" width="7" height="6" rx="1.5" fill="#ffffff"/>
+                <path d="M9.8 11.5 V9.5 a2.2 2.2 0 0 1 4.4 0 V11.5" fill="none" stroke="#ffffff" stroke-width="1.4"/>
+                <circle cx="12" cy="14.5" r="0.9" fill="#2563eb"/>
+              </svg>
+              <p>These files are critical for identity security. Protect them carefully.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Card 2 — Key Commands -->
+        <div class="card">
+          <div class="head">KEY COMMANDS</div>
+          <div class="cmd-head-row">
+            <span class="term-pill"><span class="arrow">&gt;_</span></span>
+            <span class="lbl">user &middot; group &middot; identity</span>
+          </div>
+          <div class="cmd-list">
+            <div class="cmd-row">
+              <code>id</code>
+              <span>Show user and group identity information</span>
+            </div>
+            <div class="cmd-row">
+              <code>getent</code>
+              <span>Query user and group database</span>
+            </div>
+            <div class="cmd-row">
+              <code>passwd</code>
+              <span>Manage user passwords</span>
+            </div>
+            <div class="cmd-row">
+              <code>usermod</code>
+              <span>Modify user account properties</span>
+            </div>
+            <div class="cmd-row">
+              <code>chage</code>
+              <span>Manage password aging and expiry</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="brand-bottom">VERIQTA</div>
+      <div class="socials">
+        <div class="social">
+          <span class="ic ic-yt">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="YouTube"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </span>
+          <span class="handle">@veriqta</span>
+        </div>
+        <div class="social">
+          <span class="ic ic-gh">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="GitHub"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          </span>
+          <span class="handle">@veriqta</span>
+        </div>
+        <div class="social">
+          <span class="ic ic-li">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="LinkedIn"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </span>
+          <span class="handle">@veriqta</span>
+        </div>
+        <div class="social">
+          <span class="ic ic-x">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="X"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/></svg>
+          </span>
+          <span class="handle">@veriqta</span>
+        </div>
+        <div class="social">
+          <span class="ic ic-ig">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="Instagram"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>
+          </span>
+          <span class="handle">@veriqta</span>
+        </div>
+        <div class="social">
+          <span class="ic ic-tg">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="Telegram"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          </span>
+          <span class="handle">@veriqta</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!--
+  ICON ATTRIBUTION
+  ----------------
+  Social media icons (YouTube, GitHub, LinkedIn, X, Instagram, Telegram)
+  sourced from Simple Icons (https://simpleicons.org) — CC0 1.0 Universal (Public Domain).
+  All other icons (file documents, shield, magnifier, padlock, crown, terminal, users)
+  are original vector illustrations created for this document.
+-->
+</body>
+</html>
