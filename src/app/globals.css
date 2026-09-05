@@ -120,3 +120,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Accent helpers — emerald used consistently across light/dark */
+.accent-text {
+  color: oklch(0.55 0.15 160);
+}
+.dark .accent-text {
+  color: oklch(0.78 0.15 162);
+}
+
+.accent-bg {
+  background-color: oklch(0.55 0.15 160);
+}
+.dark .accent-bg {
+  background-color: oklch(0.62 0.15 162);
+}
+
+.accent-ring {
+  box-shadow: 0 0 0 1px oklch(0.55 0.15 160 / 0.4);
+}
+
+/* Custom scrollbar for long lists */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 9999px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Iframe content sandbox: ensure uploaded HTML fills its container */
+.note-iframe {
+  width: 100%;
+  border: 0;
+  display: block;
+  background: #ffffff;
+}
