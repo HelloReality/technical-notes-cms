@@ -172,15 +172,51 @@ export function NoteViewer() {
             </div>
           </header>
 
-          <div className="overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm dark:bg-white">
+          <div className="overflow-x-auto overflow-y-hidden rounded-xl border border-border/60 bg-white shadow-sm dark:bg-white">
             <iframe
               title={note.title}
               className="note-iframe min-h-[60vh]"
               src={note.contentPath}
-              // Sandbox: allow-same-origin so relative CSS/image assets resolve,
-              // but DO NOT allow-scripts — uploaded HTML cannot execute JS,
-              // access cookies, localStorage, or modify the parent page.
               sandbox="allow-same-origin allow-popups"
+              onLoad={(e) => {
+                // Since we have allow-same-origin, we can access the iframe's
+                // document to inject padding so the spiral binding ring
+                // (which extends -30px outside the page) is not clipped.
+                try {
+                  const iframe = e.target as HTMLIFrameElement;
+                  const doc = iframe.contentDocument;
+                  if (!doc) return;
+                  const style = doc.createElement("style");
+                  style.textContent = `
+                    body {
+                      justify-content: flex-start !important;
+                      padding-left: 42px !important;
+                      padding-right: 14px !important;
+                    }
+                    @media (max-width: 1120px) {
+                      html { overflow-x: auto; }
+                    }
+                  `;
+                  doc.head.appendChild(style);
+                  // Auto-resize iframe height to fit content
+                  const resize = () => {
+                    const body = doc.body;
+                    const html = doc.documentElement;
+                    const height = Math.max(
+                      body.scrollHeight,
+                      body.offsetHeight,
+                      html.scrollHeight,
+                      html.offsetHeight
+                    );
+                    iframe.style.height = `${height + 20}px`;
+                  };
+                  resize();
+                  setTimeout(resize, 500);
+                  setTimeout(resize, 1500);
+                } catch {
+                  // Cross-origin or sandbox restriction — ignore
+                }
+              }}
             />
           </div>
 
