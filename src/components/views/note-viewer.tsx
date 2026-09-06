@@ -12,12 +12,19 @@ import {
   ExternalLink,
   FileImage,
   FileText,
+  Folder,
+  FolderOpen,
+  Grid2x2,
   Home,
+  List,
   Maximize,
-  Menu,
   Minimize,
-  MoreVertical,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Share2,
+  Tag,
   X,
   ZoomIn,
   ZoomOut,
@@ -29,100 +36,94 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAppStore } from "@/lib/store";
 import { fromNow, formatDateTime } from "@/lib/format";
-import type { Note } from "@/lib/types";
+import type { Note, Category } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type SidebarMode = "tile" | "list";
+type SidebarMode = "list" | "tile";
 
-// ─── Animation variants ───────────────────────────────────────
-const drawerVariants = {
-  hidden: { x: "-100%", opacity: 0 },
-  visible: { x: 0, opacity: 1, transition: { type: "spring", damping: 30, stiffness: 300 } },
-  exit: { x: "-100%", opacity: 0, transition: { duration: 0.2 } },
-};
+// ─── Tree node for Category → Topic → Pages ───────────────────
+interface TreeNode {
+  category: Category;
+  topics: { category: Category; notes: Note[] }[];
+  notes: Note[]; // direct notes (no subcategory)
+}
 
-const actionsVariants = {
-  hidden: { x: 20, opacity: 0, scale: 0.95 },
-  visible: { x: 0, opacity: 1, scale: 1, transition: { type: "spring", damping: 25, stiffness: 300 } },
-  exit: { x: 20, opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
-};
+function buildTree(categories: Category[], notes: Note[]): TreeNode[] {
+  const topLevel = categories.filter((c) => !c.parentId);
+  return topLevel.map((cat) => {
+    const topics = categories
+      .filter((c) => c.parentId === cat.id)
+      .map((sub) => ({
+        category: sub,
+        notes: notes
+          .filter((n) => n.categoryId === sub.id)
+          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
+      }))
+      .filter((t) => t.notes.length > 0);
+    const directNotes = notes
+      .filter((n) => n.categoryId === cat.id)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    return { category: cat, topics, notes: directNotes };
+  }).filter((n) => n.topics.length > 0 || n.notes.length > 0);
+}
 
-const toolbarVariants = {
-  hidden: { y: -20, opacity: 0, scale: 0.95 },
-  visible: { y: 0, opacity: 1, scale: 1, transition: { type: "spring", damping: 25, stiffness: 300 } },
-  exit: { y: -20, opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
-};
-
-const collapsedHandleVariants = {
-  hidden: { y: -10, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { delay: 0.1, duration: 0.2 } },
-  exit: { y: -10, opacity: 0, transition: { duration: 0.1 } },
-};
-
-const pageTransition = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.15, ease: "easeIn" } },
-};
-
-const tileVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: (i: number) => ({
-    opacity: 1,
-    scale: 1,
-    transition: { delay: i * 0.04, duration: 0.2, ease: "easeOut" },
-  }),
-};
-
-const listItemVariants = {
-  hidden: { opacity: 0, x: -10 },
-  visible: (i: number) => ({
-    opacity: 1,
-    x: 0,
-    transition: { delay: i * 0.03, duration: 0.15, ease: "easeOut" },
-  }),
-};
-
-const backdropVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, transition: { duration: 0.15 } },
-};
-
-// ─── Main NoteViewer ───────────────────────────────────────────
+// ─── Main NoteViewer ──────────────────────────────────────────
 export function NoteViewer() {
   const note = useAppStore((s) => s.selectedNote);
   const loading = useAppStore((s) => s.noteLoading);
   const allNotes = useAppStore((s) => s.notes);
+  const allCategories = useAppStore((s) => s.categories);
   const openNote = useAppStore((s) => s.openNote);
   const goHome = useAppStore((s) => s.goHome);
 
-  // State
+  // Sidebar state
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
+  const [sidebarMode, setSidebarMode] = React.useState<SidebarMode>("list");
+  const [expandedCats, setExpandedCats] = React.useState<Set<string>>(new Set());
+  const [expandedTopics, setExpandedTopics] = React.useState<Set<string>>(new Set());
+  const [sidebarSearch, setSidebarSearch] = React.useState("");
+
+  // Right panel
+  const [rightPanelOpen, setRightPanelOpen] = React.useState(true);
+
+  // Top toolbar
   const [toolbarExpanded, setToolbarExpanded] = React.useState(true);
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [actionsOpen, setActionsOpen] = React.useState(false);
-  const [downloadOpen, setDownloadOpen] = React.useState(false);
-  const [zoomPresetsOpen, setZoomPresetsOpen] = React.useState(false);
-  const [pageViewMode, setPageViewMode] = React.useState<SidebarMode>("tiles");
-  const [isFullscreen, setIsFullscreen] = React.useState(false);
-  const [copied, setCopied] = React.useState(false);
   const [zoom, setZoom] = React.useState(1);
   const [zoomMode, setZoomMode] = React.useState<"fit" | "manual">("fit");
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const [downloadOpen, setDownloadOpen] = React.useState(false);
+  const [zoomPresetsOpen, setZoomPresetsOpen] = React.useState(false);
   const [pageInputValue, setPageInputValue] = React.useState("");
   const [pageInputFocused, setPageInputFocused] = React.useState(false);
-  const [isNavigating, setIsNavigating] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const downloadRef = React.useRef<HTMLDivElement>(null);
   const zoomRef = React.useRef<HTMLDivElement>(null);
 
-  // Pages
+  // ─── Build navigation tree ─────────────────────────────────
+  const tree = React.useMemo(() => buildTree(allCategories, allNotes), [allCategories, allNotes]);
+
+  // ─── Current page context ──────────────────────────────────
+  // Find all pages in the same category tree (for multi-page nav)
   const pages = React.useMemo(() => {
     if (!note) return [];
+    // Find the category this note belongs to
+    const noteCat = allCategories.find((c) => c.id === note.categoryId);
+    if (!noteCat) return [note];
+    // If it's a subcategory, get all notes in that subcategory
+    if (noteCat.parentId) {
+      return allNotes
+        .filter((n) => n.categoryId === noteCat.id)
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
+    // If it's a top-level category, get all notes in that category AND its subcategories
+    const subCatIds = allCategories.filter((c) => c.parentId === noteCat.id).map((c) => c.id);
     return allNotes
-      .filter((n) => n.categoryId === note.categoryId)
+      .filter((n) => n.categoryId === noteCat.id || subCatIds.includes(n.categoryId))
       .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  }, [allNotes, note]);
+  }, [allNotes, allCategories, note]);
 
   const currentIndex = React.useMemo(() => {
     if (!note) return -1;
@@ -133,44 +134,83 @@ export function NoteViewer() {
   const prevPage = currentIndex > 0 ? pages[currentIndex - 1] : null;
   const nextPage = currentIndex < totalPages - 1 ? pages[currentIndex + 1] : null;
 
+  // Related notes (same category, different page, or shared tags)
+  const relatedNotes = React.useMemo(() => {
+    if (!note) return [];
+    return allNotes
+      .filter((n) =>
+        n.id !== note.id &&
+        (n.categoryId === note.categoryId ||
+          n.tags?.some((t) => note.tags?.some((nt) => nt.id === t.id)))
+      )
+      .slice(0, 5);
+  }, [allNotes, note]);
+
+  // ─── Auto-expand the active category/topic ─────────────────
+  React.useEffect(() => {
+    if (!note) return;
+    const noteCat = allCategories.find((c) => c.id === note.categoryId);
+    if (!noteCat) return;
+    const parentId = noteCat.parentId ?? noteCat.id;
+    setExpandedCats((prev) => new Set([...prev, parentId]));
+    if (noteCat.parentId) {
+      setExpandedTopics((prev) => new Set([...prev, noteCat.id]));
+    }
+  }, [note, allCategories]);
+
+  // ─── Handlers ──────────────────────────────────────────────
   const handleNavigate = React.useCallback((page: Note) => {
-    setIsNavigating(true);
     openNote(page);
-    setDrawerOpen(false);
-    setTimeout(() => setIsNavigating(false), 400);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setMobileSidebarOpen(false);
+    }
   }, [openNote]);
 
-  // Fit-to-view
+  const toggleCat = (id: string) => {
+    setExpandedCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleTopic = (id: string) => {
+    setExpandedTopics((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // ─── Fit-to-view zoom ──────────────────────────────────────
   const computeFitScale = React.useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    const w = el.clientWidth - 64;
+    const w = el.clientWidth - (sidebarCollapsed ? 64 : 300) - 48;
     if (w <= 0) return;
-    const fit = Math.min(w / 1136, 1);
-    setZoom(Math.max(0.25, fit));
-  }, []);
+    setZoom(Math.max(0.25, Math.min(w / 1136, 1)));
+  }, [sidebarCollapsed]);
 
   React.useEffect(() => {
     if (zoomMode === "fit") {
-      const t = setTimeout(computeFitScale, 50);
+      const t = setTimeout(computeFitScale, 80);
       return () => clearTimeout(t);
     }
-  }, [note, zoomMode, computeFitScale, drawerOpen]);
+  }, [note, zoomMode, computeFitScale, sidebarCollapsed]);
 
   React.useEffect(() => {
     if (zoomMode !== "fit") return;
-    const handler = () => computeFitScale();
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
+    const h = () => computeFitScale();
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
   }, [zoomMode, computeFitScale]);
 
-  // Fullscreen
+  // ─── Fullscreen ─────────────────────────────────────────────
   const toggleFullscreen = React.useCallback(() => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
+    if (!document.fullscreenElement) containerRef.current?.requestFullscreen?.();
+    else document.exitFullscreen?.();
   }, []);
 
   React.useEffect(() => {
@@ -179,7 +219,7 @@ export function NoteViewer() {
     return () => document.removeEventListener("fullscreenchange", h);
   }, []);
 
-  // Close popovers on outside click
+  // ─── Close popovers on outside click ───────────────────────
   React.useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (downloadOpen && downloadRef.current && !downloadRef.current.contains(e.target as Node)) setDownloadOpen(false);
@@ -189,20 +229,18 @@ export function NoteViewer() {
     return () => document.removeEventListener("mousedown", handler);
   }, [downloadOpen, zoomPresetsOpen]);
 
-  // Keyboard
+  // ─── Keyboard shortcuts ────────────────────────────────────
   React.useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const isTyping = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
 
       if (e.key === "Escape") {
-        if (drawerOpen) { setDrawerOpen(false); return; }
+        if (mobileSidebarOpen) { setMobileSidebarOpen(false); return; }
         if (downloadOpen) { setDownloadOpen(false); return; }
-        if (actionsOpen) { setActionsOpen(false); return; }
         if (zoomPresetsOpen) { setZoomPresetsOpen(false); return; }
         setToolbarExpanded(false);
       }
-
       if ((e.ctrlKey || e.metaKey) && (e.key === "+" || e.key === "=")) {
         e.preventDefault(); setZoomMode("manual"); setZoom(z => Math.min(4, z + 0.1)); return;
       }
@@ -213,14 +251,14 @@ export function NoteViewer() {
         e.preventDefault(); setZoomMode("fit"); computeFitScale(); return;
       }
       if (isTyping) return;
-      if (e.key === "ArrowLeft" && !drawerOpen && prevPage) { e.preventDefault(); handleNavigate(prevPage); }
-      if (e.key === "ArrowRight" && !drawerOpen && nextPage) { e.preventDefault(); handleNavigate(nextPage); }
+      if (e.key === "ArrowLeft" && !mobileSidebarOpen && prevPage) { e.preventDefault(); handleNavigate(prevPage); }
+      if (e.key === "ArrowRight" && !mobileSidebarOpen && nextPage) { e.preventDefault(); handleNavigate(nextPage); }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [drawerOpen, downloadOpen, actionsOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, computeFitScale]);
+  }, [mobileSidebarOpen, downloadOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, computeFitScale]);
 
-  // Iframe load
+  // ─── Iframe load ───────────────────────────────────────────
   const handleIframeLoad = React.useCallback((e: React.SyntheticEvent<HTMLIFrameElement>) => {
     try {
       const iframe = e.currentTarget;
@@ -252,15 +290,11 @@ export function NoteViewer() {
     });
   };
 
-  // Render
+  // ─── Render ────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-800">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-        >
+      <div className="flex h-screen items-center justify-center bg-slate-900">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
           <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
         </motion.div>
       </div>
@@ -269,452 +303,550 @@ export function NoteViewer() {
 
   if (!note) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-800 text-center text-slate-200"
-      >
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", damping: 20, stiffness: 200 }}
-          className="flex size-16 items-center justify-center rounded-full bg-slate-700"
-        >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-900 text-center text-slate-200">
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 20, stiffness: 200 }}
+          className="flex size-16 items-center justify-center rounded-full bg-slate-800">
           <Home className="size-8 text-slate-400" />
         </motion.div>
-        <div>
-          <h2 className="text-xl font-bold text-white">Note not found</h2>
-          <p className="mt-1 text-sm text-slate-400">The note doesn't exist or is no longer published.</p>
-        </div>
-        <Button onClick={goHome} className="gap-2">
-          <Home className="size-4" /> Browse all notes
-        </Button>
+        <h2 className="text-xl font-bold text-white">Note not found</h2>
+        <p className="text-sm text-slate-400">The note doesn't exist or is no longer published.</p>
+        <Button onClick={goHome} className="gap-2"><Home className="size-4" /> Browse all notes</Button>
       </motion.div>
     );
   }
 
   const zoomLabel = zoomMode === "fit" ? "Fit" : `${Math.round(zoom * 100)}%`;
 
+  // Filter tree by search
+  const filteredTree = sidebarSearch.trim()
+    ? tree.map((node) => {
+        const q = sidebarSearch.toLowerCase();
+        const topics = node.topics.map((t) => ({
+          ...t,
+          notes: t.notes.filter((n) => n.title.toLowerCase().includes(q)),
+        })).filter((t) => t.notes.length > 0);
+        const notes = node.notes.filter((n) => n.title.toLowerCase().includes(q));
+        return { ...node, topics, notes };
+      }).filter((n) => n.topics.length > 0 || n.notes.length > 0)
+    : tree;
+
   return (
-    <div ref={containerRef} className="relative h-screen w-full overflow-hidden bg-slate-800">
-      {/* ═══ Document Viewer ═══ */}
-      <div className="absolute inset-0 overflow-auto">
-        <div className="flex min-h-full items-start justify-center p-4 pt-16 sm:p-8 sm:pt-16">
-          <AnimatePresence mode="wait">
+    <div ref={containerRef} className="flex h-screen w-full overflow-hidden bg-slate-900 text-slate-100">
+      {/* ═══ Left Sidebar (desktop: collapsible inline, mobile: drawer) ═══ */}
+      {/* Mobile backdrop */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setMobileSidebarOpen(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Desktop sidebar */}
+      <motion.aside
+        animate={{ width: sidebarCollapsed ? 0 : 280 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        className="relative z-30 hidden shrink-0 overflow-hidden border-r border-slate-800 bg-slate-950 md:block"
+      >
+        <SidebarContent
+          tree={filteredTree}
+          note={note}
+          expandedCats={expandedCats}
+          expandedTopics={expandedTopics}
+          toggleCat={toggleCat}
+          toggleTopic={toggleTopic}
+          onNavigate={handleNavigate}
+          sidebarMode={sidebarMode}
+          setSidebarMode={setSidebarMode}
+          sidebarSearch={sidebarSearch}
+          setSidebarSearch={setSidebarSearch}
+          goHome={goHome}
+        />
+      </motion.aside>
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <motion.aside
+            initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-[320px] overflow-hidden border-r border-slate-800 bg-slate-950 md:hidden"
+          >
+            <SidebarContent
+              tree={filteredTree}
+              note={note}
+              expandedCats={expandedCats}
+              expandedTopics={expandedTopics}
+              toggleCat={toggleCat}
+              toggleTopic={toggleTopic}
+              onNavigate={handleNavigate}
+              sidebarMode={sidebarMode}
+              setSidebarMode={setSidebarMode}
+              sidebarSearch={sidebarSearch}
+              setSidebarSearch={setSidebarSearch}
+              goHome={goHome}
+            />
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* ═══ Main Reading Area ═══ */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* ─── Top Bar ─── */}
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-slate-800 bg-slate-950/80 px-3 backdrop-blur-md">
+          {/* Sidebar toggle (desktop) / Open drawer (mobile) */}
+          <Button variant="ghost" size="icon" className="size-8 shrink-0 text-slate-400 hover:text-slate-200"
+            onClick={() => {
+              if (window.innerWidth >= 768) setSidebarCollapsed(!sidebarCollapsed);
+              else setMobileSidebarOpen(true);
+            }} title="Toggle navigation">
+            {sidebarCollapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+          </Button>
+
+          {/* Home */}
+          <Button variant="ghost" size="icon" className="size-8 shrink-0 text-slate-400 hover:text-slate-200"
+            onClick={goHome} title="Home">
+            <Home className="size-4" />
+          </Button>
+
+          {/* Breadcrumb */}
+          <div className="hidden min-w-0 flex-1 items-center gap-1.5 text-xs text-slate-400 sm:flex">
+            {note.category && <span className="truncate">{note.category.name}</span>}
+            <ChevronRight className="size-3 shrink-0 text-slate-600" />
+            <span className="truncate text-slate-200">{note.title}</span>
+            {totalPages > 1 && <span className="ml-1 text-slate-500">· {currentIndex + 1}/{totalPages}</span>}
+          </div>
+          <div className="flex-1 sm:hidden" />
+
+          {/* Right panel toggle */}
+          <Button variant="ghost" size="icon" className="size-8 shrink-0 text-slate-400 hover:text-slate-200"
+            onClick={() => setRightPanelOpen(!rightPanelOpen)} title="Toggle info panel">
+            {rightPanelOpen ? <PanelRightClose className="size-4" /> : <PanelRightOpen className="size-4" />}
+          </Button>
+
+          {/* Fullscreen */}
+          <Button variant="ghost" size="icon" className="size-8 shrink-0 text-slate-400 hover:text-slate-200"
+            onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}>
+            {isFullscreen ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
+          </Button>
+        </div>
+
+        {/* ─── Floating Toolbar (zoom, nav, download) ─── */}
+        <AnimatePresence>
+          {toolbarExpanded && (
             <motion.div
-              key={note.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="overflow-x-auto rounded-xl bg-white shadow-2xl"
+              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="pointer-events-none absolute left-1/2 top-14 z-20 -translate-x-1/2"
+            >
+              <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
+                {/* Download */}
+                <div className="relative" ref={downloadRef}>
+                  <Button variant="ghost" size="icon" className={cn("size-7 rounded-full text-slate-400 hover:text-slate-200", downloadOpen && "bg-slate-700")}
+                    onClick={() => setDownloadOpen(!downloadOpen)} title="Export">
+                    <Download className="size-3.5" />
+                  </Button>
+                  <AnimatePresence>
+                    {downloadOpen && (
+                      <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 top-full mt-2 w-48 rounded-lg border border-slate-700 bg-slate-800 p-1 shadow-xl">
+                        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Current Page</div>
+                        {["PNG", "JPEG", "PDF"].map(fmt => (
+                          <button key={fmt} onClick={() => setDownloadOpen(false)} className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-300 hover:bg-slate-700">
+                            <FileImage className="size-3.5 text-slate-500" /> {fmt}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <Sep />
+                {/* Nav */}
+                <Button variant="ghost" size="icon" disabled={!prevPage} className="size-7 rounded-full text-slate-400 hover:text-slate-200"
+                  onClick={() => prevPage && handleNavigate(prevPage)} title="Previous (←)">
+                  <ChevronLeft className="size-3.5" />
+                </Button>
+                <span className="min-w-[3rem] text-center text-xs font-mono text-slate-400">{currentIndex + 1}/{totalPages}</span>
+                <Button variant="ghost" size="icon" disabled={!nextPage} className="size-7 rounded-full text-slate-400 hover:text-slate-200"
+                  onClick={() => nextPage && handleNavigate(nextPage)} title="Next (→)">
+                  <ChevronRight className="size-3.5" />
+                </Button>
+                <Sep />
+                {/* Zoom */}
+                <Button variant="ghost" size="icon" className="size-7 rounded-full text-slate-400 hover:text-slate-200"
+                  onClick={() => { setZoomMode("manual"); setZoom(Math.max(0.25, zoom - 0.1)); }} title="Zoom out">
+                  <ZoomOut className="size-3.5" />
+                </Button>
+                <div className="relative" ref={zoomRef}>
+                  <button className="h-6 min-w-[44px] rounded border border-transparent bg-slate-700 px-1 text-center text-xs font-mono text-slate-300 hover:border-slate-600"
+                    onClick={() => setZoomPresetsOpen(!zoomPresetsOpen)}>{zoomLabel}</button>
+                  <AnimatePresence>
+                    {zoomPresetsOpen && (
+                      <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-1/2 top-full mt-2 w-32 -translate-x-1/2 rounded-lg border border-slate-700 bg-slate-800 p-1 shadow-xl">
+                        <button onClick={() => { setZoomMode("fit"); computeFitScale(); setZoomPresetsOpen(false); }}
+                          className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs text-slate-300 hover:bg-slate-700">
+                          <Maximize className="size-3" /> Fit
+                        </button>
+                        <div className="my-1 h-px bg-slate-700" />
+                        {["50%", "75%", "100%", "125%", "150%"].map(l => (
+                          <button key={l} onClick={() => { setZoomMode("manual"); setZoom(parseInt(l)/100); setZoomPresetsOpen(false); }}
+                            className="flex w-full rounded px-2 py-1 text-xs text-slate-300 hover:bg-slate-700">{l}</button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <Button variant="ghost" size="icon" className="size-7 rounded-full text-slate-400 hover:text-slate-200"
+                  onClick={() => { setZoomMode("manual"); setZoom(Math.min(4, zoom + 0.1)); }} title="Zoom in">
+                  <ZoomIn className="size-3.5" />
+                </Button>
+                <Sep />
+                <Button variant="ghost" size="icon" className="size-7 rounded-full text-slate-400 hover:text-slate-200"
+                  onClick={() => setToolbarExpanded(false)} title="Collapse">
+                  <ChevronUp className="size-3.5" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Collapsed toolbar handle */}
+        {!toolbarExpanded && (
+          <button onClick={() => setToolbarExpanded(true)}
+            className="absolute left-1/2 top-14 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full border border-slate-700 bg-slate-800/95 px-3 py-1 text-xs text-slate-400 shadow-md backdrop-blur-sm hover:text-slate-200"
+            title="Expand toolbar">
+            <ChevronDown className="size-3" />
+            <span className="font-mono">{currentIndex + 1}/{totalPages}</span>
+          </button>
+        )}
+
+        {/* ─── Document Viewer ─── */}
+        <div className="flex-1 overflow-auto bg-slate-900 p-4 pt-12">
+          <AnimatePresence mode="wait">
+            <motion.div key={note.id}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              className="mx-auto overflow-x-auto rounded-xl bg-white shadow-2xl"
               style={{ maxWidth: `${1080 + 56}px`, width: "100%" }}
             >
-              <iframe
-                title={note.title}
-                className="block"
-                style={{
-                  minHeight: "60vh",
-                  transform: `scale(${zoom})`,
-                  transformOrigin: "top left",
-                  width: `${100 / zoom}%`,
-                  border: 0,
-                }}
-                src={note.contentPath}
-                sandbox="allow-same-origin allow-popups"
-                onLoad={handleIframeLoad}
-              />
+              <iframe title={note.title} className="block"
+                style={{ minHeight: "60vh", transform: `scale(${zoom})`, transformOrigin: "top left", width: `${100/zoom}%`, border: 0 }}
+                src={note.contentPath} sandbox="allow-same-origin allow-popups" onLoad={handleIframeLoad} />
             </motion.div>
           </AnimatePresence>
+
+          {/* Bottom nav */}
+          {totalPages > 1 && (
+            <div className="mx-auto mt-4 flex max-w-3xl items-center justify-between border-t border-slate-800 pt-3">
+              {prevPage ? (
+                <Button variant="ghost" size="sm" onClick={() => handleNavigate(prevPage)} className="gap-1.5 text-slate-400 hover:text-slate-200">
+                  <ChevronLeft className="size-4" />
+                  <span className="hidden max-w-[200px] truncate sm:inline">{prevPage.title}</span>
+                  <span className="sm:hidden">Prev</span>
+                </Button>
+              ) : <div />}
+              {nextPage ? (
+                <Button variant="ghost" size="sm" onClick={() => handleNavigate(nextPage)} className="gap-1.5 text-slate-400 hover:text-slate-200">
+                  <span className="hidden max-w-[200px] truncate sm:inline">{nextPage.title}</span>
+                  <span className="sm:hidden">Next</span>
+                  <ChevronRight className="size-4" />
+                </Button>
+              ) : <div />}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ═══ Top-left: Home + Breadcrumb ═══ */}
-      <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-        className="absolute left-3 top-3 z-30 flex items-center gap-2"
-      >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={goHome}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
-          title="Back to home"
-        >
-          <Home className="h-4 w-4" />
-        </motion.button>
-        <div className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-xs text-slate-500 shadow-md backdrop-blur-sm sm:flex">
-          {note.category && (
-            <>
-              <span className="text-slate-400">{note.category.name}</span>
-              <ChevronRight className="h-3 w-3 text-slate-300" />
-            </>
-          )}
-          <span className="max-w-[200px] truncate text-slate-700">{note.title}</span>
-          {totalPages > 1 && (
-            <span className="ml-1 text-slate-400">· {currentIndex + 1}/{totalPages}</span>
-          )}
-        </div>
-      </motion.div>
-
-      {/* ═══ Top-right: Pages + Actions ═══ */}
-      <motion.div
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-        className="absolute right-3 top-3 z-30 flex items-center gap-2"
-      >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setDrawerOpen(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
-          title="Open pages"
-        >
-          <Menu className="h-4 w-4" />
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setActionsOpen(!actionsOpen)}
-          className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 shadow-md backdrop-blur-sm transition-colors",
-            actionsOpen ? "bg-white text-slate-900" : "bg-white/95 text-slate-600 hover:bg-white hover:text-slate-900"
-          )}
-          title="Toggle actions"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </motion.button>
-      </motion.div>
-
-      {/* ═══ Top Floating Toolbar ═══ */}
+      {/* ═══ Right Panel ═══ */}
       <AnimatePresence>
-        {toolbarExpanded ? (
-          <motion.div
-            key="toolbar-expanded"
-            initial={{ opacity: 0, y: -20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.9 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            style={{ position: "absolute", left: "50%", top: "3rem", translateX: "-50%", zIndex: 20 }}
+        {rightPanelOpen && (
+          <motion.aside
+            initial={{ width: 0, opacity: 0 }} animate={{ width: 260, opacity: 1 }} exit={{ width: 0, opacity: 0 }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="hidden shrink-0 overflow-hidden border-l border-slate-800 bg-slate-950 lg:block"
           >
-            <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
-              {/* Download */}
-              <div className="relative" ref={downloadRef}>
-                <Button variant="ghost" size="icon"
-                  className={cn("h-8 w-8 rounded-full", downloadOpen && "bg-slate-100")}
-                  onClick={() => setDownloadOpen(!downloadOpen)} title="Export">
-                  <Download className="h-4 w-4" />
-                </Button>
-                <AnimatePresence>
-                  {downloadOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute left-0 top-full mt-2 w-56 rounded-lg border border-slate-200 bg-white p-1 shadow-xl"
-                    >
-                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        Current Page ({currentIndex + 1})
-                      </div>
-                      {["PNG", "JPEG", "PDF"].map(fmt => (
-                        <button key={fmt} onClick={() => setDownloadOpen(false)}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
-                          <FileImage className="h-3.5 w-3.5 text-slate-400" /> {fmt}
-                        </button>
-                      ))}
-                      <div className="my-1 h-px bg-slate-100" />
-                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">All Pages</div>
-                      {["PDF", "PNG (ZIP)"].map(fmt => (
-                        <button key={fmt} onClick={() => setDownloadOpen(false)}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
-                          <FileText className="h-3.5 w-3.5 text-slate-400" /> {fmt}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <Sep />
-
-              {/* Prev / page input / Next */}
-              <Button variant="ghost" size="icon" disabled={!prevPage}
-                onClick={() => prevPage && handleNavigate(prevPage)}
-                className="h-8 w-8 rounded-full" title="Previous page (←)">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center gap-0.5 text-xs font-mono text-slate-700">
-                <input
-                  type="text"
-                  value={pageInputFocused ? pageInputValue : String(currentIndex + 1)}
-                  onChange={(e) => setPageInputValue(e.target.value.replace(/[^0-9]/g, ""))}
-                  onFocus={() => { setPageInputFocused(true); setPageInputValue(String(currentIndex + 1)); }}
-                  onBlur={() => {
-                    setPageInputFocused(false);
-                    const n = parseInt(pageInputValue, 10);
-                    if (!isNaN(n) && n >= 1 && n <= totalPages) handleNavigate(pages[n - 1]);
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
-                  className="h-7 w-8 rounded border border-transparent bg-slate-100 text-center text-xs font-mono outline-none transition-colors hover:bg-slate-200 focus:border-slate-300 focus:bg-white"
-                  title="Type page number"
-                />
-                <span className="text-slate-400">/</span>
-                <span className="min-w-[20px] text-center">{totalPages}</span>
-              </div>
-              <Button variant="ghost" size="icon" disabled={!nextPage}
-                onClick={() => nextPage && handleNavigate(nextPage)}
-                className="h-8 w-8 rounded-full" title="Next page (→)">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-
-              <Sep />
-
-              {/* Zoom */}
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                onClick={() => { setZoomMode("manual"); setZoom(Math.max(0.25, zoom - 0.1)); }}
-                title="Zoom out (Ctrl -)">
-                <ZoomOut className="h-4 w-4" />
-              </Button>
-              <div className="relative" ref={zoomRef}>
-                <button
-                  className="h-7 min-w-[52px] rounded border border-transparent bg-slate-100 px-1.5 text-center text-xs font-mono transition-colors hover:border-slate-300 hover:bg-slate-200 outline-none"
-                  onClick={() => setZoomPresetsOpen(!zoomPresetsOpen)}
-                  title="Click to set zoom"
-                >
-                  {zoomLabel}
-                </button>
-                <AnimatePresence>
-                  {zoomPresetsOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute left-1/2 top-full mt-2 w-40 -translate-x-1/2 rounded-lg border border-slate-200 bg-white p-1 shadow-xl"
-                    >
-                      <button onClick={() => { setZoomMode("fit"); computeFitScale(); setZoomPresetsOpen(false); }}
-                        className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
-                        <Maximize className="h-3.5 w-3.5" /> Fit
-                      </button>
-                      <div className="my-1 h-px bg-slate-100" />
-                      {["50%", "75%", "100%", "125%", "150%", "200%"].map(label => (
-                        <button key={label} onClick={() => { setZoomMode("manual"); setZoom(parseInt(label) / 100); setZoomPresetsOpen(false); }}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
-                          {label}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                onClick={() => { setZoomMode("manual"); setZoom(Math.min(4, zoom + 0.1)); }}
-                title="Zoom in (Ctrl +)">
-                <ZoomIn className="h-4 w-4" />
-              </Button>
-
-              <Sep />
-
-              {/* Fullscreen */}
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
-                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-              </Button>
-
-              {/* Collapse */}
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                onClick={() => setToolbarExpanded(false)} title="Collapse toolbar (Esc)">
-                <ChevronUp className="h-4 w-4" />
-              </Button>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.button
-            key="toolbar-collapsed"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ delay: 0.1, duration: 0.2 }}
-            style={{ position: "absolute", left: "50%", top: "0.5rem", translateX: "-50%", zIndex: 20 }}
-            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-4 py-1.5 text-xs text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-            onClick={() => setToolbarExpanded(true)}
-            title="Expand toolbar"
-          >
-            <ChevronDown className="h-3 w-3" />
-            <span className="font-mono">{currentIndex + 1}/{totalPages}</span>
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* ═══ Left Sidebar Drawer ═══ */}
-      <AnimatePresence>
-        {drawerOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 z-30 bg-black/30"
-              onClick={() => setDrawerOpen(false)}
+            <RightPanel
+              note={note}
+              pages={pages}
+              currentIndex={currentIndex}
+              relatedNotes={relatedNotes}
+              onNavigate={handleNavigate}
+              goHome={goHome}
+              copied={copied}
+              onShare={handleShare}
             />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="absolute bottom-0 right-0 top-0 z-40 flex w-[85vw] flex-col bg-white shadow-2xl sm:w-80 sm:max-w-[320px]"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-                <span className="text-sm font-semibold text-slate-900">Pages</span>
-                <button onClick={() => setDrawerOpen(false)}
-                  className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              {/* Toggle */}
-              <div className="border-b border-slate-200 px-4 py-2">
-                <div className="flex w-fit items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
-                  <button className={cn("rounded px-3 py-1 text-xs transition-all", pageViewMode === "list" ? "bg-white font-semibold shadow-sm" : "text-slate-500")}
-                    onClick={() => setPageViewMode("list")}>List</button>
-                  <button className={cn("rounded px-3 py-1 text-xs transition-all", pageViewMode === "tiles" ? "bg-white font-semibold shadow-sm" : "text-slate-500")}
-                    onClick={() => setPageViewMode("tiles")}>Tiles</button>
-                </div>
-              </div>
-              {/* Content */}
-              <ScrollArea className="flex-1">
-                {pageViewMode === "list" ? (
-                  <div className="space-y-0.5 p-3">
-                    {pages.map((page, idx) => (
-                      <motion.button
-                        key={page.id}
-                        custom={idx}
-                        initial={{ x: -10, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1, transition: { delay: idx * 0.03, duration: 0.15, ease: "easeOut" } }}
-                        onClick={() => handleNavigate(page)}
-                        className={cn("flex w-full items-center rounded-lg border px-3 py-2.5 text-left",
-                          idx === currentIndex ? "border-rose-200 bg-rose-50" : "border-transparent hover:bg-slate-50")}
-                      >
-                        <span className={cn("mr-3 font-mono text-xs", idx === currentIndex ? "font-bold text-rose-600" : "text-slate-400")}>
-                          {String(idx + 1).padStart(2, "0")}
-                        </span>
-                        <span className={cn("truncate text-sm", idx === currentIndex ? "font-medium text-rose-900" : "text-slate-700")}>
-                          {page.title}
-                        </span>
-                      </motion.button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2 p-3">
-                    {pages.map((page, idx) => (
-                      <motion.button
-                        key={page.id}
-                        custom={idx}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1, transition: { delay: idx * 0.04, duration: 0.2, ease: "easeOut" } }}
-                        whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleNavigate(page)}
-                        className={cn("overflow-hidden rounded-lg border-2 text-left",
-                          idx === currentIndex ? "border-rose-400 shadow-md" : "border-slate-200 hover:border-slate-300")}
-                      >
-                        <div className="border-b border-slate-100 bg-slate-50 px-2 py-1 text-center text-[10px] font-semibold">
-                          {String(idx + 1).padStart(2, "0")}
-                        </div>
-                        {/* Real preview */}
-                        <div className="relative aspect-[3/4] overflow-hidden bg-white">
-                          <iframe
-                            src={page.contentPath}
-                            className="pointer-events-none absolute left-0 top-0 border-0"
-                            style={{ width: "1080px", height: "1440px", transform: "scale(0.12)", transformOrigin: "top left" }}
-                            sandbox="allow-same-origin"
-                            title={page.title}
-                          />
-                        </div>
-                        <div className="truncate border-t border-slate-100 bg-slate-50 px-2 py-1 text-[10px] text-slate-600">
-                          {page.title}
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* ═══ Right Actions Panel ═══ */}
-      <AnimatePresence>
-        {actionsOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: 20, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.95 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="absolute right-3 top-16 z-30 w-44 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
-          >
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</span>
-              <button onClick={() => setActionsOpen(false)} className="text-slate-400 hover:text-slate-600">
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="space-y-1">
-              <ActionBtn icon={Share2} label={copied ? "Link Copied!" : "Copy Link"} onClick={handleShare} />
-              <ActionBtn icon={ExternalLink} label="Open Raw" onClick={() => window.open(note.contentPath, "_blank")} />
-            </div>
-            <div className="mt-3 border-t border-slate-100 pt-3">
-              <div className="flex flex-col gap-1 text-xs text-slate-500">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="h-3 w-3" /> Updated {fromNow(note.updatedAt)}
-                </div>
-                <div>{formatDateTime(note.updatedAt)}</div>
-              </div>
-              {note.tags && note.tags.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {note.tags.map(t => (
-                    <Badge key={t.id} variant="outline" className="text-[10px] font-normal">{t.name}</Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
+          </motion.aside>
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-// ─── Helpers ──────────────────────────────────────────────────
-function Sep() {
-  return <div className="mx-0.5 h-5 w-px bg-slate-200" />;
-}
-
-function ActionBtn({
-  icon: Icon,
-  label,
-  onClick,
-  textColor,
+// ─── Sidebar Content (shared between desktop + mobile) ─────────
+function SidebarContent({
+  tree, note, expandedCats, expandedTopics, toggleCat, toggleTopic, onNavigate,
+  sidebarMode, setSidebarMode, sidebarSearch, setSidebarSearch, goHome,
 }: {
-  icon: React.ElementType;
-  label: string;
-  onClick: () => void;
-  textColor?: string;
+  tree: TreeNode[];
+  note: Note;
+  expandedCats: Set<string>;
+  expandedTopics: Set<string>;
+  toggleCat: (id: string) => void;
+  toggleTopic: (id: string) => void;
+  onNavigate: (n: Note) => void;
+  sidebarMode: SidebarMode;
+  setSidebarMode: (m: SidebarMode) => void;
+  sidebarSearch: string;
+  setSidebarSearch: (s: string) => void;
+  goHome: () => void;
 }) {
   return (
-    <motion.button
-      whileHover={{ x: 2 }}
-      onClick={onClick}
-      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50"
-    >
-      <Icon className={cn("h-4 w-4", textColor ?? "text-slate-500")} />
-      <span className={textColor ?? "text-slate-700"}>{label}</span>
-    </motion.button>
+    <div className="flex h-full w-[280px] flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2.5">
+        <button onClick={goHome} className="flex items-center gap-2 text-sm font-semibold text-slate-200 hover:text-white">
+          <Home className="size-4 text-slate-400" /> Notes
+        </button>
+      </div>
+
+      {/* View toggle */}
+      <div className="flex items-center gap-1 border-b border-slate-800 px-3 py-1.5">
+        <div className="flex items-center gap-0.5 rounded-md bg-slate-800 p-0.5">
+          <button onClick={() => setSidebarMode("list")}
+            className={cn("flex items-center gap-1 rounded px-2 py-0.5 text-xs transition-all",
+              sidebarMode === "list" ? "bg-slate-700 font-semibold text-slate-100" : "text-slate-500")}>
+            <List className="size-3" /> List
+          </button>
+          <button onClick={() => setSidebarMode("tile")}
+            className={cn("flex items-center gap-1 rounded px-2 py-0.5 text-xs transition-all",
+              sidebarMode === "tile" ? "bg-slate-700 font-semibold text-slate-100" : "text-slate-500")}>
+            <Grid2x2 className="size-3" /> Tiles
+          </button>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="border-b border-slate-800 px-3 py-1.5">
+        <input value={sidebarSearch} onChange={(e) => setSidebarSearch(e.target.value)}
+          placeholder="Filter…" className="w-full rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-slate-300 outline-none placeholder:text-slate-600 focus:border-slate-700" />
+      </div>
+
+      {/* Tree */}
+      <ScrollArea className="flex-1 px-1 py-1">
+        {tree.length === 0 ? (
+          <div className="px-3 py-8 text-center text-xs text-slate-600">No notes found</div>
+        ) : (
+          <div className="space-y-0.5">
+            {tree.map((node) => {
+              const isExpanded = expandedCats.has(node.category.id) || !!sidebarSearch.trim();
+              const allNotesInCat = [...node.notes, ...node.topics.flatMap((t) => t.notes)];
+              const isActiveCat = allNotesInCat.some((n) => n.id === note.id);
+
+              return (
+                <div key={node.category.id}>
+                  {/* Category row */}
+                  <button onClick={() => toggleCat(node.category.id)}
+                    className={cn("flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-medium transition-colors",
+                      isActiveCat ? "bg-slate-800 text-slate-200" : "text-slate-400 hover:bg-slate-900 hover:text-slate-300")}>
+                    <ChevronDown className={cn("size-3 shrink-0 transition-transform", !isExpanded && "-rotate-90")} />
+                    {isExpanded ? <FolderOpen className="size-3.5 shrink-0 text-slate-500" /> : <Folder className="size-3.5 shrink-0 text-slate-500" />}
+                    <span className="truncate">{node.category.name}</span>
+                    <span className="ml-auto text-[10px] text-slate-600">{allNotesInCat.length}</span>
+                  </button>
+
+                  {/* Expanded: topics + notes */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }} className="overflow-hidden">
+                        <div className="ml-3 border-l border-slate-800 pl-2">
+                          {/* Direct notes */}
+                          {node.notes.map((n, idx) => (
+                            <PageItem key={n.id} note={n} index={idx} isActive={n.id === note.id}
+                              onNavigate={onNavigate} mode={sidebarMode} />
+                          ))}
+
+                          {/* Subcategories / topics */}
+                          {node.topics.map((topic) => {
+                            const topicExpanded = expandedTopics.has(topic.category.id) || !!sidebarSearch.trim();
+                            const isActiveTopic = topic.notes.some((n) => n.id === note.id);
+                            return (
+                              <div key={topic.category.id}>
+                                <button onClick={() => toggleTopic(topic.category.id)}
+                                  className={cn("flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-left text-xs transition-colors",
+                                    isActiveTopic ? "text-slate-200" : "text-slate-500 hover:text-slate-300")}>
+                                  <ChevronDown className={cn("size-3 shrink-0 transition-transform", !topicExpanded && "-rotate-90")} />
+                                  <span className="truncate">{topic.category.name}</span>
+                                  <span className="ml-auto text-[10px] text-slate-600">{topic.notes.length}</span>
+                                </button>
+                                <AnimatePresence>
+                                  {topicExpanded && (
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.2 }} className="overflow-hidden">
+                                      <div className="ml-3 border-l border-slate-800 pl-2">
+                                        {topic.notes.map((n, idx) => (
+                                          <PageItem key={n.id} note={n} index={idx} isActive={n.id === note.id}
+                                            onNavigate={onNavigate} mode={sidebarMode} />
+                                        ))}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </ScrollArea>
+    </div>
   );
+}
+
+// ─── Page Item (list or tile) ─────────────────────────────────
+function PageItem({ note: n, index, isActive, onNavigate, mode }: {
+  note: Note; index: number; isActive: boolean; onNavigate: (n: Note) => void; mode: SidebarMode;
+}) {
+  if (mode === "tile") {
+    return (
+      <motion.button
+        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: index * 0.03, duration: 0.15 }}
+        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+        onClick={() => onNavigate(n)}
+        className={cn("mb-1 block w-full overflow-hidden rounded-lg border text-left transition-colors",
+          isActive ? "border-rose-500/60 bg-rose-500/10" : "border-slate-800 hover:border-slate-700")}
+      >
+        <div className="flex items-center gap-1.5 px-2 py-1">
+          <span className={cn("text-[10px] font-mono", isActive ? "text-rose-400" : "text-slate-600")}>
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span className={cn("truncate text-[11px]", isActive ? "font-medium text-rose-300" : "text-slate-400")}>
+            {n.title}
+          </span>
+        </div>
+      </motion.button>
+    );
+  }
+
+  return (
+    <button onClick={() => onNavigate(n)}
+      className={cn("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
+        isActive ? "bg-rose-500/10 text-rose-300" : "text-slate-400 hover:bg-slate-900 hover:text-slate-300")}
+    >
+      <span className={cn("flex size-4 shrink-0 items-center justify-center rounded text-[9px] font-mono",
+        isActive ? "bg-rose-500 text-white" : "bg-slate-800 text-slate-600")}>
+        {index + 1}
+      </span>
+      <span className={cn("truncate", isActive && "font-medium")}>{n.title}</span>
+      {isActive && <span className="ml-auto size-1.5 shrink-0 rounded-full bg-rose-500" />}
+    </button>
+  );
+}
+
+// ─── Right Panel ───────────────────────────────────────────────
+function RightPanel({ note, pages, currentIndex, relatedNotes, onNavigate, goHome, copied, onShare }: {
+  note: Note; pages: Note[]; currentIndex: number; relatedNotes: Note[];
+  onNavigate: (n: Note) => void; goHome: () => void; copied: boolean; onShare: () => void;
+}) {
+  return (
+    <div className="flex h-full w-[260px] flex-col overflow-y-auto">
+      {/* Note Info */}
+      <div className="border-b border-slate-800 p-3">
+        <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">Info</h3>
+        <div className="space-y-1 text-xs text-slate-500">
+          <div className="flex items-center gap-1.5"><Clock className="size-3" /> {fromNow(note.updatedAt)}</div>
+          <div>{formatDateTime(note.updatedAt)}</div>
+        </div>
+        {note.tags && note.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {note.tags.map(t => (
+              <Badge key={t.id} variant="outline" className="border-slate-700 bg-slate-800 text-[10px] font-normal text-slate-400">
+                <Tag className="mr-1 size-2.5" />{t.name}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Page navigation */}
+      {pages.length > 1 && (
+        <div className="border-b border-slate-800 p-3">
+          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">Pages</h3>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" disabled={currentIndex === 0}
+              onClick={() => onNavigate(pages[0])} className="h-6 gap-1 border-slate-700 bg-slate-900 px-2 text-[10px] text-slate-300">
+              <ChevronLeft className="size-2.5" /> First
+            </Button>
+            <span className="text-xs tabular-nums text-slate-500">{currentIndex + 1}/{pages.length}</span>
+            <Button variant="outline" size="sm" disabled={currentIndex === pages.length - 1}
+              onClick={() => onNavigate(pages[pages.length - 1])} className="h-6 gap-1 border-slate-700 bg-slate-900 px-2 text-[10px] text-slate-300">
+              Last <ChevronRight className="size-2.5" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="border-b border-slate-800 p-3">
+        <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">Actions</h3>
+        <div className="space-y-0.5">
+          <button onClick={onShare} className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs text-slate-400 hover:bg-slate-900 hover:text-slate-300">
+            <Share2 className="size-3.5" /> {copied ? "Link Copied!" : "Copy Link"}
+          </button>
+          <a href={note.contentPath} target="_blank" rel="noopener noreferrer"
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs text-slate-400 hover:bg-slate-900 hover:text-slate-300">
+            <ExternalLink className="size-3.5" /> Open Raw
+          </a>
+        </div>
+      </div>
+
+      {/* Related */}
+      {relatedNotes.length > 0 && (
+        <div className="border-b border-slate-800 p-3">
+          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">Related</h3>
+          <div className="space-y-0.5">
+            {relatedNotes.map((rel) => (
+              <button key={rel.id} onClick={() => onNavigate(rel)}
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-slate-400 hover:bg-slate-900 hover:text-slate-300">
+                <FileText className="size-3 shrink-0 text-slate-600" />
+                <span className="truncate">{rel.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* All pages quick list */}
+      {pages.length > 1 && (
+        <div className="p-3">
+          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">All Pages</h3>
+          <div className="space-y-0.5">
+            {pages.map((p, idx) => (
+              <button key={p.id} onClick={() => onNavigate(p)}
+                className={cn("flex w-full items-center gap-2 rounded px-2 py-1 text-left text-xs transition-colors",
+                  p.id === note.id ? "font-semibold text-rose-400" : "text-slate-500 hover:text-slate-300")}>
+                <span className="w-4 shrink-0 font-mono text-[10px]">{String(idx + 1).padStart(2, "0")}.</span>
+                <span className="truncate">{p.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Helpers ───────────────────────────────────────────────────
+function Sep() {
+  return <div className="mx-0.5 h-4 w-px bg-slate-700" />;
 }
