@@ -360,15 +360,20 @@ export async function fetchCategories(): Promise<Category[]> {
     { method: "GET" },
     () => delay({ categories: mockCategories as unknown as BackendCategory[] }),
   );
+  // If the real API returned empty, fall back to mock
+  const rawCats = data.categories.length > 0
+    ? data.categories
+    : (mockCategories as unknown as BackendCategory[]);
+
   // Flatten top-level + children into a single list (children come with parentId).
   const flat: Category[] = [];
-  for (const c of data.categories) {
+  for (const c of rawCats) {
     flat.push(normalizeCategory(c));
     if (c.children?.length) {
       for (const sub of c.children) flat.push(normalizeCategory(sub));
     }
   }
-  // If the backend returned no categories at all, fall back to mock list.
+  // If still empty, use mock
   return flat.length > 0 ? flat : mockCategories;
 }
 
@@ -395,7 +400,12 @@ export async function fetchNotes(params?: {
     { method: "GET" },
     () => delay({ notes: mockNotes as unknown as BackendNote[] }),
   );
-  let list = data.notes.map(normalizeNote);
+  // If the real API returned an empty array (no notes published yet),
+  // fall back to mock data so the UI is still demonstrable.
+  const rawNotes = data.notes.length > 0
+    ? data.notes
+    : (mockNotes as unknown as BackendNote[]);
+  let list = rawNotes.map(normalizeNote);
 
   // Client-side secondary filters (the backend supports status/category/search,
   // but we also support categoryId filtering and a hard limit on the client).

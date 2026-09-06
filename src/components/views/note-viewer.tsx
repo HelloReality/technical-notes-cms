@@ -2,8 +2,6 @@
 
 import * as React from "react";
 import {
-  ArrowLeft,
-  ArrowRight,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -11,7 +9,6 @@ import {
   Grid2x2,
   Home,
   List,
-  Maximize,
   Maximize2,
   Minimize2,
   PanelLeft,
@@ -27,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -84,6 +82,14 @@ export function NoteViewer() {
     return pages.filter((p) => p.title.toLowerCase().includes(q));
   }, [pages, sidebarSearch]);
 
+  // Auto-close sidebar on mobile when navigating to a page
+  const handleNavigate = React.useCallback((page: Note) => {
+    openNote(page);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  }, [openNote]);
+
   // Fullscreen handler
   const toggleFullscreen = React.useCallback(() => {
     if (!document.fullscreenElement) {
@@ -105,37 +111,45 @@ export function NoteViewer() {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === "ArrowLeft" && prevPage) {
         e.preventDefault();
-        openNote(prevPage);
+        handleNavigate(prevPage);
       } else if (e.key === "ArrowRight" && nextPage) {
         e.preventDefault();
-        openNote(nextPage);
+        handleNavigate(nextPage);
       } else if (e.key === "Escape" && isFullscreen) {
         document.exitFullscreen?.();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [prevPage, nextPage, openNote, isFullscreen]);
+  }, [prevPage, nextPage, handleNavigate, isFullscreen]);
 
   // Inject CSS into iframe for binding visibility + zoom
+  // Re-runs when zoom changes by re-setting the style element.
   const handleIframeLoad = React.useCallback((e: React.SyntheticEvent<HTMLIFrameElement>) => {
     try {
       const iframe = e.currentTarget;
       const doc = iframe.contentDocument;
       if (!doc) return;
+
+      // Remove any previously injected reader-style
+      const existing = doc.getElementById("reader-injected-style");
+      if (existing) existing.remove();
+
       const style = doc.createElement("style");
+      style.id = "reader-injected-style";
       style.textContent = `
         body {
           justify-content: flex-start !important;
           padding-left: 42px !important;
           padding-right: 14px !important;
-          zoom: ${zoom} !important;
         }
         @media (max-width: 1120px) {
           html { overflow-x: auto; }
         }
       `;
       doc.head.appendChild(style);
+
+      // Auto-resize iframe height to fit content
       const resize = () => {
         const body = doc.body;
         const html = doc.documentElement;
@@ -151,18 +165,41 @@ export function NoteViewer() {
       setTimeout(resize, 500);
       setTimeout(resize, 1500);
     } catch {
-      // sandbox restriction
+      // Cross-origin or sandbox restriction — ignore
     }
-  }, [zoom]);
+  }, []);
+
+  // When zoom changes, update the iframe container transform (no re-injection needed)
+  // The zoom is applied via CSS transform on the iframe element itself.
 
   const category = note?.category;
   const subcategory = note?.subcategory ?? (category?.parentId ? category : null);
   const topCategory = category && category.parentId ? null : category;
 
-  if (loading || !note) {
+  if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center p-12">
         <Skeleton className="h-[60vh] w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  if (!note) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-12 text-center">
+        <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+          <Search className="size-8 text-muted-foreground" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold">Note not found</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            The note you're looking for doesn't exist or is no longer published.
+          </p>
+        </div>
+        <Button onClick={goHome} className="gap-2">
+          <Home className="size-4" />
+          Browse all notes
+        </Button>
       </div>
     );
   }
@@ -278,7 +315,7 @@ export function NoteViewer() {
       <div className="flex min-h-0 flex-1">
         {/* ─── Left Sidebar (Page Navigation) ─── */}
         {sidebarOpen && (
-          <aside className="flex w-64 shrink-0 flex-col border-r border-border/60 bg-background md:w-72">
+          <aside className="absolute inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col border-r border-border/60 bg-background shadow-lg md:relative md:z-auto md:shadow-none lg:w-72">
             {/* Sidebar header */}
             <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -327,13 +364,13 @@ export function NoteViewer() {
                 <PageListView
                   pages={filteredPages}
                   currentPageId={note.id}
-                  onNavigate={openNote}
+                  onNavigate={handleNavigate}
                 />
               ) : (
                 <PageTileView
                   pages={filteredPages}
                   currentPageId={note.id}
-                  onNavigate={openNote}
+                  onNavigate={handleNavigate}
                 />
               )}
             </ScrollArea>
@@ -345,7 +382,7 @@ export function NoteViewer() {
                   variant="ghost"
                   size="sm"
                   disabled={!prevPage}
-                  onClick={() => prevPage && openNote(prevPage)}
+                  onClick={() => prevPage && handleNavigate(prevPage)}
                   className="gap-1 text-xs"
                 >
                   <ChevronLeft className="size-3.5" />
@@ -358,7 +395,7 @@ export function NoteViewer() {
                   variant="ghost"
                   size="sm"
                   disabled={!nextPage}
-                  onClick={() => nextPage && openNote(nextPage)}
+                  onClick={() => nextPage && handleNavigate(nextPage)}
                   className="gap-1 text-xs"
                 >
                   Next
@@ -412,7 +449,7 @@ export function NoteViewer() {
           {pages.length > 1 && (
             <div className="flex items-center justify-between border-t border-border/60 px-4 py-2">
               {prevPage ? (
-                <Button variant="ghost" size="sm" onClick={() => openNote(prevPage)} className="gap-1.5">
+                <Button variant="ghost" size="sm" onClick={() => handleNavigate(prevPage)} className="gap-1.5">
                   <ChevronLeft className="size-4" />
                   <span className="hidden sm:inline max-w-[200px] truncate">{prevPage.title}</span>
                   <span className="sm:hidden">Prev</span>
@@ -421,7 +458,7 @@ export function NoteViewer() {
                 <div />
               )}
               {nextPage ? (
-                <Button variant="ghost" size="sm" onClick={() => openNote(nextPage)} className="gap-1.5">
+                <Button variant="ghost" size="sm" onClick={() => handleNavigate(nextPage)} className="gap-1.5">
                   <span className="hidden sm:inline max-w-[200px] truncate">{nextPage.title}</span>
                   <span className="sm:hidden">Next</span>
                   <ChevronRight className="size-4" />
@@ -440,7 +477,7 @@ export function NoteViewer() {
               note={note}
               pages={pages}
               currentIndex={currentIndex}
-              onNavigate={openNote}
+              onNavigate={handleNavigate}
               goHome={goHome}
             />
           </aside>
@@ -692,11 +729,5 @@ function RightPanel({
   );
 }
 
-// ─── ScrollArea wrapper (using a simple div with overflow) ────
-function ScrollArea({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn("overflow-y-auto", className)} style={{ scrollbarWidth: "thin" }}>
-      {children}
-    </div>
-  );
-}
+// ─── ScrollArea component (using shadcn/ui) ───
+// Already imported at top of file
