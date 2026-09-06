@@ -137,6 +137,7 @@ export function NoteViewer() {
   const allCategories = useAppStore((s) => s.categories);
   const openNote = useAppStore((s) => s.openNote);
   const goHome = useAppStore((s) => s.goHome);
+  const openSearchModal = useAppStore((s) => s.openSearchModal);
 
   // State
   const [toolbarExpanded, setToolbarExpanded] = React.useState(true);
@@ -160,6 +161,7 @@ export function NoteViewer() {
   const [treeSearch, setTreeSearch] = React.useState("");
 
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const mainRef = React.useRef<HTMLDivElement>(null);
   const downloadRef = React.useRef<HTMLDivElement>(null);
   const zoomRef = React.useRef<HTMLDivElement>(null);
 
@@ -220,9 +222,9 @@ export function NoteViewer() {
       return n;
     });
 
-  // Fit-to-view
+  // Fit-to-view (measures the main document area, excluding the tree sidebar)
   const computeFitScale = React.useCallback(() => {
-    const el = containerRef.current;
+    const el = mainRef.current;
     if (!el) return;
     const w = el.clientWidth - 64;
     if (w <= 0) return;
@@ -396,7 +398,212 @@ export function NoteViewer() {
     : tree;
 
   return (
-    <div ref={containerRef} className="relative h-screen w-full overflow-hidden bg-slate-800">
+    <div ref={containerRef} className="flex h-screen w-full overflow-hidden bg-slate-800">
+      {/* ═══ Inline collapsible tree sidebar (Category → Topic → subtopic) ═══ */}
+      <motion.aside
+        initial={false}
+        animate={{ width: treeOpen ? 248 : 0 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        className="relative z-30 shrink-0 overflow-hidden border-r border-slate-200 bg-slate-50"
+      >
+        <div className="flex h-full w-[248px] flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <FolderTree className="h-4 w-4 text-slate-500" />
+              <span className="text-sm font-semibold text-slate-900">Browse</span>
+            </div>
+            <button
+              onClick={() => setTreeOpen(false)}
+              className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              title="Collapse tree (Esc)"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Search */}
+          <div className="border-b border-slate-200 bg-white px-3 py-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              <input
+                value={treeSearch}
+                onChange={(e) => setTreeSearch(e.target.value)}
+                placeholder="Filter notes…"
+                className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white"
+              />
+            </div>
+          </div>
+
+          {/* Tree */}
+          <ScrollArea className="flex-1">
+            {filteredTree.length === 0 ? (
+              <div className="px-4 py-10 text-center text-xs text-slate-400">
+                No notes found
+              </div>
+            ) : (
+              <div className="space-y-0.5 p-2">
+                {filteredTree.map((node) => {
+                  const isExpanded =
+                    expandedCats.has(node.category.id) || !!treeSearch.trim();
+                  const allNotes = [
+                    ...node.notes,
+                    ...node.topics.flatMap((t) => t.notes),
+                  ];
+                  const isActiveCat = allNotes.some((n) => n.id === note.id);
+                  return (
+                    <div key={node.category.id}>
+                      {/* Category */}
+                      <button
+                        onClick={() => toggleCat(node.category.id)}
+                        className={cn(
+                          "flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-medium transition-colors",
+                          isActiveCat
+                            ? "bg-slate-100 text-slate-900"
+                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                        )}
+                      >
+                        <ChevronDown
+                          className={cn(
+                            "h-3 w-3 shrink-0 text-slate-400 transition-transform",
+                            !isExpanded && "-rotate-90",
+                          )}
+                        />
+                        {isExpanded ? (
+                          <FolderOpen className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                        ) : (
+                          <Folder className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                        )}
+                        <span className="truncate">{node.category.name}</span>
+                        <span className="ml-auto text-[10px] text-slate-400">
+                          {allNotes.length}
+                        </span>
+                      </button>
+
+                      {/* Expanded content */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="ml-3 border-l border-slate-200 pl-2">
+                              {/* Direct notes (subtopics) */}
+                              {node.notes.map((n, idx) => (
+                                <button
+                                  key={n.id}
+                                  onClick={() => handleNavigate(n)}
+                                  className={cn(
+                                    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
+                                    n.id === note.id
+                                      ? "bg-rose-50 font-medium text-rose-700"
+                                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+                                  )}
+                                >
+                                  <span
+                                    className={cn(
+                                      "flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-mono",
+                                      n.id === note.id
+                                        ? "bg-rose-500 text-white"
+                                        : "bg-slate-200 text-slate-500",
+                                    )}
+                                  >
+                                    {idx + 1}
+                                  </span>
+                                  <span className="truncate">{n.title}</span>
+                                </button>
+                              ))}
+                              {/* Topics → subtopics */}
+                              {node.topics.map((topic) => {
+                                const tExp =
+                                  expandedTopics.has(topic.category.id) ||
+                                  !!treeSearch.trim();
+                                const isActiveT = topic.notes.some(
+                                  (n) => n.id === note.id,
+                                );
+                                return (
+                                  <div key={topic.category.id}>
+                                    <button
+                                      onClick={() => toggleTopic(topic.category.id)}
+                                      className={cn(
+                                        "flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-left text-xs transition-colors",
+                                        isActiveT
+                                          ? "text-slate-900"
+                                          : "text-slate-500 hover:text-slate-800",
+                                      )}
+                                    >
+                                      <ChevronDown
+                                        className={cn(
+                                          "h-3 w-3 shrink-0 text-slate-400 transition-transform",
+                                          !tExp && "-rotate-90",
+                                        )}
+                                      />
+                                      <span className="truncate">
+                                        {topic.category.name}
+                                      </span>
+                                      <span className="ml-auto text-[10px] text-slate-400">
+                                        {topic.notes.length}
+                                      </span>
+                                    </button>
+                                    <AnimatePresence>
+                                      {tExp && (
+                                        <motion.div
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: "auto", opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          transition={{ duration: 0.2 }}
+                                          className="overflow-hidden"
+                                        >
+                                          <div className="ml-3 border-l border-slate-200 pl-2">
+                                            {topic.notes.map((n, idx) => (
+                                              <button
+                                                key={n.id}
+                                                onClick={() => handleNavigate(n)}
+                                                className={cn(
+                                                  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
+                                                  n.id === note.id
+                                                    ? "bg-rose-50 font-medium text-rose-700"
+                                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+                                                )}
+                                              >
+                                                <span
+                                                  className={cn(
+                                                    "flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-mono",
+                                                    n.id === note.id
+                                                      ? "bg-rose-500 text-white"
+                                                      : "bg-slate-200 text-slate-500",
+                                                  )}
+                                                >
+                                                  {idx + 1}
+                                                </span>
+                                                <span className="truncate">{n.title}</span>
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </ScrollArea>
+        </div>
+      </motion.aside>
+
+      {/* ═══ Main area (document + floating controls) ═══ */}
+      <div ref={mainRef} className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-800">
       {/* ═══ Document Viewer ═══ */}
       <div className="absolute inset-0 overflow-auto">
         <div className="flex min-h-full items-start justify-center p-4 pt-16 sm:p-8 sm:pt-16">
@@ -439,12 +646,13 @@ export function NoteViewer() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setTreeOpen(true)}
+          onClick={() => setTreeOpen(!treeOpen)}
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 shadow-md backdrop-blur-sm transition-colors",
             treeOpen ? "bg-white text-slate-900" : "bg-white/95 text-slate-600 hover:bg-white hover:text-slate-900",
           )}
-          title="Browse categories (tree)"
+          title={treeOpen ? "Collapse tree (Esc)" : "Browse categories (tree)"}
+          aria-pressed={treeOpen}
         >
           <FolderTree className="h-4 w-4" />
         </motion.button>
@@ -471,13 +679,35 @@ export function NoteViewer() {
         </div>
       </motion.div>
 
-      {/* ═══ Top-right: Pages + Actions ═══ */}
+      {/* ═══ Top-right: Search + Pages + Actions ═══ */}
       <motion.div
         initial={{ opacity: 0, x: 10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
         className="absolute right-3 top-3 z-30 flex items-center gap-2"
       >
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={openSearchModal}
+          className="hidden h-9 items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-3 text-xs text-slate-500 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900 sm:flex"
+          title="Search notes (Ctrl+K)"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span>Search</span>
+          <kbd className="rounded border border-slate-200 bg-slate-100 px-1 py-0.5 text-[9px] font-mono text-slate-400">
+            ⌘K
+          </kbd>
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={openSearchModal}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900 sm:hidden"
+          title="Search notes (Ctrl+K)"
+        >
+          <Search className="h-4 w-4" />
+        </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -662,221 +892,6 @@ export function NoteViewer() {
         )}
       </AnimatePresence>
 
-      {/* ═══ Left Tree Drawer (Category → Topic → subtopic) ═══ */}
-      <AnimatePresence>
-        {treeOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 z-30 bg-black/30"
-              onClick={() => setTreeOpen(false)}
-            />
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="absolute bottom-0 left-0 top-0 z-40 flex w-[85vw] flex-col bg-white shadow-2xl sm:w-80 sm:max-w-[320px]"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <FolderTree className="h-4 w-4 text-slate-500" />
-                  <span className="text-sm font-semibold text-slate-900">Browse</span>
-                </div>
-                <button
-                  onClick={() => setTreeOpen(false)}
-                  className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Search */}
-              <div className="border-b border-slate-200 px-3 py-2">
-                <div className="relative">
-                  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-                  <input
-                    value={treeSearch}
-                    onChange={(e) => setTreeSearch(e.target.value)}
-                    placeholder="Filter notes…"
-                    className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white"
-                  />
-                </div>
-              </div>
-
-              {/* Tree */}
-              <ScrollArea className="flex-1">
-                {filteredTree.length === 0 ? (
-                  <div className="px-4 py-10 text-center text-xs text-slate-400">
-                    No notes found
-                  </div>
-                ) : (
-                  <div className="space-y-0.5 p-2">
-                    {filteredTree.map((node) => {
-                      const isExpanded =
-                        expandedCats.has(node.category.id) || !!treeSearch.trim();
-                      const allNotes = [
-                        ...node.notes,
-                        ...node.topics.flatMap((t) => t.notes),
-                      ];
-                      const isActiveCat = allNotes.some((n) => n.id === note.id);
-                      return (
-                        <div key={node.category.id}>
-                          {/* Category */}
-                          <button
-                            onClick={() => toggleCat(node.category.id)}
-                            className={cn(
-                              "flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-medium transition-colors",
-                              isActiveCat
-                                ? "bg-slate-100 text-slate-900"
-                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
-                            )}
-                          >
-                            <ChevronDown
-                              className={cn(
-                                "h-3 w-3 shrink-0 text-slate-400 transition-transform",
-                                !isExpanded && "-rotate-90",
-                              )}
-                            />
-                            {isExpanded ? (
-                              <FolderOpen className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                            ) : (
-                              <Folder className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                            )}
-                            <span className="truncate">{node.category.name}</span>
-                            <span className="ml-auto text-[10px] text-slate-400">
-                              {allNotes.length}
-                            </span>
-                          </button>
-
-                          {/* Expanded content */}
-                          <AnimatePresence>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="overflow-hidden"
-                              >
-                                <div className="ml-3 border-l border-slate-200 pl-2">
-                                  {/* Direct notes (subtopics) */}
-                                  {node.notes.map((n, idx) => (
-                                    <button
-                                      key={n.id}
-                                      onClick={() => handleNavigate(n)}
-                                      className={cn(
-                                        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
-                                        n.id === note.id
-                                          ? "bg-rose-50 font-medium text-rose-700"
-                                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-800",
-                                      )}
-                                    >
-                                      <span
-                                        className={cn(
-                                          "flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-mono",
-                                          n.id === note.id
-                                            ? "bg-rose-500 text-white"
-                                            : "bg-slate-100 text-slate-400",
-                                        )}
-                                      >
-                                        {idx + 1}
-                                      </span>
-                                      <span className="truncate">{n.title}</span>
-                                    </button>
-                                  ))}
-                                  {/* Topics → subtopics */}
-                                  {node.topics.map((topic) => {
-                                    const tExp =
-                                      expandedTopics.has(topic.category.id) ||
-                                      !!treeSearch.trim();
-                                    const isActiveT = topic.notes.some(
-                                      (n) => n.id === note.id,
-                                    );
-                                    return (
-                                      <div key={topic.category.id}>
-                                        <button
-                                          onClick={() => toggleTopic(topic.category.id)}
-                                          className={cn(
-                                            "flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-left text-xs transition-colors",
-                                            isActiveT
-                                              ? "text-slate-900"
-                                              : "text-slate-500 hover:text-slate-800",
-                                          )}
-                                        >
-                                          <ChevronDown
-                                            className={cn(
-                                              "h-3 w-3 shrink-0 text-slate-400 transition-transform",
-                                              !tExp && "-rotate-90",
-                                            )}
-                                          />
-                                          <span className="truncate">
-                                            {topic.category.name}
-                                          </span>
-                                          <span className="ml-auto text-[10px] text-slate-400">
-                                            {topic.notes.length}
-                                          </span>
-                                        </button>
-                                        <AnimatePresence>
-                                          {tExp && (
-                                            <motion.div
-                                              initial={{ height: 0, opacity: 0 }}
-                                              animate={{ height: "auto", opacity: 1 }}
-                                              exit={{ height: 0, opacity: 0 }}
-                                              transition={{ duration: 0.2 }}
-                                              className="overflow-hidden"
-                                            >
-                                              <div className="ml-3 border-l border-slate-200 pl-2">
-                                                {topic.notes.map((n, idx) => (
-                                                  <button
-                                                    key={n.id}
-                                                    onClick={() => handleNavigate(n)}
-                                                    className={cn(
-                                                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
-                                                      n.id === note.id
-                                                        ? "bg-rose-50 font-medium text-rose-700"
-                                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-800",
-                                                    )}
-                                                  >
-                                                    <span
-                                                      className={cn(
-                                                        "flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-mono",
-                                                        n.id === note.id
-                                                          ? "bg-rose-500 text-white"
-                                                          : "bg-slate-100 text-slate-400",
-                                                      )}
-                                                    >
-                                                      {idx + 1}
-                                                    </span>
-                                                    <span className="truncate">{n.title}</span>
-                                                  </button>
-                                                ))}
-                                              </div>
-                                            </motion.div>
-                                          )}
-                                        </AnimatePresence>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </ScrollArea>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
       {/* ═══ Left Sidebar Drawer ═══ */}
       <AnimatePresence>
         {drawerOpen && (
@@ -1014,6 +1029,7 @@ export function NoteViewer() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

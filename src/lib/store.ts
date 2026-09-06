@@ -55,6 +55,7 @@ interface AppState {
   // Modals
   loginModalOpen: boolean;
   uploadModalOpen: boolean;
+  searchModalOpen: boolean;
 
   // ---------- Actions ----------
   setView: (view: ViewKey) => void;
@@ -62,6 +63,8 @@ interface AppState {
   closeLoginModal: () => void;
   openUploadModal: () => void;
   closeUploadModal: () => void;
+  openSearchModal: () => void;
+  closeSearchModal: () => void;
 
   bootstrap: () => Promise<void>;
   refreshNotes: (opts?: { status?: NoteStatus }) => Promise<void>;
@@ -103,6 +106,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   adminStatusFilter: "ALL",
   loginModalOpen: false,
   uploadModalOpen: false,
+  searchModalOpen: false,
 
   setView: (view) => set({ view }),
 
@@ -110,6 +114,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   closeLoginModal: () => set({ loginModalOpen: false }),
   openUploadModal: () => set({ uploadModalOpen: true }),
   closeUploadModal: () => set({ uploadModalOpen: false }),
+  openSearchModal: () => set({ searchModalOpen: true }),
+  closeSearchModal: () => set({ searchModalOpen: false }),
 
   bootstrap: async () => {
     set({ authLoading: true, dataLoading: true });

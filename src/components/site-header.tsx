@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ModeToggle } from "@/components/mode-toggle";
 import {
   DropdownMenu,
@@ -37,21 +36,11 @@ export function SiteHeader() {
   const view = useAppStore((s) => s.view);
   const goHome = useAppStore((s) => s.goHome);
   const logout = useAppStore((s) => s.logout);
-  const goSearch = useAppStore((s) => s.goSearch);
+  const openSearchModal = useAppStore((s) => s.openSearchModal);
   const goToDashboard = useAppStore((s) => s.goToDashboard);
-  const searchQuery = useAppStore((s) => s.searchQuery);
-  const setSearchQuery = useAppStore((s) => s.setSearchQuery);
-  const runSearch = useAppStore((s) => s.runSearch);
   const openUploadModal = useAppStore((s) => s.openUploadModal);
 
-  const [localSearch, setLocalSearch] = React.useState(searchQuery);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  React.useEffect(() => setLocalSearch(searchQuery), [searchQuery]);
-
-  const onSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    runSearch(localSearch);
-  };
 
   const navItems = [
     {
@@ -76,10 +65,10 @@ export function SiteHeader() {
       label: "Search",
       icon: Search,
       action: () => {
-        goSearch(localSearch);
+        openSearchModal();
         setMobileOpen(false);
       },
-      active: view === "search-results",
+      active: false,
     },
   ];
 
@@ -130,26 +119,30 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <form
-          onSubmit={onSearchSubmit}
-          className="ml-auto hidden flex-1 max-w-sm lg:flex"
+        <button
+          onClick={openSearchModal}
+          className="ml-auto hidden items-center gap-2 rounded-md border border-border/60 bg-background/60 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-background hover:text-foreground lg:flex"
+          aria-label="Open search"
         >
-          <div className="relative w-full">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={localSearch}
-              onChange={(e) => {
-                setLocalSearch(e.target.value);
-                setSearchQuery(e.target.value);
-              }}
-              placeholder="Search notes, tags, topics…"
-              className="pl-9"
-              aria-label="Search notes"
-            />
-          </div>
-        </form>
+          <Search className="size-4" />
+          <span>Search notes…</span>
+          <kbd className="ml-6 rounded border border-border/60 bg-muted px-1.5 py-0.5 text-[10px] font-mono">
+            ⌘K
+          </kbd>
+        </button>
 
-        <div className="ml-auto flex items-center gap-1.5 lg:ml-2">
+        {/* Mobile search trigger */}
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={openSearchModal}
+          className="lg:hidden"
+          aria-label="Search"
+        >
+          <Search className="size-5" />
+        </Button>
+
+        <div className="flex items-center gap-1.5 lg:ml-2">
           <ModeToggle />
 
           {/* Admin controls — only visible when authenticated */}
@@ -227,26 +220,6 @@ export function SiteHeader() {
                     {item.label}
                   </Button>
                 ))}
-                <form
-                  onSubmit={(e) => {
-                    onSearchSubmit(e);
-                    setMobileOpen(false);
-                  }}
-                  className="mt-2"
-                >
-                  <div className="relative">
-                    <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      value={localSearch}
-                      onChange={(e) => {
-                        setLocalSearch(e.target.value);
-                        setSearchQuery(e.target.value);
-                      }}
-                      placeholder="Search…"
-                      className="pl-9"
-                    />
-                  </div>
-                </form>
                 {user && (
                   <>
                     <Button
