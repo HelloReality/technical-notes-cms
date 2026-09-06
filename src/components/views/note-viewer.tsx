@@ -677,30 +677,28 @@ export function NoteViewer() {
       <div ref={mainRef} className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-800">
       {/* ═══ Document Viewer ═══ */}
       <div className="absolute inset-0 overflow-auto">
-        <div className="min-h-full pt-16">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={note.id}
-              ref={shadowHostRef}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="block w-full"
-              style={{
-                minHeight: "calc(100vh - 4rem)",
-                transform: `scale(${zoom})`,
-                transformOrigin: "top left",
-                width: "100%",
-              }}
-            />
-          </AnimatePresence>
-          {htmlLoading && !noteHtml && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center pt-16">
-              <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
-            </div>
-          )}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={note.id}
+            ref={shadowHostRef}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="block w-full"
+            style={{
+              minHeight: "100%",
+              transform: `scale(${zoom})`,
+              transformOrigin: "top left",
+              width: "100%",
+            }}
+          />
+        </AnimatePresence>
+        {htmlLoading && !noteHtml && (
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+            <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
+          </div>
+        )}
       </div>
 
       {/* ═══ Top-left: Tree + Home + Breadcrumb ═══ */}
