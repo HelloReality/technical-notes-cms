@@ -696,7 +696,7 @@ export function NoteViewer() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            style={{ position: "absolute", left: "3.5rem", top: "3rem", zIndex: 20 }}
+            style={{ position: "absolute", left: "3.5rem", top: "0.5rem", zIndex: 20 }}
           >
             <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
               {/* Prev / page input / Next */}
