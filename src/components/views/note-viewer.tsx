@@ -160,13 +160,8 @@ export function NoteViewer() {
   const [expandedTopics, setExpandedTopics] = React.useState<Set<string>>(new Set());
   const [treeSearch, setTreeSearch] = React.useState("");
 
-  // Inline note content (rendered via Shadow DOM instead of an iframe)
-  const [noteHtml, setNoteHtml] = React.useState<string>("");
-  const [htmlLoading, setHtmlLoading] = React.useState(false);
-
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mainRef = React.useRef<HTMLDivElement>(null);
-  const shadowHostRef = React.useRef<HTMLDivElement>(null);
   const downloadRef = React.useRef<HTMLDivElement>(null);
   const zoomRef = React.useRef<HTMLDivElement>(null);
 
@@ -307,97 +302,6 @@ export function NoteViewer() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, computeFitScale]);
-
-  // Fetch the raw note HTML whenever the active note changes.
-  // We render it inline (via Shadow DOM) instead of an iframe so the
-  // document looks exactly like opening the raw file.
-  React.useEffect(() => {
-    let cancelled = false;
-    if (!note?.contentPath) {
-      setNoteHtml("");
-      return;
-    }
-    setHtmlLoading(true);
-    fetch(note.contentPath)
-      .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
-      .then((html) => {
-        if (!cancelled) setNoteHtml(html);
-      })
-      .catch(() => {
-        if (!cancelled) setNoteHtml("");
-      })
-      .finally(() => {
-        if (!cancelled) setHtmlLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [note?.contentPath, note?.id]);
-
-  // Inject the fetched HTML into a Shadow DOM root so the note's own
-  // <style> rules (which target `body`, `html`, `:root`) are fully
-  // encapsulated and don't leak into the rest of the application.
-  React.useEffect(() => {
-    const host = shadowHostRef.current;
-    if (!host) return;
-
-    if (!noteHtml) {
-      // Clear any previous content
-      if (host.shadowRoot) host.shadowRoot.innerHTML = "";
-      host.textContent = "";
-      return;
-    }
-
-    // Parse the raw HTML document so we can lift styles + body separately.
-    const doc = new DOMParser().parseFromString(noteHtml, "text/html");
-
-    // Collect every <style> block from the head (and any stray ones in body).
-    const styleEls = Array.from(
-      doc.querySelectorAll("style"),
-    ) as HTMLStyleElement[];
-    const cssText = styleEls.map((s) => s.textContent ?? "").join("\n");
-
-    // Collect external stylesheets — keep their <link> tags intact.
-    const linkEls = Array.from(
-      doc.querySelectorAll('link[rel="stylesheet"]'),
-    ) as HTMLLinkElement[];
-
-    // Scope document-level selectors (:root / html / body) to the shadow
-    // host so the note renders identically to the raw file without leaking
-    // styles into the app shell.
-    const scopedCss = scopeCssToHost(cssText);
-
-    // Ensure the shadow root exists (open so we can script it if needed).
-    const root =
-      host.shadowRoot ??
-      host.attachShadow({ mode: "open" });
-
-    root.innerHTML = "";
-
-    // <base> so any relative URLs in the note resolve against the note's
-    // own directory rather than the app root.
-    const base = document.createElement("base");
-    base.href = new URL(note.contentPath, window.location.href).href;
-    root.appendChild(base);
-
-    if (scopedCss) {
-      const style = document.createElement("style");
-      style.textContent = scopedCss;
-      root.appendChild(style);
-    }
-
-    for (const link of linkEls) {
-      root.appendChild(link.cloneNode(true));
-    }
-
-    // Move the body's children DIRECTLY into the shadow root (no wrapper).
-    // This way the note's `body{ display:flex; justify-content:center }`
-    // rule — now scoped to `:host` — flexes its real children (the
-    // `.page-wrapper`), centering the page exactly like the raw file.
-    while (doc.body.firstChild) {
-      root.appendChild(doc.body.firstChild);
-    }
-  }, [noteHtml, note?.id]);
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -676,29 +580,53 @@ export function NoteViewer() {
       {/* ═══ Main area (document + floating controls) ═══ */}
       <div ref={mainRef} className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-800">
       {/* ═══ Document Viewer ═══ */}
-      <div className="absolute inset-0 overflow-auto">
+      <div className="absolute inset-0 overflow-auto bg-[#cfc9bb]">
         <AnimatePresence mode="wait">
           <motion.div
             key={note.id}
-            ref={shadowHostRef}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="block w-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="w-full"
             style={{
               minHeight: "100%",
-              transform: `scale(${zoom})`,
-              transformOrigin: "top left",
-              width: "100%",
             }}
-          />
+          >
+            <iframe
+              title={note.title}
+              src={note.contentPath}
+              onLoad={(e) => {
+                // Grow the iframe to fit its document so the whole note
+                // is visible and scrollable inline — no inner scrollbar.
+                try {
+                  const iframe = e.currentTarget;
+                  const doc = iframe.contentDocument;
+                  if (!doc) return;
+                  const resize = () => {
+                    const h = Math.max(
+                      doc.body.scrollHeight,
+                      doc.body.offsetHeight,
+                      doc.documentElement.scrollHeight,
+                      doc.documentElement.offsetHeight,
+                    );
+                    if (h > 0) iframe.style.height = `${h}px`;
+                  };
+                  resize();
+                  setTimeout(resize, 400);
+                  setTimeout(resize, 1200);
+                } catch {
+                  /* cross-origin — ignore */
+                }
+              }}
+              className="block w-full border-0 bg-[#cfc9bb]"
+              style={{
+                minHeight: "100vh",
+                width: "100%",
+              }}
+            />
+          </motion.div>
         </AnimatePresence>
-        {htmlLoading && !noteHtml && (
-          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-            <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
-          </div>
-        )}
       </div>
 
       {/* ═══ Top-left: Tree + Home + Breadcrumb ═══ */}
@@ -1102,26 +1030,6 @@ export function NoteViewer() {
 // ─── Helpers ──────────────────────────────────────────────────
 function Sep() {
   return <div className="mx-0.5 h-5 w-px bg-slate-200" />;
-}
-
-/**
- * Rewrite a note's standalone CSS selectors so the document-level ones
- * (`:root`, `html`, `body`) target the Shadow DOM host instead. This lets
- * the note render identically to its raw file without its styles leaking
- * into the application shell.
- *
- * Only selector tokens are rewritten — property values (which never appear
- * as bare `html`/`body`/`:root` words in this note set) are left untouched.
- */
-function scopeCssToHost(css: string): string {
-  if (!css) return "";
-  return css
-    // `:root` (CSS custom properties) → `:host`
-    .replace(/(^|[}\s,>+~]):root(?=[\s,{>+~]|$)/g, "$1:host")
-    // standalone `html` selector → `:host`
-    .replace(/(^|[}\s,>+~])html(?=[\s,{>+~]|$)/g, "$1:host")
-    // standalone `body` selector → `:host`
-    .replace(/(^|[}\s,>+~])body(?=[\s,{>+~]|$)/g, "$1:host");
 }
 
 function ActionBtn({
