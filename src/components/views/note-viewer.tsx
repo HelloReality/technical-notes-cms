@@ -249,7 +249,50 @@ export function NoteViewer() {
 
   return (
     <div ref={containerRef} className="relative h-screen w-full overflow-hidden bg-slate-800">
-      {/* ═══ Document Viewer (100% viewport) ═══ */}
+      {/* ═══ Top-left: Home button + Breadcrumb ═══ */}
+      <div className="absolute left-3 top-3 z-30 flex items-center gap-2">
+        <button
+          onClick={goHome}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
+          title="Back to home"
+        >
+          <Home className="h-4 w-4" />
+        </button>
+        {/* Breadcrumb directory */}
+        <div className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-xs text-slate-500 shadow-md backdrop-blur-sm sm:flex">
+          {note.category && (
+            <>
+              <span className="text-slate-400">{note.category.name}</span>
+              <ChevronRight className="h-3 w-3 text-slate-300" />
+            </>
+          )}
+          <span className="max-w-[200px] truncate text-slate-700">{note.title}</span>
+          {totalPages > 1 && (
+            <span className="ml-1 text-slate-400">· {currentIndex + 1}/{totalPages}</span>
+          )}
+        </div>
+      </div>
+
+      {/* ═══ Top-right: Pages sidebar toggle + Actions toggle ═══ */}
+      <div className="absolute right-3 top-3 z-30 flex items-center gap-2">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
+          title="Open pages"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => setActionsOpen(!actionsOpen)}
+          className={cn(
+            "flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 shadow-md backdrop-blur-sm transition-colors",
+            actionsOpen ? "bg-white text-slate-900" : "bg-white/95 text-slate-600 hover:bg-white hover:text-slate-900"
+          )}
+          title="Toggle actions"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
+      </div>
       <div className="absolute inset-0 overflow-auto">
         <div className="flex min-h-full items-start justify-center p-4 sm:p-8">
           <div
@@ -425,19 +468,12 @@ export function NoteViewer() {
         </button>
       )}
 
-      {/* ═══ Left Pages Handle / Sidebar ═══ */}
-      {!drawerOpen && (
-        <button
-          className="absolute left-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
-          onClick={() => setDrawerOpen(true)}
-          title="Open Pages sidebar"
-        >
-          <Menu className="h-4 w-4" />
-        </button>
-      )}
-
+      {/* ═══ Left Pages Sidebar (overlay drawer) ═══ */}
       {drawerOpen && (
-        <div className="absolute bottom-0 left-0 top-0 z-30 flex w-[85vw] flex-col bg-white shadow-2xl sm:w-80 sm:max-w-[320px]">
+        <>
+          {/* Backdrop */}
+          <div className="absolute inset-0 z-30 bg-black/30" onClick={() => setDrawerOpen(false)} />
+          <div className="absolute bottom-0 left-0 top-0 z-40 flex w-[85vw] flex-col bg-white shadow-2xl sm:w-80 sm:max-w-[320px]">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
             <span className="text-sm font-semibold text-slate-900">Pages</span>
@@ -481,15 +517,20 @@ export function NoteViewer() {
                     <div className="border-b border-slate-100 bg-slate-50 px-2 py-1 text-center text-[10px] font-semibold">
                       {String(idx + 1).padStart(2, "0")}
                     </div>
-                    {/* Thumbnail placeholder */}
-                    <div className="flex aspect-[3/4] flex-col gap-1 p-2">
-                      <div className={cn("h-1.5 w-3/4 rounded", idx === currentIndex ? "bg-rose-300" : "bg-slate-300")} />
-                      <div className={cn("h-1 w-full rounded", idx === currentIndex ? "bg-rose-200" : "bg-slate-200")} />
-                      <div className="mt-1 flex gap-1">
-                        <div className={cn("h-4 flex-1 rounded", idx === currentIndex ? "bg-blue-200" : "bg-slate-100")} />
-                        <div className={cn("h-4 flex-1 rounded", idx === currentIndex ? "bg-amber-200" : "bg-slate-100")} />
-                      </div>
-                      <div className={cn("h-1 w-2/3 rounded", idx === currentIndex ? "bg-rose-200" : "bg-slate-200")} />
+                    {/* Real page preview via iframe */}
+                    <div className="relative aspect-[3/4] overflow-hidden bg-white">
+                      <iframe
+                        src={page.contentPath}
+                        className="pointer-events-none absolute left-0 top-0 border-0"
+                        style={{
+                          width: "1080px",
+                          height: "1440px",
+                          transform: "scale(0.12)",
+                          transformOrigin: "top left",
+                        }}
+                        sandbox="allow-same-origin"
+                        title={page.title}
+                      />
                     </div>
                     <div className="truncate border-t border-slate-100 bg-slate-50 px-2 py-1 text-[10px] text-slate-600">
                       {page.title}
@@ -499,20 +540,11 @@ export function NoteViewer() {
               </div>
             )}
           </ScrollArea>
-        </div>
+          </div>
+        </>
       )}
 
-      {/* ═══ Right Actions Handle / Panel ═══ */}
-      {!actionsOpen && (
-        <button
-          className="absolute right-3 top-16 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-          onClick={() => setActionsOpen(true)}
-          title="Open actions panel"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </button>
-      )}
-
+      {/* ═══ Right Actions Panel ═══ */}
       {actionsOpen && (
         <div className="absolute right-3 top-16 z-30 w-44 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md">
           <div className="mb-2 flex items-center justify-between">
@@ -524,8 +556,6 @@ export function NoteViewer() {
           <div className="space-y-1">
             <ActionBtn icon={Share2} label={copied ? "Link Copied!" : "Copy Link"} onClick={handleShare} />
             <ActionBtn icon={ExternalLink} label="Open Raw" onClick={() => window.open(note.contentPath, "_blank")} />
-            <div className="my-1 h-px bg-slate-100" />
-            <ActionBtn icon={Home} label="Back to Notes" onClick={goHome} />
           </div>
           {/* Note info */}
           <div className="mt-3 border-t border-slate-100 pt-3">
