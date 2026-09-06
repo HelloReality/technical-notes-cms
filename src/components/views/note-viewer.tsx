@@ -160,8 +160,13 @@ export function NoteViewer() {
   const [expandedTopics, setExpandedTopics] = React.useState<Set<string>>(new Set());
   const [treeSearch, setTreeSearch] = React.useState("");
 
+  // Inline note content (rendered via Shadow DOM instead of an iframe)
+  const [noteHtml, setNoteHtml] = React.useState<string>("");
+  const [htmlLoading, setHtmlLoading] = React.useState(false);
+
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mainRef = React.useRef<HTMLDivElement>(null);
+  const shadowHostRef = React.useRef<HTMLDivElement>(null);
   const downloadRef = React.useRef<HTMLDivElement>(null);
   const zoomRef = React.useRef<HTMLDivElement>(null);
 
@@ -303,30 +308,97 @@ export function NoteViewer() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, computeFitScale]);
 
-  // Iframe load
-  const handleIframeLoad = React.useCallback((e: React.SyntheticEvent<HTMLIFrameElement>) => {
-    try {
-      const iframe = e.currentTarget;
-      const doc = iframe.contentDocument;
-      if (!doc) return;
-      const existing = doc.getElementById("reader-style");
-      if (existing) existing.remove();
-      const style = doc.createElement("style");
-      style.id = "reader-style";
-      style.textContent = `
-        body { justify-content: flex-start !important; padding-left: 42px !important; padding-right: 14px !important; }
-        @media (max-width: 1120px) { html { overflow-x: auto; } }
-      `;
-      doc.head.appendChild(style);
-      const resize = () => {
-        const h = Math.max(doc.body.scrollHeight, doc.body.offsetHeight, doc.documentElement.scrollHeight, doc.documentElement.offsetHeight);
-        iframe.style.height = `${h + 20}px`;
-      };
-      resize();
-      setTimeout(resize, 500);
-      setTimeout(resize, 1500);
-    } catch { /* sandbox */ }
-  }, []);
+  // Fetch the raw note HTML whenever the active note changes.
+  // We render it inline (via Shadow DOM) instead of an iframe so the
+  // document looks exactly like opening the raw file.
+  React.useEffect(() => {
+    let cancelled = false;
+    if (!note?.contentPath) {
+      setNoteHtml("");
+      return;
+    }
+    setHtmlLoading(true);
+    fetch(note.contentPath)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
+      .then((html) => {
+        if (!cancelled) setNoteHtml(html);
+      })
+      .catch(() => {
+        if (!cancelled) setNoteHtml("");
+      })
+      .finally(() => {
+        if (!cancelled) setHtmlLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [note?.contentPath, note?.id]);
+
+  // Inject the fetched HTML into a Shadow DOM root so the note's own
+  // <style> rules (which target `body`, `html`, `:root`) are fully
+  // encapsulated and don't leak into the rest of the application.
+  React.useEffect(() => {
+    const host = shadowHostRef.current;
+    if (!host) return;
+
+    if (!noteHtml) {
+      // Clear any previous content
+      if (host.shadowRoot) host.shadowRoot.innerHTML = "";
+      host.textContent = "";
+      return;
+    }
+
+    // Parse the raw HTML document so we can lift styles + body separately.
+    const doc = new DOMParser().parseFromString(noteHtml, "text/html");
+
+    // Collect every <style> block from the head (and any stray ones in body).
+    const styleEls = Array.from(
+      doc.querySelectorAll("style"),
+    ) as HTMLStyleElement[];
+    const cssText = styleEls.map((s) => s.textContent ?? "").join("\n");
+
+    // Collect external stylesheets — keep their <link> tags intact.
+    const linkEls = Array.from(
+      doc.querySelectorAll('link[rel="stylesheet"]'),
+    ) as HTMLLinkElement[];
+
+    // Scope document-level selectors (:root / html / body) to the shadow
+    // host so the note renders identically to the raw file without leaking
+    // styles into the app shell.
+    const scopedCss = scopeCssToHost(cssText);
+
+    // Grab body content (the actual page markup).
+    const bodyHtml = doc.body?.innerHTML ?? "";
+
+    // Ensure the shadow root exists (open so we can script it if needed).
+    const root =
+      host.shadowRoot ??
+      host.attachShadow({ mode: "open" });
+
+    root.innerHTML = "";
+
+    // <base> so any relative URLs in the note resolve against the note's
+    // own directory rather than the app root.
+    const base = document.createElement("base");
+    base.href = new URL(note.contentPath, window.location.href).href;
+    root.appendChild(base);
+
+    if (scopedCss) {
+      const style = document.createElement("style");
+      style.textContent = scopedCss;
+      root.appendChild(style);
+    }
+
+    for (const link of linkEls) {
+      root.appendChild(link.cloneNode(true));
+    }
+
+    // Body container — the note's `body{...}` styles now target `:host`,
+    // so we expose the host as the body by giving it a single child wrapper.
+    const bodyWrap = document.createElement("div");
+    bodyWrap.innerHTML = bodyHtml;
+    root.appendChild(bodyWrap);
+  }, [noteHtml, note?.id]);
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -614,23 +686,26 @@ export function NoteViewer() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="overflow-x-auto rounded-xl bg-white shadow-2xl"
+              className="relative overflow-x-auto rounded-xl bg-white shadow-2xl"
               style={{ maxWidth: `${1080 + 56}px`, width: "100%" }}
             >
-              <iframe
-                title={note.title}
+              {/* Shadow DOM host renders the raw note HTML inline —
+                  no iframe, looks exactly like opening the raw file. */}
+              <div
+                ref={shadowHostRef}
                 className="block"
                 style={{
                   minHeight: "60vh",
                   transform: `scale(${zoom})`,
                   transformOrigin: "top left",
                   width: `${100 / zoom}%`,
-                  border: 0,
                 }}
-                src={note.contentPath}
-                sandbox="allow-same-origin allow-popups"
-                onLoad={handleIframeLoad}
               />
+              {htmlLoading && !noteHtml && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+                  <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -1037,6 +1112,26 @@ export function NoteViewer() {
 // ─── Helpers ──────────────────────────────────────────────────
 function Sep() {
   return <div className="mx-0.5 h-5 w-px bg-slate-200" />;
+}
+
+/**
+ * Rewrite a note's standalone CSS selectors so the document-level ones
+ * (`:root`, `html`, `body`) target the Shadow DOM host instead. This lets
+ * the note render identically to its raw file without its styles leaking
+ * into the application shell.
+ *
+ * Only selector tokens are rewritten — property values (which never appear
+ * as bare `html`/`body`/`:root` words in this note set) are left untouched.
+ */
+function scopeCssToHost(css: string): string {
+  if (!css) return "";
+  return css
+    // `:root` (CSS custom properties) → `:host`
+    .replace(/(^|[}\s,>+~]):root(?=[\s,{>+~]|$)/g, "$1:host")
+    // standalone `html` selector → `:host`
+    .replace(/(^|[}\s,>+~])html(?=[\s,{>+~]|$)/g, "$1:host")
+    // standalone `body` selector → `:host`
+    .replace(/(^|[}\s,>+~])body(?=[\s,{>+~]|$)/g, "$1:host");
 }
 
 function ActionBtn({
