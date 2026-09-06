@@ -374,44 +374,71 @@ export function NoteViewer() {
 
   return (
     <div ref={containerRef} className="flex h-screen w-full overflow-hidden bg-slate-800">
-      {/* ═══ Inline collapsible tree sidebar (Category → Topic → subtopic) ═══ */}
+      {/* ═══ Inline collapsible tree sidebar ═══ */}
+      {/* Always shows a 48px icon rail (tree toggle + home). Expands to
+          248px to reveal the full Category → Topic → subtopic tree. */}
       <motion.aside
         initial={false}
-        animate={{ width: treeOpen ? 248 : 0 }}
+        animate={{ width: treeOpen ? 248 : 48 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className="relative z-30 shrink-0 overflow-hidden border-r border-slate-200 bg-slate-50"
       >
-        <div className="flex h-full w-[248px] flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2.5">
-            <div className="flex items-center gap-2">
-              <FolderTree className="h-4 w-4 text-slate-500" />
-              <span className="text-sm font-semibold text-slate-900">Browse</span>
-            </div>
+        <div className="flex h-full w-[248px]">
+          {/* ── Always-visible icon rail (48px) ── */}
+          <div className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-slate-200 bg-white py-2.5">
             <button
-              onClick={() => setTreeOpen(false)}
-              className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-              title="Collapse tree (Esc)"
+              onClick={() => setTreeOpen(!treeOpen)}
+              className={cn(
+                "flex size-9 items-center justify-center rounded-lg transition-colors",
+                treeOpen
+                  ? "bg-slate-900 text-white"
+                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+              )}
+              title={treeOpen ? "Collapse tree (Esc)" : "Browse categories (tree)"}
+              aria-pressed={treeOpen}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <FolderTree className="h-4 w-4" />
+            </button>
+            <button
+              onClick={goHome}
+              className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              title="Back to home"
+            >
+              <Home className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Search */}
-          <div className="border-b border-slate-200 bg-white px-3 py-2">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-              <input
-                value={treeSearch}
-                onChange={(e) => setTreeSearch(e.target.value)}
-                placeholder="Filter notes…"
-                className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white"
-              />
+          {/* ── Expandable content panel (clipped when collapsed) ── */}
+          <div className="flex min-w-0 flex-1 flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-slate-900">Browse</span>
+              </div>
+              <button
+                onClick={() => setTreeOpen(false)}
+                className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                title="Collapse tree (Esc)"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
             </div>
-          </div>
 
-          {/* Tree */}
-          <ScrollArea className="flex-1">
+            {/* Search */}
+            <div className="border-b border-slate-200 bg-white px-3 py-2">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={treeSearch}
+                  onChange={(e) => setTreeSearch(e.target.value)}
+                  placeholder="Filter notes…"
+                  className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Tree */}
+            <ScrollArea className="flex-1">
             {filteredTree.length === 0 ? (
               <div className="px-4 py-10 text-center text-xs text-slate-400">
                 No notes found
@@ -574,6 +601,7 @@ export function NoteViewer() {
               </div>
             )}
           </ScrollArea>
+          </div>
         </div>
       </motion.aside>
 
@@ -629,35 +657,13 @@ export function NoteViewer() {
         </AnimatePresence>
       </div>
 
-      {/* ═══ Top-left: Tree + Home + Breadcrumb ═══ */}
+      {/* ═══ Top-left: Breadcrumb ═══ */}
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
-        className="absolute left-3 top-3 z-30 flex items-center gap-2"
+        className="absolute left-14 top-3 z-30 flex items-center gap-2 sm:left-16"
       >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setTreeOpen(!treeOpen)}
-          className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 shadow-md backdrop-blur-sm transition-colors",
-            treeOpen ? "bg-white text-slate-900" : "bg-white/95 text-slate-600 hover:bg-white hover:text-slate-900",
-          )}
-          title={treeOpen ? "Collapse tree (Esc)" : "Browse categories (tree)"}
-          aria-pressed={treeOpen}
-        >
-          <FolderTree className="h-4 w-4" />
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={goHome}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
-          title="Back to home"
-        >
-          <Home className="h-4 w-4" />
-        </motion.button>
         <div className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-xs text-slate-500 shadow-md backdrop-blur-sm sm:flex">
           {note.category && (
             <>
