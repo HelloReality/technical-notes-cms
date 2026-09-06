@@ -299,24 +299,6 @@ export function NoteViewer() {
             className="overflow-x-auto rounded-xl bg-white shadow-2xl"
             style={{ maxWidth: `${1080 + 56}px`, width: "100%" }}
           >
-            {/* Note header (outside iframe, on the white paper) */}
-            <div className="border-b border-slate-100 px-6 py-4">
-              <div className="mb-1.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                {note.category && (
-                  <Badge variant="outline" className="border-rose-300 bg-rose-50 text-rose-600">
-                    {note.category.name}
-                  </Badge>
-                )}
-                <span className="flex items-center gap-1">
-                  <Clock className="size-3" /> {fromNow(note.updatedAt)}
-                </span>
-              </div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-900">{note.title}</h1>
-              {note.description && (
-                <p className="mt-1 text-sm text-slate-500">{note.description}</p>
-              )}
-            </div>
-
             <iframe
               title={note.title}
               className="block"
