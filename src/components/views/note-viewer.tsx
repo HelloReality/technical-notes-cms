@@ -367,9 +367,6 @@ export function NoteViewer() {
     // styles into the app shell.
     const scopedCss = scopeCssToHost(cssText);
 
-    // Grab body content (the actual page markup).
-    const bodyHtml = doc.body?.innerHTML ?? "";
-
     // Ensure the shadow root exists (open so we can script it if needed).
     const root =
       host.shadowRoot ??
@@ -393,11 +390,13 @@ export function NoteViewer() {
       root.appendChild(link.cloneNode(true));
     }
 
-    // Body container — the note's `body{...}` styles now target `:host`,
-    // so we expose the host as the body by giving it a single child wrapper.
-    const bodyWrap = document.createElement("div");
-    bodyWrap.innerHTML = bodyHtml;
-    root.appendChild(bodyWrap);
+    // Move the body's children DIRECTLY into the shadow root (no wrapper).
+    // This way the note's `body{ display:flex; justify-content:center }`
+    // rule — now scoped to `:host` — flexes its real children (the
+    // `.page-wrapper`), centering the page exactly like the raw file.
+    while (doc.body.firstChild) {
+      root.appendChild(doc.body.firstChild);
+    }
   }, [noteHtml, note?.id]);
 
   const handleShare = () => {
@@ -678,36 +677,29 @@ export function NoteViewer() {
       <div ref={mainRef} className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-800">
       {/* ═══ Document Viewer ═══ */}
       <div className="absolute inset-0 overflow-auto">
-        <div className="flex min-h-full items-start justify-center p-4 pt-16 sm:p-8 sm:pt-16">
+        <div className="min-h-full pt-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={note.id}
+              ref={shadowHostRef}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="relative overflow-x-auto rounded-xl bg-white shadow-2xl"
-              style={{ maxWidth: `${1080 + 56}px`, width: "100%" }}
-            >
-              {/* Shadow DOM host renders the raw note HTML inline —
-                  no iframe, looks exactly like opening the raw file. */}
-              <div
-                ref={shadowHostRef}
-                className="block"
-                style={{
-                  minHeight: "60vh",
-                  transform: `scale(${zoom})`,
-                  transformOrigin: "top left",
-                  width: `${100 / zoom}%`,
-                }}
-              />
-              {htmlLoading && !noteHtml && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm">
-                  <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
-                </div>
-              )}
-            </motion.div>
+              className="block w-full"
+              style={{
+                minHeight: "calc(100vh - 4rem)",
+                transform: `scale(${zoom})`,
+                transformOrigin: "top left",
+                width: "100%",
+              }}
+            />
           </AnimatePresence>
+          {htmlLoading && !noteHtml && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center pt-16">
+              <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
+            </div>
+          )}
         </div>
       </div>
 
