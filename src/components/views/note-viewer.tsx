@@ -563,11 +563,11 @@ export function NoteViewer() {
               onClick={() => setDrawerOpen(false)}
             />
             <motion.div
-              initial={{ x: "-100%" }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
+              exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="absolute bottom-0 left-0 top-0 z-40 flex w-[85vw] flex-col bg-white shadow-2xl sm:w-80 sm:max-w-[320px]"
+              className="absolute bottom-0 right-0 top-0 z-40 flex w-[85vw] flex-col bg-white shadow-2xl sm:w-80 sm:max-w-[320px]"
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
@@ -594,7 +594,8 @@ export function NoteViewer() {
                       <motion.button
                         key={page.id}
                         custom={idx}
-                        {...listItemVariants}
+                        initial={{ x: -10, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1, transition: { delay: idx * 0.03, duration: 0.15, ease: "easeOut" } }}
                         onClick={() => handleNavigate(page)}
                         className={cn("flex w-full items-center rounded-lg border px-3 py-2.5 text-left",
                           idx === currentIndex ? "border-rose-200 bg-rose-50" : "border-transparent hover:bg-slate-50")}
@@ -614,7 +615,8 @@ export function NoteViewer() {
                       <motion.button
                         key={page.id}
                         custom={idx}
-                        {...tileVariants}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1, transition: { delay: idx * 0.04, duration: 0.2, ease: "easeOut" } }}
                         whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => handleNavigate(page)}
