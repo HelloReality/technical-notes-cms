@@ -158,7 +158,6 @@ export function NoteViewer() {
   const [treeOpen, setTreeOpen] = React.useState(false);
   const [expandedCats, setExpandedCats] = React.useState<Set<string>>(new Set());
   const [expandedTopics, setExpandedTopics] = React.useState<Set<string>>(new Set());
-  const [treeSearch, setTreeSearch] = React.useState("");
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mainRef = React.useRef<HTMLDivElement>(null);
@@ -353,25 +352,6 @@ export function NoteViewer() {
 
   const zoomLabel = zoomMode === "fit" ? "Fit" : `${Math.round(zoom * 100)}%`;
 
-  // Filter tree by search query
-  const filteredTree = treeSearch.trim()
-    ? tree
-        .map((node) => {
-          const q = treeSearch.toLowerCase();
-          return {
-            ...node,
-            topics: node.topics
-              .map((t) => ({
-                ...t,
-                notes: t.notes.filter((n) => n.title.toLowerCase().includes(q)),
-              }))
-              .filter((t) => t.notes.length > 0),
-            notes: node.notes.filter((n) => n.title.toLowerCase().includes(q)),
-          };
-        })
-        .filter((n) => n.topics.length > 0 || n.notes.length > 0)
-    : tree;
-
   return (
     <div ref={containerRef} className="flex h-screen w-full overflow-hidden bg-slate-800">
       {/* ═══ Inline collapsible tree sidebar ═══ */}
@@ -424,30 +404,31 @@ export function NoteViewer() {
               </button>
             </div>
 
-            {/* Search */}
+            {/* Search (opens the global search window) */}
             <div className="border-b border-slate-200 bg-white px-3 py-2">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-                <input
-                  value={treeSearch}
-                  onChange={(e) => setTreeSearch(e.target.value)}
-                  placeholder="Filter notes…"
-                  className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-xs text-slate-700 outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white"
-                />
-              </div>
+              <button
+                onClick={openSearchModal}
+                className="flex w-full items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs text-slate-400 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-600"
+                title="Search notes (Ctrl+K)"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span>Search notes…</span>
+                <kbd className="ml-auto rounded border border-slate-200 bg-white px-1 py-0.5 text-[9px] font-mono text-slate-400">
+                  ⌘K
+                </kbd>
+              </button>
             </div>
 
             {/* Tree */}
             <ScrollArea className="flex-1">
-            {filteredTree.length === 0 ? (
+            {tree.length === 0 ? (
               <div className="px-4 py-10 text-center text-xs text-slate-400">
                 No notes found
               </div>
             ) : (
               <div className="space-y-0.5 p-2">
-                {filteredTree.map((node) => {
-                  const isExpanded =
-                    expandedCats.has(node.category.id) || !!treeSearch.trim();
+                {tree.map((node) => {
+                  const isExpanded = expandedCats.has(node.category.id);
                   const allNotes = [
                     ...node.notes,
                     ...node.topics.flatMap((t) => t.notes),
@@ -520,9 +501,7 @@ export function NoteViewer() {
                               ))}
                               {/* Topics → subtopics */}
                               {node.topics.map((topic) => {
-                                const tExp =
-                                  expandedTopics.has(topic.category.id) ||
-                                  !!treeSearch.trim();
+                                const tExp = expandedTopics.has(topic.category.id);
                                 const isActiveT = topic.notes.some(
                                   (n) => n.id === note.id,
                                 );
@@ -657,12 +636,12 @@ export function NoteViewer() {
         </AnimatePresence>
       </div>
 
-      {/* ═══ Top-left: Breadcrumb ═══ */}
+      {/* ═══ Top-center: Breadcrumb ═══ */}
       <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="absolute left-14 top-3 z-30 flex items-center gap-2 sm:left-16"
+        className="pointer-events-none absolute left-1/2 top-3 z-30 flex -translate-x-1/2 items-center gap-2"
       >
         <div className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-xs text-slate-500 shadow-md backdrop-blur-sm sm:flex">
           {note.category && (
@@ -678,35 +657,13 @@ export function NoteViewer() {
         </div>
       </motion.div>
 
-      {/* ═══ Top-right: Search + Pages + Actions ═══ */}
+      {/* ═══ Top-right: Pages + Actions ═══ */}
       <motion.div
         initial={{ opacity: 0, x: 10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
         className="absolute right-3 top-3 z-30 flex items-center gap-2"
       >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={openSearchModal}
-          className="hidden h-9 items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-3 text-xs text-slate-500 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900 sm:flex"
-          title="Search notes (Ctrl+K)"
-        >
-          <Search className="h-3.5 w-3.5" />
-          <span>Search</span>
-          <kbd className="rounded border border-slate-200 bg-slate-100 px-1 py-0.5 text-[9px] font-mono text-slate-400">
-            ⌘K
-          </kbd>
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={openSearchModal}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900 sm:hidden"
-          title="Search notes (Ctrl+K)"
-        >
-          <Search className="h-4 w-4" />
-        </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -730,7 +687,7 @@ export function NoteViewer() {
         </motion.button>
       </motion.div>
 
-      {/* ═══ Top Floating Toolbar ═══ */}
+      {/* ═══ Top Floating Toolbar (top-left: page nav + zoom) ═══ */}
       <AnimatePresence>
         {toolbarExpanded ? (
           <motion.div
@@ -739,49 +696,9 @@ export function NoteViewer() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            style={{ position: "absolute", left: "50%", top: "3rem", translateX: "-50%", zIndex: 20 }}
+            style={{ position: "absolute", left: "3.5rem", top: "3rem", zIndex: 20 }}
           >
             <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
-              {/* Download */}
-              <div className="relative" ref={downloadRef}>
-                <Button variant="ghost" size="icon"
-                  className={cn("h-8 w-8 rounded-full", downloadOpen && "bg-slate-100")}
-                  onClick={() => setDownloadOpen(!downloadOpen)} title="Export">
-                  <Download className="h-4 w-4" />
-                </Button>
-                <AnimatePresence>
-                  {downloadOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute left-0 top-full mt-2 w-56 rounded-lg border border-slate-200 bg-white p-1 shadow-xl"
-                    >
-                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        Current Page ({currentIndex + 1})
-                      </div>
-                      {["PNG", "JPEG", "PDF"].map(fmt => (
-                        <button key={fmt} onClick={() => setDownloadOpen(false)}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
-                          <FileImage className="h-3.5 w-3.5 text-slate-400" /> {fmt}
-                        </button>
-                      ))}
-                      <div className="my-1 h-px bg-slate-100" />
-                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">All Pages</div>
-                      {["PDF", "PNG (ZIP)"].map(fmt => (
-                        <button key={fmt} onClick={() => setDownloadOpen(false)}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
-                          <FileText className="h-3.5 w-3.5 text-slate-400" /> {fmt}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <Sep />
-
               {/* Prev / page input / Next */}
               <Button variant="ghost" size="icon" disabled={!prevPage}
                 onClick={() => prevPage && handleNavigate(prevPage)}
@@ -880,7 +797,7 @@ export function NoteViewer() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ delay: 0.1, duration: 0.2 }}
-            style={{ position: "absolute", left: "50%", top: "0.5rem", translateX: "-50%", zIndex: 20 }}
+            style={{ position: "absolute", left: "3.5rem", top: "0.5rem", zIndex: 20 }}
             className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-4 py-1.5 text-xs text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
             onClick={() => setToolbarExpanded(true)}
             title="Expand toolbar"
@@ -998,7 +915,7 @@ export function NoteViewer() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="absolute right-3 top-16 z-30 w-44 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
+            className="absolute right-3 top-16 z-30 w-52 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
           >
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</span>
@@ -1010,6 +927,59 @@ export function NoteViewer() {
               <ActionBtn icon={Share2} label={copied ? "Link Copied!" : "Copy Link"} onClick={handleShare} />
               <ActionBtn icon={ExternalLink} label="Open Raw" onClick={() => window.open(note.contentPath, "_blank")} />
             </div>
+
+            {/* Download / Export */}
+            <div className="mt-2 border-t border-slate-100 pt-2" ref={downloadRef}>
+              <button
+                onClick={() => setDownloadOpen(!downloadOpen)}
+                className={cn(
+                  "flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50",
+                  downloadOpen && "bg-slate-50",
+                )}
+              >
+                <Download className={cn("h-4 w-4 text-slate-500", downloadOpen && "text-slate-900")} />
+                <span className={cn("text-slate-700", downloadOpen && "font-medium text-slate-900")}>Download</span>
+                <ChevronDown className={cn("ml-auto h-3.5 w-3.5 text-slate-400 transition-transform", downloadOpen && "rotate-180")} />
+              </button>
+              <AnimatePresence>
+                {downloadOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="ml-2 mt-1 space-y-0.5 border-l border-slate-100 pl-2">
+                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        Current Page ({currentIndex + 1})
+                      </div>
+                      {["PNG", "JPEG", "PDF"].map((fmt) => (
+                        <button
+                          key={fmt}
+                          onClick={() => setDownloadOpen(false)}
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100"
+                        >
+                          <FileImage className="h-3.5 w-3.5 text-slate-400" /> {fmt}
+                        </button>
+                      ))}
+                      <div className="my-1 h-px bg-slate-100" />
+                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">All Pages</div>
+                      {["PDF", "PNG (ZIP)"].map((fmt) => (
+                        <button
+                          key={fmt}
+                          onClick={() => setDownloadOpen(false)}
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100"
+                        >
+                          <FileText className="h-3.5 w-3.5 text-slate-400" /> {fmt}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <div className="mt-3 border-t border-slate-100 pt-3">
               <div className="flex flex-col gap-1 text-xs text-slate-500">
                 <div className="flex items-center gap-1.5">
