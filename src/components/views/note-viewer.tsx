@@ -37,6 +37,7 @@ import { useAppStore } from "@/lib/store";
 import { fromNow, formatDateTime } from "@/lib/format";
 import type { Note, Category } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type SidebarMode = "tile" | "list";
 
@@ -171,6 +172,11 @@ export function NoteViewer() {
   const mainRef = React.useRef<HTMLDivElement>(null);
   const downloadRef = React.useRef<HTMLDivElement>(null);
   const zoomRef = React.useRef<HTMLDivElement>(null);
+  const mobileZoomRef = React.useRef<HTMLDivElement>(null);
+
+  // Responsive: below 768px the tree becomes an overlay drawer (no inline rail)
+  // and the toolbar zoom group is hidden (moved into the actions panel).
+  const isMobile = useIsMobile();
 
   // ─── Build tree ─────────────────────────────────────────────
   const tree = React.useMemo(
@@ -297,7 +303,11 @@ export function NoteViewer() {
   React.useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (downloadOpen && downloadRef.current && !downloadRef.current.contains(e.target as Node)) setDownloadOpen(false);
-      if (zoomPresetsOpen && zoomRef.current && !zoomRef.current.contains(e.target as Node)) setZoomPresetsOpen(false);
+      if (zoomPresetsOpen) {
+        const inDesktop = zoomRef.current?.contains(e.target as Node) ?? false;
+        const inMobile = mobileZoomRef.current?.contains(e.target as Node) ?? false;
+        if (!inDesktop && !inMobile) setZoomPresetsOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -387,18 +397,29 @@ export function NoteViewer() {
 
   return (
     <div ref={containerRef} className="flex h-screen w-full overflow-hidden bg-slate-800">
-      {/* ═══ Inline collapsible tree sidebar ═══ */}
-      {/* Always shows a 48px icon rail (tree toggle + home). Expands to
-          248px to reveal the full Category → Topic → subtopic tree. */}
+      {/* ═══ Tree sidebar ═══ */}
+      {/* Desktop (≥768px): inline collapsible rail — 48px collapsed, 248px
+          expanded. Mobile (<768px): no rail when closed; opens as a
+          left-docked overlay drawer (w-85vw max 320px) with a backdrop. */}
       <motion.aside
+        key={isMobile ? "tree-mobile" : "tree-desktop"}
         initial={false}
-        animate={{ width: treeOpen ? 248 : 48 }}
+        animate={
+          isMobile
+            ? { x: treeOpen ? "0%" : "-100%", opacity: treeOpen ? 1 : 0 }
+            : { width: treeOpen ? 248 : 48 }
+        }
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="relative z-30 shrink-0 overflow-hidden border-r border-slate-200 bg-slate-50"
+        className={cn(
+          "shrink-0 overflow-hidden border-r border-slate-200 bg-slate-50",
+          isMobile
+            ? "absolute inset-y-0 left-0 z-50 w-[85vw] max-w-[320px] shadow-2xl"
+            : "relative z-30",
+        )}
       >
-        <div className="flex h-full w-[248px]">
-          {/* ── Always-visible icon rail (48px) ── */}
-          <div className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-slate-200 bg-white py-2.5">
+        <div className="flex h-full w-full md:w-[248px]">
+          {/* ── Icon rail (desktop only — hidden on mobile where the tree is an overlay) ── */}
+          <div className="hidden w-12 shrink-0 flex-col items-center gap-1 border-r border-slate-200 bg-white py-2.5 md:flex">
             <button
               onClick={() => setTreeOpen(!treeOpen)}
               className={cn(
@@ -619,6 +640,20 @@ export function NoteViewer() {
 
       {/* ═══ Main area (document + floating controls) ═══ */}
       <div ref={mainRef} className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-800">
+      {/* Mobile tree drawer backdrop */}
+      <AnimatePresence>
+        {isMobile && treeOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 z-40 bg-black/30"
+            onClick={() => setTreeOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* ═══ Document Viewer ═══ */}
       <div className="absolute inset-0 overflow-auto bg-[#cfc9bb]">
         <AnimatePresence mode="wait">
@@ -708,7 +743,7 @@ export function NoteViewer() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            style={{ position: "absolute", left: "3.5rem", top: "0.5rem", zIndex: 20 }}
+            className="absolute left-3 top-2 z-20 md:left-14"
           >
             <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
               {/* Prev / page input / Next */}
@@ -741,6 +776,7 @@ export function NoteViewer() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
 
+              <div className="hidden items-center gap-1 sm:flex">
               <Sep />
 
               {/* Zoom */}
@@ -788,15 +824,16 @@ export function NoteViewer() {
               </Button>
 
               <Sep />
+              </div>
 
               {/* Fullscreen */}
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+              <Button variant="ghost" size="icon" className="hidden h-8 w-8 rounded-full sm:inline-flex"
                 onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
                 {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
               </Button>
 
               {/* Collapse */}
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+              <Button variant="ghost" size="icon" className="hidden h-8 w-8 rounded-full sm:inline-flex"
                 onClick={() => setToolbarExpanded(false)} title="Collapse toolbar (Esc)">
                 <ChevronUp className="h-4 w-4" />
               </Button>
@@ -809,8 +846,7 @@ export function NoteViewer() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ delay: 0.1, duration: 0.2 }}
-            style={{ position: "absolute", left: "3.5rem", top: "0.5rem", zIndex: 20 }}
-            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-4 py-1.5 text-xs text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+            className="absolute left-3 top-2 z-20 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-4 py-1.5 text-xs text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white md:left-14"
             onClick={() => setToolbarExpanded(true)}
             title="Expand toolbar"
           >
@@ -927,8 +963,18 @@ export function NoteViewer() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="absolute right-3 top-16 z-30 w-52 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
+            className="absolute right-3 top-16 z-30 max-h-[calc(100vh-5rem)] w-52 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
           >
+            {/* Mobile: Navigation (the inline icon rail is hidden below md:) */}
+            <div className="mb-2 border-b border-slate-100 pb-2 md:hidden">
+              <div className="mb-1 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Navigate
+              </div>
+              <div className="space-y-1">
+                <ActionBtn icon={FolderTree} label="Browse tree" onClick={() => setTreeOpen(true)} />
+                <ActionBtn icon={Home} label="Back to home" onClick={goHome} />
+              </div>
+            </div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</span>
               <button onClick={() => setActionsOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -938,6 +984,56 @@ export function NoteViewer() {
             <div className="space-y-1">
               <ActionBtn icon={Share2} label={copied ? "Link Copied!" : "Copy Link"} onClick={handleShare} />
               <ActionBtn icon={ExternalLink} label="Open Raw" onClick={() => window.open(note.contentPath, "_blank")} />
+            </div>
+
+            {/* Mobile: Zoom controls (toolbar zoom group is hidden below sm:) */}
+            <div className="mt-2 border-t border-slate-100 pt-2 sm:hidden" ref={mobileZoomRef}>
+              <div className="mb-1 flex items-center justify-between px-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Zoom</span>
+                <span className="font-mono text-[10px] text-slate-500">{zoomLabel}</span>
+              </div>
+              <div className="flex items-center gap-1 px-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+                  onClick={() => { setZoomMode("manual"); setZoom(Math.max(0.25, zoom - 0.1)); }}
+                  title="Zoom out">
+                  <ZoomOut className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+                  onClick={() => { setZoomMode("manual"); setZoom(Math.min(4, zoom + 0.1)); }}
+                  title="Zoom in">
+                  <ZoomIn className="h-4 w-4" />
+                </Button>
+                <button
+                  className="ml-auto rounded border border-transparent bg-slate-100 px-2 py-1 text-[10px] text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-200"
+                  onClick={() => setZoomPresetsOpen(!zoomPresetsOpen)}
+                >
+                  {zoomPresetsOpen ? "Hide" : "Presets"}
+                </button>
+              </div>
+              <AnimatePresence>
+                {zoomPresetsOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-1 grid grid-cols-3 gap-1 border-t border-slate-100 p-2">
+                      <button onClick={() => { setZoomMode("fit"); computeFitScale(); setZoomPresetsOpen(false); }}
+                        className="flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-slate-700 hover:bg-slate-100">
+                        <Maximize className="h-3 w-3" /> Fit
+                      </button>
+                      {["50%", "75%", "100%", "125%", "150%", "200%"].map(label => (
+                        <button key={label} onClick={() => { setZoomMode("manual"); setZoom(parseInt(label) / 100); setZoomPresetsOpen(false); }}
+                          className="rounded-md px-2 py-1.5 text-center text-[11px] text-slate-700 hover:bg-slate-100">
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Download / Export */}

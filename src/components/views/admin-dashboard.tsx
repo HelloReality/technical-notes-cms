@@ -855,7 +855,7 @@ function NotesTable({
 
   return (
     <div className="scroll-thin max-h-[420px] overflow-y-auto">
-      <Table>
+      <Table className="min-w-[560px] sm:min-w-0">
         <TableHeader className="sticky top-0 bg-card">
           <TableRow>
             {enableSelection && (
