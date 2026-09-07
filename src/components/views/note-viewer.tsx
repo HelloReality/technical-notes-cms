@@ -286,11 +286,11 @@ export function NoteViewer() {
   }, [zoomMode, computeFitScale]);
 
   // ─── Note scaling (Instagram-style) ──────────────────────────
-  // Render the note at its native desktop width (including the spiral
-  // binding rings that extend outside the page), then scale the whole
-  // iframe down to fit the available width on mobile/tablet — like an
-  // Instagram post: the full page (rings + content + sidebar) is visible,
-  // just smaller, and you scroll vertically. No redesign of the note.
+  // Load the raw note HTML in an iframe at its natural desktop width,
+  // then scale the whole iframe down to fit the available width on
+  // mobile/tablet — like an Instagram post: the full page (rings +
+  // shadow + content + sidebar) is visible, just smaller. The note's
+  // HTML/CSS is NEVER modified — it renders exactly as the raw file.
   const applyNoteScale = React.useCallback(() => {
     const iframe = iframeRef.current;
     const container = mainRef.current;
@@ -299,10 +299,13 @@ export function NoteViewer() {
       const doc = iframe.contentDocument;
       const avail = container.clientWidth;
 
-      // The note's full width includes the 1080px page + body padding +
-      // the spiral rings that extend OUTSIDE the page's left edge. Use the
-      // document's actual scrollWidth so the rings aren't clipped.
-      let NATIVE = 1080;
+      // The note's content (page-wrapper) is 1080px, but the spiral
+      // rings extend ~30px to the LEFT of the page (negative position)
+      // and the box-shadow extends ~60px to the right. scrollWidth
+      // doesn't capture negative-positioned content, so we add a
+      // generous buffer (120px = 60px each side) to guarantee the
+      // rings AND shadow are fully visible — not clipped.
+      let NATIVE = 1200;
       if (doc) {
         const sw = Math.max(
           doc.body.scrollWidth,
@@ -310,7 +313,9 @@ export function NoteViewer() {
           doc.documentElement.scrollWidth,
           doc.documentElement.offsetWidth,
         );
-        if (sw > 0) NATIVE = sw;
+        // Use the larger of scrollWidth or 1200, then add 120px buffer
+        // for left-overflowing rings + right-overflowing shadow.
+        if (sw > 0) NATIVE = sw + 120;
       }
 
       const scale = avail < NATIVE ? avail / NATIVE : 1;
