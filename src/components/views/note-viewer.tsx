@@ -636,27 +636,6 @@ export function NoteViewer() {
         </AnimatePresence>
       </div>
 
-      {/* ═══ Top-center: Breadcrumb ═══ */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="pointer-events-none absolute left-1/2 top-3 z-30 flex -translate-x-1/2 items-center gap-2"
-      >
-        <div className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-xs text-slate-500 shadow-md backdrop-blur-sm sm:flex">
-          {note.category && (
-            <>
-              <span className="text-slate-400">{note.category.name}</span>
-              <ChevronRight className="h-3 w-3 text-slate-300" />
-            </>
-          )}
-          <span className="max-w-[200px] truncate text-slate-700">{note.title}</span>
-          {totalPages > 1 && (
-            <span className="ml-1 text-slate-400">· {currentIndex + 1}/{totalPages}</span>
-          )}
-        </div>
-      </motion.div>
-
       {/* ═══ Top-right: Pages + Actions ═══ */}
       <motion.div
         initial={{ opacity: 0, x: 10 }}
