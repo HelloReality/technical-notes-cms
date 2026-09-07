@@ -874,7 +874,9 @@ export function NoteViewer() {
       </AnimatePresence>
 
       {/* ═══ Document Viewer ═══ */}
-      <div className="absolute inset-0 overflow-auto bg-[#cfc9bb]">
+      {/* When the top nav bar is visible, reserve its 40px height (h-10) so the
+          document's top isn't hidden behind the overlay bar. */}
+      <div className={cn("absolute inset-0 overflow-auto bg-[#cfc9bb]", toolbarExpanded && "pt-10")}>
         <AnimatePresence mode="wait">
           <motion.div
             key={note.id}
@@ -911,83 +913,75 @@ export function NoteViewer() {
         </AnimatePresence>
       </div>
 
-      {/* ═══ Top-right: Pages + Actions ═══ */}
-      <motion.div
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-        className="absolute right-3 top-3 z-30 flex items-center gap-2"
-      >
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setDrawerOpen(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
-          title="Open pages"
-        >
-          <Menu className="h-4 w-4" />
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setActionsOpen(!actionsOpen)}
-          className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 shadow-md backdrop-blur-sm transition-colors",
-            actionsOpen ? "bg-white text-slate-900" : "bg-white/95 text-slate-600 hover:bg-white hover:text-slate-900"
-          )}
-          title="Toggle actions"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </motion.button>
-      </motion.div>
-
-      {/* ═══ Top Floating Toolbar (top-left: page nav + zoom) ═══ */}
+      {/* ═══ Top Navigation Bar (consolidated) ═══ */}
+      {/* Single horizontal bar spanning the full width of the main area.
+          Replaces the old floating top-left toolbar + top-right Pages/Actions
+          cluster. Hide/show toggle on the far right reuses `toolbarExpanded`. */}
       <AnimatePresence>
         {toolbarExpanded ? (
           <motion.div
-            key="toolbar-expanded"
-            initial={{ opacity: 0, y: -20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            key="navbar-expanded"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="absolute left-3 top-2 z-20 md:left-14"
+            className="absolute left-0 right-0 top-0 z-30 flex h-10 items-center gap-1 border-b border-slate-200 bg-white/95 px-2 shadow-sm backdrop-blur-md"
           >
-            <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
-              {/* Prev / page input / Next */}
-              <Button variant="ghost" size="icon" disabled={!prevPage}
-                onClick={() => prevPage && handleNavigate(prevPage)}
-                className="h-8 w-8 rounded-full" title="Previous page (←)">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center gap-0.5 text-xs font-mono text-slate-700">
-                <input
-                  type="text"
-                  value={pageInputFocused ? pageInputValue : String(currentIndex + 1)}
-                  onChange={(e) => setPageInputValue(e.target.value.replace(/[^0-9]/g, ""))}
-                  onFocus={() => { setPageInputFocused(true); setPageInputValue(String(currentIndex + 1)); }}
-                  onBlur={() => {
-                    setPageInputFocused(false);
-                    const n = parseInt(pageInputValue, 10);
-                    if (!isNaN(n) && n >= 1 && n <= totalPages) handleNavigate(pages[n - 1]);
-                  }}
-                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
-                  className="h-7 w-8 rounded border border-transparent bg-slate-100 text-center text-xs font-mono outline-none transition-colors hover:bg-slate-200 focus:border-slate-300 focus:bg-white"
-                  title="Type page number"
-                />
-                <span className="text-slate-400">/</span>
-                <span className="min-w-[20px] text-center">{totalPages}</span>
-              </div>
-              <Button variant="ghost" size="icon" disabled={!nextPage}
-                onClick={() => nextPage && handleNavigate(nextPage)}
-                className="h-8 w-8 rounded-full" title="Next page (→)">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+            {/* Group 1: Tree toggle + Home + Search */}
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={() => setTreeOpen(!treeOpen)}
+              title={treeOpen ? "Collapse tree (Esc)" : "Browse categories (tree)"}
+              aria-pressed={treeOpen}>
+              <FolderTree className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={goHome}
+              title="Back to home">
+              <Home className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={openSearchModal}
+              title="Search notes (Ctrl+K)">
+              <Search className="h-4 w-4" />
+            </Button>
 
-              <div className="hidden items-center gap-1 sm:flex">
+            <Sep />
+
+            {/* Group 2: Page navigation (prev / counter-input / next) */}
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!prevPage}
+              onClick={() => prevPage && handleNavigate(prevPage)}
+              title="Previous page (←)">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-0.5 text-xs font-mono text-slate-700">
+              <input
+                type="text"
+                value={pageInputFocused ? pageInputValue : String(currentIndex + 1)}
+                onChange={(e) => setPageInputValue(e.target.value.replace(/[^0-9]/g, ""))}
+                onFocus={() => { setPageInputFocused(true); setPageInputValue(String(currentIndex + 1)); }}
+                onBlur={() => {
+                  setPageInputFocused(false);
+                  const n = parseInt(pageInputValue, 10);
+                  if (!isNaN(n) && n >= 1 && n <= totalPages) handleNavigate(pages[n - 1]);
+                }}
+                onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                className="h-7 w-8 rounded border border-transparent bg-slate-100 text-center text-xs font-mono outline-none transition-colors hover:bg-slate-200 focus:border-slate-300 focus:bg-white"
+                title="Type page number"
+              />
+              <span className="text-slate-400">/</span>
+              <span className="min-w-[20px] text-center">{totalPages}</span>
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!nextPage}
+              onClick={() => nextPage && handleNavigate(nextPage)}
+              title="Next page (→)">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+
+            {/* Group 3: Zoom (hidden on mobile — duplicates the actions panel's
+                mobile zoom section to avoid horizontal overflow on 390px). */}
+            <div className="hidden items-center gap-1 sm:flex">
               <Sep />
-
-              {/* Zoom */}
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+              <Button variant="ghost" size="icon" className="h-8 w-8"
                 onClick={zoomOut}
                 title="Zoom out (Ctrl -)">
                 <ZoomOut className="h-4 w-4" />
@@ -1024,38 +1018,58 @@ export function NoteViewer() {
                   )}
                 </AnimatePresence>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+              <Button variant="ghost" size="icon" className="h-8 w-8"
                 onClick={zoomIn}
                 title="Zoom in (Ctrl +)">
                 <ZoomIn className="h-4 w-4" />
               </Button>
+            </div>
 
+            <Sep />
+
+            {/* Group 4: Fullscreen */}
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+            </Button>
+
+            <Sep />
+
+            {/* Group 5: Pages drawer + Actions popover */}
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={() => setDrawerOpen(true)}
+              title="Open pages">
+              <Menu className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              onClick={() => setActionsOpen(!actionsOpen)}
+              title="Toggle actions">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+
+            {/* Spacer pushes the hide toggle to the far right edge */}
+            <div className="ml-auto flex items-center">
               <Sep />
-              </div>
-
-              {/* Fullscreen */}
-              <Button variant="ghost" size="icon" className="hidden h-8 w-8 rounded-full sm:inline-flex"
-                onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
-                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-              </Button>
-
-              {/* Collapse */}
-              <Button variant="ghost" size="icon" className="hidden h-8 w-8 rounded-full sm:inline-flex"
-                onClick={() => setToolbarExpanded(false)} title="Collapse toolbar (Esc)">
+              <Button variant="ghost" size="icon" className="h-8 w-8"
+                onClick={() => setToolbarExpanded(false)}
+                title="Hide toolbar (Esc)">
                 <ChevronUp className="h-4 w-4" />
               </Button>
             </div>
           </motion.div>
         ) : (
+          // Collapsed state: a small floating pill at top-center that
+          // re-expands the bar on click. Shows the page counter so the
+          // user always knows their position.
           <motion.button
-            key="toolbar-collapsed"
+            key="navbar-collapsed"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ delay: 0.1, duration: 0.2 }}
-            className="absolute left-3 top-2 z-20 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-4 py-1.5 text-xs text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white md:left-14"
+            className="absolute left-1/2 top-2 z-30 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-3 py-1.5 text-xs text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
             onClick={() => setToolbarExpanded(true)}
-            title="Expand toolbar"
+            title="Show toolbar"
           >
             <ChevronDown className="h-3 w-3" />
             <span className="font-mono">{currentIndex + 1}/{totalPages}</span>
@@ -1170,7 +1184,7 @@ export function NoteViewer() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="absolute right-3 top-16 z-30 max-h-[calc(100vh-5rem)] w-52 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
+            className="absolute right-[45px] top-14 z-30 max-h-[calc(100vh-5rem)] w-52 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
           >
             {/* Mobile: Navigation (the inline icon rail is hidden below md:) */}
             <div className="mb-2 border-b border-slate-100 pb-2 md:hidden">

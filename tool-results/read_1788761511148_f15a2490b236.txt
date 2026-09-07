@@ -1,0 +1,1469 @@
+     1→"use client";
+     2→
+     3→import * as React from "react";
+     4→import { AnimatePresence, motion } from "framer-motion";
+     5→import {
+     6→  ChevronDown,
+     7→  ChevronLeft,
+     8→  ChevronRight,
+     9→  ChevronUp,
+    10→  Clock,
+    11→  Download,
+    12→  ExternalLink,
+    13→  FileImage,
+    14→  FileText,
+    15→  Folder,
+    16→  FolderOpen,
+    17→  FolderTree,
+    18→  History,
+    19→  Home,
+    20→  Maximize,
+    21→  Menu,
+    22→  Minimize,
+    23→  MoreVertical,
+    24→  Search,
+    25→  Share2,
+    26→  Trash2,
+    27→  X,
+    28→  ZoomIn,
+    29→  ZoomOut,
+    30→} from "lucide-react";
+    31→
+    32→import { Button } from "@/components/ui/button";
+    33→import { Badge } from "@/components/ui/badge";
+    34→import { Skeleton } from "@/components/ui/skeleton";
+    35→import { ScrollArea } from "@/components/ui/scroll-area";
+    36→import { useAppStore } from "@/lib/store";
+    37→import { fromNow, formatDateTime } from "@/lib/format";
+    38→import type { Note, Category } from "@/lib/types";
+    39→import { cn } from "@/lib/utils";
+    40→import { useIsMobile } from "@/hooks/use-mobile";
+    41→
+    42→type SidebarMode = "tile" | "list";
+    43→
+    44→// ─── Page layout (background pattern) ──────────────────────────
+    45→// Viewer option that swaps the note's page background. The note's HTML/CSS
+    46→// is never modified — we inject a small style block that overrides the
+    47→// `.page::before` background used for the graph-paper grid.
+    48→type PageLayout = "grid" | "plain" | "lined" | "dots";
+    49→
+    50→const PAGE_LAYOUTS: {
+    51→  key: PageLayout;
+    52→  label: string;
+    53→  // CSS for the `.page::before` pseudo-element that draws the pattern.
+    54→  // `grid` is empty (keeps the note's own graph-paper background).
+    55→  css: string;
+    56→}[] = [
+    57→  {
+    58→    key: "grid",
+    59→    label: "Grid",
+    60→    css: "", // use the note's original graph paper
+    61→  },
+    62→  {
+    63→    key: "plain",
+    64→    label: "Plain",
+    65→    css: `.page::before, .notebook::before, .paper::before { background-image: none !important; }`,
+    66→  },
+    67→  {
+    68→    key: "lined",
+    69→    label: "Lined",
+    70→    css: `.page::before, .notebook::before, .paper::before {
+    71→      background-image: linear-gradient(to bottom, #b8c5d6 1px, transparent 1px) !important;
+    72→      background-size: 28px 28px !important;
+    73→      opacity: .6 !important;
+    74→    }`,
+    75→  },
+    76→  {
+    77→    key: "dots",
+    78→    label: "Dots",
+    79→    css: `.page::before, .notebook::before, .paper::before {
+    80→      background-image: radial-gradient(circle, #b8c5d6 1px, transparent 1px) !important;
+    81→      background-size: 24px 24px !important;
+    82→      opacity: .8 !important;
+    83→    }`,
+    84→  },
+    85→];
+    86→
+    87→// ─── Tree node type ───────────────────────────────────────────
+    88→interface TreeNode {
+    89→  category: Category;
+    90→  topics: { category: Category; notes: Note[] }[];
+    91→  notes: Note[];
+    92→}
+    93→
+    94→function buildTree(categories: Category[], notes: Note[]): TreeNode[] {
+    95→  const top = categories.filter((c) => !c.parentId);
+    96→  return top
+    97→    .map((cat) => {
+    98→      const topics = categories
+    99→        .filter((c) => c.parentId === cat.id)
+   100→        .map((sub) => ({
+   101→          category: sub,
+   102→          notes: notes
+   103→            .filter((n) => n.categoryId === sub.id)
+   104→            .sort(
+   105→              (a, b) =>
+   106→                new Date(a.createdAt).getTime() -
+   107→                new Date(b.createdAt).getTime(),
+   108→            ),
+   109→        }))
+   110→        .filter((t) => t.notes.length > 0);
+   111→      const directNotes = notes
+   112→        .filter((n) => n.categoryId === cat.id)
+   113→        .sort(
+   114→          (a, b) =>
+   115→            new Date(a.createdAt).getTime() -
+   116→            new Date(b.createdAt).getTime(),
+   117→        );
+   118→      return { category: cat, topics, notes: directNotes };
+   119→    })
+   120→    .filter((n) => n.topics.length > 0 || n.notes.length > 0);
+   121→}
+   122→
+   123→// ─── Animation variants ───────────────────────────────────────
+   124→const drawerVariants = {
+   125→  hidden: { x: "-100%", opacity: 0 },
+   126→  visible: { x: 0, opacity: 1, transition: { type: "spring", damping: 30, stiffness: 300 } },
+   127→  exit: { x: "-100%", opacity: 0, transition: { duration: 0.2 } },
+   128→};
+   129→
+   130→const actionsVariants = {
+   131→  hidden: { x: 20, opacity: 0, scale: 0.95 },
+   132→  visible: { x: 0, opacity: 1, scale: 1, transition: { type: "spring", damping: 25, stiffness: 300 } },
+   133→  exit: { x: 20, opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+   134→};
+   135→
+   136→const toolbarVariants = {
+   137→  hidden: { y: -20, opacity: 0, scale: 0.95 },
+   138→  visible: { y: 0, opacity: 1, scale: 1, transition: { type: "spring", damping: 25, stiffness: 300 } },
+   139→  exit: { y: -20, opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+   140→};
+   141→
+   142→const collapsedHandleVariants = {
+   143→  hidden: { y: -10, opacity: 0 },
+   144→  visible: { y: 0, opacity: 1, transition: { delay: 0.1, duration: 0.2 } },
+   145→  exit: { y: -10, opacity: 0, transition: { duration: 0.1 } },
+   146→};
+   147→
+   148→const pageTransition = {
+   149→  initial: { opacity: 0, y: 10 },
+   150→  animate: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+   151→  exit: { opacity: 0, y: -10, transition: { duration: 0.15, ease: "easeIn" } },
+   152→};
+   153→
+   154→const tileVariants = {
+   155→  hidden: { opacity: 0, scale: 0.9 },
+   156→  visible: (i: number) => ({
+   157→    opacity: 1,
+   158→    scale: 1,
+   159→    transition: { delay: i * 0.04, duration: 0.2, ease: "easeOut" },
+   160→  }),
+   161→};
+   162→
+   163→const listItemVariants = {
+   164→  hidden: { opacity: 0, x: -10 },
+   165→  visible: (i: number) => ({
+   166→    opacity: 1,
+   167→    x: 0,
+   168→    transition: { delay: i * 0.03, duration: 0.15, ease: "easeOut" },
+   169→  }),
+   170→};
+   171→
+   172→const backdropVariants = {
+   173→  hidden: { opacity: 0 },
+   174→  visible: { opacity: 1, transition: { duration: 0.2 } },
+   175→  exit: { opacity: 0, transition: { duration: 0.15 } },
+   176→};
+   177→
+   178→// ─── Main NoteViewer ───────────────────────────────────────────
+   179→export function NoteViewer() {
+   180→  const note = useAppStore((s) => s.selectedNote);
+   181→  const loading = useAppStore((s) => s.noteLoading);
+   182→  const allNotes = useAppStore((s) => s.notes);
+   183→  const allCategories = useAppStore((s) => s.categories);
+   184→  const openNote = useAppStore((s) => s.openNote);
+   185→  const goHome = useAppStore((s) => s.goHome);
+   186→  const openSearchModal = useAppStore((s) => s.openSearchModal);
+   187→  // Recently-viewed tracking
+   188→  const recentViews = useAppStore((s) => s.recentViews);
+   189→  const recentLoading = useAppStore((s) => s.recentLoading);
+   190→  const loadRecentViews = useAppStore((s) => s.loadRecentViews);
+   191→  const clearRecent = useAppStore((s) => s.clearRecent);
+   192→  const recordView = useAppStore((s) => s.recordView);
+   193→
+   194→  // State
+   195→  const [toolbarExpanded, setToolbarExpanded] = React.useState(true);
+   196→  const [drawerOpen, setDrawerOpen] = React.useState(false);
+   197→  const [actionsOpen, setActionsOpen] = React.useState(false);
+   198→  const [downloadOpen, setDownloadOpen] = React.useState(false);
+   199→  const [zoomPresetsOpen, setZoomPresetsOpen] = React.useState(false);
+   200→  const [pageViewMode, setPageViewMode] = React.useState<SidebarMode>("tiles");
+   201→  const [isFullscreen, setIsFullscreen] = React.useState(false);
+   202→  const [copied, setCopied] = React.useState(false);
+   203→  const [zoom, setZoom] = React.useState(1);
+   204→  const [zoomMode, setZoomMode] = React.useState<"fit" | "manual">("fit");
+   205→  const [pageInputValue, setPageInputValue] = React.useState("");
+   206→  const [pageInputFocused, setPageInputFocused] = React.useState(false);
+   207→  const [isNavigating, setIsNavigating] = React.useState(false);
+   208→
+   209→  // Page layout (background pattern) — viewer option that swaps the note's
+   210→  // page background via injected CSS. "grid" = the note's original graph paper.
+   211→  const [pageLayout, setPageLayout] = React.useState<PageLayout>("grid");
+   212→
+   213→  // Tree drawer state (Category → Topic → subtopic navigation)
+   214→  const [treeOpen, setTreeOpen] = React.useState(false);
+   215→  const [expandedCats, setExpandedCats] = React.useState<Set<string>>(new Set());
+   216→  const [expandedTopics, setExpandedTopics] = React.useState<Set<string>>(new Set());
+   217→
+   218→  const containerRef = React.useRef<HTMLDivElement>(null);
+   219→  const mainRef = React.useRef<HTMLDivElement>(null);
+   220→  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+   221→  const downloadRef = React.useRef<HTMLDivElement>(null);
+   222→  const zoomRef = React.useRef<HTMLDivElement>(null);
+   223→  const mobileZoomRef = React.useRef<HTMLDivElement>(null);
+   224→
+   225→  // Responsive: below 768px the tree becomes an overlay drawer (no inline rail)
+   226→  // and the toolbar zoom group is hidden (moved into the actions panel).
+   227→  const isMobile = useIsMobile();
+   228→
+   229→  // ─── Build tree ─────────────────────────────────────────────
+   230→  const tree = React.useMemo(
+   231→    () => buildTree(allCategories, allNotes),
+   232→    [allCategories, allNotes],
+   233→  );
+   234→
+   235→  // ─── Auto-expand active category in the tree ────────────────
+   236→  React.useEffect(() => {
+   237→    if (!note) return;
+   238→    const noteCat = allCategories.find((c) => c.id === note.categoryId);
+   239→    if (!noteCat) return;
+   240→    const parentId = noteCat.parentId ?? noteCat.id;
+   241→    setExpandedCats((prev) => new Set([...prev, parentId]));
+   242→    if (noteCat.parentId)
+   243→      setExpandedTopics((prev) => new Set([...prev, noteCat.id]));
+   244→  }, [note, allCategories]);
+   245→
+   246→  // Pages
+   247→  const pages = React.useMemo(() => {
+   248→    if (!note) return [];
+   249→    return allNotes
+   250→      .filter((n) => n.categoryId === note.categoryId)
+   251→      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+   252→  }, [allNotes, note]);
+   253→
+   254→  // ─── Record a view on the active note (best-effort, fire-and-forget) ───
+   255→  // Fires whenever the active note id changes — covers direct opens, tree
+   256→  // navigation, page-prev/next, and continue-reading clicks.
+   257→  const activeNoteId = note?.id;
+   258→  React.useEffect(() => {
+   259→    if (!activeNoteId) return;
+   260→    recordView(activeNoteId).catch(() => {
+   261→      /* view tracking is best-effort */
+   262→    });
+   263→  }, [activeNoteId, recordView]);
+   264→
+   265→  // ─── Load recent views when the actions panel opens ───
+   266→  React.useEffect(() => {
+   267→    if (!actionsOpen) return;
+   268→    loadRecentViews(5).catch(() => {
+   269→      /* best-effort */
+   270→    });
+   271→  }, [actionsOpen, loadRecentViews]);
+   272→
+   273→  // ─── Filter out the active note from the "Continue reading" list ───
+   274→  // (we don't want to suggest re-opening the note the user is reading).
+   275→  const visibleRecentViews = React.useMemo(() => {
+   276→    return recentViews.filter((v) => v.noteId !== activeNoteId).slice(0, 5);
+   277→  }, [recentViews, activeNoteId]);
+   278→
+   279→  const currentIndex = React.useMemo(() => {
+   280→    if (!note) return -1;
+   281→    return pages.findIndex((p) => p.id === note.id);
+   282→  }, [pages, note]);
+   283→
+   284→  const totalPages = pages.length;
+   285→  const prevPage = currentIndex > 0 ? pages[currentIndex - 1] : null;
+   286→  const nextPage = currentIndex < totalPages - 1 ? pages[currentIndex + 1] : null;
+   287→
+   288→  const handleNavigate = React.useCallback((page: Note) => {
+   289→    setIsNavigating(true);
+   290→    openNote(page);
+   291→    setDrawerOpen(false);
+   292→    setTreeOpen(false);
+   293→    setTimeout(() => setIsNavigating(false), 400);
+   294→  }, [openNote]);
+   295→
+   296→  const toggleCat = (id: string) =>
+   297→    setExpandedCats((prev) => {
+   298→      const n = new Set(prev);
+   299→      if (n.has(id)) n.delete(id);
+   300→      else n.add(id);
+   301→      return n;
+   302→    });
+   303→  const toggleTopic = (id: string) =>
+   304→    setExpandedTopics((prev) => {
+   305→      const n = new Set(prev);
+   306→      if (n.has(id)) n.delete(id);
+   307→      else n.add(id);
+   308→      return n;
+   309→    });
+   310→
+   311→  // Fit-to-view: in "fit" mode, applyNoteScale uses zoomMul=1 and
+   312→  // computes the fit scale directly from the container width. The
+   313→  // zoom state is only used in "manual" mode as a multiplier on top
+   314→  // of the fit scale, so no separate computeFitScale is needed.
+   315→  const computeFitScale = React.useCallback(() => {
+   316→    // Kept as a no-op for backwards-compat with any callers; the real
+   317→    // fit logic lives in applyNoteScale.
+   318→    setZoom(1);
+   319→  }, []);
+   320→
+   321→  // ─── Note scaling (unified page object) ───────────────────────
+   322→  // The ENTIRE notebook sheet — spiral rings + ring shadows + page
+   323→  // shadow + the complete page design + a small intentional outer
+   324→  // margin — is treated as ONE renderable canvas. We measure the
+   325→  // note's true bounding box (including absolutely-positioned rings
+   326→  // and the box-shadow overflow), size the iframe to that exact box,
+   327→  // then scale the whole object as a unit to fit the viewport width.
+   328→  //
+   329→  // The note's internal design is NEVER modified — we only neutralize
+   330→  // the body's outer padding (which is decorative spacing for the raw
+   331→  // standalone file) so the page centers cleanly in the iframe. No
+   332→  // reflow, no redesign. Only the scale of the complete page object
+   333→  // adjusts responsively per device.
+   334→  const applyNoteScale = React.useCallback(() => {
+   335→    const iframe = iframeRef.current;
+   336→    const container = mainRef.current;
+   337→    if (!iframe || !container) return;
+   338→    try {
+   339→      const doc = iframe.contentDocument;
+   340→      if (!doc || !doc.body) return;
+   341→
+   342→      // Neutralize the body's outer padding so the page-wrapper centers
+   343→      // in the full iframe width. This does NOT change the note's page
+   344→      // design — only removes the decorative margin the raw file uses
+   345→      // when viewed standalone.
+   346→      const NEUTRALIZE_ID = "reader-neutralize-body-pad";
+   347→      if (!doc.getElementById(NEUTRALIZE_ID)) {
+   348→        const s = doc.createElement("style");
+   349→        s.id = NEUTRALIZE_ID;
+   350→        s.textContent =
+   351→          "body { padding: 0 !important; margin: 0 !important; }";
+   352→        doc.head.appendChild(s);
+   353→      }
+   354→
+   355→      const avail = container.clientWidth;
+   356→      // Small intentional margin so the shadow/rings don't touch the
+   357→      // viewport edges. Kept constant in screen px (not scaled).
+   358→      const VIEWPORT_MARGIN = 16;
+   359→      const targetW = Math.max(0, avail - VIEWPORT_MARGIN * 2);
+   360→
+   361→      // Find the page element (.page-wrapper / .page / .notebook).
+   362→      const pageEl =
+   363→        (doc.querySelector(".page-wrapper") as HTMLElement | null) ||
+   364→        (doc.querySelector(".page") as HTMLElement | null) ||
+   365→        (doc.querySelector(".notebook") as HTMLElement | null) ||
+   366→        (doc.body.firstElementChild as HTMLElement | null) ||
+   367→        doc.body;
+   368→
+   369→      // Read the page's CSS width directly (the note uses a fixed
+   370→      // width:1080px on .page-wrapper). This is reliable regardless of
+   371→      // the iframe's current laid-out width, avoiding chicken-and-egg
+   372→      // measurement issues.
+   373→      const computedW = doc.defaultView?.getComputedStyle(pageEl).width;
+   374→      const parsedW = computedW ? parseFloat(computedW) : 0;
+   375→      const pageWNum = isFinite(parsedW) && parsedW > 0 ? parsedW : 1080;
+   376→
+   377→      // The complete page object width = page + ring overflow (left) +
+   378→      // shadow spread (both sides). The rings extend ~40px left of the
+   379→      // page; the box-shadow spreads ~60px on all sides.
+   380→      const RING_OVERFLOW = 40;
+   381→      const SHADOW = 60;
+   382→      const objectW = pageWNum + RING_OVERFLOW + SHADOW * 2;
+   383→
+   384→      // Body height includes the page; add shadow for the bottom.
+   385→      const bodyH = Math.max(
+   386→        doc.body.scrollHeight,
+   387→        doc.body.offsetHeight,
+   388→        doc.documentElement.scrollHeight,
+   389→        doc.documentElement.offsetHeight,
+   390→      );
+   391→      const objectH = bodyH + SHADOW;
+   392→
+   393→      // Base fit-to-width scale (page object fills the viewport).
+   394→      const fitScale = targetW < objectW ? targetW / objectW : 1;
+   395→      // Apply the user's zoom multiplier. In "fit" mode zoom stays at 1
+   396→      // (fitScale alone). In "manual" mode the user's zoom (0.25–4)
+   397→      // scales relative to the fit width.
+   398→      const zoomMul = zoomMode === "manual" ? zoom : 1;
+   399→      const scale = fitScale * zoomMul;
+   400→
+   401→      // Size the iframe to the complete page object.
+   402→      const NATIVE_W = objectW;
+   403→      iframe.style.width = `${NATIVE_W}px`;
+   404→      iframe.style.height = `${objectH}px`;
+   405→      iframe.style.transform = `scale(${scale})`;
+   406→      iframe.style.transformOrigin = "top left";
+   407→
+   408→      // Reserve the scaled footprint on the wrapper so the page can
+   409→      // scroll vertically and centers horizontally. When zoomed in
+   410→      // beyond the viewport width, the wrapper grows wider than the
+   411→      // container and the scroll container handles horizontal scroll.
+   412→      const wrapper = iframe.parentElement;
+   413→      if (wrapper) {
+   414→        wrapper.style.width = `${NATIVE_W * scale}px`;
+   415→        wrapper.style.height = `${objectH * scale}px`;
+   416→        wrapper.style.marginLeft = "auto";
+   417→        wrapper.style.marginRight = "auto";
+   418→      }
+   419→    } catch {
+   420→      /* cross-origin — ignore */
+   421→    }
+   422→  }, [zoom, zoomMode]);
+   423→
+   424→  // Re-scale when the viewport changes (resize, tree toggle, orientation).
+   425→  React.useEffect(() => {
+   426→    const handler = () => applyNoteScale();
+   427→    window.addEventListener("resize", handler);
+   428→    return () => window.removeEventListener("resize", handler);
+   429→  }, [applyNoteScale]);
+   430→  React.useEffect(() => {
+   431→    // Re-measure shortly after the tree opens/closes (width changes).
+   432→    const t = setTimeout(applyNoteScale, 320);
+   433→    return () => clearTimeout(t);
+   434→  }, [treeOpen, applyNoteScale]);
+   435→
+   436→  // Re-apply the scale whenever the user changes zoom / zoom mode.
+   437→  React.useEffect(() => {
+   438→    applyNoteScale();
+   439→  }, [applyNoteScale]);
+   440→
+   441→  // ─── Zoom controls ────────────────────────────────────────────
+   442→  // Zoom is a MULTIPLIER on top of the fit-to-width scale. In "fit" mode
+   443→  // the multiplier is 1 (page fills the viewport). Switching to "manual"
+   444→  // via the +/- buttons starts from 1.0 (the fit baseline) and adds the
+   445→  // increment, so zoom-in always makes the page larger, never smaller.
+   446→  const zoomIn = React.useCallback(() => {
+   447→    setZoomMode("manual");
+   448→    setZoom((z) => {
+   449→      // If we were in fit mode, z holds a stale fit value (< 1 on
+   450→      // mobile). Reset to 1.0 baseline before applying the increment.
+   451→      const base = zoomMode === "fit" ? 1 : z;
+   452→      return Math.min(4, +(base + 0.1).toFixed(2));
+   453→    });
+   454→  }, [zoomMode]);
+   455→  const zoomOut = React.useCallback(() => {
+   456→    setZoomMode("manual");
+   457→    setZoom((z) => {
+   458→      const base = zoomMode === "fit" ? 1 : z;
+   459→      return Math.max(0.25, +(base - 0.1).toFixed(2));
+   460→    });
+   461→  }, [zoomMode]);
+   462→  const zoomTo = React.useCallback((value: number) => {
+   463→    setZoomMode("manual");
+   464→    setZoom(value);
+   465→  }, []);
+   466→  const zoomToFit = React.useCallback(() => {
+   467→    setZoomMode("fit");
+   468→    setZoom(1);
+   469→  }, []);
+   470→
+   471→  // ─── Page layout (background pattern) ─────────────────────────
+   472→  // Inject/replace a style block in the note's document to swap the
+   473→  // page background. "grid" removes the override so the note's original
+   474→  // graph-paper shows through.
+   475→  const applyPageLayout = React.useCallback(() => {
+   476→    const iframe = iframeRef.current;
+   477→    if (!iframe) return;
+   478→    try {
+   479→      const doc = iframe.contentDocument;
+   480→      if (!doc) return;
+   481→      const STYLE_ID = "reader-page-layout";
+   482→      const existing = doc.getElementById(STYLE_ID);
+   483→      const layout = PAGE_LAYOUTS.find((l) => l.key === pageLayout);
+   484→      if (layout && layout.css) {
+   485→        if (existing) {
+   486→          existing.textContent = layout.css;
+   487→        } else {
+   488→          const style = doc.createElement("style");
+   489→          style.id = STYLE_ID;
+   490→          style.textContent = layout.css;
+   491→          doc.head.appendChild(style);
+   492→        }
+   493→      } else if (existing) {
+   494→        // "grid" → remove the override so the note's original shows.
+   495→        existing.remove();
+   496→      }
+   497→    } catch {
+   498→      /* cross-origin — ignore */
+   499→    }
+   500→  }, [pageLayout]);
+   501→
+   502→  React.useEffect(() => {
+   503→    applyPageLayout();
+   504→  }, [applyPageLayout]);
+   505→
+   506→  // Fullscreen
+   507→  const toggleFullscreen = React.useCallback(() => {
+   508→    if (!document.fullscreenElement) {
+   509→      containerRef.current?.requestFullscreen?.();
+   510→    } else {
+   511→      document.exitFullscreen?.();
+   512→    }
+   513→  }, []);
+   514→
+   515→  React.useEffect(() => {
+   516→    const h = () => setIsFullscreen(!!document.fullscreenElement);
+   517→    document.addEventListener("fullscreenchange", h);
+   518→    return () => document.removeEventListener("fullscreenchange", h);
+   519→  }, []);
+   520→
+   521→  // Close popovers on outside click
+   522→  React.useEffect(() => {
+   523→    const handler = (e: MouseEvent) => {
+   524→      if (downloadOpen && downloadRef.current && !downloadRef.current.contains(e.target as Node)) setDownloadOpen(false);
+   525→      if (zoomPresetsOpen) {
+   526→        const inDesktop = zoomRef.current?.contains(e.target as Node) ?? false;
+   527→        const inMobile = mobileZoomRef.current?.contains(e.target as Node) ?? false;
+   528→        if (!inDesktop && !inMobile) setZoomPresetsOpen(false);
+   529→      }
+   530→    };
+   531→    document.addEventListener("mousedown", handler);
+   532→    return () => document.removeEventListener("mousedown", handler);
+   533→  }, [downloadOpen, zoomPresetsOpen]);
+   534→
+   535→  // Keyboard
+   536→  React.useEffect(() => {
+   537→    const handleKey = (e: KeyboardEvent) => {
+   538→      const target = e.target as HTMLElement;
+   539→      const isTyping = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
+   540→
+   541→      if (e.key === "Escape") {
+   542→        if (treeOpen) { setTreeOpen(false); return; }
+   543→        if (drawerOpen) { setDrawerOpen(false); return; }
+   544→        if (downloadOpen) { setDownloadOpen(false); return; }
+   545→        if (actionsOpen) { setActionsOpen(false); return; }
+   546→        if (zoomPresetsOpen) { setZoomPresetsOpen(false); return; }
+   547→        setToolbarExpanded(false);
+   548→      }
+   549→
+   550→      if ((e.ctrlKey || e.metaKey) && (e.key === "+" || e.key === "=")) {
+   551→        e.preventDefault(); zoomIn(); return;
+   552→      }
+   553→      if ((e.ctrlKey || e.metaKey) && e.key === "-") {
+   554→        e.preventDefault(); zoomOut(); return;
+   555→      }
+   556→      if ((e.ctrlKey || e.metaKey) && e.key === "0") {
+   557→        e.preventDefault(); zoomToFit(); return;
+   558→      }
+   559→      if (isTyping) return;
+   560→      if (e.key === "ArrowLeft" && !drawerOpen && !treeOpen && prevPage) { e.preventDefault(); handleNavigate(prevPage); }
+   561→      if (e.key === "ArrowRight" && !drawerOpen && !treeOpen && nextPage) { e.preventDefault(); handleNavigate(nextPage); }
+   562→    };
+   563→    window.addEventListener("keydown", handleKey);
+   564→    return () => window.removeEventListener("keydown", handleKey);
+   565→  }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, zoomIn, zoomOut, zoomToFit]);
+   566→
+   567→  const handleShare = () => {
+   568→    navigator.clipboard?.writeText(window.location.href).then(() => {
+   569→      setCopied(true);
+   570→      setTimeout(() => setCopied(false), 2000);
+   571→    });
+   572→  };
+   573→
+   574→  // Render
+   575→  if (loading) {
+   576→    return (
+   577→      <div className="flex h-screen items-center justify-center bg-slate-800">
+   578→        <motion.div
+   579→          initial={{ opacity: 0, scale: 0.95 }}
+   580→          animate={{ opacity: 1, scale: 1 }}
+   581→          transition={{ duration: 0.3 }}
+   582→        >
+   583→          <Skeleton className="h-[60vh] w-full max-w-4xl rounded-xl" />
+   584→        </motion.div>
+   585→      </div>
+   586→    );
+   587→  }
+   588→
+   589→  if (!note) {
+   590→    return (
+   591→      <motion.div
+   592→        initial={{ opacity: 0 }}
+   593→        animate={{ opacity: 1 }}
+   594→        className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-800 text-center text-slate-200"
+   595→      >
+   596→        <motion.div
+   597→          initial={{ scale: 0 }}
+   598→          animate={{ scale: 1 }}
+   599→          transition={{ type: "spring", damping: 20, stiffness: 200 }}
+   600→          className="flex size-16 items-center justify-center rounded-full bg-slate-700"
+   601→        >
+   602→          <Home className="size-8 text-slate-400" />
+   603→        </motion.div>
+   604→        <div>
+   605→          <h2 className="text-xl font-bold text-white">Note not found</h2>
+   606→          <p className="mt-1 text-sm text-slate-400">The note doesn't exist or is no longer published.</p>
+   607→        </div>
+   608→        <Button onClick={goHome} className="gap-2">
+   609→          <Home className="size-4" /> Browse all notes
+   610→        </Button>
+   611→      </motion.div>
+   612→    );
+   613→  }
+   614→
+   615→  const zoomLabel = zoomMode === "fit" ? "Fit" : `${Math.round(zoom * 100)}%`;
+   616→
+   617→  return (
+   618→    <div ref={containerRef} className="flex h-screen w-full overflow-hidden bg-slate-800">
+   619→      {/* ═══ Tree sidebar ═══ */}
+   620→      {/* Desktop (≥768px): inline collapsible rail — 48px collapsed, 248px
+   621→          expanded. Mobile (<768px): no rail when closed; opens as a
+   622→          left-docked overlay drawer (w-85vw max 320px) with a backdrop. */}
+   623→      <motion.aside
+   624→        key={isMobile ? "tree-mobile" : "tree-desktop"}
+   625→        initial={false}
+   626→        animate={
+   627→          isMobile
+   628→            ? { x: treeOpen ? "0%" : "-100%", opacity: treeOpen ? 1 : 0 }
+   629→            : { width: treeOpen ? 248 : 48 }
+   630→        }
+   631→        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+   632→        className={cn(
+   633→          "shrink-0 overflow-hidden border-r border-slate-200 bg-slate-50",
+   634→          isMobile
+   635→            ? "absolute inset-y-0 left-0 z-50 w-[85vw] max-w-[320px] shadow-2xl"
+   636→            : "relative z-30",
+   637→        )}
+   638→      >
+   639→        <div className="flex h-full w-full md:w-[248px]">
+   640→          {/* ── Icon rail (desktop only — hidden on mobile where the tree is an overlay) ── */}
+   641→          <div className="hidden w-12 shrink-0 flex-col items-center gap-1 border-r border-slate-200 bg-white py-2.5 md:flex">
+   642→            <button
+   643→              onClick={() => setTreeOpen(!treeOpen)}
+   644→              className={cn(
+   645→                "flex size-9 items-center justify-center rounded-lg transition-colors",
+   646→                treeOpen
+   647→                  ? "bg-slate-900 text-white"
+   648→                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+   649→              )}
+   650→              title={treeOpen ? "Collapse tree (Esc)" : "Browse categories (tree)"}
+   651→              aria-pressed={treeOpen}
+   652→            >
+   653→              <FolderTree className="h-4 w-4" />
+   654→            </button>
+   655→            <button
+   656→              onClick={goHome}
+   657→              className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+   658→              title="Back to home"
+   659→            >
+   660→              <Home className="h-4 w-4" />
+   661→            </button>
+   662→          </div>
+   663→
+   664→          {/* ── Expandable content panel (clipped when collapsed) ── */}
+   665→          <div className="flex min-w-0 flex-1 flex-col">
+   666→            {/* Header */}
+   667→            <div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2.5">
+   668→              <div className="flex items-center gap-2">
+   669→                <span className="text-sm font-semibold text-slate-900">Browse</span>
+   670→              </div>
+   671→              <button
+   672→                onClick={() => setTreeOpen(false)}
+   673→                className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+   674→                title="Collapse tree (Esc)"
+   675→              >
+   676→                <ChevronLeft className="h-4 w-4" />
+   677→              </button>
+   678→            </div>
+   679→
+   680→            {/* Search (opens the global search window) */}
+   681→            <div className="border-b border-slate-200 bg-white px-3 py-2">
+   682→              <button
+   683→                onClick={openSearchModal}
+   684→                className="flex w-full items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs text-slate-400 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-600"
+   685→                title="Search notes (Ctrl+K)"
+   686→              >
+   687→                <Search className="h-3.5 w-3.5" />
+   688→                <span>Search notes…</span>
+   689→                <kbd className="ml-auto rounded border border-slate-200 bg-white px-1 py-0.5 text-[9px] font-mono text-slate-400">
+   690→                  ⌘K
+   691→                </kbd>
+   692→              </button>
+   693→            </div>
+   694→
+   695→            {/* Tree */}
+   696→            <ScrollArea className="flex-1">
+   697→            {tree.length === 0 ? (
+   698→              <div className="px-4 py-10 text-center text-xs text-slate-400">
+   699→                No notes found
+   700→              </div>
+   701→            ) : (
+   702→              <div className="space-y-0.5 p-2">
+   703→                {tree.map((node) => {
+   704→                  const isExpanded = expandedCats.has(node.category.id);
+   705→                  const allNotes = [
+   706→                    ...node.notes,
+   707→                    ...node.topics.flatMap((t) => t.notes),
+   708→                  ];
+   709→                  const isActiveCat = allNotes.some((n) => n.id === note.id);
+   710→                  return (
+   711→                    <div key={node.category.id}>
+   712→                      {/* Category */}
+   713→                      <button
+   714→                        onClick={() => toggleCat(node.category.id)}
+   715→                        className={cn(
+   716→                          "flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-medium transition-colors",
+   717→                          isActiveCat
+   718→                            ? "bg-slate-100 text-slate-900"
+   719→                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+   720→                        )}
+   721→                      >
+   722→                        <ChevronDown
+   723→                          className={cn(
+   724→                            "h-3 w-3 shrink-0 text-slate-400 transition-transform",
+   725→                            !isExpanded && "-rotate-90",
+   726→                          )}
+   727→                        />
+   728→                        {isExpanded ? (
+   729→                          <FolderOpen className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+   730→                        ) : (
+   731→                          <Folder className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+   732→                        )}
+   733→                        <span className="truncate">{node.category.name}</span>
+   734→                        <span className="ml-auto text-[10px] text-slate-400">
+   735→                          {allNotes.length}
+   736→                        </span>
+   737→                      </button>
+   738→
+   739→                      {/* Expanded content */}
+   740→                      <AnimatePresence>
+   741→                        {isExpanded && (
+   742→                          <motion.div
+   743→                            initial={{ height: 0, opacity: 0 }}
+   744→                            animate={{ height: "auto", opacity: 1 }}
+   745→                            exit={{ height: 0, opacity: 0 }}
+   746→                            transition={{ duration: 0.2 }}
+   747→                            className="overflow-hidden"
+   748→                          >
+   749→                            <div className="ml-3 border-l border-slate-200 pl-2">
+   750→                              {/* Direct notes (subtopics) */}
+   751→                              {node.notes.map((n, idx) => (
+   752→                                <button
+   753→                                  key={n.id}
+   754→                                  onClick={() => handleNavigate(n)}
+   755→                                  className={cn(
+   756→                                    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
+   757→                                    n.id === note.id
+   758→                                      ? "bg-rose-50 font-medium text-rose-700"
+   759→                                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+   760→                                  )}
+   761→                                >
+   762→                                  <span
+   763→                                    className={cn(
+   764→                                      "flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-mono",
+   765→                                      n.id === note.id
+   766→                                        ? "bg-rose-500 text-white"
+   767→                                        : "bg-slate-200 text-slate-500",
+   768→                                    )}
+   769→                                  >
+   770→                                    {idx + 1}
+   771→                                  </span>
+   772→                                  <span className="truncate">{n.title}</span>
+   773→                                </button>
+   774→                              ))}
+   775→                              {/* Topics → subtopics */}
+   776→                              {node.topics.map((topic) => {
+   777→                                const tExp = expandedTopics.has(topic.category.id);
+   778→                                const isActiveT = topic.notes.some(
+   779→                                  (n) => n.id === note.id,
+   780→                                );
+   781→                                return (
+   782→                                  <div key={topic.category.id}>
+   783→                                    <button
+   784→                                      onClick={() => toggleTopic(topic.category.id)}
+   785→                                      className={cn(
+   786→                                        "flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-left text-xs transition-colors",
+   787→                                        isActiveT
+   788→                                          ? "text-slate-900"
+   789→                                          : "text-slate-500 hover:text-slate-800",
+   790→                                      )}
+   791→                                    >
+   792→                                      <ChevronDown
+   793→                                        className={cn(
+   794→                                          "h-3 w-3 shrink-0 text-slate-400 transition-transform",
+   795→                                          !tExp && "-rotate-90",
+   796→                                        )}
+   797→                                      />
+   798→                                      <span className="truncate">
+   799→                                        {topic.category.name}
+   800→                                      </span>
+   801→                                      <span className="ml-auto text-[10px] text-slate-400">
+   802→                                        {topic.notes.length}
+   803→                                      </span>
+   804→                                    </button>
+   805→                                    <AnimatePresence>
+   806→                                      {tExp && (
+   807→                                        <motion.div
+   808→                                          initial={{ height: 0, opacity: 0 }}
+   809→                                          animate={{ height: "auto", opacity: 1 }}
+   810→                                          exit={{ height: 0, opacity: 0 }}
+   811→                                          transition={{ duration: 0.2 }}
+   812→                                          className="overflow-hidden"
+   813→                                        >
+   814→                                          <div className="ml-3 border-l border-slate-200 pl-2">
+   815→                                            {topic.notes.map((n, idx) => (
+   816→                                              <button
+   817→                                                key={n.id}
+   818→                                                onClick={() => handleNavigate(n)}
+   819→                                                className={cn(
+   820→                                                  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
+   821→                                                  n.id === note.id
+   822→                                                    ? "bg-rose-50 font-medium text-rose-700"
+   823→                                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+   824→                                                )}
+   825→                                              >
+   826→                                                <span
+   827→                                                  className={cn(
+   828→                                                    "flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-mono",
+   829→                                                    n.id === note.id
+   830→                                                      ? "bg-rose-500 text-white"
+   831→                                                      : "bg-slate-200 text-slate-500",
+   832→                                                  )}
+   833→                                                >
+   834→                                                  {idx + 1}
+   835→                                                </span>
+   836→                                                <span className="truncate">{n.title}</span>
+   837→                                              </button>
+   838→                                            ))}
+   839→                                          </div>
+   840→                                        </motion.div>
+   841→                                      )}
+   842→                                    </AnimatePresence>
+   843→                                  </div>
+   844→                                );
+   845→                              })}
+   846→                            </div>
+   847→                          </motion.div>
+   848→                        )}
+   849→                      </AnimatePresence>
+   850→                    </div>
+   851→                  );
+   852→                })}
+   853→              </div>
+   854→            )}
+   855→          </ScrollArea>
+   856→          </div>
+   857→        </div>
+   858→      </motion.aside>
+   859→
+   860→      {/* ═══ Main area (document + floating controls) ═══ */}
+   861→      <div ref={mainRef} className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-800">
+   862→      {/* Mobile tree drawer backdrop */}
+   863→      <AnimatePresence>
+   864→        {isMobile && treeOpen && (
+   865→          <motion.div
+   866→            initial={{ opacity: 0 }}
+   867→            animate={{ opacity: 1 }}
+   868→            exit={{ opacity: 0 }}
+   869→            transition={{ duration: 0.2 }}
+   870→            className="absolute inset-0 z-40 bg-black/30"
+   871→            onClick={() => setTreeOpen(false)}
+   872→          />
+   873→        )}
+   874→      </AnimatePresence>
+   875→
+   876→      {/* ═══ Document Viewer ═══ */}
+   877→      <div className="absolute inset-0 overflow-auto bg-[#cfc9bb]">
+   878→        <AnimatePresence mode="wait">
+   879→          <motion.div
+   880→            key={note.id}
+   881→            initial={{ opacity: 0 }}
+   882→            animate={{ opacity: 1 }}
+   883→            exit={{ opacity: 0 }}
+   884→            transition={{ duration: 0.2 }}
+   885→            className="mx-auto"
+   886→            style={{
+   887→              minHeight: "100%",
+   888→            }}
+   889→          >
+   890→            <iframe
+   891→              ref={iframeRef}
+   892→              title={note.title}
+   893→              src={note.contentPath}
+   894→              onLoad={(e) => {
+   895→                iframeRef.current = e.currentTarget;
+   896→                // The note's HTML/CSS is never modified — we measure its
+   897→                // true bounding box (rings + shadow + page) and scale the
+   898→                // whole object as a unit. No body padding, no reflow.
+   899→                applyNoteScale();
+   900→                applyPageLayout();
+   901→                // Re-apply after fonts/images settle (dimensions change).
+   902→                setTimeout(applyNoteScale, 400);
+   903→                setTimeout(applyNoteScale, 1200);
+   904→              }}
+   905→              className="block border-0 bg-[#cfc9bb]"
+   906→              style={{
+   907→                minHeight: "100vh",
+   908→              }}
+   909→            />
+   910→          </motion.div>
+   911→        </AnimatePresence>
+   912→      </div>
+   913→
+   914→      {/* ═══ Top-right: Pages + Actions ═══ */}
+   915→      <motion.div
+   916→        initial={{ opacity: 0, x: 10 }}
+   917→        animate={{ opacity: 1, x: 0 }}
+   918→        transition={{ duration: 0.3 }}
+   919→        className="absolute right-3 top-3 z-30 flex items-center gap-2"
+   920→      >
+   921→        <motion.button
+   922→          whileHover={{ scale: 1.05 }}
+   923→          whileTap={{ scale: 0.95 }}
+   924→          onClick={() => setDrawerOpen(true)}
+   925→          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900"
+   926→          title="Open pages"
+   927→        >
+   928→          <Menu className="h-4 w-4" />
+   929→        </motion.button>
+   930→        <motion.button
+   931→          whileHover={{ scale: 1.05 }}
+   932→          whileTap={{ scale: 0.95 }}
+   933→          onClick={() => setActionsOpen(!actionsOpen)}
+   934→          className={cn(
+   935→            "flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 shadow-md backdrop-blur-sm transition-colors",
+   936→            actionsOpen ? "bg-white text-slate-900" : "bg-white/95 text-slate-600 hover:bg-white hover:text-slate-900"
+   937→          )}
+   938→          title="Toggle actions"
+   939→        >
+   940→          <MoreVertical className="h-4 w-4" />
+   941→        </motion.button>
+   942→      </motion.div>
+   943→
+   944→      {/* ═══ Top Floating Toolbar (top-left: page nav + zoom) ═══ */}
+   945→      <AnimatePresence>
+   946→        {toolbarExpanded ? (
+   947→          <motion.div
+   948→            key="toolbar-expanded"
+   949→            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+   950→            animate={{ opacity: 1, y: 0, scale: 1 }}
+   951→            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+   952→            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+   953→            className="absolute left-3 top-2 z-20 md:left-14"
+   954→          >
+   955→            <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2 py-1.5 shadow-lg backdrop-blur-md">
+   956→              {/* Prev / page input / Next */}
+   957→              <Button variant="ghost" size="icon" disabled={!prevPage}
+   958→                onClick={() => prevPage && handleNavigate(prevPage)}
+   959→                className="h-8 w-8 rounded-full" title="Previous page (←)">
+   960→                <ChevronLeft className="h-4 w-4" />
+   961→              </Button>
+   962→              <div className="flex items-center gap-0.5 text-xs font-mono text-slate-700">
+   963→                <input
+   964→                  type="text"
+   965→                  value={pageInputFocused ? pageInputValue : String(currentIndex + 1)}
+   966→                  onChange={(e) => setPageInputValue(e.target.value.replace(/[^0-9]/g, ""))}
+   967→                  onFocus={() => { setPageInputFocused(true); setPageInputValue(String(currentIndex + 1)); }}
+   968→                  onBlur={() => {
+   969→                    setPageInputFocused(false);
+   970→                    const n = parseInt(pageInputValue, 10);
+   971→                    if (!isNaN(n) && n >= 1 && n <= totalPages) handleNavigate(pages[n - 1]);
+   972→                  }}
+   973→                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+   974→                  className="h-7 w-8 rounded border border-transparent bg-slate-100 text-center text-xs font-mono outline-none transition-colors hover:bg-slate-200 focus:border-slate-300 focus:bg-white"
+   975→                  title="Type page number"
+   976→                />
+   977→                <span className="text-slate-400">/</span>
+   978→                <span className="min-w-[20px] text-center">{totalPages}</span>
+   979→              </div>
+   980→              <Button variant="ghost" size="icon" disabled={!nextPage}
+   981→                onClick={() => nextPage && handleNavigate(nextPage)}
+   982→                className="h-8 w-8 rounded-full" title="Next page (→)">
+   983→                <ChevronRight className="h-4 w-4" />
+   984→              </Button>
+   985→
+   986→              <div className="hidden items-center gap-1 sm:flex">
+   987→              <Sep />
+   988→
+   989→              {/* Zoom */}
+   990→              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+   991→                onClick={zoomOut}
+   992→                title="Zoom out (Ctrl -)">
+   993→                <ZoomOut className="h-4 w-4" />
+   994→              </Button>
+   995→              <div className="relative" ref={zoomRef}>
+   996→                <button
+   997→                  className="h-7 min-w-[52px] rounded border border-transparent bg-slate-100 px-1.5 text-center text-xs font-mono transition-colors hover:border-slate-300 hover:bg-slate-200 outline-none"
+   998→                  onClick={() => setZoomPresetsOpen(!zoomPresetsOpen)}
+   999→                  title="Click to set zoom"
+  1000→                >
+  1001→                  {zoomLabel}
+  1002→                </button>
+  1003→                <AnimatePresence>
+  1004→                  {zoomPresetsOpen && (
+  1005→                    <motion.div
+  1006→                      initial={{ opacity: 0, y: -5, scale: 0.95 }}
+  1007→                      animate={{ opacity: 1, y: 0, scale: 1 }}
+  1008→                      exit={{ opacity: 0, y: -5, scale: 0.95 }}
+  1009→                      transition={{ duration: 0.15 }}
+  1010→                      className="absolute left-1/2 top-full mt-2 w-40 -translate-x-1/2 rounded-lg border border-slate-200 bg-white p-1 shadow-xl"
+  1011→                    >
+  1012→                      <button onClick={() => { zoomToFit(); setZoomPresetsOpen(false); }}
+  1013→                        className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
+  1014→                        <Maximize className="h-3.5 w-3.5" /> Fit
+  1015→                      </button>
+  1016→                      <div className="my-1 h-px bg-slate-100" />
+  1017→                      {["50%", "75%", "100%", "125%", "150%", "200%"].map(label => (
+  1018→                        <button key={label} onClick={() => { zoomTo(parseInt(label) / 100); setZoomPresetsOpen(false); }}
+  1019→                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
+  1020→                          {label}
+  1021→                        </button>
+  1022→                      ))}
+  1023→                    </motion.div>
+  1024→                  )}
+  1025→                </AnimatePresence>
+  1026→              </div>
+  1027→              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+  1028→                onClick={zoomIn}
+  1029→                title="Zoom in (Ctrl +)">
+  1030→                <ZoomIn className="h-4 w-4" />
+  1031→              </Button>
+  1032→
+  1033→              <Sep />
+  1034→              </div>
+  1035→
+  1036→              {/* Fullscreen */}
+  1037→              <Button variant="ghost" size="icon" className="hidden h-8 w-8 rounded-full sm:inline-flex"
+  1038→                onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}>
+  1039→                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+  1040→              </Button>
+  1041→
+  1042→              {/* Collapse */}
+  1043→              <Button variant="ghost" size="icon" className="hidden h-8 w-8 rounded-full sm:inline-flex"
+  1044→                onClick={() => setToolbarExpanded(false)} title="Collapse toolbar (Esc)">
+  1045→                <ChevronUp className="h-4 w-4" />
+  1046→              </Button>
+  1047→            </div>
+  1048→          </motion.div>
+  1049→        ) : (
+  1050→          <motion.button
+  1051→            key="toolbar-collapsed"
+  1052→            initial={{ opacity: 0, y: -10 }}
+  1053→            animate={{ opacity: 1, y: 0 }}
+  1054→            exit={{ opacity: 0, y: -10 }}
+  1055→            transition={{ delay: 0.1, duration: 0.2 }}
+  1056→            className="absolute left-3 top-2 z-20 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/95 px-4 py-1.5 text-xs text-slate-600 shadow-md backdrop-blur-sm transition-colors hover:bg-white md:left-14"
+  1057→            onClick={() => setToolbarExpanded(true)}
+  1058→            title="Expand toolbar"
+  1059→          >
+  1060→            <ChevronDown className="h-3 w-3" />
+  1061→            <span className="font-mono">{currentIndex + 1}/{totalPages}</span>
+  1062→          </motion.button>
+  1063→        )}
+  1064→      </AnimatePresence>
+  1065→
+  1066→      {/* ═══ Left Sidebar Drawer ═══ */}
+  1067→      <AnimatePresence>
+  1068→        {drawerOpen && (
+  1069→          <>
+  1070→            <motion.div
+  1071→              initial={{ opacity: 0 }}
+  1072→              animate={{ opacity: 1 }}
+  1073→              exit={{ opacity: 0 }}
+  1074→              transition={{ duration: 0.2 }}
+  1075→              className="absolute inset-0 z-30 bg-black/30"
+  1076→              onClick={() => setDrawerOpen(false)}
+  1077→            />
+  1078→            <motion.div
+  1079→              initial={{ x: "100%" }}
+  1080→              animate={{ x: 0 }}
+  1081→              exit={{ x: "100%" }}
+  1082→              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+  1083→              className="absolute bottom-0 right-0 top-0 z-40 flex w-[85vw] flex-col bg-white shadow-2xl sm:w-80 sm:max-w-[320px]"
+  1084→            >
+  1085→              {/* Header */}
+  1086→              <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+  1087→                <span className="text-sm font-semibold text-slate-900">Pages</span>
+  1088→                <button onClick={() => setDrawerOpen(false)}
+  1089→                  className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+  1090→                  <X className="h-4 w-4" />
+  1091→                </button>
+  1092→              </div>
+  1093→              {/* Toggle */}
+  1094→              <div className="border-b border-slate-200 px-4 py-2">
+  1095→                <div className="flex w-fit items-center gap-0.5 rounded-md bg-slate-100 p-0.5">
+  1096→                  <button className={cn("rounded px-3 py-1 text-xs transition-all", pageViewMode === "list" ? "bg-white font-semibold shadow-sm" : "text-slate-500")}
+  1097→                    onClick={() => setPageViewMode("list")}>List</button>
+  1098→                  <button className={cn("rounded px-3 py-1 text-xs transition-all", pageViewMode === "tiles" ? "bg-white font-semibold shadow-sm" : "text-slate-500")}
+  1099→                    onClick={() => setPageViewMode("tiles")}>Tiles</button>
+  1100→                </div>
+  1101→              </div>
+  1102→              {/* Content */}
+  1103→              <ScrollArea className="flex-1">
+  1104→                {pageViewMode === "list" ? (
+  1105→                  <div className="space-y-0.5 p-3">
+  1106→                    {pages.map((page, idx) => (
+  1107→                      <motion.button
+  1108→                        key={page.id}
+  1109→                        custom={idx}
+  1110→                        initial={{ x: -10, opacity: 0 }}
+  1111→                        animate={{ x: 0, opacity: 1, transition: { delay: idx * 0.03, duration: 0.15, ease: "easeOut" } }}
+  1112→                        onClick={() => handleNavigate(page)}
+  1113→                        className={cn("flex w-full items-center rounded-lg border px-3 py-2.5 text-left",
+  1114→                          idx === currentIndex ? "border-rose-200 bg-rose-50" : "border-transparent hover:bg-slate-50")}
+  1115→                      >
+  1116→                        <span className={cn("mr-3 font-mono text-xs", idx === currentIndex ? "font-bold text-rose-600" : "text-slate-400")}>
+  1117→                          {String(idx + 1).padStart(2, "0")}
+  1118→                        </span>
+  1119→                        <span className={cn("truncate text-sm", idx === currentIndex ? "font-medium text-rose-900" : "text-slate-700")}>
+  1120→                          {page.title}
+  1121→                        </span>
+  1122→                      </motion.button>
+  1123→                    ))}
+  1124→                  </div>
+  1125→                ) : (
+  1126→                  <div className="grid grid-cols-2 gap-2 p-3">
+  1127→                    {pages.map((page, idx) => (
+  1128→                      <motion.button
+  1129→                        key={page.id}
+  1130→                        custom={idx}
+  1131→                        initial={{ opacity: 0, scale: 0.9 }}
+  1132→                        animate={{ opacity: 1, scale: 1, transition: { delay: idx * 0.04, duration: 0.2, ease: "easeOut" } }}
+  1133→                        whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
+  1134→                        whileTap={{ scale: 0.97 }}
+  1135→                        onClick={() => handleNavigate(page)}
+  1136→                        className={cn("overflow-hidden rounded-lg border-2 text-left",
+  1137→                          idx === currentIndex ? "border-rose-400 shadow-md" : "border-slate-200 hover:border-slate-300")}
+  1138→                      >
+  1139→                        <div className="border-b border-slate-100 bg-slate-50 px-2 py-1 text-center text-[10px] font-semibold">
+  1140→                          {String(idx + 1).padStart(2, "0")}
+  1141→                        </div>
+  1142→                        {/* Real preview */}
+  1143→                        <div className="relative aspect-[3/4] overflow-hidden bg-white">
+  1144→                          <iframe
+  1145→                            src={page.contentPath}
+  1146→                            className="pointer-events-none absolute left-0 top-0 border-0"
+  1147→                            style={{ width: "1080px", height: "1440px", transform: "scale(0.12)", transformOrigin: "top left" }}
+  1148→                            sandbox="allow-same-origin"
+  1149→                            title={page.title}
+  1150→                          />
+  1151→                        </div>
+  1152→                        <div className="truncate border-t border-slate-100 bg-slate-50 px-2 py-1 text-[10px] text-slate-600">
+  1153→                          {page.title}
+  1154→                        </div>
+  1155→                      </motion.button>
+  1156→                    ))}
+  1157→                  </div>
+  1158→                )}
+  1159→              </ScrollArea>
+  1160→            </motion.div>
+  1161→          </>
+  1162→        )}
+  1163→      </AnimatePresence>
+  1164→
+  1165→      {/* ═══ Right Actions Panel ═══ */}
+  1166→      <AnimatePresence>
+  1167→        {actionsOpen && (
+  1168→          <motion.div
+  1169→            initial={{ opacity: 0, x: 20, scale: 0.95 }}
+  1170→            animate={{ opacity: 1, x: 0, scale: 1 }}
+  1171→            exit={{ opacity: 0, x: 20, scale: 0.95 }}
+  1172→            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+  1173→            className="absolute right-3 top-16 z-30 max-h-[calc(100vh-5rem)] w-52 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur-md"
+  1174→          >
+  1175→            {/* Mobile: Navigation (the inline icon rail is hidden below md:) */}
+  1176→            <div className="mb-2 border-b border-slate-100 pb-2 md:hidden">
+  1177→              <div className="mb-1 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+  1178→                Navigate
+  1179→              </div>
+  1180→              <div className="space-y-1">
+  1181→                <ActionBtn icon={FolderTree} label="Browse tree" onClick={() => setTreeOpen(true)} />
+  1182→                <ActionBtn icon={Home} label="Back to home" onClick={goHome} />
+  1183→              </div>
+  1184→            </div>
+  1185→            <div className="mb-2 flex items-center justify-between">
+  1186→              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</span>
+  1187→              <button onClick={() => setActionsOpen(false)} className="text-slate-400 hover:text-slate-600">
+  1188→                <X className="h-3.5 w-3.5" />
+  1189→              </button>
+  1190→            </div>
+  1191→            <div className="space-y-1">
+  1192→              <ActionBtn icon={Share2} label={copied ? "Link Copied!" : "Copy Link"} onClick={handleShare} />
+  1193→              <ActionBtn icon={ExternalLink} label="Open Raw" onClick={() => window.open(note.contentPath, "_blank")} />
+  1194→            </div>
+  1195→
+  1196→            {/* Mobile: Zoom controls (toolbar zoom group is hidden below sm:) */}
+  1197→            <div className="mt-2 border-t border-slate-100 pt-2 sm:hidden" ref={mobileZoomRef}>
+  1198→              <div className="mb-1 flex items-center justify-between px-2">
+  1199→                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Zoom</span>
+  1200→                <span className="font-mono text-[10px] text-slate-500">{zoomLabel}</span>
+  1201→              </div>
+  1202→              <div className="flex items-center gap-1 px-1">
+  1203→                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+  1204→                  onClick={zoomOut}
+  1205→                  title="Zoom out">
+  1206→                  <ZoomOut className="h-4 w-4" />
+  1207→                </Button>
+  1208→                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
+  1209→                  onClick={zoomIn}
+  1210→                  title="Zoom in">
+  1211→                  <ZoomIn className="h-4 w-4" />
+  1212→                </Button>
+  1213→                <button
+  1214→                  className="ml-auto rounded border border-transparent bg-slate-100 px-2 py-1 text-[10px] text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-200"
+  1215→                  onClick={() => setZoomPresetsOpen(!zoomPresetsOpen)}
+  1216→                >
+  1217→                  {zoomPresetsOpen ? "Hide" : "Presets"}
+  1218→                </button>
+  1219→              </div>
+  1220→              <AnimatePresence>
+  1221→                {zoomPresetsOpen && (
+  1222→                  <motion.div
+  1223→                    initial={{ height: 0, opacity: 0 }}
+  1224→                    animate={{ height: "auto", opacity: 1 }}
+  1225→                    exit={{ height: 0, opacity: 0 }}
+  1226→                    transition={{ duration: 0.2 }}
+  1227→                    className="overflow-hidden"
+  1228→                  >
+  1229→                    <div className="mt-1 grid grid-cols-3 gap-1 border-t border-slate-100 p-2">
+  1230→                      <button onClick={() => { zoomToFit(); setZoomPresetsOpen(false); }}
+  1231→                        className="flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-slate-700 hover:bg-slate-100">
+  1232→                        <Maximize className="h-3 w-3" /> Fit
+  1233→                      </button>
+  1234→                      {["50%", "75%", "100%", "125%", "150%", "200%"].map(label => (
+  1235→                        <button key={label} onClick={() => { zoomTo(parseInt(label) / 100); setZoomPresetsOpen(false); }}
+  1236→                          className="rounded-md px-2 py-1.5 text-center text-[11px] text-slate-700 hover:bg-slate-100">
+  1237→                          {label}
+  1238→                        </button>
+  1239→                      ))}
+  1240→                    </div>
+  1241→                  </motion.div>
+  1242→                )}
+  1243→              </AnimatePresence>
+  1244→            </div>
+  1245→
+  1246→            {/* Download / Export */}
+  1247→            <div className="mt-2 border-t border-slate-100 pt-2" ref={downloadRef}>
+  1248→              <button
+  1249→                onClick={() => setDownloadOpen(!downloadOpen)}
+  1250→                className={cn(
+  1251→                  "flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50",
+  1252→                  downloadOpen && "bg-slate-50",
+  1253→                )}
+  1254→              >
+  1255→                <Download className={cn("h-4 w-4 text-slate-500", downloadOpen && "text-slate-900")} />
+  1256→                <span className={cn("text-slate-700", downloadOpen && "font-medium text-slate-900")}>Download</span>
+  1257→                <ChevronDown className={cn("ml-auto h-3.5 w-3.5 text-slate-400 transition-transform", downloadOpen && "rotate-180")} />
+  1258→              </button>
+  1259→              <AnimatePresence>
+  1260→                {downloadOpen && (
+  1261→                  <motion.div
+  1262→                    initial={{ height: 0, opacity: 0 }}
+  1263→                    animate={{ height: "auto", opacity: 1 }}
+  1264→                    exit={{ height: 0, opacity: 0 }}
+  1265→                    transition={{ duration: 0.2 }}
+  1266→                    className="overflow-hidden"
+  1267→                  >
+  1268→                    <div className="ml-2 mt-1 space-y-0.5 border-l border-slate-100 pl-2">
+  1269→                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+  1270→                        Current Page ({currentIndex + 1})
+  1271→                      </div>
+  1272→                      {["PNG", "JPEG", "PDF"].map((fmt) => (
+  1273→                        <button
+  1274→                          key={fmt}
+  1275→                          onClick={() => setDownloadOpen(false)}
+  1276→                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100"
+  1277→                        >
+  1278→                          <FileImage className="h-3.5 w-3.5 text-slate-400" /> {fmt}
+  1279→                        </button>
+  1280→                      ))}
+  1281→                      <div className="my-1 h-px bg-slate-100" />
+  1282→                      <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">All Pages</div>
+  1283→                      {["PDF", "PNG (ZIP)"].map((fmt) => (
+  1284→                        <button
+  1285→                          key={fmt}
+  1286→                          onClick={() => setDownloadOpen(false)}
+  1287→                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100"
+  1288→                        >
+  1289→                          <FileText className="h-3.5 w-3.5 text-slate-400" /> {fmt}
+  1290→                        </button>
+  1291→                      ))}
+  1292→                    </div>
+  1293→                  </motion.div>
+  1294→                )}
+  1295→              </AnimatePresence>
+  1296→            </div>
+  1297→
+  1298→            {/* Page layout — background pattern selector */}
+  1299→            <div className="mt-2 border-t border-slate-100 pt-2">
+  1300→              <div className="mb-1.5 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+  1301→                Page layout
+  1302→              </div>
+  1303→              <div className="grid grid-cols-4 gap-1.5 px-1">
+  1304→                {PAGE_LAYOUTS.map((layout) => (
+  1305→                  <button
+  1306→                    key={layout.key}
+  1307→                    onClick={() => setPageLayout(layout.key)}
+  1308→                    title={layout.label}
+  1309→                    className={cn(
+  1310→                      "flex flex-col items-center gap-1 rounded-md border p-1.5 transition-colors",
+  1311→                      pageLayout === layout.key
+  1312→                        ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30"
+  1313→                        : "border-slate-200 hover:border-slate-300 hover:bg-slate-50",
+  1314→                    )}
+  1315→                  >
+  1316→                    {/* Mini preview swatch of the pattern */}
+  1317→                    <span
+  1318→                      className="block h-7 w-full rounded-sm border border-slate-200 bg-[#f5f1e8]"
+  1319→                      style={
+  1320→                        layout.key === "grid"
+  1321→                          ? {
+  1322→                              backgroundImage:
+  1323→                                "linear-gradient(to right, #bcc8d6 1px, transparent 1px), linear-gradient(to bottom, #bcc8d6 1px, transparent 1px)",
+  1324→                              backgroundSize: "6px 6px",
+  1325→                            }
+  1326→                          : layout.key === "plain"
+  1327→                            ? { backgroundImage: "none" }
+  1328→                            : layout.key === "lined"
+  1329→                              ? {
+  1330→                                  backgroundImage:
+  1331→                                    "linear-gradient(to bottom, #b8c5d6 1px, transparent 1px)",
+  1332→                                  backgroundSize: "100% 5px",
+  1333→                                }
+  1334→                              : {
+  1335→                                  backgroundImage:
+  1336→                                    "radial-gradient(circle, #b8c5d6 1px, transparent 1px)",
+  1337→                                  backgroundSize: "5px 5px",
+  1338→                                }
+  1339→                      }
+  1340→                    />
+  1341→                    <span
+  1342→                      className={cn(
+  1343→                        "text-[10px]",
+  1344→                        pageLayout === layout.key
+  1345→                          ? "font-semibold text-emerald-700 dark:text-emerald-300"
+  1346→                          : "text-slate-500",
+  1347→                      )}
+  1348→                    >
+  1349→                      {layout.label}
+  1350→                    </span>
+  1351→                  </button>
+  1352→                ))}
+  1353→              </div>
+  1354→            </div>
+  1355→
+  1356→            {/* Continue reading — recently viewed notes */}
+  1357→            <div className="mt-3 border-t border-slate-100 pt-2">
+  1358→              <div className="mb-1 flex items-center justify-between px-2">
+  1359→                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+  1360→                  <History className="h-3 w-3" /> Continue Reading
+  1361→                </div>
+  1362→                {visibleRecentViews.length > 0 && (
+  1363→                  <button
+  1364→                    onClick={() => clearRecent().catch(() => { /* ignore */ })}
+  1365→                    className="flex items-center gap-1 text-[10px] text-slate-400 transition-colors hover:text-rose-600"
+  1366→                    title="Clear history"
+  1367→                  >
+  1368→                    <Trash2 className="h-3 w-3" />
+  1369→                    Clear
+  1370→                  </button>
+  1371→                )}
+  1372→              </div>
+  1373→
+  1374→              {recentLoading ? (
+  1375→                <div className="space-y-1 px-1 py-1">
+  1376→                  <Skeleton className="h-7 w-full rounded-md" />
+  1377→                  <Skeleton className="h-7 w-full rounded-md" />
+  1378→                  <Skeleton className="h-7 w-3/4 rounded-md" />
+  1379→                </div>
+  1380→              ) : visibleRecentViews.length === 0 ? (
+  1381→                <div className="px-2 py-2 text-[11px] text-slate-400">
+  1382→                  No recently viewed notes yet.
+  1383→                </div>
+  1384→              ) : (
+  1385→                <ScrollArea className="max-h-52">
+  1386→                  <div className="space-y-0.5 px-1 py-0.5">
+  1387→                    {visibleRecentViews.map((v) => {
+  1388→                      const target = v.note;
+  1389→                      const isDisabled = !target;
+  1390→                      return (
+  1391→                        <button
+  1392→                          key={v.id}
+  1393→                          onClick={() => {
+  1394→                            if (!target) return;
+  1395→                            handleNavigate(target);
+  1396→                          }}
+  1397→                          disabled={isDisabled}
+  1398→                          className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+  1399→                          title={target ? target.title : "Note no longer available"}
+  1400→                        >
+  1401→                          <FileText className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" />
+  1402→                          <span className="min-w-0 flex-1">
+  1403→                            <span className="block truncate font-medium text-slate-700">
+  1404→                              {target ? target.title : "(deleted)"}
+  1405→                            </span>
+  1406→                            <span className="flex items-center gap-1 text-[10px] text-slate-400">
+  1407→                              <Clock className="h-2.5 w-2.5" />
+  1408→                              {fromNow(v.viewedAt)}
+  1409→                            </span>
+  1410→                          </span>
+  1411→                        </button>
+  1412→                      );
+  1413→                    })}
+  1414→                  </div>
+  1415→                </ScrollArea>
+  1416→              )}
+  1417→            </div>
+  1418→
+  1419→            <div className="mt-3 border-t border-slate-100 pt-3">
+  1420→              <div className="flex flex-col gap-1 text-xs text-slate-500">
+  1421→                <div className="flex items-center gap-1.5">
+  1422→                  <Clock className="h-3 w-3" /> Updated {fromNow(note.updatedAt)}
+  1423→                </div>
+  1424→                <div>{formatDateTime(note.updatedAt)}</div>
+  1425→              </div>
+  1426→              {note.tags && note.tags.length > 0 && (
+  1427→                <div className="mt-2 flex flex-wrap gap-1">
+  1428→                  {note.tags.map(t => (
+  1429→                    <Badge key={t.id} variant="outline" className="text-[10px] font-normal">{t.name}</Badge>
+  1430→                  ))}
+  1431→                </div>
+  1432→              )}
+  1433→            </div>
+  1434→          </motion.div>
+  1435→        )}
+  1436→      </AnimatePresence>
+  1437→      </div>
+  1438→    </div>
+  1439→  );
+  1440→}
+  1441→
+  1442→// ─── Helpers ──────────────────────────────────────────────────
+  1443→function Sep() {
+  1444→  return <div className="mx-0.5 h-5 w-px bg-slate-200" />;
+  1445→}
+  1446→
+  1447→function ActionBtn({
+  1448→  icon: Icon,
+  1449→  label,
+  1450→  onClick,
+  1451→  textColor,
+  1452→}: {
+  1453→  icon: React.ElementType;
+  1454→  label: string;
+  1455→  onClick: () => void;
+  1456→  textColor?: string;
+  1457→}) {
+  1458→  return (
+  1459→    <motion.button
+  1460→      whileHover={{ x: 2 }}
+  1461→      onClick={onClick}
+  1462→      className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50"
+  1463→    >
+  1464→      <Icon className={cn("h-4 w-4", textColor ?? "text-slate-500")} />
+  1465→      <span className={textColor ?? "text-slate-700"}>{label}</span>
+  1466→    </motion.button>
+  1467→  );
+  1468→}
+  1469→
