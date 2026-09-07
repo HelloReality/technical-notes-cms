@@ -332,54 +332,98 @@ export function NoteViewer() {
     return () => window.removeEventListener("resize", handler);
   }, [zoomMode, computeFitScale]);
 
-  // ─── Note scaling (Instagram-style) ──────────────────────────
-  // Load the raw note HTML in an iframe at its natural desktop width,
-  // then scale the whole iframe down to fit the available width on
-  // mobile/tablet — like an Instagram post: the full page (rings +
-  // shadow + content + sidebar) is visible with comfortable breathing
-  // room on all sides. The note's HTML/CSS is NEVER modified — it
-  // renders exactly as the raw file, only the scale adjusts per device.
+  // ─── Note scaling (unified page object) ───────────────────────
+  // The ENTIRE notebook sheet — spiral rings + ring shadows + page
+  // shadow + the complete page design + a small intentional outer
+  // margin — is treated as ONE renderable canvas. We measure the
+  // note's true bounding box (including absolutely-positioned rings
+  // and the box-shadow overflow), size the iframe to that exact box,
+  // then scale the whole object as a unit to fit the viewport width.
+  //
+  // The note's internal design is NEVER modified — we only neutralize
+  // the body's outer padding (which is decorative spacing for the raw
+  // standalone file) so the page centers cleanly in the iframe. No
+  // reflow, no redesign. Only the scale of the complete page object
+  // adjusts responsively per device.
   const applyNoteScale = React.useCallback(() => {
     const iframe = iframeRef.current;
     const container = mainRef.current;
     if (!iframe || !container) return;
     try {
       const doc = iframe.contentDocument;
-      const avail = container.clientWidth;
+      if (!doc || !doc.body) return;
 
-      // The note's page-wrapper is 1080px. The spiral rings extend ~30px
-      // to the LEFT (negative position) and the box-shadow extends ~60px
-      // to the right. We add a generous PADDING (96px each side) to the
-      // body so the rings + shadow + breathing room are all captured,
-      // then size the iframe to the full padded width.
-      const PAD = 96;
-      let NATIVE = 1080 + PAD * 2;
-      if (doc) {
-        const sw = Math.max(
-          doc.body.scrollWidth,
-          doc.body.offsetWidth,
-          doc.documentElement.scrollWidth,
-          doc.documentElement.offsetWidth,
-        );
-        if (sw > 0) NATIVE = Math.max(NATIVE, sw + PAD * 2);
+      // Neutralize the body's outer padding so the page-wrapper centers
+      // in the full iframe width. This does NOT change the note's page
+      // design — only removes the decorative margin the raw file uses
+      // when viewed standalone.
+      const NEUTRALIZE_ID = "reader-neutralize-body-pad";
+      if (!doc.getElementById(NEUTRALIZE_ID)) {
+        const s = doc.createElement("style");
+        s.id = NEUTRALIZE_ID;
+        s.textContent =
+          "body { padding: 0 !important; margin: 0 !important; }";
+        doc.head.appendChild(s);
       }
 
-      const scale = avail < NATIVE ? avail / NATIVE : 1;
-      iframe.style.width = `${NATIVE}px`;
+      const avail = container.clientWidth;
+      // Small intentional margin so the shadow/rings don't touch the
+      // viewport edges. Kept constant in screen px (not scaled).
+      const VIEWPORT_MARGIN = 16;
+      const targetW = Math.max(0, avail - VIEWPORT_MARGIN * 2);
+
+      // Find the page element (.page-wrapper / .page / .notebook).
+      const pageEl =
+        (doc.querySelector(".page-wrapper") as HTMLElement | null) ||
+        (doc.querySelector(".page") as HTMLElement | null) ||
+        (doc.querySelector(".notebook") as HTMLElement | null) ||
+        (doc.body.firstElementChild as HTMLElement | null) ||
+        doc.body;
+
+      // Read the page's CSS width directly (the note uses a fixed
+      // width:1080px on .page-wrapper). This is reliable regardless of
+      // the iframe's current laid-out width, avoiding chicken-and-egg
+      // measurement issues.
+      const computedW = doc.defaultView?.getComputedStyle(pageEl).width;
+      const parsedW = computedW ? parseFloat(computedW) : 0;
+      const pageWNum = isFinite(parsedW) && parsedW > 0 ? parsedW : 1080;
+
+      // The complete page object width = page + ring overflow (left) +
+      // shadow spread (both sides). The rings extend ~40px left of the
+      // page; the box-shadow spreads ~60px on all sides.
+      const RING_OVERFLOW = 40;
+      const SHADOW = 60;
+      const objectW = pageWNum + RING_OVERFLOW + SHADOW * 2;
+
+      // Body height includes the page; add shadow for the bottom.
+      const bodyH = Math.max(
+        doc.body.scrollHeight,
+        doc.body.offsetHeight,
+        doc.documentElement.scrollHeight,
+        doc.documentElement.offsetHeight,
+      );
+      const objectH = bodyH + SHADOW;
+
+      // Size the iframe to the complete page object. Setting the width
+      // first lets the body's flex centering place the page correctly;
+      // the rings (left:-30px) and shadow (~60px) now sit within the
+      // iframe's bounds and aren't clipped.
+      const NATIVE_W = objectW;
+      const scale = targetW < NATIVE_W ? targetW / NATIVE_W : 1;
+
+      iframe.style.width = `${NATIVE_W}px`;
+      iframe.style.height = `${objectH}px`;
       iframe.style.transform = `scale(${scale})`;
       iframe.style.transformOrigin = "top left";
-      if (doc) {
-        const h = Math.max(
-          doc.body.scrollHeight,
-          doc.body.offsetHeight,
-          doc.documentElement.scrollHeight,
-          doc.documentElement.offsetHeight,
-        );
-        if (h > 0) {
-          iframe.style.height = `${h}px`;
-          const wrapper = iframe.parentElement;
-          if (wrapper) wrapper.style.height = `${h * scale}px`;
-        }
+
+      // Reserve the scaled footprint on the wrapper so the page can
+      // scroll vertically and centers horizontally.
+      const wrapper = iframe.parentElement;
+      if (wrapper) {
+        wrapper.style.width = `${NATIVE_W * scale}px`;
+        wrapper.style.height = `${objectH * scale}px`;
+        wrapper.style.marginLeft = "auto";
+        wrapper.style.marginRight = "auto";
       }
     } catch {
       /* cross-origin — ignore */
@@ -812,7 +856,7 @@ export function NoteViewer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="w-full"
+            className="mx-auto"
             style={{
               minHeight: "100%",
             }}
@@ -823,33 +867,12 @@ export function NoteViewer() {
               src={note.contentPath}
               onLoad={(e) => {
                 iframeRef.current = e.currentTarget;
-                // Inject generous padding into the note's body so the
-                // spiral rings (left-overflow) + drop shadow + breathing
-                // room are all captured inside the iframe. The note's
-                // own design is never changed — only its body padding.
-                try {
-                  const doc = e.currentTarget.contentDocument;
-                  if (doc) {
-                    const PAD_STYLE_ID = "reader-page-padding";
-                    let padStyle = doc.getElementById(PAD_STYLE_ID);
-                    if (!padStyle) {
-                      padStyle = doc.createElement("style");
-                      padStyle.id = PAD_STYLE_ID;
-                      doc.head.appendChild(padStyle);
-                    }
-                    padStyle.textContent = `
-                      body {
-                        padding: 96px !important;
-                        box-sizing: border-box !important;
-                      }
-                    `;
-                  }
-                } catch {
-                  /* cross-origin — ignore */
-                }
+                // The note's HTML/CSS is never modified — we measure its
+                // true bounding box (rings + shadow + page) and scale the
+                // whole object as a unit. No body padding, no reflow.
                 applyNoteScale();
                 applyPageLayout();
-                // Re-apply after fonts/images settle.
+                // Re-apply after fonts/images settle (dimensions change).
                 setTimeout(applyNoteScale, 400);
                 setTimeout(applyNoteScale, 1200);
               }}
