@@ -336,8 +336,9 @@ export function NoteViewer() {
   // Load the raw note HTML in an iframe at its natural desktop width,
   // then scale the whole iframe down to fit the available width on
   // mobile/tablet — like an Instagram post: the full page (rings +
-  // shadow + content + sidebar) is visible, just smaller. The note's
-  // HTML/CSS is NEVER modified — it renders exactly as the raw file.
+  // shadow + content + sidebar) is visible with comfortable breathing
+  // room on all sides. The note's HTML/CSS is NEVER modified — it
+  // renders exactly as the raw file, only the scale adjusts per device.
   const applyNoteScale = React.useCallback(() => {
     const iframe = iframeRef.current;
     const container = mainRef.current;
@@ -346,13 +347,13 @@ export function NoteViewer() {
       const doc = iframe.contentDocument;
       const avail = container.clientWidth;
 
-      // The note's content (page-wrapper) is 1080px, but the spiral
-      // rings extend ~30px to the LEFT of the page (negative position)
-      // and the box-shadow extends ~60px to the right. scrollWidth
-      // doesn't capture negative-positioned content, so we add a
-      // generous buffer (120px = 60px each side) to guarantee the
-      // rings AND shadow are fully visible — not clipped.
-      let NATIVE = 1200;
+      // The note's page-wrapper is 1080px. The spiral rings extend ~30px
+      // to the LEFT (negative position) and the box-shadow extends ~60px
+      // to the right. We add a generous PADDING (96px each side) to the
+      // body so the rings + shadow + breathing room are all captured,
+      // then size the iframe to the full padded width.
+      const PAD = 96;
+      let NATIVE = 1080 + PAD * 2;
       if (doc) {
         const sw = Math.max(
           doc.body.scrollWidth,
@@ -360,9 +361,7 @@ export function NoteViewer() {
           doc.documentElement.scrollWidth,
           doc.documentElement.offsetWidth,
         );
-        // Use the larger of scrollWidth or 1200, then add 120px buffer
-        // for left-overflowing rings + right-overflowing shadow.
-        if (sw > 0) NATIVE = sw + 120;
+        if (sw > 0) NATIVE = Math.max(NATIVE, sw + PAD * 2);
       }
 
       const scale = avail < NATIVE ? avail / NATIVE : 1;
@@ -824,6 +823,30 @@ export function NoteViewer() {
               src={note.contentPath}
               onLoad={(e) => {
                 iframeRef.current = e.currentTarget;
+                // Inject generous padding into the note's body so the
+                // spiral rings (left-overflow) + drop shadow + breathing
+                // room are all captured inside the iframe. The note's
+                // own design is never changed — only its body padding.
+                try {
+                  const doc = e.currentTarget.contentDocument;
+                  if (doc) {
+                    const PAD_STYLE_ID = "reader-page-padding";
+                    let padStyle = doc.getElementById(PAD_STYLE_ID);
+                    if (!padStyle) {
+                      padStyle = doc.createElement("style");
+                      padStyle.id = PAD_STYLE_ID;
+                      doc.head.appendChild(padStyle);
+                    }
+                    padStyle.textContent = `
+                      body {
+                        padding: 96px !important;
+                        box-sizing: border-box !important;
+                      }
+                    `;
+                  }
+                } catch {
+                  /* cross-origin — ignore */
+                }
                 applyNoteScale();
                 applyPageLayout();
                 // Re-apply after fonts/images settle.
