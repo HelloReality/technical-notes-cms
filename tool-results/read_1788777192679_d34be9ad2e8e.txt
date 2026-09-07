@@ -1,0 +1,274 @@
+     1→# Worklog — Admin Features Build
+     2→
+     3→This file tracks all agent work for the multi-part admin features request:
+     4→1. Scheduled publish UI + auto-publish cron endpoint
+     5→2. Note versioning/history with restore + scheduled-publish schema
+     6→3. Recently-viewed + continue-reading in reader drawer
+     7→4. Bulk note selection (publish/unpublish/delete) + clear recently-viewed
+     8→5. Complete admin features + security hardening
+     9→
+    10→---
+    11→Task ID: 1
+    12→Agent: main (orchestrator)
+    13→Task: Phase 1 foundational work — Prisma schema, shared types/store/api, security foundation
+    14→
+    15→Work Log:
+    16→- Read existing schema, API routes, auth, store, admin dashboard to understand the codebase
+    17→- Adding NoteVersion, ScheduledPublish, NoteView models + indexes
+    18→- Running db:push
+    19→- Adding shared types, store actions, and api client functions for all new features
+    20→- Adding security middleware (headers) + rate-limit helper + zod validation helper
+    21→
+    22→Stage Summary:
+    23→- (in progress)
+    24→
+    25→---
+    26→Task ID: 2-d
+    27→Agent: full-stack-developer (bulk operations)
+    28→Task: Implement the admin-only `POST /api/notes/bulk` endpoint that applies PUBLISH / UNPUBLISH / DELETE to up to 200 notes in a single request, returning a per-batch summary (BulkResult).
+    29→
+    30→Work Log:
+    31→- Read previous worklog + existing `/api/notes/[id]/route.ts`, `auth.ts`, `db.ts`, `validation.ts`, `types.ts`, `api.ts` to align with conventions (status/publishedAt handling, AuthError → statusCode, parseBody + zod, response shape `{ success: true, result }`).
+    32→- Created `src/app/api/notes/bulk/route.ts` with:
+    33→  - `export const dynamic = "force-dynamic";`
+    34→  - zod schema `{ action: enum[PUBLISH|UNPUBLISH|DELETE], noteIds: string[].min(1).max(200) }` validated via `parseBody` (400 on invalid).
+    35→  - `requireAdmin()` guard (throws AuthError → mapped to its statusCode in outer catch).
+    36→  - Per-id try/catch loop so one failure never aborts the batch:
+    37→    - PUBLISH: `findUnique` for `publishedAt`; if missing → failure "Note <id> not found"; else `update({ status:"PUBLISHED", publishedAt: existing.publishedAt ?? new Date() })` (keeps history, mirrors PATCH behaviour).
+    38→    - UNPUBLISH: `update({ status:"UNPUBLISHED" })` — does NOT clear publishedAt.
+    39→    - DELETE: `delete({ where:{ id } })`.
+    40→  - Counts `succeeded` / `failed`; collects up to 20 error messages, then appends `"...and N more"` if extra failures were truncated.
+    41→  - Detects Prisma `P2025` (record not found) and rewrites it to `Note <id> not found` for friendly, consistent messages.
+    42→  - Returns `NextResponse.json({ success: true, result: BulkResult }, { status: 200 })`.
+    43→  - Outer try/catch: AuthError → its statusCode, else 500, with `{ success:false, error }` body.
+    44→- Verified routing: static segment `/api/notes/bulk` takes precedence over the dynamic `/api/notes/[id]` in Next.js App Router, so the new route is reachable without conflicts.
+    45→- Ran `bun run lint` → clean (no errors/warnings in the new file).
+    46→- Ran `bunx tsc --noEmit` to confirm types; the new file produces zero TS errors (the errors shown are all pre-existing in unrelated files: examples/, skills/, src/lib/api.ts, src/lib/auth.ts, src/app/api/notes/route.ts, src/components/views/note-viewer.tsx).
+    47→
+    48→Stage Summary:
+    49→- Created: `/home/z/my-project/src/app/api/notes/bulk/route.ts`
+    50→- Endpoint matches the client `bulkUpdateNotes(action, noteIds)` contract in `src/lib/api.ts` exactly: `{ success: true, result: { action, requested, succeeded, failed, errors } }`.
+    51→- No other files touched. No tests written. Lint clean.
+    52→
+    53→---
+    54→Task ID: 2-a
+    55→Agent: full-stack-developer (note versioning)
+    56→Task: Implement the note versioning/history backend — list versions, restore a previous version, and snapshot the current note into a NoteVersion row before every PATCH so changes are reversible.
+    57→
+    58→Work Log:
+    59→- Read previous worklog + existing files (`prisma/schema.prisma`, `src/app/api/notes/[id]/route.ts`, `src/lib/auth.ts`, `src/lib/db.ts`, `src/lib/validation.ts`, `src/lib/types.ts`, `src/lib/utils.ts`) to align with conventions (requireAdmin + AuthError→statusCode, slugify, tag upsert pattern, response shape `{ success: true, note }`, `export const dynamic = "force-dynamic"`).
+    60→- Created `src/lib/versioning.ts` with a shared DRY helper:
+    61→  - `createNoteVersionSnapshot(input)` — persists a `NoteVersion` row from scalar note fields + tag-name array + admin user. Tags are JSON-serialised into `tagsJson` (SQLite has no array type).
+    62→  - `parseTagsJson(tagsJson)` — safely parses the column into `string[]`, returning `[]` on malformed input.
+    63→- Created `src/app/api/notes/[id]/versions/route.ts`:
+    64→  - `GET`, admin-only, `force-dynamic`. Returns `{ versions: [...] }` ordered by `createdAt desc`. Each row includes every `NoteVersion` scalar field (id, noteId, title, slug, description, contentPath, assetsPath, status, categoryId, tagsJson, createdById, createdByName, createdAt) plus a parsed `tags: string[]` convenience field mirroring the shared `NoteVersion` type. AuthError→its statusCode, else 500.
+    65→- Created `src/app/api/notes/[id]/versions/[versionId]/restore/route.ts`:
+    66→  - `POST`, admin-only, `force-dynamic`. Looks up the NoteVersion by `versionId` (must belong to `noteId`, else 404). Snapshots the CURRENT note state as a new NoteVersion (best-effort, logged on failure) so the restore itself is reversible. Then updates the Note from the version's fields; slug collisions are resolved by appending a 4-char random suffix. Tags are re-resolved by name (creating missing ones) and reconnected via `tags: { set: [...] }`. Returns `{ success: true, note }` with category + tags included (same shape as the PATCH handler).
+    67→- Modified `src/app/api/notes/[id]/route.ts` PATCH handler:
+    68→  - Switched `requireAdmin()` to `const admin = await requireAdmin();` so the admin user is available for the snapshot.
+    69→  - Changed the pre-update `findUnique` to `include: { tags: { select: { name: true } } }` so the snapshot captures accurate tag names.
+    70→  - Inserted a best-effort `createNoteVersionSnapshot(...)` call BEFORE `db.note.update`. Wrapped in try/catch; logs to `console.error("[versioning] snapshot-before-update failed:", ...)` on failure and proceeds with the update.
+    71→  - All existing PATCH behaviour (status/publishedAt handling, slug uniqueness, tag syncing, category lookup, response shape) is untouched.
+    72→- Ran `bun run lint` → exit 0, clean (no new errors/warnings).
+    73→
+    74→Stage Summary:
+    75→- Created: `src/lib/versioning.ts`, `src/app/api/notes/[id]/versions/route.ts`, `src/app/api/notes/[id]/versions/[versionId]/restore/route.ts`.
+    76→- Modified: `src/app/api/notes/[id]/route.ts` (PATCH handler only — added import, captured admin user, included tags in pre-update fetch, inserted best-effort snapshot before update).
+    77→- No tests written. Lint clean. Dev server compiling successfully.
+    78→
+    79→---
+    80→Task ID: 2-b
+    81→Agent: full-stack-developer (scheduled publish)
+    82→Task: Implement the scheduled-publish backend — admin CRUD API for schedules (list/create/cancel) + a secret-protected cron-style auto-publish endpoint, plus CRON_SECRET env wiring.
+    83→
+    84→Work Log:
+    85→- Read worklog.md, prisma/schema.prisma, the notes/[id] PATCH route, lib/auth, lib/db, lib/validation, lib/types, .env, and .env.example to confirm conventions (requireAdmin/AuthError pattern, parseBody+z helper, force-dynamic, transaction usage).
+    86→- Created src/app/api/scheduled-publish/route.ts with GET (admin-only list of PENDING schedules sorted by publishAt asc), POST (admin-only create/replace via upsert on unique noteId; validates noteId non-empty, publishAt parses to a Date in the future with 5-min past tolerance, note existence → 404), and DELETE (admin-only cancel by ?noteId= query → sets status=CANCELLED, idempotent). All handlers export `dynamic = "force-dynamic"` and use try/catch with AuthError→statusCode mapping.
+    87→- Created src/app/api/cron/publish/route.ts: GET protected by CRON_SECRET via `?secret=` query OR `x-cron-secret` header (401 on missing/mismatch, 500 if CRON_SECRET unset). Finds PENDING schedules with publishAt<=now, and for each runs a `db.$transaction` that promotes the Note to PUBLISHED (sets publishedAt=now) and marks the schedule DONE (completedAt=now). Failures are logged to console.error and counted separately so a single bad note doesn't abort the batch. Returns `{ success, published, failed, items:[{scheduleId,noteId}] }`. Exports `dynamic="force-dynamic"` and `revalidate=0`.
+    88→- Appended CRON_SECRET to .env (dev value: dev-cron-secret-not-for-prod) and .env.example (placeholder).
+    89→- Ran `bun run db:generate` to regenerate the Prisma client so the ScheduledPublish model accessor exists (orchestrator's earlier db:push had updated the schema/db file but the generated client needed refreshing for the long-running dev server).
+    90→- Touched next.config.ts to force the Next.js dev server to restart its worker (so the globalForPrisma singleton re-instantiates against the new generated client). Smoke-tested: cron/publish with correct secret → 200 `{published:0}`; wrong/missing secret → 401; scheduled-publish GET/POST/DELETE without admin → 401.
+    91→- Ran `bun run lint` — clean, no errors.
+    92→
+    93→Stage Summary:
+    94→- Files created:
+    95→  - src/app/api/scheduled-publish/route.ts (GET list / POST upsert / DELETE cancel, admin-only, force-dynamic)
+    96→  - src/app/api/cron/publish/route.ts (secret-protected auto-publish, force-dynamic, revalidate=0, per-item transactions, resilient to failures)
+    97→- Files modified:
+    98→  - .env (added CRON_SECRET=dev-cron-secret-not-for-prod)
+    99→  - .env.example (added CRON_SECRET=change-me-to-a-long-random-string)
+   100→- Lint: `bun run lint` passes clean.
+   101→- Blockers: none. Note for orchestrator/consuming agents: the Prisma client was regenerated via `bun run db:generate`; if the dev server is restarted later by the system it will pick up the new client automatically. The cron endpoint is meant to be called by an external scheduler (or browser fetch with the shared secret) and does NOT require an admin session.
+   102→
+   103→---
+   104→Task ID: 2-c
+   105→Agent: full-stack-developer (recently viewed)
+   106→Task: Implement recently-viewed note tracking backend (record view, list recent, clear history) plus a "Continue reading" drawer in the reader. No auth required for tracking — anonymous visitors get an `anon_id` cookie so their history persists across sessions.
+   107→
+   108→Work Log:
+   109→- Read previous worklog + required files to align with conventions: prisma/schema.prisma (NoteView model already exists with userId/anonId/viewedAt + indexes), src/lib/auth.ts (getSessionUser returns user or null, NOT requireAdmin), src/lib/db.ts, src/lib/validation.ts, src/lib/types.ts (NoteView type already defined with optional note), src/lib/api.ts (recordNoteView / fetchRecentViews / clearRecentViews already present — matched their response shapes), src/lib/store.ts (recentViews / loadRecentViews / clearRecent / recordView / openNote actions already present), src/components/views/note-viewer.tsx (right actions panel structure: Actions header → Copy Link/Open Raw → collapsible Download → footer info).
+   110→- Created `src/lib/anon.ts` exporting:
+   111→  - `ANON_COOKIE = "anon_id"` constant.
+   112→  - `getOrCreateAnonId()` — reads the `anon_id` cookie via `cookies()` from next/headers; if missing, generates a fresh `crypto.randomUUID()` (Node 19+ / Edge global) and sets it with `sameSite:"lax"`, `path:"/"`, `maxAge: 1 year`, `secure: process.env.NODE_ENV === "production"`, `httpOnly: false`. Has a defensive fallback id generator for exotic runtimes. Always returns a non-empty string.
+   113→  - `readAnonId()` — read-only variant that returns null instead of minting a cookie. Used by GET /recent so we don't mint identities for read-only visitors who haven't recorded any views yet.
+   114→- Created `src/app/api/notes/[id]/view/route.ts` (POST, `force-dynamic`):
+   115→  - Resolves the note first (id + status only); 404 silently if missing OR if status !== PUBLISHED and visitor isn't admin. Important: this happens BEFORE minting the anon cookie so an invalid request never creates a sticky identity.
+   116→  - Identity: `getSessionUser()` → userId; else `getOrCreateAnonId()` → anonId (minted on first call).
+   117→  - Upsert-by-hand: `db.noteView.findFirst` for (userId OR anonId) + noteId sorted by viewedAt desc; if found, `update` its `viewedAt = new Date()` (and re-stamp userId/anonId so a logged-in user "claims" their prior anon history on next view); else `create` a new row. Uses an `OR` filter built conditionally from whichever identity keys are non-null so we never pass a null into the where clause.
+   118→  - Returns `{ success: true }` on success; outer try/catch returns 500 with `{ success:false, error }` on unexpected error.
+   119→- Created `src/app/api/notes/recent/route.ts` (GET + DELETE, both `force-dynamic`):
+   120→  - GET: parses `?limit=` (default 8, clamped 1–50). Resolves identity (user → userId; else `readAnonId()` so we don't mint for reads). Returns `{ views: [] }` early if no identity. Otherwise `db.noteView.findMany({ where: { OR: [{userId}, {anonId}] }, include: { note: { include: { category: {select}, tags: {select} } } }, orderBy: { viewedAt: "desc" }, take: limit })`. Then filters out rows whose `note` is null (defensive — cascade deletes should already handle this) or whose note.status !== PUBLISHED for non-admins (covers the "viewed a published note that was later drafted" case).
+   121→  - DELETE: clears the visitor's own history — no admin required. Uses `getOrCreateAnonId()` for anon visitors so the cleared identity is the same one that future views will use. `db.noteView.deleteMany({ where: { OR: [{userId}, {anonId}] } })`. Returns `{ success: true }`.
+   122→- Modified `src/components/views/note-viewer.tsx`:
+   123→  - Added `History` and `Trash2` to the lucide-react imports.
+   124→  - Pulled `recentViews`, `recentLoading`, `loadRecentViews`, `clearRecent`, `recordView` from the zustand store (all already defined by the orchestrator — no edits to store.ts/types.ts/api.ts).
+   125→  - Added a `useEffect` that calls `recordView(activeNoteId)` whenever the active note id changes (covers direct opens, tree navigation, page prev/next, and continue-reading clicks). Best-effort — wrapped in `.catch(()=>{})` so tracking never blocks the UI.
+   126→  - Added a `useEffect` that calls `loadRecentViews(5)` whenever the actions panel (`actionsOpen`) becomes true, so the drawer always shows fresh data on open.
+   127→  - Memoised `visibleRecentViews` = `recentViews.filter(v => v.noteId !== activeNoteId).slice(0, 5)` so the note the user is currently reading never appears in its own "Continue reading" list.
+   128→  - Inserted a new "Continue Reading" section in the right actions panel (between the Download section and the footer info section). Uses the existing shadcn `ScrollArea` (max-h-52), `Skeleton` for loading state, and small icon buttons matching the existing ActionBtn pattern. Each row shows a FileText icon + truncated title + `fromNow(viewedAt)` timestamp, and is clickable to `handleNavigate(target)` (disabled if the underlying note was deleted). A small "Clear" button with Trash2 icon calls `clearRecent()` and is hidden when the list is empty.
+   129→- Verified the endpoints end-to-end against the running dev server:
+   130→  - `GET /api/notes/recent?limit=5` → 200 `{views:[]}` (db empty).
+   131→  - `DELETE /api/notes/recent` → 200 `{success:true}` + correctly mints an `anon_id` cookie (SameSite=Lax, Max-Age=31536000).
+   132→  - `POST /api/notes/nonexistent-id/view` → 404 silently with no Set-Cookie header (confirms the "resolve note before minting anon cookie" ordering is correct).
+   133→- Ran `bun run lint` → exit 0, clean (no new errors/warnings introduced).
+   134→
+   135→Stage Summary:
+   136→- Files created:
+   137→  - `src/lib/anon.ts` (cookie helper: getOrCreateAnonId, readAnonId, ANON_COOKIE)
+   138→  - `src/app/api/notes/[id]/view/route.ts` (POST, no-auth, force-dynamic, upsert-by-hand to update viewedAt instead of duplicating rows)
+   139→  - `src/app/api/notes/recent/route.ts` (GET list with note+category+tags include; DELETE clears visitor's own history; both force-dynamic)
+   140→- Files modified:
+   141→  - `src/components/views/note-viewer.tsx` (added imports, store hooks, record-view effect, load-recent effect, "Continue reading" UI section in the right actions panel)
+   142→- Lint: `bun run lint` passes clean.
+   143→- Blockers: none. Did NOT modify store.ts/types.ts/api.ts (those were already done by the orchestrator). The view-tracking is fully best-effort on the client — a failed POST /view (e.g. user is offline) is swallowed silently and never blocks note navigation.
+   144→
+   145→---
+   146→Task ID: 3
+   147→Agent: full-stack-developer (admin dashboard UI)
+   148→Task: Integrate bulk selection, scheduled-publish UI, version-history dialog, and a "clear recently-viewed" control into the existing admin dashboard view (`src/components/views/admin-dashboard.tsx` + new sub-component files under `src/components/admin/`).
+   149→
+   150→Work Log:
+   151→- Read worklog.md + required files to align with what previous agents (2-a, 2-b, 2-c, 2-d) had already built: confirmed the store actions (`bulkAction`, `loadNoteVersions`/`restoreVersion`, `schedulePublish`/`cancelSchedule`/`loadPendingSchedules`/`pendingSchedules`, `clearRecent`/`recentViews`), types (`BulkAction`, `BulkResult`, `NoteVersion`, `ScheduledPublish`, `NoteView`), API client functions, and format helpers (`formatDateTime`, `fromNow`).
+   152→- Read the 803-line `admin-dashboard.tsx` fully to map the existing structure (sidebar nav → dashboard/notes/categories/tags/settings sections, NotesTable with per-row dropdown, delete AlertDialog, StatCard, TagsCloud, SettingsPanel).
+   153→- Created `src/components/admin/bulk-action-bar.tsx` — a sticky toolbar that renders above the notes table when 1+ notes are selected. Reads selected IDs via a ref so the bar doesn't churn on every toggle. Buttons: Publish (emerald), Unpublish (outline), Delete (destructive → AlertDialog confirm), Clear. Calls `bulkAction(action, ids)` from the store; toasts a summary like "Published 3 notes" with optional failed-count description; clears the selection on success.
+   154→- Created `src/components/admin/schedule-publish-dialog.tsx` — Dialog with `<input type="datetime-local">` + 3 quick presets ("in 1 hour", "tomorrow at 9 AM", "in 1 week"). When the note already has a PENDING schedule, shows an "Already scheduled" banner with the existing publishAt + fromNow, swaps the primary button label to "Update schedule", and exposes a destructive "Cancel schedule" button guarded by an AlertDialog. Validates future-time (disables confirm + amber hint when in the past). Calls `schedulePublish(noteId, date)` / `cancelSchedule(noteId)` from the store.
+   155→- Created `src/components/admin/version-history-dialog.tsx` — Dialog that fires `loadNoteVersions(noteId)` on open and renders the versions list with status badge, editor name (createdByName) + `fromNow(createdAt)`, and a Restore button (disabled on the latest entry). Restore goes through a confirm AlertDialog; on success it toasts "Restored to version from <date>" and closes the dialog. Skeleton loading state + empty state included.
+   156→- Modified `src/components/views/admin-dashboard.tsx`:
+   157→  - Lifted `selectedIds: Set<string>` + `toggleSelect`/`clearSelection` into `AdminDashboard` so the bulk bar and the table share the source of truth.
+   158→  - Added a `useEffect` to call `loadPendingSchedules()` once on mount; added another to auto-clear the selection when the sidebar section or filters change (avoids stale selections across filtered views).
+   159→  - Wired `<BulkActionBar selectedIds={[...selectedIds]} onClear={clearSelection} />` directly above `<NotesTable>` in the Notes section (returns null when nothing is selected).
+   160→  - Extended `NotesTable` props: `enableSelection`, `selectedIds`, `onToggleSelect`, `onSelectAll`, `onClearSelection`, `pendingSchedules`, `onSchedulePublish`, `onVersionHistory`. Added a checkbox column (header supports indeterminate for partial selection; selected rows get a subtle emerald highlight). The Dashboard section's Recent-notes table is rendered with `enableSelection={false}`.
+   161→  - Per-row dropdown now includes new items: `Schedule publish…` (or `Cancel scheduled publish` with publishAt shown as a sub-line when a PENDING schedule exists) and `Version history…`.
+   162→  - Added a new `ScheduledPublishesCard` sub-component (rendered in the Dashboard section between the stat cards and "Top categories") that lists pending schedules with note title + formatDateTime + fromNow + a per-row Cancel button calling `cancelSchedule`.
+   163→  - Added a Privacy section to `SettingsPanel` with a "Clear my reading history" button that calls `clearRecent()` and toasts success/failure.
+   164→  - Mounted `SchedulePublishDialog` and `VersionHistoryDialog` at the bottom of `AdminDashboard`; their `open` state + target note live in `AdminDashboard`.
+   165→  - After single-note delete, the deleted note is also removed from the bulk `selectedIds` to keep the selection consistent.
+   166→- Ran `bun run lint` → exit 0, clean (no new errors/warnings introduced).
+   167→- Ran `bunx tsc --noEmit` → only pre-existing errors in unrelated files (examples/, skills/, src/app/api/notes/route.ts, src/components/views/note-viewer.tsx, src/lib/api.ts, src/lib/auth.ts). Zero new TS errors in the files I created or modified.
+   168→
+   169→Stage Summary:
+   170→- Files created:
+   171→  - `src/components/admin/bulk-action-bar.tsx`
+   172→  - `src/components/admin/schedule-publish-dialog.tsx`
+   173→  - `src/components/admin/version-history-dialog.tsx`
+   174→- Files modified:
+   175→  - `src/components/views/admin-dashboard.tsx` (imports, lifted selection state, useEffects, BulkActionBar mount, NotesTable checkbox column + new dropdown items, ScheduledPublishesCard, SettingsPanel Privacy section, both new dialogs mounted at root)
+   176→- Lint: `bun run lint` passes clean.
+   177→- Blockers: none. All UI is wired to the store actions + API endpoints that agents 2-a, 2-b, 2-c, 2-d, and the orchestrator already built. No tests written. Did NOT touch `src/lib/store.ts`, `src/lib/types.ts`, `src/lib/api.ts`, `src/app/**`, `src/components/views/note-viewer.tsx`, `src/components/search-modal.tsx`, or `src/app/page.tsx`.
+   178→
+   179→---
+   180→Task ID: responsive-noteviewer
+   181→Agent: full-stack-developer (responsive note viewer)
+   182→Task: Make the note viewer (`src/components/views/note-viewer.tsx`) responsive across all breakpoints — mobile (390–640px), tablet (768–1024px), laptop (1024–1440px), desktop (1440px+) — fixing top-toolbar/top-right-button collision on mobile, the over-wide 48px icon rail on mobile, the right actions panel vertical overflow on mobile, and ensuring the document iframe isn't crushed by the sidebar. Desktop/laptop layout must remain UNCHANGED.
+   183→
+   184→Work Log:
+   185→- Read worklog.md (prior agents built admin features — versioning, scheduled publish, recently-viewed, bulk ops, admin dashboard) and read the full 1108-line `note-viewer.tsx` to map its structure: `flex h-screen` root → `motion.aside` tree sidebar (animated width 48↔248, 48px icon rail + expandable content) + main area (absolute iframe doc viewer + floating toolbar at `left:3.5rem` with page-nav/zoom/fullscreen/collapse + top-right Pages/Actions buttons + right actions popover + left pages drawer).
+   186→- Confirmed `src/hooks/use-mobile.ts` already exists (returns `true` when `window.innerWidth < 768`), so no new hook file needed. Imported `useIsMobile` into note-viewer.
+   187→- Added `isMobile` flag + `mobileZoomRef` to NoteViewer.
+   188→- Tree sidebar → responsive single-element approach (no JSX duplication):
+   189→  - `motion.aside` now uses `key={isMobile ? "tree-mobile" : "tree-desktop"}` so React cleanly remounts on breakpoint change (avoids framer-motion retaining stale inline `width`/`x` styles when the `animate` prop shape changes). `initial={false}` prevents a flash on remount.
+   190→  - `animate` is conditional: mobile animates `{x: treeOpen ? "0%" : "-100%", opacity: treeOpen ? 1 : 0}` (slide-in overlay); desktop keeps `{width: treeOpen ? 248 : 48}` (inline rail, unchanged).
+   191→  - `className` is conditional via `cn()`: mobile = `absolute inset-y-0 left-0 z-50 w-[85vw] max-w-[320px] shadow-2xl` (overlay drawer); desktop = `relative z-30` (inline, unchanged).
+   192→  - Inner content div: `w-full md:w-[248px]` (fills overlay on mobile, fixed 248 on desktop).
+   193→  - Icon rail: `hidden ... md:flex` (hidden on mobile/tablet-portrait where there's no rail; visible ≥768px).
+   194→- Added a mobile-only tree backdrop inside the main area (`AnimatePresence` + `isMobile && treeOpen`): `absolute inset-0 z-40 bg-black/30`, click closes the tree. z-40 sits above the toolbar (z-20) and top-right buttons (z-30); the drawer (z-50) sits above the backdrop.
+   195→- Toolbar positioning: replaced the inline `style={{position:"absolute", left:"3.5rem", top:"0.5rem", zIndex:20}}` on BOTH the expanded and collapsed toolbar variants with responsive className `absolute left-3 top-2 z-20 md:left-14`. On mobile the toolbar hugs the left edge (no rail to offset past); on desktop it offsets 3.5rem to clear the 48px rail (unchanged).
+   196→- Toolbar content: wrapped the zoom group (Sep + ZoomOut + zoomLabel dropdown + ZoomIn + Sep) in `<div className="hidden items-center gap-1 sm:flex">` so it disappears below 640px. Also added `hidden ... sm:inline-flex` to the Fullscreen and Collapse buttons. Result: on mobile the toolbar shows ONLY prev / page-counter / next (compact, ~120px — no collision with the ~90px top-right cluster at right-3).
+   197→- Right actions panel: added `max-h-[calc(100vh-5rem)] overflow-y-auto` to the panel className so it never overflows the viewport vertically.
+   198→- Right actions panel → added a mobile-only "Navigate" section (`md:hidden`, first thing in the panel) with "Browse tree" (opens `setTreeOpen(true)`) and "Back to home" (`goHome`) ActionBtns — replaces the hidden icon rail's tree-toggle + home buttons on mobile/tablet-portrait.
+   199→- Right actions panel → added a mobile-only "Zoom" section (`sm:hidden`, `ref={mobileZoomRef}`) with ZoomOut / ZoomIn buttons + a "Presets" toggle that expands an inline (height-animated) 3-col grid of Fit/50%/75%/100%/125%/150%/200%. Inline expansion (not absolute dropdown) avoids clipping by the panel's `overflow-y-auto`. The zoom label is shown next to the section header.
+   200→- Outside-click handler: updated to check BOTH `zoomRef` (desktop toolbar dropdown) and `mobileZoomRef` (mobile actions-panel zoom section) before closing `zoomPresetsOpen`, so clicking inside either zoom control doesn't immediately close the presets.
+   201→- Ran `bun run lint` → exit 0, clean (no new errors/warnings).
+   202→- Ran `bunx tsc --noEmit` → the only TS errors in note-viewer.tsx are 3 pre-existing ones about `SidebarMode = "tile" | "list"` vs the literal `"tiles"` used in `useState`/comparison/setter (lines 157, 891, 892). Verified by stashing my changes: the same 3 errors exist on the unmodified file. My changes introduced ZERO new TS errors.
+   203→- Verified the dev server recompiled successfully (`✓ Compiled` + 200 responses in dev.log).
+   204→
+   205→Stage Summary:
+   206→- Files modified: `src/components/views/note-viewer.tsx` ONLY (111 insertions, 15 deletions). No other files touched.
+   207→- Reused the existing `src/hooks/use-mobile.ts` hook (no new hook file created).
+   208→- Lint: `bun run lint` passes clean. TypeScript: 0 new errors (3 pre-existing `"tiles"` typos remain, untouched per task scope).
+   209→- Responsive behaviour at each breakpoint:
+   210→  - Mobile (390–640px): NO icon rail (full document width). Toolbar = prev / page-counter / next only (compact, no collision with top-right Pages/⋮ buttons). Tree opens as a left-overlay drawer (85vw, max 320px) with backdrop. Zoom + Browse tree + Home live in the ⋮ actions panel. Actions panel scrolls vertically if tall.
+   211→  - Tablet portrait (640–767px): NO icon rail (overlay tree). Toolbar shows page-nav + zoom + fullscreen + collapse (`sm:flex` kicks in at 640px). Actions panel shows Navigate (Browse/Home) but hides the mobile Zoom section (`sm:hidden`).
+   212→  - Laptop / desktop (≥768px): UNCHANGED — inline 48px rail expanding to 248px, toolbar at left-3.5rem with all controls, actions panel without Navigate/Zoom mobile sections.
+   213→- All existing functionality (zoom, page nav, tree browse, pages drawer, actions popover, continue-reading, download, fullscreen, keyboard shortcuts) works at every breakpoint.
+   214→
+   215→---
+   216→Task ID: top-navbar
+   217→Agent: full-stack-developer (consolidated top nav bar)
+   218→Task: Consolidate the scattered floating controls in `src/components/views/note-viewer.tsx` (top-left floating toolbar with page-nav + zoom, top-right Pages + Actions cluster, and the left icon rail duplication on mobile) into a single horizontal top navigation bar with a hide/show toggle, Canva/Figma-style.
+   219→
+   220→Work Log:
+   221→- Read worklog.md + the full 1469-line note-viewer.tsx to map the existing control surface: floating toolbar (lines ~944-1064) with `toolbarExpanded` state, prev/next + page-counter input + zoom group + fullscreen + collapse; the top-right `motion.div` cluster (lines ~914-942) with `setDrawerOpen(true)` + `setActionsOpen`; the left icon rail (inside the tree `motion.aside`) with `setTreeOpen` + `goHome` (already `hidden ... md:flex` on mobile per agent `responsive-noteviewer`'s prior work); the `Sep` helper; zoom helpers (`zoomIn/Out/To/Fit`, `zoomLabel`, `zoomRef`, `zoomPresetsOpen`); page-nav (`prevPage`, `nextPage`, `handleNavigate`, `pages`, `currentIndex`, `totalPages`, `pageInputValue`, `pageInputFocused`); `openSearchModal`, `toggleFullscreen`, `isFullscreen`.
+   222→- Decision on the left icon rail: kept it untouched on desktop (removing it would break the desktop tree sidebar's 48px collapsed state). The top bar's FolderTree/Home buttons become a second entry point for the same actions on desktop — that's intentional redundancy, not breakage.
+   223→- Replaced BOTH the top-right Pages+Actions cluster AND the top-left floating toolbar with ONE full-width top navigation bar:
+   224→  - `absolute left-0 right-0 top-0 z-30 flex h-10 items-center gap-1 border-b border-slate-200 bg-white/95 px-2 shadow-sm backdrop-blur-md`
+   225→  - Groups left-to-right (with `<Sep />` dividers between groups):
+   226→    1. Tree toggle (`FolderTree`, toggles `setTreeOpen`)
+   227→    2. Home (`Home`, `goHome`)
+   228→    3. Search (`Search`, `openSearchModal`)
+   229→    4. *(Sep)*
+   230→    5. Page nav — prev (`ChevronLeft`, disabled when `!prevPage`) / counter-or-input (kept the existing `pageInputFocused`/`pageInputValue` behavior — focus reveals an input that navigates on blur/Enter) / next (`ChevronRight`, disabled when `!nextPage`)
+   231→    6. *(Sep — only visible on `sm:`+ because it's the FIRST child of the zoom group container, which is `hidden sm:flex`)*
+   232→    7. Zoom group — `<Sep />` + `ZoomOut` + zoom-label button (click → `zoomPresetsOpen` dropdown with Fit + 50/75/100/125/150/200%, kept `zoomRef` + outside-click handling) + `ZoomIn`. Whole group is `hidden items-center gap-1 sm:flex` so it disappears below 640px (zoom is still available in the actions panel's mobile-only Zoom section added by agent `responsive-noteviewer`).
+   233→    8. *(Sep — always visible; on mobile this becomes the divider between page-nav and Fullscreen since the zoom group's two SEPs are hidden along with it)*
+   234→    9. Fullscreen (`Maximize`/`Minimize` toggle, `toggleFullscreen`)
+   235→    10. *(Sep)*
+   236→    11. Pages (`Menu`, opens pages drawer via `setDrawerOpen(true)`)
+   237→    12. Actions (`MoreVertical`, toggles `setActionsOpen`)
+   238→    13. *(spacer — `ml-auto` pushes the next to the right edge)*
+   239→    14. *(Sep inside the spacer wrapper)* + Hide toggle (`ChevronUp`, sets `toolbarExpanded=false`)
+   240→- Collapsed state (when `toolbarExpanded` is false): the entire bar unmounts and a small floating pill appears at top-center (`absolute left-1/2 top-2 -translate-x-1/2`) with `ChevronDown` + page counter (`currentIndex + 1`/`totalPages`). Clicking it sets `toolbarExpanded=true` to re-show the bar. AnimatePresence handles the show/hide transition (spring enter, fast fade exit).
+   241→- Document viewer padding: the `<div className="absolute inset-0 overflow-auto bg-[#cfc9bb]">` (the doc viewer that hosts the iframe) now conditionally adds `pt-10` when `toolbarExpanded` is true via `cn(..., toolbarExpanded && "pt-10")`. This reserves the bar's 40px height so the iframe's top isn't hidden behind the overlay bar. When the bar is collapsed, no padding is added so the document fills the full viewport.
+   242→- Actions panel position: changed from `right-3 top-16` to `right-[45px] top-14`. The new `right-[45px]` (arbitrary Tailwind value) aligns the panel's right edge with the Actions button's right edge in the new bar (~45px from the main area's right edge: 8px `px-2` + 32px hide toggle + 5px Sep = 45px). `top-14` (56px) gives a 16px gap below the 40px bar — matching the previous gap rhythm (old cluster ended at 48px, panel was at 64px = 16px gap).
+   243→- Verified the actions panel's mobile-only sections (Navigate + Zoom) still work — those are unchanged.
+   244→- Verified keyboard shortcuts (Esc closes popovers then collapses the bar; Ctrl± zooms; Ctrl+0 fits; arrows navigate pages) still work — keyboard handler unchanged.
+   245→- Ran `bun run lint` → exit 0, clean (no new errors/warnings).
+   246→- Ran `bunx tsc --noEmit` → the only TS errors in `note-viewer.tsx` are the 3 pre-existing `"tiles"` typo errors against `SidebarMode = "tile" | "list"` (now at lines 200, 1112, 1113 — shifted because I added code, same 3 errors as reported by agent `responsive-noteviewer`). ZERO new TS errors introduced.
+   247→- Verified the dev server recompiled successfully (`✓ Compiled in 431ms` in dev.log).
+   248→
+   249→Stage Summary:
+   250→- Files modified: `src/components/views/note-viewer.tsx` ONLY (1469 → 1482 lines, +13 net). Removed the top-right Pages+Actions cluster + the top-left floating toolbar (~150 lines) and replaced them with a single consolidated top nav bar (~163 lines); updated the document viewer div to add conditional `pt-10`; updated the actions panel position from `right-3 top-16` to `right-[45px] top-14`.
+   251→- Lint: `bun run lint` passes clean. TypeScript: 0 new errors (3 pre-existing `"tiles"` typo errors remain untouched per task scope).
+   252→- New nav bar layout (left → right): Tree toggle | Home | Search | Sep | Page nav (prev/counter-input/next) | [Zoom group on `sm:`+: Sep + ZoomOut + label-presets + ZoomIn] | Sep | Fullscreen | Sep | Pages | Actions | (spacer) | Sep | Hide-toggle. Bar height `h-10` (40px), full width of main area, white/translucent + backdrop-blur, border-b + shadow-sm.
+   253→- Hide/show: clicking the `ChevronUp` button on the far right sets `toolbarExpanded=false`; the bar unmounts and a small floating pill (`ChevronDown` + page counter) appears at top-center to re-expand on click. Esc also collapses the bar (existing keyboard handler already does this — unchanged).
+   254→- Mobile behavior (390px): zoom group hidden via `hidden sm:flex` (zoom still accessible via the actions panel's mobile-only Zoom section). All other groups fit comfortably: 32×8 buttons + page-input (~50px) + 4 SEPs × 5px + px-2 padding (32px) ≈ 342px → 48px of spacer slack on a 390px screen. No horizontal overflow. The bar does not affect the note's internal scaling — it's a separate absolute overlay; the document viewer's `pt-10` only shifts the iframe's wrapper down, never touches the iframe's own width/height/scale (still computed by `applyNoteScale` from `container.clientWidth`).
+   255→- Desktop (≥768px): full bar with all groups visible. The left icon rail on the tree sidebar is kept untouched (it remains the collapsible-tree UX anchor on desktop); the top bar's Tree/Home buttons are an additional entry point.
+   256→- All existing functionality preserved: zoom (in/out/label/presets/fit), page nav (prev/next/counter-input), tree toggle, home, search modal, pages drawer (right sheet), actions popover (with Copy Link / Open Raw / Download / Page layout / Continue reading), fullscreen, keyboard shortcuts.
+   257→
+   258→---
+   259→Task ID: conversion-instructions-memory
+   260→Agent: main (orchestrator)
+   261→Task: Save the image/PDF → HTML conversion instructions permanently for future use
+   262→
+   263→Work Log:
+   264→- User provided detailed 12-rule instructions for converting images/PDFs to HTML
+   265→- Created `/home/z/my-project/CONVERSION_INSTRUCTIONS.md` as the permanent reference
+   266→- This file MUST be read by every agent before doing any image/PDF → HTML conversion
+   267→- Key points: exact visual recreation, find closest icons from 4 sources, never embed reference image, real text + real SVG icons, exact colors/layout, single self-contained HTML file, PDF + Word compatible, remove all VERIQTA branding + social footer
+   268→- Reference template: `/home/z/my-project/VERIQTA_Linux_Security_Handbook_Page2.html`
+   269→
+   270→Stage Summary:
+   271→- Instructions saved permanently at `/home/z/my-project/CONVERSION_INSTRUCTIONS.md`
+   272→- All future image/PDF → HTML conversions MUST follow these rules
+   273→- The notebook aesthetic (cream paper, spiral binding, graph grid, navy badges) is the page template
+   274→

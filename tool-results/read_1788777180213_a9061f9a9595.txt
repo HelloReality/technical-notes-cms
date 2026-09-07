@@ -1,0 +1,2002 @@
+     1→// ============================================================================
+     2→// build-linux-beginners-note.ts
+     3→// ----------------------------------------------------------------------------
+     4→// Generate a single self-contained HTML file recreating the
+     5→// "Linux for Complete Beginners" Instagram carousel (20 pages) as a notebook
+     6→// in the same aesthetic as VERIQTA_Linux_Security_Handbook_Page2.html
+     7→// (cream paper, spiral binding, graph grid, navy badges, card sections,
+     8→// terminal blocks, navy-header tables, footer with practice tips).
+     9→//
+    10→// All VERIQTA branding is removed; no original images are embedded.
+    11→//
+    12→// Run:  bun run scripts/build-linux-beginners-note.ts
+    13→// Output: public/uploads/linux-for-beginners.html
+    14→// ============================================================================
+    15→
+    16→import { writeFileSync } from "node:fs";
+    17→import { dirname, resolve } from "node:path";
+    18→import { fileURLToPath } from "node:url";
+    19→
+    20→// ---------------------------------------------------------------------------
+    21→// Type definitions
+    22→// ---------------------------------------------------------------------------
+    23→type Tint = "blue" | "green" | "purple" | "red" | "gold" | "neutral";
+    24→
+    25→interface Cmd {
+    26→  cmd: string;
+    27→  desc?: string;
+    28→  out?: string;
+    29→}
+    30→
+    31→interface Concept {
+    32→  num?: string;
+    33→  title: string;
+    34→  body?: string;
+    35→  bullets?: string[];
+    36→  cmds?: Cmd[];
+    37→  tint?: Tint;
+    38→  icon?: string; // inline SVG string
+    39→}
+    40→
+    41→interface TableRow {
+    42→  cells: string[];
+    43→}
+    44→
+    45→interface Callout {
+    46→  type: "tip" | "warning" | "note" | "success" | "goal";
+    47→  title?: string;
+    48→  text: string;
+    49→  icon?: string;
+    50→}
+    51→
+    52→interface Step {
+    53→  n: string;
+    54→  title: string;
+    55→  cmd?: string;
+    56→  out?: string;
+    57→}
+    58→
+    59→// ---------------------------------------------------------------------------
+    60→// HTML escape
+    61→// ---------------------------------------------------------------------------
+    62→function esc(s: string): string {
+    63→  return s
+    64→    .replace(/&/g, "&amp;")
+    65→    .replace(/</g, "&lt;")
+    66→    .replace(/>/g, "&gt;");
+    67→}
+    68→
+    69→// ---------------------------------------------------------------------------
+    70→// CSS — based on VERIQTA reference template, extended for new content types
+    71→// ---------------------------------------------------------------------------
+    72→const CSS = `
+    73→/* ============================================================
+    74→   RESET & ROOT VARIABLES
+    75→   ============================================================ */
+    76→:root{
+    77→  --paper:#f5f1e8;          /* warm cream paper */
+    78→  --paper-2:#efe9dd;
+    79→  --grid-line:#bcc8d6;      /* faint graph paper grid */
+    80→  --navy:#15264d;           /* primary dark navy */
+    81→  --navy-2:#1e3160;
+    82→  --ink:#1c1c1c;
+    83→  --ink-2:#3a3f47;
+    84→  --linux-green:#1B4D3E;   /* dark green from cover */
+    85→  --linux-green-2:#0f6b3f;
+    86→  --blue:#2563eb;
+    87→  --blue-soft:#cfe0ff;
+    88→  --green:#16a34a;
+    89→  --green-soft:#cdf3da;
+    90→  --purple:#7c3aed;
+    91→  --purple-soft:#e2d4ff;
+    92→  --red:#dc2626;
+    93→  --red-soft:#ffd4d4;
+    94→  --gold:#d4a017;
+    95→  --gold-soft:#fce9b6;
+    96→  --orange:#ef6c00;
+    97→  --term-bg:#0d1117;
+    98→  --term-fg:#e6edf3;
+    99→}
+   100→*{box-sizing:border-box;margin:0;padding:0}
+   101→html,body{background:#cfc9bb;}
+   102→body{
+   103→  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+   104→  -webkit-font-smoothing:antialiased;
+   105→  color:var(--ink);
+   106→  display:flex;flex-direction:column;align-items:center;gap:34px;
+   107→  padding:28px 12px;
+   108→}
+   109→
+   110→/* Wrapper holds page + binding */
+   111→.page-wrapper{
+   112→  position:relative;
+   113→  width:1080px;
+   114→}
+   115→
+   116→/* ============================================================
+   117→   PAGE / NOTEBOOK SHEET
+   118→   ============================================================ */
+   119→.page{
+   120→  position:relative;
+   121→  width:1080px;
+   122→  background:var(--paper);
+   123→  border-radius:14px;
+   124→  box-shadow:0 22px 60px rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.06) inset;
+   125→  overflow:hidden;
+   126→  padding:42px 50px 28px 78px;  /* extra left padding for spiral binding */
+   127→}
+   128→
+   129→/* Graph paper grid */
+   130→.page::before{
+   131→  content:"";
+   132→  position:absolute;inset:0;
+   133→  background-image:
+   134→    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+   135→    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+   136→  background-size:26px 26px;
+   137→  opacity:.5;
+   138→  pointer-events:none;
+   139→  z-index:0;
+   140→}
+   141→
+   142→/* Page bend shadow at the very left edge */
+   143→.page-bend{
+   144→  position:absolute;
+   145→  z-index:1;
+   146→  top:0;left:0;
+   147→  width:18px;height:100%;
+   148→  pointer-events:none;
+   149→  background:linear-gradient(
+   150→    90deg,
+   151→    rgba(0,0,0,0.45) 0%,
+   152→    rgba(0,0,0,0.30) 3px,
+   153→    rgba(0,0,0,0.18) 7px,
+   154→    rgba(0,0,0,0.08) 12px,
+   155→    rgba(0,0,0,0.03) 16px,
+   156→    transparent 18px
+   157→  );
+   158→  border-radius:14px 0 0 14px;
+   159→}
+   160→
+   161→/* SVG ring (spiral wire) — extends OUTSIDE the page's left edge */
+   162→.spiral{
+   163→  position:absolute;
+   164→  z-index:7;
+   165→  top:0;
+   166→  left:-30px;
+   167→  width:120px;
+   168→  height:100%;
+   169→  pointer-events:none;
+   170→  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+   171→  background-repeat: repeat-y;
+   172→  background-position: 2.5px 0;
+   173→  background-size: 76.5px 59.5px;
+   174→}
+   175→
+   176→/* SVG punch holes */
+   177→.holes{
+   178→  position:absolute;
+   179→  z-index:4;
+   180→  top:0; left:-30px;
+   181→  width:120px;
+   182→  height:100%;
+   183→  pointer-events:none;
+   184→  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='76.5'%20height='59.5'%20viewBox='0%200%2076.5%2059.5'%3E%3Cdefs%3E%3CradialGradient%20id='h'%20cx='0%25'%20cy='45%25'%20r='105%25'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='12%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='28%25'%20stop-color='%23111'%20stop-opacity='.25'/%3E%3Cstop%20offset='42%25'%20stop-color='%23000'%20stop-opacity='.7'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.95'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/radialGradient%3E%3ClinearGradient%20id='r'%20x1='0'%20y1='0'%20x2='1'%20y2='0'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='25%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='40%25'%20stop-color='%23000'%20stop-opacity='.5'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.9'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/linearGradient%3E%3CclipPath%20id='c1'%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23h)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23r)'%20clip-path='url(%23c1)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='7'%20fill='%23000'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='none'%20stroke='%23000'%20stroke-width='0.5'%20opacity='.3'/%3E%3C/svg%3E");
+   185→  background-size:76.5px 59.5px;
+   186→  background-repeat:repeat-y;
+   187→  background-position:-0.5px 0;
+   188→}
+   189→
+   190→/* Page top/bottom edges (3D block effect) */
+   191→.page-top-edge,.page-bottom-edge{
+   192→  position:absolute;z-index:8;left:0;right:0;height:11px;pointer-events:none;
+   193→  background:
+   194→    repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(140,120,80,0.12) 2px, rgba(140,120,80,0.12) 2.4px),
+   195→    linear-gradient(to bottom, #fbf8ef 0%, #f7f3e8 55%, var(--paper) 100%);
+   196→}
+   197→.page-top-edge{top:0;border-bottom:1px solid rgba(100,80,40,0.22);box-shadow:0 1px 2px rgba(0,0,0,0.10);}
+   198→.page-bottom-edge{
+   199→  bottom:0;
+   200→  background:
+   201→    repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(140,120,80,0.12) 2px, rgba(140,120,80,0.12) 2.4px),
+   202→    linear-gradient(to top, #fbf8ef 0%, #f7f3e8 55%, var(--paper) 100%);
+   203→  border-top:1px solid rgba(100,80,40,0.22);
+   204→  box-shadow:0 -1px 2px rgba(0,0,0,0.10);
+   205→}
+   206→
+   207→.content{position:relative;z-index:2;}
+   208→
+   209→/* ============================================================
+   210→   TOP STRIP — badges
+   211→   ============================================================ */
+   212→.top-strip{
+   213→  display:flex;justify-content:flex-end;align-items:center;
+   214→  margin-bottom:6px;
+   215→}
+   216→.badges{display:flex;gap:10px;flex-wrap:wrap;}
+   217→.badge{
+   218→  background:var(--navy);
+   219→  color:#fff;
+   220→  font-size:11.5px;
+   221→  font-weight:700;
+   222→  letter-spacing:1.6px;
+   223→  padding:8px 16px;
+   224→  border-radius:999px;
+   225→  text-transform:uppercase;
+   226→  box-shadow:0 2px 4px rgba(21,38,77,0.25);
+   227→}
+   228→.badge.green{background:var(--linux-green);}
+   229→.badge.alt{background:var(--navy-2);}
+   230→
+   231→/* ============================================================
+   232→   TITLE BLOCK
+   233→   ============================================================ */
+   234→.title-block{margin:18px 0 6px 0;}
+   235→.title{
+   236→  font-size:42px;
+   237→  line-height:1.04;
+   238→  font-weight:800;
+   239→  color:var(--linux-green);
+   240→  letter-spacing:-0.6px;
+   241→  text-transform:uppercase;
+   242→}
+   243→.title.navy{color:var(--navy);}
+   244→.title .small{display:block;font-size:22px;color:var(--ink);font-weight:700;letter-spacing:-0.2px;margin-top:4px;}
+   245→.subtitle{
+   246→  margin-top:8px;
+   247→  font-size:13px;
+   248→  font-weight:700;
+   249→  letter-spacing:1.3px;
+   250→  color:var(--ink-2);
+   251→  text-transform:uppercase;
+   252→}
+   253→.divider{
+   254→  display:flex;align-items:center;
+   255→  margin:12px 0 18px 0;
+   256→}
+   257→.divider .line{flex:1;height:2px;background:var(--linux-green);}
+   258→.divider .dot{width:9px;height:9px;border-radius:50%;background:var(--linux-green);margin:0 10px;}
+   259→
+   260→/* ============================================================
+   261→   COVER PAGE
+   262→   ============================================================ */
+   263→.cover{
+   264→  display:flex;flex-direction:column;align-items:center;
+   265→  padding:12px 4px 0 4px;
+   266→  text-align:center;
+   267→}
+   268→.cover .super{
+   269→  display:inline-block;
+   270→  background:var(--linux-green);
+   271→  color:#fff;
+   272→  font-size:11px;letter-spacing:3px;font-weight:700;
+   273→  padding:6px 14px;border-radius:999px;
+   274→  margin-bottom:14px;
+   275→}
+   276→.cover .title-big{
+   277→  font-size:148px;line-height:0.92;
+   278→  font-weight:900;
+   279→  color:var(--linux-green);
+   280→  letter-spacing:-4px;
+   281→  text-transform:uppercase;
+   282→  text-shadow:0 6px 0 rgba(0,0,0,0.06);
+   283→}
+   284→.cover .title-sub-wrap{
+   285→  display:flex;align-items:center;justify-content:center;gap:14px;
+   286→  margin-top:8px;
+   287→}
+   288→.cover .title-sub-wrap .hline{
+   289→  height:3px;width:90px;background:var(--linux-green);border-radius:2px;
+   290→}
+   291→.cover .title-sub{
+   292→  font-size:42px;font-weight:900;color:var(--ink);
+   293→  letter-spacing:-0.4px;
+   294→  text-transform:uppercase;line-height:1;
+   295→}
+   296→.cover .title-sub .green{color:var(--linux-green);}
+   297→.cover .sub-box{
+   298→  margin-top:22px;
+   299→  display:inline-flex;align-items:center;gap:16px;
+   300→  background:#fff;
+   301→  border:2px solid var(--linux-green);
+   302→  border-radius:14px;
+   303→  padding:14px 22px;
+   304→  box-shadow:0 4px 12px rgba(27,77,62,0.18);
+   305→  max-width:760px;
+   306→}
+   307→.cover .sub-box .tux{flex-shrink:0;width:56px;}
+   308→.cover .sub-box .sub-text{
+   309→  text-align:left;
+   310→  font-size:13px;letter-spacing:1.6px;color:var(--linux-green);
+   311→  font-weight:700;line-height:1.45;text-transform:uppercase;
+   312→}
+   313→.cover .icon-row{
+   314→  display:flex;justify-content:center;gap:28px;
+   315→  margin-top:28px;flex-wrap:wrap;
+   316→}
+   317→.cover .icon-pill{
+   318→  display:flex;flex-direction:column;align-items:center;gap:8px;
+   319→  width:110px;
+   320→}
+   321→.cover .icon-pill .icn{
+   322→  width:70px;height:70px;border-radius:50%;
+   323→  display:flex;align-items:center;justify-content:center;
+   324→  background:#fff;
+   325→  border:2.5px solid var(--linux-green);
+   326→  box-shadow:0 3px 8px rgba(0,0,0,0.06);
+   327→}
+   328→.cover .icon-pill .icn svg{width:40px;height:40px;}
+   329→.cover .icon-pill .lbl{
+   330→  font-size:11px;font-weight:700;color:var(--ink);
+   331→  text-transform:uppercase;letter-spacing:0.6px;text-align:center;
+   332→}
+   333→.cover .features{
+   334→  margin-top:28px;
+   335→  width:100%;max-width:880px;
+   336→  background:#fff;
+   337→  border:1.5px solid rgba(27,77,62,0.22);
+   338→  border-radius:16px;
+   339→  padding:22px 28px;
+   340→  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+   341→  position:relative;
+   342→  display:grid;grid-template-columns:1fr 200px;gap:18px;
+   343→  align-items:center;
+   344→}
+   345→.cover .features h4{
+   346→  font-size:14px;font-weight:800;color:var(--linux-green);
+   347→  text-transform:uppercase;letter-spacing:1.4px;margin-bottom:14px;
+   348→}
+   349→.cover .features ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+   350→.cover .features li{
+   351→  display:flex;align-items:center;gap:11px;
+   352→  font-size:14px;color:var(--ink);font-weight:600;
+   353→}
+   354→.cover .features li .check{
+   355→  width:22px;height:22px;border-radius:50%;
+   356→  background:var(--linux-green);
+   357→  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+   358→}
+   359→.cover .features li .check svg{width:14px;height:14px;}
+   360→.cover .features .laptop-illu{
+   361→  display:flex;flex-direction:column;align-items:center;justify-content:center;
+   362→  gap:8px;
+   363→}
+   364→.cover .features .laptop-illu svg{width:160px;height:auto;}
+   365→.cover .features .laptop-illu .caption{
+   366→  font-size:10px;letter-spacing:1.4px;color:var(--linux-green);font-weight:700;text-transform:uppercase;
+   367→}
+   368→.cover .footer-tag{
+   369→  margin-top:26px;
+   370→  display:inline-flex;align-items:center;gap:14px;
+   371→  background:var(--linux-green);
+   372→  color:#fff;
+   373→  border-radius:999px;
+   374→  padding:11px 26px;
+   375→  font-size:13px;font-weight:700;letter-spacing:2px;
+   376→  box-shadow:0 4px 10px rgba(27,77,62,0.30);
+   377→}
+   378→.cover .footer-tag svg{width:22px;height:22px;}
+   379→
+   380→/* ============================================================
+   381→   BODY — column layouts
+   382→   ============================================================ */
+   383→.body{display:grid;gap:20px;}
+   384→.body.cols-2{grid-template-columns:1fr 1fr;}
+   385→.body.cols-3{grid-template-columns:1fr 1fr 1fr;}
+   386→.body.cols-2-uneven{grid-template-columns:1.6fr 1fr;}
+   387→.body.cols-3-uneven{grid-template-columns:1fr 1fr 1.2fr;}
+   388→
+   389→/* ============================================================
+   390→   CONCEPT GRID — numbered concept boxes
+   391→   ============================================================ */
+   392→.concept-grid{
+   393→  display:grid;gap:14px;
+   394→  grid-template-columns:repeat(2, 1fr);
+   395→}
+   396→.concept-grid.cols-3{grid-template-columns:repeat(3, 1fr);}
+   397→.concept-grid.cols-4{grid-template-columns:repeat(4, 1fr);}
+   398→.concept-card{
+   399→  background:#fff;
+   400→  border:1px solid rgba(21,38,77,0.10);
+   401→  border-radius:12px;
+   402→  padding:12px 14px;
+   403→  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+   404→  display:flex;flex-direction:column;gap:6px;
+   405→}
+   406→.concept-card .ch{
+   407→  display:flex;align-items:center;gap:10px;
+   408→}
+   409→.concept-card .num{
+   410→  width:26px;height:26px;border-radius:50%;
+   411→  background:var(--linux-green);color:#fff;
+   412→  font-size:12px;font-weight:800;
+   413→  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+   414→}
+   415→.concept-card .icn-mini{
+   416→  width:34px;height:34px;border-radius:9px;
+   417→  display:flex;align-items:center;justify-content:center;
+   418→  flex-shrink:0;
+   419→}
+   420→.concept-card .icn-mini svg{width:22px;height:22px;}
+   421→.concept-card h3{
+   422→  font-size:12.5px;font-weight:800;letter-spacing:0.5px;
+   423→  color:var(--linux-green);text-transform:uppercase;
+   424→  line-height:1.2;
+   425→  flex:1;
+   426→}
+   427→.concept-card .body-text{
+   428→  font-size:11.5px;color:var(--ink-2);line-height:1.5;
+   429→}
+   430→.concept-card ul{list-style:none;display:flex;flex-direction:column;gap:3px;}
+   431→.concept-card ul li{
+   432→  font-size:11.5px;color:var(--ink-2);line-height:1.45;
+   433→  padding-left:12px;position:relative;
+   434→}
+   435→.concept-card ul li::before{
+   436→  content:"";position:absolute;left:0;top:7px;
+   437→  width:5px;height:5px;border-radius:50%;background:var(--linux-green);
+   438→}
+   439→.concept-card .sub-label{
+   440→  font-size:10.5px;color:var(--ink);font-weight:700;letter-spacing:0.4px;
+   441→  margin-top:4px;text-transform:uppercase;
+   442→}
+   443→.concept-card .mini-term{
+   444→  background:var(--term-bg);color:var(--term-fg);
+   445→  font-family:"JetBrains Mono","Consolas",monospace;
+   446→  font-size:10.5px;line-height:1.4;
+   447→  padding:6px 8px;border-radius:5px;
+   448→  margin-top:4px;overflow-x:auto;
+   449→  white-space:pre;
+   450→}
+   451→.concept-card .distro-row{
+   452→  display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;
+   453→}
+   454→.concept-card .distro-row .distro{
+   455→  display:inline-flex;align-items:center;gap:5px;
+   456→  background:#f1efe6;border:1px solid rgba(0,0,0,0.06);
+   457→  border-radius:6px;padding:3px 7px;
+   458→  font-size:10px;font-weight:700;color:var(--ink);
+   459→}
+   460→.concept-card .distro-row .distro svg{width:13px;height:13px;}
+   461→
+   462→/* tint classes */
+   463→.bg-blue{background:var(--blue-soft)!important;}
+   464→.bg-green{background:var(--green-soft)!important;}
+   465→.bg-purple{background:var(--purple-soft)!important;}
+   466→.bg-red{background:var(--red-soft)!important;}
+   467→.bg-gold{background:var(--gold-soft)!important;}
+   468→.bg-neutral{background:#eef1f5!important;}
+   469→
+   470→/* ============================================================
+   471→   COMMAND CARDS — large, with terminal example
+   472→   ============================================================ */
+   473→.cmd-grid{display:grid;gap:14px;grid-template-columns:repeat(2, 1fr);}
+   474→.cmd-grid.cols-3{grid-template-columns:repeat(3, 1fr);}
+   475→.cmd-card{
+   476→  background:#fff;
+   477→  border:1px solid rgba(21,38,77,0.10);
+   478→  border-radius:12px;
+   479→  padding:12px 14px;
+   480→  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+   481→  display:flex;gap:12px;align-items:flex-start;
+   482→}
+   483→.cmd-card .ic{
+   484→  width:42px;height:42px;border-radius:10px;
+   485→  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+   486→  background:#f1efe6;
+   487→}
+   488→.cmd-card .ic svg{width:26px;height:26px;}
+   489→.cmd-card .body-text{flex:1;}
+   490→.cmd-card h4{
+   491→  font-size:14px;font-weight:800;letter-spacing:0.4px;
+   492→  color:var(--linux-green);text-transform:lowercase;
+   493→}
+   494→.cmd-card .desc{
+   495→  font-size:11.5px;color:var(--ink-2);line-height:1.45;margin-top:2px;
+   496→}
+   497→.cmd-card .term{
+   498→  background:var(--term-bg);color:var(--term-fg);
+   499→  font-family:"JetBrains Mono","Consolas",monospace;
+   500→  font-size:11px;line-height:1.5;
+   501→  padding:7px 9px;border-radius:6px;
+   502→  margin-top:6px;overflow-x:auto;
+   503→  white-space:pre;
+   504→}
+   505→.cmd-card .term .pmt{color:#7ee787;}
+   506→.cmd-card .term .cmt{color:#8b949e;}
+   507→.cmd-card .term .err{color:#ff7b72;}
+   508→.cmd-card .term .out{color:#79c0ff;}
+   509→
+   510→/* ============================================================
+   511→   TERMINAL BLOCKS — dark, multi-line
+   512→   ============================================================ */
+   513→.term-block{
+   514→  background:var(--term-bg);
+   515→  color:var(--term-fg);
+   516→  border-radius:10px;
+   517→  overflow:hidden;
+   518→  box-shadow:0 4px 14px rgba(0,0,0,0.18);
+   519→  font-family:"JetBrains Mono","Consolas",monospace;
+   520→}
+   521→.term-block .term-head{
+   522→  background:#1c2230;
+   523→  padding:6px 12px;
+   524→  display:flex;align-items:center;gap:8px;
+   525→  border-bottom:1px solid rgba(255,255,255,0.06);
+   526→}
+   527→.term-block .term-head .dot{width:10px;height:10px;border-radius:50%;}
+   528→.term-block .term-head .dot.r{background:#ff5f56;}
+   529→.term-block .term-head .dot.y{background:#ffbd2e;}
+   530→.term-block .term-head .dot.g{background:#27c93f;}
+   531→.term-block .term-head .ttl{
+   532→  margin-left:8px;font-size:11px;color:#8b949e;letter-spacing:0.6px;
+   533→}
+   534→.term-block .term-body{
+   535→  padding:10px 14px;font-size:11.5px;line-height:1.55;
+   536→  overflow-x:auto;white-space:pre;
+   537→}
+   538→.term-block .term-body .pmt{color:#7ee787;}
+   539→.term-block .term-body .cmt{color:#8b949e;}
+   540→.term-block .term-body .err{color:#ff7b72;}
+   541→.term-block .term-body .out{color:#79c0ff;}
+   542→.term-block .term-body .warn{color:#d29922;}
+   543→
+   544→/* ============================================================
+   545→   DATA TABLES — navy header
+   546→   ============================================================ */
+   547→.data-table{
+   548→  width:100%;border-collapse:collapse;
+   549→  background:#fff;
+   550→  border-radius:12px;overflow:hidden;
+   551→  box-shadow:0 3px 10px rgba(0,0,0,0.06);
+   552→  font-size:11.5px;
+   553→  border:1px solid rgba(21,38,77,0.10);
+   554→}
+   555→.data-table thead th{
+   556→  background:var(--linux-green);
+   557→  color:#fff;
+   558→  font-weight:700;letter-spacing:0.6px;
+   559→  text-transform:uppercase;font-size:10.5px;
+   560→  padding:9px 10px;text-align:left;
+   561→  border-right:1px solid rgba(255,255,255,0.10);
+   562→}
+   563→.data-table thead th:last-child{border-right:none;}
+   564→.data-table tbody td{
+   565→  padding:8px 10px;
+   566→  border-bottom:1px solid rgba(21,38,77,0.07);
+   567→  border-right:1px solid rgba(21,38,77,0.05);
+   568→  color:var(--ink);line-height:1.4;
+   569→  vertical-align:top;
+   570→}
+   571→.data-table tbody td:last-child{border-right:none;}
+   572→.data-table tbody tr:nth-child(even) td{background:#f8f5ec;}
+   573→.data-table tbody tr:last-child td{border-bottom:none;}
+   574→.data-table code,.data-table .mono{
+   575→  font-family:"JetBrains Mono","Consolas",monospace;
+   576→  font-size:11px;font-weight:600;
+   577→  color:var(--linux-green);
+   578→  background:#eef5ef;border-radius:3px;padding:1px 5px;
+   579→}
+   580→.data-table .center{text-align:center;}
+   581→
+   582→/* table caption */
+   583→.table-caption{
+   584→  background:var(--linux-green);color:#fff;
+   585→  font-size:11px;font-weight:700;letter-spacing:1.2px;
+   586→  text-transform:uppercase;
+   587→  padding:8px 14px;
+   588→  border-radius:10px 10px 0 0;
+   589→}
+   590→.table-wrap{
+   591→  border-radius:10px;overflow:hidden;
+   592→  box-shadow:0 3px 10px rgba(0,0,0,0.06);
+   593→  border:1px solid rgba(21,38,77,0.10);
+   594→  background:#fff;
+   595→}
+   596→
+   597→/* ============================================================
+   598→   CALLOUT BOXES
+   599→   ============================================================ */
+   600→.callout{
+   601→  display:flex;gap:12px;align-items:flex-start;
+   602→  padding:12px 14px;border-radius:11px;
+   603→  border:1px solid rgba(21,38,77,0.10);
+   604→  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+   605→}
+   606→.callout .icn{
+   607→  width:34px;height:34px;border-radius:9px;
+   608→  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+   609→}
+   610→.callout .icn svg{width:20px;height:20px;}
+   611→.callout .ct{flex:1;}
+   612→.callout .ct h5{
+   613→  font-size:11px;font-weight:800;letter-spacing:1px;
+   614→  text-transform:uppercase;margin-bottom:3px;
+   615→}
+   616→.callout .ct p{font-size:12px;color:var(--ink);line-height:1.5;}
+   617→.callout .ct ul{list-style:none;margin-top:4px;display:flex;flex-direction:column;gap:2px;}
+   618→.callout .ct ul li{
+   619→  font-size:12px;color:var(--ink);line-height:1.5;
+   620→  padding-left:14px;position:relative;
+   621→}
+   622→.callout .ct ul li::before{
+   623→  content:"";position:absolute;left:0;top:7px;
+   624→  width:5px;height:5px;border-radius:50%;background:currentColor;
+   625→}
+   626→.callout.tip{background:var(--green-soft);}
+   627→.callout.tip .icn{background:rgba(22,163,74,0.25);}
+   628→.callout.tip .ct h5{color:#0f6b3f;}
+   629→.callout.warning{background:var(--gold-soft);}
+   630→.callout.warning .icn{background:rgba(212,160,23,0.30);}
+   631→.callout.warning .ct h5{color:#8a6500;}
+   632→.callout.note{background:var(--blue-soft);}
+   633→.callout.note .icn{background:rgba(37,99,235,0.20);}
+   634→.callout.note .ct h5{color:#1e40af;}
+   635→.callout.success{background:#d8f5e3;}
+   636→.callout.success .icn{background:rgba(16,107,63,0.25);}
+   637→.callout.success .ct h5{color:var(--linux-green);}
+   638→.callout.goal{background:#e7def8;}
+   639→.callout.goal .icn{background:rgba(124,58,237,0.20);}
+   640→.callout.goal .ct h5{color:#5b21b6;}
+   641→
+   642→.callout-grid{display:grid;gap:12px;grid-template-columns:repeat(2, 1fr);}
+   643→.callout-grid.cols-3{grid-template-columns:repeat(3, 1fr);}
+   644→
+   645→/* ============================================================
+   646→   STEPS WORKFLOW — numbered practical
+   647→   ============================================================ */
+   648→.steps-flow{
+   649→  display:flex;flex-direction:column;gap:8px;
+   650→}
+   651→.step{
+   652→  display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:flex-start;
+   653→  padding:9px 12px;
+   654→  background:#fff;border:1px solid rgba(21,38,77,0.08);
+   655→  border-radius:10px;
+   656→  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+   657→}
+   658→.step .n{
+   659→  width:28px;height:28px;border-radius:50%;
+   660→  background:var(--linux-green);color:#fff;
+   661→  font-size:12px;font-weight:800;
+   662→  display:flex;align-items:center;justify-content:center;
+   663→}
+   664→.step .bd{display:flex;flex-direction:column;gap:3px;}
+   665→.step .bd .t{font-size:12.5px;font-weight:700;color:var(--linux-green);text-transform:uppercase;letter-spacing:0.4px;}
+   666→.step .bd .term{
+   667→  background:var(--term-bg);color:var(--term-fg);
+   668→  font-family:"JetBrains Mono","Consolas",monospace;
+   669→  font-size:10.5px;line-height:1.5;
+   670→  padding:6px 9px;border-radius:5px;
+   671→  margin-top:3px;overflow-x:auto;white-space:pre;
+   672→}
+   673→.step .bd .term .pmt{color:#7ee787;}
+   674→.step .bd .term .out{color:#79c0ff;}
+   675→
+   676→/* ============================================================
+   677→   SECTION HEADER (in body)
+   678→   ============================================================ */
+   679→.section-h{
+   680→  display:flex;align-items:center;gap:10px;
+   681→  margin:8px 0 8px 0;
+   682→}
+   683→.section-h .bar{
+   684→  width:4px;height:18px;background:var(--linux-green);border-radius:2px;
+   685→}
+   686→.section-h h4{
+   687→  font-size:14px;font-weight:800;color:var(--linux-green);
+   688→  text-transform:uppercase;letter-spacing:0.6px;
+   689→}
+   690→.section-h .pill{
+   691→  margin-left:auto;
+   692→  background:#eef5ef;color:var(--linux-green);
+   693→  font-size:10px;font-weight:700;letter-spacing:0.6px;
+   694→  padding:3px 9px;border-radius:999px;
+   695→  text-transform:uppercase;
+   696→}
+   697→
+   698→/* two-column file/term rows */
+   699→.kv-row{
+   700→  display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:baseline;
+   701→  padding:6px 0;border-bottom:1px dashed rgba(21,38,77,0.10);
+   702→}
+   703→.kv-row:last-child{border-bottom:none;}
+   704→.kv-row .k{
+   705→  font-family:"JetBrains Mono","Consolas",monospace;
+   706→  font-size:11.5px;font-weight:700;color:var(--linux-green);
+   707→}
+   708→.kv-row .v{font-size:11.5px;color:var(--ink-2);line-height:1.45;}
+   709→
+   710→/* ============================================================
+   711→   PAGE FOOTER
+   712→   ============================================================ */
+   713→.page-footer{
+   714→  margin-top:20px;
+   715→  border-top:2px dashed rgba(21,38,77,0.18);
+   716→  padding-top:12px;
+   717→  display:flex;justify-content:space-between;align-items:center;
+   718→  font-size:11px;color:var(--ink-2);
+   719→  gap:16px;flex-wrap:wrap;
+   720→}
+   721→.page-footer .src{
+   722→  background:var(--green-soft);color:var(--linux-green);
+   723→  padding:5px 12px;border-radius:999px;font-weight:700;letter-spacing:0.4px;
+   724→}
+   725→.page-footer .tip{
+   726→  background:var(--gold-soft);color:#8a6500;
+   727→  padding:5px 12px;border-radius:999px;font-weight:700;letter-spacing:0.3px;
+   728→  flex:1;text-align:center;
+   729→}
+   730→.page-footer .pg{
+   731→  background:var(--linux-green);color:#fff;
+   732→  padding:5px 12px;border-radius:999px;font-weight:700;letter-spacing:0.6px;
+   733→}
+   734→
+   735→/* ============================================================
+   736→   PRINT / PDF
+   737→   ============================================================ */
+   738→@page{size:1080px 1420px;margin:0;}
+   739→@media print{
+   740→  html,body{background:#fff;padding:0;gap:0;}
+   741→  .page-wrapper{margin:0;}
+   742→  .page{box-shadow:none;border-radius:0;width:1080px;page-break-after:always;}
+   743→}
+   744→`;
+   745→
+   746→// ---------------------------------------------------------------------------
+   747→// Inline SVG icon library (simple, original illustrations)
+   748→// ---------------------------------------------------------------------------
+   749→const ICON = {
+   750→  tux: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 6c-7 0-12 6-12 14 0 4 1 7 3 9-3 4-7 11-9 18-1 4-2 9 0 11 1 1 2 1 3 0 1 3 3 4 5 4h20c2 0 4-1 5-4 1 1 2 1 3 0 2-2 1-7 0-11-2-7-6-14-9-18 2-2 3-5 3-9 0-8-5-14-12-14z" fill="#1a1a1a"/><path d="M32 8c-4 0-7 4-7 9 0 3 1 5 2 7 1-1 3-1 5-1s4 0 5 1c1-2 2-4 2-7 0-5-3-9-7-9z" fill="#fff"/><circle cx="27" cy="20" r="2.4" fill="#1a1a1a"/><circle cx="37" cy="20" r="2.4" fill="#1a1a1a"/><circle cx="27.6" cy="20" r="0.8" fill="#fff"/><circle cx="37.6" cy="20" r="0.8" fill="#fff"/><path d="M28 25c2 2 6 2 8 0-1 3-3 4-4 4s-3-1-4-4z" fill="#f5a623"/><path d="M22 33c-2 4-5 10-6 16 4-2 8-2 12-2-3-4-5-9-6-14z" fill="#fff" opacity=".92"/><path d="M42 33c2 4 5 10 6 16-4-2-8-2-12-2 3-4 5-9 6-14z" fill="#fff" opacity=".92"/><path d="M26 54c2 1 4 1 6 1s4 0 6-1c-2 2-4 3-6 3s-4-1-6-3z" fill="#f5a623"/><path d="M29 50c1 0 2 1 3 1s2-1 3-1c0 2-1 3-3 3s-3-1-3-3z" fill="#f5a623"/></svg>`,
+   751→  terminal: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+   752→  folder: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg>`,
+   753→  users: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="8" r="3.4" fill="currentColor"/><circle cx="15.5" cy="9" r="2.7" fill="currentColor" opacity=".75"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13.5 20c0-2.5 1.8-4.5 4-4.5s4 2 4 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".75"/></svg>`,
+   754→  gear: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>`,
+   755→  cloud: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 18a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5-1.5A4 4 0 0 1 18 18z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`,
+   756→  target: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="11" cy="11" r="4.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="11" cy="11" r="1.8" fill="currentColor"/><path d="M16 11l6-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M19 5l3 0 0 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`,
+   757→  laptop: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="14" width="42" height="28" rx="2.5" fill="#0d1117"/><rect x="13.5" y="16.5" width="37" height="23" rx="1" fill="#1c2230"/><text x="32" y="32" font-family="monospace" font-size="9" fill="#7ee787" text-anchor="middle">&gt;_</text><path d="M5 44h54l-3 5a3 3 0 0 1-2.6 1.5H10.6A3 3 0 0 1 8 49z" fill="#cfe9dd"/><rect x="26" y="46" width="12" height="1.5" fill="#7c9d92"/></svg>`,
+   758→  check: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+   759→  lightbulb: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 18h6m-5 2h4M12 3a6 6 0 0 0-4 10.5c.7.7 1.2 1.5 1.4 2.5h5.2c.2-1 .7-1.8 1.4-2.5A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+   760→  warning: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l10.5 18.5H1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1.2" fill="currentColor"/></svg>`,
+   761→  book: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7v15H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13 4h7v15h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="6" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+   762→  shield: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2 L20 5 V12 C20 17 16 20.5 12 22 C8 20.5 4 17 4 12 V5 Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+   763→  lock: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10 V8 a5 5 0 0 1 10 0 V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10" width="14" height="10" rx="2.4" fill="currentColor"/><circle cx="12" cy="14.5" r="1.5" fill="#fff"/><rect x="11.2" y="14.5" width="1.6" height="3" fill="#fff" rx="0.5"/></svg>`,
+   764→  magnifier: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="15.5" y1="15.5" x2="20" y2="20" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`,
+   765→  server: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="14" width="18" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="7" r="0.8" fill="currentColor"/><circle cx="6" cy="17" r="0.8" fill="currentColor"/><line x1="9" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="1.2"/></svg>`,
+   766→  key: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 12h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17 12v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 12v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+   767→  database: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><ellipse cx="12" cy="6" rx="7" ry="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 6v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 12v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>`,
+   768→  clock: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+   769→  star: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z" fill="currentColor"/></svg>`,
+   770→  package: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l8 4.5v9.5l-8 4.5-8-4.5V7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M4 7l8 4.5 8-4.5M12 11.5v9.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>`,
+   771→  network: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5v4m0 0l-5.5 4M12 11.5l5.5 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`,
+   772→  play: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg>`,
+   773→  list: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><line x1="8" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><line x1="8" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></svg>`,
+   774→  pencil: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 4.5l5 5L9 20l-5.5.5L4 15z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13 6l5 5" stroke="currentColor" stroke-width="1.7"/></svg>`,
+   775→  // Distribution logos (simplified)
+   776→  ubuntu: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11" fill="#E95420"/><circle cx="12" cy="6.5" r="2.2" fill="#fff"/><circle cx="7" cy="15.5" r="2.2" fill="#fff"/><circle cx="17" cy="15.5" r="2.2" fill="#fff"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="#fff" stroke-width="1.4"/></svg>`,
+   777→  rhel: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 16l1-9a4 4 0 0 1 4-3.5h4A4 4 0 0 1 18 7l1 9z" fill="#CC0000"/><path d="M8 12h2v4m4-4v4m2-4h-4" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`,
+   778→  debian: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11" fill="#A80030"/><path d="M14 6c-2-1-5 0-6 3-1 2 0 5 2 6 2 1 5 0 6-2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M12 6.5c2 1 3 3 2 5" fill="none" stroke="#fff" stroke-width="1.2"/></svg>`,
+   779→  rocky: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11" fill="#10B981"/><path d="M7 14l5-7 5 7-5 3z" fill="#fff"/><path d="M7 14l5 3 5-3" fill="none" stroke="#0f6b3f" stroke-width="1"/></svg>`,
+   780→} as const;
+   781→
+   782→// ---------------------------------------------------------------------------
+   783→// Helper: page chrome (badges + title + divider + footer)
+   784→// ---------------------------------------------------------------------------
+   785→function pageChrome(
+   786→  pageNum: number,
+   787→  totalPages: number,
+   788→  topic: string,
+   789→  inner: string,
+   790→  footerTip?: string,
+   791→): string {
+   792→  const pn = String(pageNum).padStart(2, "0");
+   793→  const tp = String(totalPages).padStart(2, "0");
+   794→  return `
+   795→<div class="page-wrapper">
+   796→  <div class="holes" aria-hidden="true"></div>
+   797→  <div class="spiral" aria-hidden="true"></div>
+   798→  <div class="page-bend" aria-hidden="true"></div>
+   799→  <div class="page">
+   800→    <div class="page-top-edge" aria-hidden="true"></div>
+   801→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   802→    <div class="content">
+   803→      <div class="top-strip">
+   804→        <div class="badges">
+   805→          <span class="badge green">LINUX FOR BEGINNERS</span>
+   806→          <span class="badge alt">${topic}</span>
+   807→          <span class="badge">PAGE ${pn} / ${tp}</span>
+   808→        </div>
+   809→      </div>
+   810→      ${inner}
+   811→      <div class="page-footer">
+   812→        <span class="src">Notebook · Practice Daily</span>
+   813→        ${footerTip ? `<span class="tip">${footerTip}</span>` : ""}
+   814→        <span class="pg">${pn} / ${tp}</span>
+   815→      </div>
+   816→    </div>
+   817→  </div>
+   818→</div>`;
+   819→}
+   820→
+   821→function titleHtml(title: string, subtitle?: string): string {
+   822→  return `<div class="title-block">
+   823→    <h1 class="title">${title}</h1>
+   824→    ${subtitle ? `<div class="subtitle">${subtitle}</div>` : ""}
+   825→  </div>
+   826→  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>`;
+   827→}
+   828→
+   829→function sectionHeader(title: string, pill?: string): string {
+   830→  return `<div class="section-h">
+   831→    <span class="bar"></span>
+   832→    <h4>${title}</h4>
+   833→    ${pill ? `<span class="pill">${pill}</span>` : ""}
+   834→  </div>`;
+   835→}
+   836→
+   837→function iconWrap(svg: string, tint: Tint = "neutral"): string {
+   838→  return `<span class="icn-mini bg-${tint}" style="color:var(--linux-green);">${svg}</span>`;
+   839→}
+   840→
+   841→function calloutBox(c: Callout): string {
+   842→  const icons: Record<Callout["type"], string> = {
+   843→    tip: ICON.lightbulb,
+   844→    warning: ICON.warning,
+   845→    note: ICON.book,
+   846→    success: ICON.shield,
+   847→    goal: ICON.target,
+   848→  };
+   849→  const titles: Record<Callout["type"], string> = {
+   850→    tip: "TIP",
+   851→    warning: "WARNING",
+   852→    note: "NOTE",
+   853→    success: "SUCCESS",
+   854→    goal: "GOAL",
+   855→  };
+   856→  const title = c.title ?? titles[c.type];
+   857→  return `<div class="callout ${c.type}">
+   858→    <div class="icn">${c.icon ?? icons[c.type]}</div>
+   859→    <div class="ct">
+   860→      <h5>${title}</h5>
+   861→      ${c.text}
+   862→    </div>
+   863→  </div>`;
+   864→}
+   865→
+   866→function conceptCard(c: Concept): string {
+   867→  const tint = c.tint ?? "neutral";
+   868→  const numHtml = c.num ? `<span class="num">${c.num}</span>` : "";
+   869→  const iconHtml = c.icon ? `<span class="icn-mini bg-${tint}" style="color:var(--linux-green);">${c.icon}</span>` : "";
+   870→  let bodyHtml = "";
+   871→  if (c.body) bodyHtml += `<div class="body-text">${c.body}</div>`;
+   872→  if (c.bullets && c.bullets.length) {
+   873→    bodyHtml += `<ul>${c.bullets.map((b) => `<li>${b}</li>`).join("")}</ul>`;
+   874→  }
+   875→  if (c.cmds && c.cmds.length) {
+   876→    for (const cmd of c.cmds) {
+   877→      const term = cmd.cmd.replace(/\$/g, '<span class="pmt">$</span>');
+   878→      const out = cmd.out ? `\n<span class="out">${esc(cmd.out)}</span>` : "";
+   879→      const cmt = cmd.desc ? `\n<span class="cmt"># ${esc(cmd.desc)}</span>` : "";
+   880→      bodyHtml += `<div class="mini-term">${term}${cmt}${out}</div>`;
+   881→    }
+   882→  }
+   883→  return `<div class="concept-card">
+   884→    <div class="ch">${numHtml}${iconHtml}<h3>${c.title}</h3></div>
+   885→    ${bodyHtml}
+   886→  </div>`;
+   887→}
+   888→
+   889→function cmdCard(opts: {
+   890→  cmd: string;
+   891→  title?: string;
+   892→  desc?: string;
+   893→  example?: string;
+   894→  output?: string;
+   895→  comment?: string;
+   896→  icon?: string;
+   897→  tint?: Tint;
+   898→}): string {
+   899→  const tint = opts.tint ?? "neutral";
+   900→  const title = opts.title ?? opts.cmd;
+   901→  const icon = opts.icon ?? ICON.terminal;
+   902→  let term = "";
+   903→  if (opts.example) {
+   904→    const ex = opts.example
+   905→      .split("\n")
+   906→      .map((ln) => ln.replace(/^\$/, '<span class="pmt">$</span>'))
+   907→      .join("\n");
+   908→    const out = opts.output ? `\n<span class="out">${esc(opts.output)}</span>` : "";
+   909→    const cmt = opts.comment ? `\n<span class="cmt"># ${esc(opts.comment)}</span>` : "";
+   910→    term = `<div class="term">${ex}${cmt}${out}</div>`;
+   911→  }
+   912→  return `<div class="cmd-card">
+   913→    <div class="ic bg-${tint}" style="color:var(--linux-green);">${icon}</div>
+   914→    <div class="body-text">
+   915→      <h4>${esc(title)}</h4>
+   916→      ${opts.desc ? `<div class="desc">${opts.desc}</div>` : ""}
+   917→      ${term}
+   918→    </div>
+   919→  </div>`;
+   920→}
+   921→
+   922→function termBlock(title: string, lines: string[]): string {
+   923→  // Each line: escape, replace $ with prompt span, # with comment span
+   924→  const body = lines
+   925→    .map((ln) => {
+   926→      // handle prompt
+   927→      let out = esc(ln);
+   928→      // highlight $ at start as prompt
+   929→      out = out.replace(/^(\s*)\$/, '$1<span class="pmt">$</span>');
+   930→      // highlight # at start as comment
+   931→      out = out.replace(/^(\s*)#/, '$1<span class="cmt">#</span>');
+   932→      return out;
+   933→    })
+   934→    .join("\n");
+   935→  return `<div class="term-block">
+   936→    <div class="term-head">
+   937→      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+   938→      <span class="ttl">${esc(title)}</span>
+   939→    </div>
+   940→    <pre class="term-body">${body}</pre>
+   941→  </div>`;
+   942→}
+   943→
+   944→function dataTable(opts: {
+   945→  caption?: string;
+   946→  headers: string[];
+   947→  rows: string[][];
+   948→  monoCols?: number[];
+   949→}): string {
+   950→  const { caption, headers, rows } = opts;
+   951→  const monoCols = new Set(opts.monoCols ?? []);
+   952→  const head = headers
+   953→    .map((h) => `<th>${esc(h)}</th>`)
+   954→    .join("");
+   955→  const body = rows
+   956→    .map(
+   957→      (r) =>
+   958→        `<tr>${r
+   959→          .map(
+   960→            (cell, i) =>
+   961→              `<td${monoCols.has(i) ? ' class="mono"' : ""}>${cell}</td>`,
+   962→          )
+   963→          .join("")}</tr>`,
+   964→    )
+   965→    .join("");
+   966→  const table = `<table class="data-table">
+   967→    <thead><tr>${head}</tr></thead>
+   968→    <tbody>${body}</tbody>
+   969→  </table>`;
+   970→  if (!caption) return table;
+   971→  return `<div class="table-wrap">
+   972→    <div class="table-caption">${esc(caption)}</div>
+   973→    ${table}
+   974→  </div>`;
+   975→}
+   976→
+   977→function stepsFlow(steps: Step[]): string {
+   978→  return `<div class="steps-flow">${steps
+   979→    .map((s) => {
+   980→      const term = s.cmd
+   981→        ? `<div class="term">${esc(s.cmd).replace(/^\$/, '<span class="pmt">$</span>')}${s.out ? `\n<span class="out">${esc(s.out)}</span>` : ""}</div>`
+   982→        : "";
+   983→      return `<div class="step">
+   984→        <div class="n">${s.n}</div>
+   985→        <div class="bd">
+   986→          <div class="t">${esc(s.title)}</div>
+   987→          ${term}
+   988→        </div>
+   989→      </div>`;
+   990→    })
+   991→    .join("")}</div>`;
+   992→}
+   993→
+   994→// ---------------------------------------------------------------------------
+   995→// PAGE BUILDERS
+   996→// ---------------------------------------------------------------------------
+   997→function page1Cover(): string {
+   998→  const inner = `
+   999→  <div class="cover">
+  1000→    <span class="super">A PRACTICAL GUIDE</span>
+  1001→    <h1 class="title-big">LINUX</h1>
+  1002→    <div class="title-stack">
+  1003→      <div class="title-for">FOR</div>
+  1004→      <div class="title-cb"><span class="b">COMPLETE</span> <span class="green">BEGINNERS</span></div>
+  1005→    </div>
+  1006→    <div class="sub-box">
+  1007→      <div class="tux">${ICON.tux}</div>
+  1008→      <div class="sub-text">A PRACTICAL GUIDE FROM<br>ZERO TO CONFIDENT LINUX USER</div>
+  1009→    </div>
+  1010→    <div class="icon-row">
+  1011→      <div class="icon-pill">
+  1012→        <div class="icn" style="border-color:#1565C0;color:#1565C0;">${ICON.terminal}</div>
+  1013→        <div class="lbl">Command Line</div>
+  1014→      </div>
+  1015→      <div class="icon-pill">
+  1016→        <div class="icn" style="border-color:#2E7D32;color:#2E7D32;">${ICON.folder}</div>
+  1017→        <div class="lbl">File System</div>
+  1018→      </div>
+  1019→      <div class="icon-pill">
+  1020→        <div class="icn" style="border-color:#1565C0;color:#1565C0;">${ICON.users}</div>
+  1021→        <div class="lbl">Users &amp; Permissions</div>
+  1022→      </div>
+  1023→      <div class="icon-pill">
+  1024→        <div class="icn" style="border-color:#EF6C00;color:#EF6C00;">${ICON.gear}</div>
+  1025→        <div class="lbl">Services &amp; Processes</div>
+  1026→      </div>
+  1027→      <div class="icon-pill">
+  1028→        <div class="icn" style="border-color:#1565C0;color:#1565C0;">${ICON.cloud}</div>
+  1029→        <div class="lbl">Networking</div>
+  1030→      </div>
+  1031→    </div>
+  1032→    <div class="features">
+  1033→      <div>
+  1034→        <h4>What You'll Get</h4>
+  1035→        <ul>
+  1036→          <li><span class="check">${ICON.check}</span> Step-by-step Learning</li>
+  1037→          <li><span class="check">${ICON.check}</span> Hands-on Examples</li>
+  1038→          <li><span class="check">${ICON.check}</span> Real-world Scenarios</li>
+  1039→          <li><span class="check">${ICON.check}</span> Beginner Friendly</li>
+  1040→          <li><span class="check">${ICON.check}</span> DevOps Ready</li>
+  1041→          <li><span class="check">${ICON.check}</span> Build Strong Foundation</li>
+  1042→        </ul>
+  1043→      </div>
+  1044→      <div class="laptop-illu">
+  1045→        ${ICON.laptop}
+  1046→        <div class="caption">From Zero to Confident</div>
+  1047→      </div>
+  1048→    </div>
+  1049→    <div class="footer-tag">
+  1050→      ${ICON.target}
+  1051→      LEARN TODAY. PRACTICE DAILY. USE LINUX ANYWHERE.
+  1052→    </div>
+  1053→  </div>`;
+  1054→  // Cover page doesn't use the standard chrome — render plain
+  1055→  return `
+  1056→<div class="page-wrapper">
+  1057→  <div class="holes" aria-hidden="true"></div>
+  1058→  <div class="spiral" aria-hidden="true"></div>
+  1059→  <div class="page-bend" aria-hidden="true"></div>
+  1060→  <div class="page">
+  1061→    <div class="page-top-edge" aria-hidden="true"></div>
+  1062→    <div class="page-bottom-edge" aria-hidden="true"></div>
+  1063→    <div class="content">
+  1064→      <div class="top-strip">
+  1065→        <div class="badges">
+  1066→          <span class="badge green">LINUX FOR BEGINNERS</span>
+  1067→          <span class="badge alt">COVER</span>
+  1068→          <span class="badge">PAGE 01 / 20</span>
+  1069→        </div>
+  1070→      </div>
+  1071→      ${inner}
+  1072→      <div class="page-footer">
+  1073→        <span class="src">Notebook · Practice Daily</span>
+  1074→        <span class="tip">A 20-page practical guide</span>
+  1075→        <span class="pg">01 / 20</span>
+  1076→      </div>
+  1077→    </div>
+  1078→  </div>
+  1079→</div>`;
+  1080→}
+  1081→
+  1082→// ---------------------------------------------------------------------------
+  1083→// PAGE 2 — Linux From Zero
+  1084→// ---------------------------------------------------------------------------
+  1085→function page2LinuxFromZero(): string {
+  1086→  const inner = `
+  1087→  ${titleHtml("LINUX FROM ZERO", "WHAT LINUX IS · HOW IT WORKS · YOUR FIRST COMMANDS")}
+  1088→  <div class="body cols-2">
+  1089→    ${conceptCard({
+  1090→      num: "1", tint: "blue", icon: ICON.tux,
+  1091→      title: "What Linux Actually Is",
+  1092→      bullets: [
+  1093→        "Open-source operating system.",
+  1094→        "Most popular OS for servers, cloud, DevOps and engineering work.",
+  1095→        "Stable, secure, fast and highly customizable.",
+  1096→      ],
+  1097→    })}
+  1098→    ${conceptCard({
+  1099→      num: "2", tint: "green", icon: ICON.gear,
+  1100→      title: "Linux Kernel vs Operating System",
+  1101→      bullets: [
+  1102→        "<b>Kernel:</b> core part of Linux. Talks to hardware (CPU, memory, storage, devices). Manages system resources.",
+  1103→        "<b>Operating System:</b> everything around the kernel — system tools, libraries, commands, applications, utilities.",
+  1104→      ],
+  1105→    })}
+  1106→    ${conceptCard({
+  1107→      num: "3", tint: "purple", icon: ICON.package,
+  1108→      title: "Linux Distributions (Distros)",
+  1109→      bullets: [
+  1110→        "Many distributions use the Linux kernel.",
+  1111→        "Each distro packages tools and software differently.",
+  1112→      ],
+  1113→      body: `<div class="distro-row">
+  1114→          <span class="distro">${ICON.ubuntu}UBUNTU · Beginner friendly</span>
+  1115→          <span class="distro">${ICON.rhel}RHEL · Enterprise</span>
+  1116→          <span class="distro">${ICON.debian}DEBIAN · Stable</span>
+  1117→          <span class="distro">${ICON.rocky}ROCKY · RHEL-compatible</span>
+  1118→        </div>`,
+  1119→    })}
+  1120→    ${conceptCard({
+  1121→      num: "4", tint: "gold", icon: ICON.server,
+  1122→      title: "Server Linux vs Desktop Linux",
+  1123→      bullets: [
+  1124→        "<b>Server Linux:</b> runs without UI (GUI). Optimized for performance, security and uptime. Used in data centers, cloud and production.",
+  1125→        "<b>Desktop Linux:</b> has graphical interface (GUI). Designed for end users. Daily tasks like browsers and office apps.",
+  1126→      ],
+  1127→    })}
+  1128→    ${conceptCard({
+  1129→      num: "5", tint: "blue", icon: ICON.cloud,
+  1130→      title: "Why DevOps Engineers Use Linux",
+  1131→      bullets: [
+  1132→        "Most servers &amp; cloud run Linux.",
+  1133→        "Automation, scripting and tooling work best on Linux.",
+  1134→        "Better security and control.",
+  1135→        "Essential for DevOps, SRE, Cloud &amp; Platform Engineering.",
+  1136→      ],
+  1137→    })}
+  1138→    ${conceptCard({
+  1139→      num: "6", tint: "green", icon: ICON.terminal,
+  1140→      title: "Terminal vs Shell",
+  1141→      bullets: [
+  1142→        "<b>Terminal:</b> the application you open to interact with Linux. It is the window.",
+  1143→        "<b>Shell:</b> the program inside the terminal that interprets and executes your commands. Example: bash, zsh, sh.",
+  1144→      ],
+  1145→    })}
+  1146→  </div>
+  1147→
+  1148→  ${sectionHeader("7. Your First Linux Commands (Practical)", "Cheatsheet")}
+  1149→  ${dataTable({
+  1150→    headers: ["COMMAND", "WHAT IT DOES", "EXAMPLE", "SAMPLE OUTPUT (MAY VARY)"],
+  1151→    monoCols: [0, 2],
+  1152→    rows: [
+  1153→      ["whoami", "Shows the current user", "<code>whoami</code>", "ubuntu"],
+  1154→      ["hostname", "Shows the system hostname", "<code>hostname</code>", "ip-172-31-20-15"],
+  1155→      ["uname -a", "Shows system &amp; kernel info", "<code>uname -a</code>", "Linux ip-172-31-20-15 5.15.0-101-generic #112~20.04.1-Ubuntu x86_64 GNU/Linux"],
+  1156→      ["date", "Shows current date and time", "<code>date</code>", "Sat May 11 10:30:45 UTC 2024"],
+  1157→      ["uptime", "Shows how long the system has been running", "<code>uptime</code>", "10:30:45 up 2 days, 3:15, 1 user, load average: 0.08, 0.07, 0.05"],
+  1158→    ],
+  1159→  })}
+  1160→
+  1161→  <div class="callout-grid" style="margin-top:14px;">
+  1162→    ${calloutBox({ type: "tip", title: "PRACTICE TIP", text: "<p>Open your terminal and run each command. This builds your confidence and familiarity.</p>" })}
+  1163→    ${calloutBox({ type: "goal", title: "GOAL", text: "<p>Understand Linux basics and feel comfortable in the terminal.</p>" })}
+  1164→  </div>`;
+  1165→  return pageChrome(2, 20, "LINUX FROM ZERO", inner, "Run every command on a real terminal — muscle memory matters.");
+  1166→}
+  1167→
+  1168→// ---------------------------------------------------------------------------
+  1169→// PAGE 3 — Understanding the Linux Filesystem
+  1170→// ---------------------------------------------------------------------------
+  1171→function page3Filesystem(): string {
+  1172→  const inner = `
+  1173→  ${titleHtml("UNDERSTANDING THE<br>LINUX FILESYSTEM", "THE LINUX FILESYSTEM IS ORGANIZED IN A TREE-LIKE STRUCTURE STARTING FROM THE ROOT DIRECTORY /")}
+  1174→  <div class="body cols-2-uneven">
+  1175→    <div>
+  1176→      ${sectionHeader("Linux Directory Structure")}
+  1177→      ${dataTable({
+  1178→        headers: ["DIRECTORY", "PURPOSE", "EXAMPLE CONTENT"],
+  1179→        monoCols: [0],
+  1180→        rows: [
+  1181→          ["/", "Root of the filesystem. Everything starts here.", "All directories and files"],
+  1182→          ["/home", "Home directories for regular users.", "/home/user1 /home/user2"],
+  1183→          ["/etc", "System configuration files.", "passwd, hosts, ssh, nginx"],
+  1184→          ["/var", "Variable data that changes.", "logs, spool, cache, databases"],
+  1185→          ["/tmp", "Temporary files. Usually cleared on reboot.", "Temporary files from apps"],
+  1186→          ["/usr", "User programs and applications.", "bin, sbin, lib, share, local"],
+  1187→          ["/opt", "Optional add-on software packages.", "Third-party applications"],
+  1188→          ["/bin", "Essential user binaries (commands).", "ls, cp, mv, cat, bash"],
+  1189→          ["/sbin", "System binaries for administration.", "fdisk, reboot, ifconfig, mkfs"],
+  1190→          ["/root", "Home directory for the root (admin) user.", "Root's personal files"],
+  1191→        ],
+  1192→      })}
+  1193→    </div>
+  1194→    <div style="display:flex;flex-direction:column;gap:12px;">
+  1195→      ${calloutBox({ type: "note", title: "ABSOLUTE PATH", text: "<p>Starts from the root directory <code>/</code> and shows the full location.</p><p><code>/home/user/docs/file.txt</code></p>" })}
+  1196→      ${calloutBox({ type: "note", title: "RELATIVE PATH", text: "<p>Starts from your current location.</p><p><code>docs/file.txt</code></p>" })}
+  1197→      ${calloutBox({ type: "note", title: ". (DOT)", text: "<p>Refers to the current directory.</p><p><code>./script.sh</code></p>" })}
+  1198→      ${calloutBox({ type: "note", title: ".. (DOT DOT)", text: "<p>Refers to the parent directory.</p><p><code>../</code> (go up one level)</p>" })}
+  1199→      ${calloutBox({ type: "tip", title: "QUICK TIP", text: "<p>Linux is case-sensitive. <code>/Home</code> and <code>/home</code> are different directories.</p>" })}
+  1200→    </div>
+  1201→  </div>
+  1202→
+  1203→  ${sectionHeader("Practical: Navigate Through a Real Linux Filesystem")}
+  1204→  <div class="body cols-2">
+  1205→    ${cmdCard({ cmd: "pwd", title: "pwd", desc: "Show your current location", example: "$ pwd", output: "/home/user", tint: "green", icon: ICON.folder })}
+  1206→    ${cmdCard({ cmd: "ls", title: "ls -l /", desc: "List the root directory", example: "$ ls -l /", tint: "green", icon: ICON.list })}
+  1207→    ${cmdCard({ cmd: "cd", title: "cd /home", desc: "Enter the /home directory", example: "$ cd /home", tint: "blue", icon: ICON.folder })}
+  1208→    ${cmdCard({ cmd: "cd ..", title: "cd ..", desc: "Go up one level", example: "$ cd ..", tint: "blue", icon: ICON.folder })}
+  1209→    ${cmdCard({ cmd: "cd /etc", title: "cd /etc", desc: "Go to /etc and explore", example: "$ cd /etc", tint: "purple", icon: ICON.gear })}
+  1210→    ${cmdCard({ cmd: "cd /var/log", title: "cd /var/log", desc: "Explore log files", example: "$ cd /var/log", tint: "purple", icon: ICON.folder })}
+  1211→    ${cmdCard({ cmd: "cd ~", title: "cd ~", desc: "Go to your home directory", example: "$ cd ~", tint: "gold", icon: ICON.folder })}
+  1212→    ${cmdCard({ cmd: "cd -", title: "cd -", desc: "Go back to previous directory", example: "$ cd -", tint: "gold", icon: ICON.folder })}
+  1213→  </div>
+  1214→
+  1215→  <div class="callout-grid cols-2" style="margin-top:14px;">
+  1216→    ${calloutBox({ type: "goal", title: "GOAL", text: "<p>Understand where important files live so you can work confidently in Linux.</p>" })}
+  1217→    ${calloutBox({ type: "success", title: "KEY TAKEAWAY", text: "<p>The filesystem hierarchy is the foundation of Linux. Learn it once, use it every day.</p>" })}
+  1218→  </div>`;
+  1219→  return pageChrome(3, 20, "FILESYSTEM", inner, "Navigate with cd, ls, pwd every day.");
+  1220→}
+  1221→
+  1222→// ---------------------------------------------------------------------------
+  1223→// PAGE 4 — Moving Around Linux
+  1224→// ---------------------------------------------------------------------------
+  1225→function page4MovingAround(): string {
+  1226→  const inner = `
+  1227→  ${titleHtml("MOVING AROUND LINUX", "ESSENTIAL COMMANDS TO NAVIGATE LIKE A PRO")}
+  1228→  <div class="cmd-grid">
+  1229→    ${cmdCard({ title: "pwd", desc: "Print working directory. Shows your current location.", example: "$ pwd", output: "/home/user", tint: "green", icon: ICON.folder })}
+  1230→    ${cmdCard({ title: "ls", desc: "List files and directories. Shows the contents of your current location.", example: "$ ls", output: "docs  downloads  file.txt  logs  music  scripts", tint: "green", icon: ICON.list })}
+  1231→    ${cmdCard({ title: "cd", desc: "Change directory. Move into another directory.", example: "$ cd /var/log\n$ pwd", output: "/var/log", tint: "blue", icon: ICON.folder })}
+  1232→    ${cmdCard({ title: "clear", desc: "Clear the terminal screen. Makes your screen clean and easy to read.", example: "$ clear", comment: "(screen cleared)", tint: "blue", icon: ICON.terminal })}
+  1233→    ${cmdCard({ title: "history", desc: "Show previously executed commands. View or reuse past commands.", example: "$ history", output: "1  ls -la\n2  cd /etc\n3  pwd", tint: "purple", icon: ICON.clock })}
+  1234→    ${cmdCard({ title: "man", desc: "View the manual page for a command. Detailed documentation for any command.", example: "$ man ls", comment: "(manual page appears)", tint: "purple", icon: ICON.book })}
+  1235→    ${cmdCard({ title: "Tab Completion", desc: "Press Tab to auto-complete commands, filenames, and directories. Saves time and reduces typing errors.", example: "$ cd Doc<Tab>\n$ cd Documents/", tint: "gold", icon: ICON.terminal })}
+  1236→    ${cmdCard({ title: "Hidden Files", desc: "Files starting with . are hidden. Use -a option with ls to see them.", example: "$ ls -a", output: ".  ..  .bashrc  .config  .git  file.txt  docs", tint: "gold", icon: ICON.magnifier })}
+  1237→  </div>
+  1238→
+  1239→  ${sectionHeader("Reading Command Help")}
+  1240→  <div class="cmd-grid cols-3">
+  1241→    ${cmdCard({ title: "--help", desc: "Quick help for most commands.", example: "$ ls --help", tint: "blue", icon: ICON.terminal })}
+  1242→    ${cmdCard({ title: "man", desc: "Full manual page.", example: "$ man ls", tint: "blue", icon: ICON.book })}
+  1243→    ${cmdCard({ title: "info", desc: "Detailed info (if available).", example: "$ info ls", tint: "blue", icon: ICON.book })}
+  1244→  </div>
+  1245→  ${calloutBox({ type: "tip", text: "<p>Whenever you forget a command, use <code>--help</code> or <code>man</code> before guessing.</p>" })}
+  1246→
+  1247→  ${sectionHeader("Useful ls Options")}
+  1248→  ${dataTable({
+  1249→    headers: ["OPTION", "WHAT IT DOES", "EXAMPLE", "OUTPUT (MAY VARY)"],
+  1250→    monoCols: [0, 2],
+  1251→    rows: [
+  1252→      ["ls -l", "Long listing format", "<code>$ ls -l</code>", "Detailed info (perm, owner, size, date)"],
+  1253→      ["ls -a", "Show hidden files", "<code>$ ls -a</code>", "Shows files starting with ."],
+  1254→      ["ls -la", "Long format + hidden files", "<code>$ ls -la</code>", "Detailed list including hidden files"],
+  1255→      ["ls -lh", "Human-readable file sizes", "<code>$ ls -lh</code>", "Shows sizes like 1.2K, 3M"],
+  1256→      ["ls -lt", "Sorted by modification time", "<code>$ ls -lt</code>", "Newest files first"],
+  1257→      ["ls -R", "Recursive listing", "<code>$ ls -R</code>", "List all files in subdirectories"],
+  1258→    ],
+  1259→  })}
+  1260→
+  1261→  ${sectionHeader("Practical: Navigate Between Directories Without Using a GUI")}
+  1262→  ${stepsFlow([
+  1263→    { n: "1", title: "Start at your home directory", cmd: "$ pwd", out: "/home/user" },
+  1264→    { n: "2", title: "List files and folders", cmd: "$ ls" },
+  1265→    { n: "3", title: "Move into a directory", cmd: "$ cd folder_name" },
+  1266→    { n: "4", title: "Move deeper into subfolders", cmd: "$ cd subfolder" },
+  1267→    { n: "5", title: "Move back to parent directory", cmd: "$ cd .." },
+  1268→    { n: "6", title: "Go back to your home", cmd: "$ cd ~" },
+  1269→  ])}`;
+  1270→  return pageChrome(4, 20, "NAVIGATION", inner, "Practice daily — the more you use the terminal, the faster you become.");
+  1271→}
+  1272→
+  1273→// ---------------------------------------------------------------------------
+  1274→// PAGE 5 — Creating, Copying, Moving, and Deleting
+  1275→// ---------------------------------------------------------------------------
+  1276→function page5FileMgmt(): string {
+  1277→  const inner = `
+  1278→  ${titleHtml("CREATING, COPYING,<br>MOVING, AND DELETING", "MASTER THE BASICS OF FILE AND DIRECTORY MANAGEMENT")}
+  1279→  <div class="cmd-grid">
+  1280→    ${cmdCard({ title: "touch", desc: "Create an empty file or update file timestamp.", example: "$ touch file.txt\n$ touch notes.md", tint: "green", icon: ICON.terminal })}
+  1281→    ${cmdCard({ title: "rm", desc: "Remove (delete) files or directories.", example: "$ rm file.txt\n$ rm -r old_project/", tint: "red", icon: ICON.warning })}
+  1282→    ${cmdCard({ title: "mkdir", desc: "Create a new directory (folder).", example: "$ mkdir project\n$ mkdir src logs", tint: "blue", icon: ICON.folder })}
+  1283→    ${cmdCard({ title: "rmdir", desc: "Remove an empty directory.", example: "$ rmdir empty_folder", tint: "red", icon: ICON.folder })}
+  1284→    ${cmdCard({ title: "cp", desc: "Copy files or directories from one place to another.", example: "$ cp file.txt backup.txt\n$ cp -r project/ project_backup/", tint: "green", icon: ICON.package })}
+  1285→    ${cmdCard({ title: "Recursive Operations", desc: "Use -r (recursive) to operate on directories and their contents.", example: "$ cp -r src/ backup_src/\n$ rm -r logs/", tint: "purple", icon: ICON.gear })}
+  1286→    ${cmdCard({ title: "mv", desc: "Move or rename files and directories.", example: "$ mv file.txt newname.txt\n$ mv project/ old_project/", tint: "blue", icon: ICON.terminal })}
+  1287→    ${cmdCard({ title: "Wildcards", desc: "Use * to match multiple characters. ? matches a single character.", example: "$ rm *.log\n$ rm file?.txt docs/", tint: "gold", icon: ICON.list })}
+  1288→  </div>
+  1289→
+  1290→  ${sectionHeader("Safe Deletion Habits")}
+  1291→  ${dataTable({
+  1292→    headers: ["HABIT", "DESCRIPTION"],
+  1293→    monoCols: [0],
+  1294→    rows: [
+  1295→      ["ls -l *.log", "Always preview before deleting."],
+  1296→      ["rm -i file.txt", "Use rm -i to confirm each deletion."],
+  1297→      ["pwd", "Double-check paths and filenames."],
+  1298→      ["rm -rf / # NEVER DO THIS", "Avoid rm -rf / (very dangerous)."],
+  1299→    ],
+  1300→  })}
+  1301→
+  1302→  ${sectionHeader("Practical: Create, Organize, Copy, and Clean Up a Project")}
+  1303→  ${stepsFlow([
+  1304→    { n: "1", title: "Create project directory", cmd: "$ mkdir my_project\n$ cd my_project" },
+  1305→    { n: "2", title: "Create subdirectories", cmd: "$ mkdir src docs logs" },
+  1306→    { n: "3", title: "Create some files", cmd: "$ touch src/app.py\n$ touch docs/readme.md\n$ touch logs/app.log" },
+  1307→    { n: "4", title: "List project structure", cmd: "$ ls -R" },
+  1308→    { n: "5", title: "Copy a file", cmd: "$ cp docs/readme.md docs/readme_backup.md" },
+  1309→    { n: "6", title: "Move/rename a file", cmd: "$ mv src/app.py src/main.py" },
+  1310→    { n: "7", title: "Copy entire directory", cmd: "$ cp -r src/ src_backup/" },
+  1311→    { n: "8", title: "Delete a file", cmd: "$ rm logs/app.log" },
+  1312→    { n: "9", title: "Remove empty directory", cmd: "$ rmdir logs" },
+  1313→    { n: "10", title: "Final project structure", cmd: "my_project/\n├── docs/\n│   └── readme.md\n├── src/\n│   ├── main.py\n│   └── main_backup.py\n└── src_backup/" },
+  1314→  ])}
+  1315→
+  1316→  ${calloutBox({ type: "success", title: "KEY TAKEAWAY", text: "<p>Mastering file operations is the foundation of confident Linux administration. Always preview, double-check, and prefer the safe option.</p>" })}`;
+  1317→  return pageChrome(5, 20, "FILE MANAGEMENT", inner, "Always preview with ls before deleting.");
+  1318→}
+  1319→
+  1320→// ---------------------------------------------------------------------------
+  1321→// PAGE 6 — Reading and Editing Files
+  1322→// ---------------------------------------------------------------------------
+  1323→function page6ReadingEditing(): string {
+  1324→  const inner = `
+  1325→  ${titleHtml("READING AND<br>EDITING FILES", "VIEW, INSPECT, AND EDIT FILES LIKE A PRO")}
+  1326→  <div class="cmd-grid cols-3">
+  1327→    ${cmdCard({ title: "cat", desc: "Display the entire contents of a file.", example: "$ cat file.txt", tint: "green", icon: ICON.terminal })}
+  1328→    ${cmdCard({ title: "less", desc: "View file content one screen at a time. Navigate easily.", example: "$ less largefile.log\n# Space (down) b (up) q (quit)", tint: "green", icon: ICON.book })}
+  1329→    ${cmdCard({ title: "head", desc: "Show the first 10 lines of a file (default).", example: "$ head file.txt\n$ head -n 20 file.txt", tint: "blue", icon: ICON.terminal })}
+  1330→    ${cmdCard({ title: "tail", desc: "Show the last 10 lines of a file (default).", example: "$ tail file.txt\n$ tail -n 50 file.txt", tint: "blue", icon: ICON.terminal })}
+  1331→    ${cmdCard({ title: "nano", desc: "Simple and user-friendly text editor for beginners.", example: "$ nano config.conf\n# Ctrl+O (save) Ctrl+X (exit)", tint: "purple", icon: ICON.pencil })}
+  1332→    ${cmdCard({ title: "vim", desc: "Powerful text editor for advanced users. Three modes: Insert · Normal · Command.", example: "$ vim file.txt\n# i (insert) Esc (normal)\n# :w (save) :q (quit) :wq (save & quit)", tint: "purple", icon: ICON.terminal })}
+  1333→    ${cmdCard({ title: "wc", desc: "Count lines, words, and characters in a file.", example: "$ wc file.txt\n$ wc -l file.txt   # lines only", tint: "gold", icon: ICON.list })}
+  1334→    ${cmdCard({ title: "Viewing Large Files", desc: "Use less to open large files without loading everything into memory.", example: "$ less very_large.log\n# Search: /error (Enter)\n# Next: n   Prev: N", tint: "green", icon: ICON.book })}
+  1335→    ${cmdCard({ title: "tail -f", desc: "Monitor logs in real time. New lines appear instantly.", example: "$ tail -f app.log\n# Press Ctrl+C to stop.", tint: "green", icon: ICON.terminal })}
+  1336→  </div>
+  1337→
+  1338→  ${sectionHeader("Common tail Options")}
+  1339→  <div class="concept-grid cols-3">
+  1340→    ${conceptCard({ tint: "blue", icon: ICON.terminal, title: "-f", body: "Follow the file continuously (live logs)." })}
+  1341→    ${conceptCard({ tint: "blue", icon: ICON.terminal, title: "-n", body: "Show last n lines." })}
+  1342→    ${conceptCard({ tint: "blue", icon: ICON.terminal, title: "-F", body: "Follow by name (handle log rotation)." })}
+  1343→  </div>
+  1344→
+  1345→  ${sectionHeader("Text Editor Quick Reference")}
+  1346→  ${dataTable({
+  1347→    headers: ["NANO ESSENTIALS", "", "VIM ESSENTIALS", ""],
+  1348→    rows: [
+  1349→      ["Open file", "<code>$ nano filename</code>", "Open file", "<code>$ vim filename</code>"],
+  1350→      ["Save file", "Ctrl + O, then Enter", "Insert mode", "Press <code>i</code>"],
+  1351→      ["Exit editor", "Ctrl + X", "Save file", "<code>:w</code>"],
+  1352→      ["Cut line", "Ctrl + K", "Save &amp; exit", "<code>:wq</code>"],
+  1353→      ["Paste line", "Ctrl + U", "Quit (without save)", "<code>:q!</code>"],
+  1354→      ["Search", "Ctrl + W", "Search", "<code>/text</code> (Enter)"],
+  1355→      ["", "", "Exit insert mode", "Press <code>Esc</code>"],
+  1356→    ],
+  1357→  })}
+  1358→
+  1359→  ${sectionHeader("Practical: Create, Edit, and Inspect Files")}
+  1360→  ${stepsFlow([
+  1361→    { n: "1", title: "Create a directory for the lab", cmd: "$ mkdir file_lab\n$ cd file_lab" },
+  1362→    { n: "2", title: "Create a configuration file with nano", cmd: "$ nano app.conf\n# add some content\n# Ctrl+O (save) Ctrl+X (exit)" },
+  1363→    { n: "3", title: "View the file content using cat", cmd: "$ cat app.conf" },
+  1364→    { n: "4", title: "Check first and last lines of a log file", cmd: "$ head app.log\n$ tail app.log" },
+  1365→    { n: "5", title: "Monitor a log file in real time", cmd: "$ tail -f app.log" },
+  1366→    { n: "6", title: "Count lines, words, and characters", cmd: "$ wc app.log" },
+  1367→  ])}
+  1368→
+  1369→  ${calloutBox({ type: "success", title: "KEY TAKEAWAY", text: "<p>Master these commands and you can read, inspect, monitor, and edit any file in Linux confidently. These skills are essential for DevOps and system engineering.</p>" })}`;
+  1370→  return pageChrome(6, 20, "READING & EDITING", inner, "tail -f is your best friend for live logs.");
+  1371→}
+  1372→
+  1373→// ---------------------------------------------------------------------------
+  1374→// PAGE 7 — Linux Users and Groups
+  1375→// ---------------------------------------------------------------------------
+  1376→function page7UsersGroups(): string {
+  1377→  const inner = `
+  1378→  ${titleHtml("LINUX USERS<br>AND GROUPS", "MANAGE ACCESS, PERMISSIONS, AND OWNERSHIP")}
+  1379→  <div class="body cols-3">
+  1380→    <div style="display:flex;flex-direction:column;gap:12px;">
+  1381→      ${sectionHeader("Key Concepts")}
+  1382→      ${conceptCard({ tint: "blue", icon: ICON.users, title: "What a Linux user is", body: "A user is an identity that can log in and run processes." })}
+  1383→      ${conceptCard({ tint: "red", icon: ICON.shield, title: "Root user", body: "The superuser with UID 0. Has unlimited access." })}
+  1384→      ${conceptCard({ tint: "green", icon: ICON.users, title: "Regular users", body: "Human users with limited permissions." })}
+  1385→      ${conceptCard({ tint: "purple", icon: ICON.gear, title: "System users", body: "Created by the system or applications. Usually cannot login interactively." })}
+  1386→      ${conceptCard({ tint: "gold", icon: ICON.key, title: "UID and GID", body: "UID (User ID) uniquely identifies a user. GID (Group ID) identifies a group." })}
+  1387→    </div>
+  1388→    <div style="display:flex;flex-direction:column;gap:12px;">
+  1389→      ${sectionHeader("Important Files")}
+  1390→      ${termBlock("/etc/passwd", [
+  1391→        "$ cat /etc/passwd",
+  1392→        "root:x:0:0:root:/root:/bin/bash",
+  1393→        "alice:x:1001:1001:Alice:/home/alice:/bin/bash",
+  1394→        "bob:x:1002:1002:Bob:/home/bob:/bin/bash",
+  1395→        "# Format: username:x:UID:GID:comment:home:shell",
+  1396→      ])}
+  1397→      ${termBlock("/etc/group", [
+  1398→        "$ cat /etc/group",
+  1399→        "root:x:0:",
+  1400→        "developers:x:1001:alice,bob",
+  1401→        "ops:x:1002:charlie",
+  1402→        "# Format: groupname:x:GID:user1,user2,user3",
+  1403→      ])}
+  1404→    </div>
+  1405→    <div style="display:flex;flex-direction:column;gap:12px;">
+  1406→      ${sectionHeader("Essential Commands")}
+  1407→      ${cmdCard({ title: "useradd", desc: "Create a new user.", example: "$ sudo useradd alice", tint: "blue", icon: ICON.users })}
+  1408→      ${cmdCard({ title: "usermod", desc: "Modify user properties.", example: "$ sudo usermod -aG developers alice", tint: "blue", icon: ICON.pencil })}
+  1409→      ${cmdCard({ title: "userdel", desc: "Delete a user account.", example: "$ sudo userdel bob", tint: "red", icon: ICON.warning })}
+  1410→      ${cmdCard({ title: "groupadd", desc: "Create a new group.", example: "$ sudo groupadd developers", tint: "green", icon: ICON.users })}
+  1411→      ${cmdCard({ title: "id", desc: "Show user and group IDs.", example: "$ id alice", tint: "gold", icon: ICON.key })}
+  1412→      ${cmdCard({ title: "groups", desc: "Show groups a user belongs to.", example: "$ groups alice", tint: "gold", icon: ICON.users })}
+  1413→    </div>
+  1414→  </div>
+  1415→
+  1416→  ${sectionHeader("User and Group Information at a Glance")}
+  1417→  ${dataTable({
+  1418→    headers: ["TYPE", "DESCRIPTION", "EXAMPLE", "UID", "GID", "LOGIN", "HOME"],
+  1419→    rows: [
+  1420→      ["Root User", "Superuser with all privileges", "root", "0", "0", "Yes", "/root"],
+  1421→      ["Regular User", "Human user for daily tasks", "alice", "1001+", "1001+", "Yes", "/home/alice"],
+  1422→      ["System User", "Used by system services", "www-data", "1-999", "1-999", "No", "/nonexistent"],
+  1423→    ],
+  1424→  })}
+  1425→
+  1426→  <div class="body cols-2" style="margin-top:14px;">
+  1427→    <div>
+  1428→      ${sectionHeader("Common usermod Options")}
+  1429→      ${dataTable({
+  1430→        headers: ["Option", "Description"],
+  1431→        monoCols: [0],
+  1432→        rows: [
+  1433→          ["-aG group", "Add user to supplementary group"],
+  1434→          ["-G group", "Set primary group"],
+  1435→          ["-l newname", "Change username"],
+  1436→          ["-d /path", "Change home directory"],
+  1437→          ["-s /shell", "Change login shell"],
+  1438→        ],
+  1439→      })}
+  1440→    </div>
+  1441→    <div>
+  1442→      ${sectionHeader("Check User Details")}
+  1443→      ${termBlock("id &amp; groups", [
+  1444→        "$ id alice",
+  1445→        "uid=1001(alice) gid=1001(alice)",
+  1446→        "groups=1001(alice),1001(developers)",
+  1447→        "",
+  1448→        "$ groups alice",
+  1449→        "alice : alice developers",
+  1450→      ])}
+  1451→    </div>
+  1452→  </div>
+  1453→
+  1454→  ${sectionHeader("Best Practices")}
+  1455→  ${calloutBox({ type: "tip", text: `<ul>
+  1456→    <li>Use regular users for daily work.</li>
+  1457→    <li>Give minimum necessary privileges.</li>
+  1458→    <li>Never share root credentials.</li>
+  1459→    <li>Audit user access regularly.</li>
+  1460→    <li>Remove unused accounts.</li>
+  1461→  </ul>` })}
+  1462→
+  1463→  ${sectionHeader("Practical: Create a User and Assign to a Group")}
+  1464→  ${stepsFlow([
+  1465→    { n: "1", title: "Create a group", cmd: "$ sudo groupadd developers" },
+  1466→    { n: "2", title: "Create a new user", cmd: "$ sudo useradd -m -s /bin/bash alice" },
+  1467→    { n: "3", title: "Set a password for the user", cmd: "$ sudo passwd alice" },
+  1468→    { n: "4", title: "Add user to the group", cmd: "$ sudo usermod -aG developers alice" },
+  1469→    { n: "5", title: "Verify user details with id", cmd: "$ id alice" },
+  1470→    { n: "6", title: "Check group membership", cmd: "$ groups alice" },
+  1471→    { n: "7", title: "List all users", cmd: "$ cat /etc/passwd" },
+  1472→  ])}
+  1473→
+  1474→  ${calloutBox({ type: "success", title: "KEY TAKEAWAY", text: "<p>Users and groups control who can access what in Linux. Understanding them is fundamental for system security and administration.</p>" })}`;
+  1475→  return pageChrome(7, 20, "USERS & GROUPS", inner, "Use minimum necessary privileges — always.");
+  1476→}
+  1477→
+  1478→// ---------------------------------------------------------------------------
+  1479→// PAGE 8 — File Ownership and Permissions
+  1480→// ---------------------------------------------------------------------------
+  1481→function page8Permissions(): string {
+  1482→  const inner = `
+  1483→  ${titleHtml("FILE OWNERSHIP<br>AND PERMISSIONS", "CONTROL WHO CAN READ, WRITE, AND EXECUTE FILES")}
+  1484→  <div class="concept-grid cols-3">
+  1485→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.book, title: "Permission Basics", bullets: ["<b>READ (r):</b> View file contents or list directory contents.", "<b>WRITE (w):</b> Modify file contents or create/delete files in a directory.", "<b>EXECUTE (x):</b> Run a file or enter (cd into) a directory."] })}
+  1486→    ${conceptCard({ num: "2", tint: "green", icon: ICON.users, title: "User, Group, Others", bullets: ["<b>USER (u):</b> The owner of the file or directory.", "<b>GROUP (g):</b> The group that owns the file or directory.", "<b>OTHERS (o):</b> Everyone else on the system."] })}
+  1487→    ${conceptCard({ num: "3", tint: "purple", icon: ICON.terminal, title: "Understanding rwx", body: "<b>EXAMPLE:</b> <code>-rwxr-x---</code><br><b>USER:</b> rwx · <b>GROUP:</b> r-x · <b>OTHERS:</b> ---<br>Owner: read, write, execute · Group: read, execute · Others: no permission" })}
+  1488→    ${conceptCard({ num: "4", tint: "gold", icon: ICON.list, title: "Permission Numeric Values", body: "<b>How numeric permissions work</b> — add the values:<br><code>r (4) + w (2) + x (1) = 7 (rwx)</code><br><code>r (4) + x (1) = 5 (r-x)</code><br><code>r (4) = 4 (r--)</code><br><code>w (2) + x (1) = 3 (-wx)</code><br><code>x (1) = 1 (--x)</code><br><code>--- (0) = 0 (---)</code>" })}
+  1489→    ${conceptCard({ num: "5", tint: "blue", icon: ICON.gear, title: "chmod", body: "Change file or directory permissions.<br><b>Syntax:</b> <code>chmod [options] mode file</code>", cmds: [{ cmd: "$ chmod 755 script.sh" }, { cmd: "$ chmod -R 644 data/" }] })}
+  1490→    ${conceptCard({ num: "6", tint: "green", icon: ICON.users, title: "chown", body: "Change ownership (user and group).<br><b>Syntax:</b> <code>chown [user][:group] file</code>", cmds: [{ cmd: "$ chown alice file.txt" }, { cmd: "$ chown alice:developers file.txt" }] })}
+  1491→    ${conceptCard({ num: "7", tint: "purple", icon: ICON.users, title: "chgrp", body: "Change group ownership.<br><b>Syntax:</b> <code>chgrp [group] file</code>", cmds: [{ cmd: "$ chgrp developers file.txt" }, { cmd: "$ chgrp -R developers project/" }] })}
+  1492→    ${conceptCard({ num: "8", tint: "red", icon: ICON.warning, title: "Why chmod 777 is BAD", bullets: ["Gives full access to everyone.", "Anyone can read, modify, or delete your files.", "Creates security risks.", "Attackers can exploit writable files.", "Use the principle of least privilege."] })}
+  1493→    ${conceptCard({ num: "9", tint: "gold", icon: ICON.lock, title: "Permission Denied Troubleshooting", bullets: ["1. Check file owner: <code>$ ls -l file</code>", "2. Check permissions: <code>$ ls -l file</code>", "3. Check your user: <code>$ whoami</code>", "4. Check your groups: <code>$ groups</code>", "5. Fix permissions: <code>$ chmod ...</code>", "6. Fix ownership: <code>$ chown ...</code>", "7. Try again."] })}
+  1494→  </div>
+  1495→
+  1496→  ${sectionHeader("Common Numeric Permissions")}
+  1497→  ${dataTable({
+  1498→    headers: ["NUMERIC", "RWX", "MEANING"],
+  1499→    monoCols: [0, 1],
+  1500→    rows: [
+  1501→      ["755", "rwxr-xr-x", "Owner full, Group read+execute, Others read+execute"],
+  1502→      ["644", "rw-r--r--", "Owner read+write, Group read, Others read"],
+  1503→      ["600", "rw-------", "Owner read+write only"],
+  1504→      ["664", "rw-rw-r--", "Owner read+write, Group read+write, Others read"],
+  1505→      ["700", "rwx-------", "Owner full only"],
+  1506→      ["777", "rwxrwxrwx", "Everyone full (DANGEROUS)"],
+  1507→    ],
+  1508→  })}
+  1509→
+  1510→  ${sectionHeader("10. Quick Reference")}
+  1511→  ${termBlock("Permission Commands", [
+  1512→    "$ ls -l            # View detailed permissions",
+  1513→    "$ chmod 755 file   # Change permissions",
+  1514→    "$ chown user file  # Change owner",
+  1515→    "$ chgrp group file # Change group",
+  1516→  ])}
+  1517→
+  1518→  ${sectionHeader("Practical: Diagnose and Repair a File Permission Problem")}
+  1519→  ${stepsFlow([
+  1520→    { n: "1", title: "Create a project directory and file", cmd: "$ mkdir lab\n$ cd lab\n$ touch app.sh" },
+  1521→    { n: "2", title: "Give wrong permissions", cmd: "$ chmod 000 app.sh\n$ ls -l app.sh", out: "---------- app.sh" },
+  1522→    { n: "3", title: "Try to run the file", cmd: "$ ./app.sh", out: "bash: ./app.sh: Permission denied" },
+  1523→    { n: "4", title: "Check ownership and permissions", cmd: "$ ls -l app.sh", out: "---------- 1 alice alice 0 May 24 10:00 app.sh" },
+  1524→    { n: "5", title: "Fix permissions (owner full)", cmd: "$ chmod 700 app.sh\n$ ls -l app.sh", out: "-rwx------ 1 alice alice 0 May 24 10:00 app.sh" },
+  1525→    { n: "6", title: "Run again (works now)", cmd: "$ ./app.sh", out: "Hello from app.sh" },
+  1526→    { n: "7", title: "Change group ownership", cmd: "$ usermod -aG devs bob\n$ ls -l app.sh", out: "-rwx----- 1 alice devs 0 May 24 10:00 app.sh" },
+  1527→  ])}
+  1528→
+  1529→  ${calloutBox({ type: "success", title: "KEY TAKEAWAY", text: "<p>Properly managing file ownership and permissions keeps your system secure, stable, and predictable. Grant the minimum access required — nothing more.</p>" })}`;
+  1530→  return pageChrome(8, 20, "PERMISSIONS", inner, "chmod 777 is almost always a mistake.");
+  1531→}
+  1532→
+  1533→// ---------------------------------------------------------------------------
+  1534→// PAGE 9 — Sudo, Root, and Privilege
+  1535→// ---------------------------------------------------------------------------
+  1536→function page9Sudo(): string {
+  1537→  const inner = `
+  1538→  ${titleHtml("SUDO, ROOT,<br>AND PRIVILEGE", "CONTROL · SECURITY · RESPONSIBILITY")}
+  1539→  <div class="concept-grid cols-2">
+  1540→    ${conceptCard({ num: "1", tint: "red", icon: ICON.shield, title: "What Root Can Do", bullets: ["Install or remove software", "Modify system files", "Manage users and groups", "Start/stop system services", "Change network settings", "Access all files and data", "Bypass normal restrictions"] })}
+  1541→    ${conceptCard({ num: "2", tint: "green", icon: ICON.shield, title: "sudo", body: "Run a command as another user (usually root).", bullets: ["Allows limited admin access", "Uses your own password (if configured)", "Safer than using root directly"], cmds: [{ cmd: "$ sudo command" }, { cmd: "$ sudo systemctl restart nginx" }, { cmd: "$ sudo apt update" }] })}
+  1542→    ${conceptCard({ num: "3", tint: "blue", icon: ICON.key, title: "su", body: "Switch user. Commonly used to become root.", bullets: ["Becomes the target user", "Usually requires the target user's password", "Provides full access of that user"], cmds: [{ cmd: "$ su -", out: "Password:\n# now you are root" }] })}
+  1543→    ${conceptCard({ num: "4", tint: "purple", icon: ICON.gear, title: "Privilege Escalation", body: "Moving from a normal user to a higher privilege (like root).", bullets: ["<b>Legitimate:</b> sudo, su", "<b>Illegitimate:</b> exploits, misconfigurations", "Always follow least privilege principle"] })}
+  1544→    ${conceptCard({ num: "5", tint: "gold", icon: ICON.book, title: "/etc/sudoers", body: "File that controls who can run what as root using sudo. Located at <code>/etc/sudoers</code>. Direct editing can break your system!" })}
+  1545→    ${conceptCard({ num: "6", tint: "green", icon: ICON.terminal, title: "visudo", body: "Safe way to edit /etc/sudoers. Syntax checking, prevents lockout. Use this command always.", cmds: [{ cmd: "$ sudo visudo" }] })}
+  1546→    ${conceptCard({ num: "7", tint: "blue", icon: ICON.shield, title: "Least Privilege", body: "Give users only the access they need.", bullets: ["Reduces security risks", "Limits damage from mistakes or attacks", "Essential for secure systems"] })}
+  1547→    ${conceptCard({ num: "8", tint: "red", icon: ICON.warning, title: "Why Running Everything as Root is Dangerous", bullets: ["Any mistake can break the system", "Malware gets full control", "No accountability", "Harder to audit actions", "Violates security best practices"] })}
+  1548→  </div>
+  1549→
+  1550→  ${calloutBox({ type: "warning", title: "ROOT HAS UNLIMITED POWER", text: "<p>Use carefully. Never edit <code>/etc/sudoers</code> with a normal text editor — always use <code>visudo</code>.</p>" })}
+  1551→
+  1552→  ${sectionHeader("9. Quick Command Reference")}
+  1553→  ${dataTable({
+  1554→    headers: ["Command", "Description"],
+  1555→    monoCols: [0],
+  1556→    rows: [
+  1557→      ["whoami", "Show current user"],
+  1558→      ["sudo -l", "List sudo permissions"],
+  1559→      ["sudo -v", "Refresh sudo token"],
+  1560→      ["su -", "Switch to root user"],
+  1561→      ["id", "Show user and groups"],
+  1562→      ["groups", "Show your groups"],
+  1563→    ],
+  1564→  })}
+  1565→
+  1566→  ${sectionHeader("10. Practical: Allow a User to Perform an Administrative Task Safely")}
+  1567→  ${calloutBox({ type: "goal", title: "GOAL", text: "<p>Allow user <code>devops</code> to restart <code>nginx</code> without giving full root access.</p>" })}
+  1568→  ${stepsFlow([
+  1569→    { n: "1", title: "Create the devops user", cmd: "$ sudo useradd devops\n$ sudo passwd devops" },
+  1570→    { n: "2", title: "Open sudoers safely", cmd: "$ sudo visudo" },
+  1571→    { n: "3", title: "Add a specific rule", cmd: "devops ALL=(root) NOPASSWD: /bin/systemctl restart nginx" },
+  1572→    { n: "4", title: "Save and exit visudo", cmd: "# visudo validates syntax on save" },
+  1573→    { n: "5", title: "Switch to devops and test", cmd: "$ sudo -u devops -i\n$ sudo systemctl restart nginx" },
+  1574→    { n: "6", title: "Verify nginx is running", cmd: "$ systemctl status nginx" },
+  1575→  ])}`;
+  1576→  return pageChrome(9, 20, "SUDO & ROOT", inner, "Least privilege — grant only what is needed.");
+  1577→}
+  1578→
+  1579→// ---------------------------------------------------------------------------
+  1580→// PAGE 10 — Finding Files and Information
+  1581→// ---------------------------------------------------------------------------
+  1582→function page10Finding(): string {
+  1583→  const inner = `
+  1584→  ${titleHtml("FINDING FILES<br>AND INFORMATION", "THE RIGHT COMMAND SAVES TIME.")}
+  1585→  <div class="concept-grid cols-3">
+  1586→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.magnifier, title: "find", body: "Search for files and directories in real time. Very powerful.<br><b>Syntax:</b> <code>find [path] [options] [expression]</code>", cmds: [{ cmd: "$ find /etc -name my.conf" }] })}
+  1587→    ${conceptCard({ num: "2", tint: "green", icon: ICON.database, title: "locate", body: "Search using a prebuilt database. Very fast.<br><b>Syntax:</b> <code>locate [filename]</code>", cmds: [{ cmd: "$ locate nginx.conf" }] })}
+  1588→    ${conceptCard({ num: "3", tint: "purple", icon: ICON.terminal, title: "which", body: "Show the full path of a command.<br><b>Syntax:</b> <code>which [command]</code>", cmds: [{ cmd: "$ which nginx" }] })}
+  1589→    ${conceptCard({ num: "4", tint: "gold", icon: ICON.magnifier, title: "whereis", body: "Locate binaries, source code and man pages.<br><b>Syntax:</b> <code>whereis [name]</code>", cmds: [{ cmd: "$ whereis python3" }] })}
+  1590→    ${conceptCard({ num: "5", tint: "red", icon: ICON.magnifier, title: "grep", body: "Search text patterns inside files.<br><b>Syntax:</b> <code>grep [options] \"pattern\" [file]</code>", cmds: [{ cmd: "$ grep \"Listen\" /etc/nginx/nginx.conf" }] })}
+  1591→  </div>
+  1592→
+  1593→  ${sectionHeader("6. Common Search Types with find")}
+  1594→  <div class="concept-grid cols-2">
+  1595→    ${conceptCard({ tint: "blue", icon: ICON.folder, title: "A. Recursive Search", body: "Search in current directory and all subdirectories.", cmds: [{ cmd: "$ find . -name \"*.log\"" }] })}
+  1596→    ${conceptCard({ tint: "green", icon: ICON.magnifier, title: "B. Search by Filename", body: "Find a file by its name.", cmds: [{ cmd: "$ find / -name nginx.conf 2>/dev/null" }] })}
+  1597→    ${conceptCard({ tint: "purple", icon: ICON.folder, title: "C. Search by File Type", body: "<code>f</code> = file, <code>d</code> = directory", cmds: [{ cmd: "$ find /etc -type f -name \"*.conf\"" }, { cmd: "$ find /var -type d -name \"cache\"" }] })}
+  1598→    ${conceptCard({ tint: "gold", icon: ICON.database, title: "D. Search by Size", body: "<code>+100M</code> = larger than 100MB<br><code>-10M</code> = smaller than 10MB", cmds: [{ cmd: "$ find . -type f -size +100M" }, { cmd: "$ find . -type f -size -10M" }] })}
+  1599→    ${conceptCard({ tint: "red", icon: ICON.clock, title: "E. Search by Time", body: "Find files modified in the last 1 day.", cmds: [{ cmd: "$ find . -type f -mtime -1" }] })}
+  1600→  </div>
+  1601→
+  1602→  ${sectionHeader("7. Combining find and grep (Powerful!)")}
+  1603→  ${termBlock("Find + grep examples", [
+  1604→    "$ find /etc -type f -name \"*.conf\" -exec grep -H \"server\" {} \\;",
+  1605→    "# Find .conf files and search for \"server\" inside them.",
+  1606→    "",
+  1607→    "$ grep -R \"root\" /etc/",
+  1608→    "# Search recursively for \"root\" inside /etc directory.",
+  1609→    "",
+  1610→    "$ find /var/log -type f -exec grep -H \"error\" {} \\;",
+  1611→    "# Find log files containing the word \"error\".",
+  1612→  ])}
+  1613→
+  1614→  ${sectionHeader("8. Practical: Find a Configuration File and Locate a Specific Value")}
+  1615→  ${stepsFlow([
+  1616→    { n: "1", title: "Find the nginx configuration file", cmd: "$ find /etc -type f -name \"nginx.conf\" 2>/dev/null" },
+  1617→    { n: "2", title: "Verify the file exists", cmd: "$ ls -l /etc/nginx/nginx.conf" },
+  1618→    { n: "3", title: "Search for a specific value inside the file", cmd: "$ grep -n \"Listen\" /etc/nginx/nginx.conf" },
+  1619→    { n: "4", title: "Search recursively in all .conf files for a value", cmd: "$ grep -R \"server_name\" /etc/*.conf" },
+  1620→    { n: "5", title: "Find files modified in last 1 day", cmd: "$ find /etc -type f -mtime -1" },
+  1621→  ])}
+  1622→
+  1623→  <div class="callout-grid cols-3" style="margin-top:14px;">
+  1624→    ${calloutBox({ type: "success", title: "SUCCESS!", text: "<p>You found the file and the required information using the right tools.</p>" })}
+  1625→    ${calloutBox({ type: "tip", title: "TIPS", text: `<ul>
+  1626→      <li>Use <code>find</code> for accurate real-time search.</li>
+  1627→      <li>Use <code>locate</code> for quick results (after running <code>updatedb</code>).</li>
+  1628→      <li>Use <code>grep</code> to search inside files.</li>
+  1629→      <li>Combine commands for powerful results.</li>
+  1630→    </ul>` })}
+  1631→    ${calloutBox({ type: "warning", title: "REMEMBER", text: `<ul>
+  1632→      <li>Searching whole system <code>/</code> can be slow.</li>
+  1633→      <li>Use <code>2&gt;/dev/null</code> to hide permission denied errors.</li>
+  1634→    </ul>` })}
+  1635→  </div>`;
+  1636→  return pageChrome(10, 20, "FIND & SEARCH", inner, "Combine find + grep for powerful file search.");
+  1637→}
+  1638→
+  1639→// ---------------------------------------------------------------------------
+  1640→// PAGE 11 — Pipes and Redirection
+  1641→// ---------------------------------------------------------------------------
+  1642→function page11Pipes(): string {
+  1643→  const inner = `
+  1644→  ${titleHtml("PIPES AND<br>REDIRECTION", "CONTROL WHERE COMMAND INPUT AND OUTPUT GO")}
+  1645→  <div class="concept-grid cols-3">
+  1646→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.terminal, title: "Standard Input (STDIN)", body: "Data that a command receives as input. Usually from keyboard or a file.", cmds: [{ cmd: "$ command < file.txt" }] })}
+  1647→    ${conceptCard({ num: "2", tint: "green", icon: ICON.terminal, title: "Standard Output (STDOUT)", body: "Normal output of a command. Displayed on screen by default.", cmds: [{ cmd: "$ command > output.txt" }] })}
+  1648→    ${conceptCard({ num: "3", tint: "red", icon: ICON.warning, title: "Standard Error (STDERR)", body: "Error messages from a command. Displayed on screen by default.", cmds: [{ cmd: "$ command 2> error.log" }] })}
+  1649→  </div>
+  1650→
+  1651→  ${sectionHeader("4. Redirection Operators")}
+  1652→  ${dataTable({
+  1653→    headers: ["OPERATOR", "NAME", "DESCRIPTION", "SYNTAX EXAMPLE", "EXAMPLE USE"],
+  1654→    monoCols: [0, 3],
+  1655→    rows: [
+  1656→      [">", "Redirect Output", "Redirect standard output (overwrite).", "<code>$ command &gt; file.txt</code>", "Save output to file.txt (overwrite if file exists)."],
+  1657→      [">>", "Append Output", "Redirect standard output (append).", "<code>$ command &gt;&gt; file.txt</code>", "Append output to file.txt (create if not exists)."],
+  1658→      ["<", "Redirect Input", "Use file as standard input instead of keyboard.", "<code>$ command &lt; file.txt</code>", "Read input from file.txt instead of typing."],
+  1659→      ["2>", "Redirect Error", "Redirect standard error (overwrite).", "<code>$ command 2&gt; error.log</code>", "Save errors to error.log (overwrite if exists)."],
+  1660→      ["2>>", "Append Error", "Redirect standard error (append).", "<code>$ command 2&gt;&gt; error.log</code>", "Append errors to error.log."],
+  1661→      ["|", "Pipe", "Send output of one command as input to another.", "<code>$ command1 | command2</code>", "Use output of command1 as input to command2."],
+  1662→      ["tee", "Tee", "Read from input and write to both output and file.", "<code>$ command | tee file.txt</code>", "Show output on screen and save to file.txt."],
+  1663→    ],
+  1664→  })}
+  1665→
+  1666→  <div class="body cols-2" style="margin-top:14px;">
+  1667→    ${conceptCard({ num: "5", tint: "purple", icon: ICON.gear, title: "Why Pipelines Matter", bullets: ["Chain multiple commands together.", "Filter and transform data quickly.", "Reduce intermediate files.", "Automate complex tasks easily.", "Essential skill for DevOps, SRE and system administrators."] })}
+  1668→    ${conceptCard({ num: "6", tint: "gold", icon: ICON.terminal, title: "tee Command (Example)", body: "<code>tee</code> duplicates the input: one copy to screen, one copy to file.", cmds: [{ cmd: "$ ls -l | tee listing.txt" }] })}
+  1669→  </div>
+  1670→
+  1671→  ${sectionHeader("7. Practical: Take Command Output, Filter It, and Save to a File")}
+  1672→  ${stepsFlow([
+  1673→    { n: "1", title: "List all running processes", cmd: "$ ps aux" },
+  1674→    { n: "2", title: "Filter lines containing \"nginx\"", cmd: "$ ps aux | grep nginx" },
+  1675→    { n: "3", title: "Show output on screen and save to a file", cmd: "$ ps aux | grep nginx | tee nginx_processes.txt" },
+  1676→    { n: "4", title: "Count the number of nginx processes", cmd: "$ ps aux | grep nginx | wc -l" },
+  1677→    { n: "5", title: "Save only errors to a log file", cmd: "$ some_command 2> errors.log" },
+  1678→    { n: "6", title: "Append output to log file", cmd: "$ echo \"Done\" >> process.log" },
+  1679→  ])}
+  1680→
+  1681→  <div class="callout-grid cols-3">
+  1682→    ${calloutBox({ type: "note", title: "QUICK REFERENCE", text: `<ul>
+  1683→      <li><code>&gt;</code> redirect output (overwrite)</li>
+  1684→      <li><code>&gt;&gt;</code> redirect output (append)</li>
+  1685→      <li><code>&lt;</code> redirect input</li>
+  1686→      <li><code>2&gt;</code> redirect error (overwrite)</li>
+  1687→      <li><code>2&gt;&gt;</code> redirect error (append)</li>
+  1688→      <li><code>|</code> pipe</li>
+  1689→      <li><code>tee</code> duplicate to file and screen</li>
+  1690→    </ul>` })}
+  1691→    ${calloutBox({ type: "tip", title: "TIPS", text: `<ul>
+  1692→      <li>Use quotes when searching for text with spaces.</li>
+  1693→      <li>Combine pipes with grep, awk, sort, uniq, wc, head, tail for powerful text processing.</li>
+  1694→      <li>Always check your redirections before running important commands.</li>
+  1695→    </ul>` })}
+  1696→    ${calloutBox({ type: "success", title: "KEY TAKEAWAY", text: "<p>Pipes and redirection let you control the flow of data between commands, files, and the screen — making you more efficient and powerful on the Linux CLI.</p>" })}
+  1697→  </div>`;
+  1698→  return pageChrome(11, 20, "PIPES & REDIRECTION", inner, "Master |, >, >>, <, 2>, tee.");
+  1699→}
+  1700→
+  1701→// ---------------------------------------------------------------------------
+  1702→// PAGE 12 — Processes and Jobs
+  1703→// ---------------------------------------------------------------------------
+  1704→function page12Processes(): string {
+  1705→  const inner = `
+  1706→  ${titleHtml("PROCESSES<br>AND JOBS", "UNDERSTAND, MONITOR AND CONTROL RUNNING TASKS IN LINUX")}
+  1707→  <div class="concept-grid cols-3">
+  1708→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.gear, title: "What Is a Process?", bullets: ["A process is an instance of a running program.", "Every process has a unique Process ID (PID).", "The parent process that started it has a Parent Process ID (PPID)."] })}
+  1709→    ${conceptCard({ num: "2", tint: "green", icon: ICON.terminal, title: "PID and PPID", bullets: ["<b>PID:</b> Unique ID of the process.", "<b>PPID:</b> ID of the parent process.", "All processes (except init/systemd) have a parent."] })}
+  1710→    ${conceptCard({ num: "3", tint: "purple", icon: ICON.terminal, title: "Foreground vs Background", body: "<b>FOREGROUND:</b> runs in the current terminal. You can see the output. You must wait for it to finish.<br><b>BACKGROUND:</b> runs behind the scenes. Does not block your terminal. You can continue working." })}
+  1711→  </div>
+  1712→
+  1713→  ${sectionHeader("4. Key Commands")}
+  1714→  ${dataTable({
+  1715→    headers: ["COMMAND", "PURPOSE", "EXAMPLE"],
+  1716→    monoCols: [0, 2],
+  1717→    rows: [
+  1718→      ["ps", "Show running processes snapshot", "<code>ps aux</code>"],
+  1719→      ["top", "Interactive real-time process monitor", "<code>top</code>"],
+  1720→      ["pgrep", "Search for processes by name", "<code>pgrep nginx</code>"],
+  1721→      ["kill", "Send signal to a process using PID", "<code>kill 1234</code>"],
+  1722→      ["pkill", "Send signal to processes by name", "<code>pkill nginx</code>"],
+  1723→      ["jobs", "List background and stopped jobs", "<code>jobs</code>"],
+  1724→      ["bg", "Resume a stopped job in background", "<code>bg %1</code>"],
+  1725→      ["fg", "Bring a background job to foreground", "<code>fg %1</code>"],
+  1726→      ["&", "Run a command in background", "<code>sleep 100 &amp;</code>"],
+  1727→    ],
+  1728→  })}
+  1729→
+  1730→  ${sectionHeader("5. Signals (Common Ones)")}
+  1731→  ${dataTable({
+  1732→    headers: ["SIGNAL", "NUM", "MEANING"],
+  1733→    monoCols: [0, 1],
+  1734→    rows: [
+  1735→      ["SIGHUP", "1", "Reload / Reopen config"],
+  1736→      ["SIGINT", "2", "Ctrl + C · Interrupt (terminate)"],
+  1737→      ["SIGTERM", "15", "Graceful terminate"],
+  1738→      ["SIGKILL", "9", "Force kill (cannot be ignored)"],
+  1739→      ["SIGSTOP", "19", "Stop / Pause a process"],
+  1740→      ["SIGCONT", "18", "Continue a stopped process"],
+  1741→    ],
+  1742→  })}
+  1743→  ${calloutBox({ type: "tip", text: "<p>Use <code>SIGTERM</code> first. Use <code>SIGKILL</code> only when necessary.</p>" })}
+  1744→
+  1745→  ${sectionHeader("6. Practical: Identify a Running Process and Stop It Safely")}
+  1746→  ${stepsFlow([
+  1747→    { n: "1", title: "LIST PROCESSES — Use ps aux or top to find the process", cmd: "$ ps aux" },
+  1748→    { n: "2", title: "FIND PID — Note the PID of the process", cmd: "$ ps aux | grep nginx" },
+  1749→    { n: "3", title: "VERIFY PROCESS — Confirm it is the correct process", cmd: "$ ps -p <PID>" },
+  1750→    { n: "4", title: "GRACEFUL STOP — Try SIGTERM first (graceful stop)", cmd: "$ kill <PID>" },
+  1751→    { n: "5", title: "FORCE STOP — If still running, use SIGKILL", cmd: "$ kill -9 <PID>" },
+  1752→    { n: "6", title: "CONFIRM — Check again to make sure it stopped", cmd: "$ ps aux | grep <name>" },
+  1753→  ])}`;
+  1754→  return pageChrome(12, 20, "PROCESSES & JOBS", inner, "SIGTERM first, SIGKILL only when necessary.");
+  1755→}
+  1756→
+  1757→// ---------------------------------------------------------------------------
+  1758→// PAGE 13 — Linux Services with Systemd
+  1759→// ---------------------------------------------------------------------------
+  1760→function page13Systemd(): string {
+  1761→  const inner = `
+  1762→  ${titleHtml("LINUX SERVICES<br>WITH SYSTEMD", "MANAGE, CONTROL AND AUTOMATE SERVICES ON LINUX")}
+  1763→  <div class="concept-grid cols-3">
+  1764→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.gear, title: "What Is a Service?", bullets: ["A service is a background program that starts, runs and continues working to provide a function.", "Examples: web server, database, SSH server, logging, etc."] })}
+  1765→    ${conceptCard({ num: "2", tint: "green", icon: ICON.gear, title: "systemd", bullets: ["The init system and service manager for most modern Linux distributions.", "Starts services at boot, supervises them, restarts on failure and manages dependencies."] })}
+  1766→    ${conceptCard({ num: "3", tint: "purple", icon: ICON.package, title: "Units", bullets: ["systemd manages everything as \"units\".", "Most common unit type is service (.service).", "Other unit types: socket, timer, mount, target, etc."] })}
+  1767→  </div>
+  1768→
+  1769→  ${sectionHeader("4. Basic systemctl Commands")}
+  1770→  ${dataTable({
+  1771→    headers: ["COMMAND", "PURPOSE", "EXAMPLE", "DESCRIPTION"],
+  1772→    monoCols: [0, 2],
+  1773→    rows: [
+  1774→      ["systemctl status &lt;service&gt;", "Check status of a service", "<code>systemctl status nginx</code>", "Shows if the service is active, inactive, failed, etc. Displays logs and last few messages."],
+  1775→      ["systemctl start &lt;service&gt;", "Start a service", "<code>systemctl start nginx</code>", "Starts the service immediately."],
+  1776→      ["systemctl stop &lt;service&gt;", "Stop a running service", "<code>systemctl stop nginx</code>", "Stops the service immediately."],
+  1777→      ["systemctl restart &lt;service&gt;", "Restart a service", "<code>systemctl restart nginx</code>", "Stops and starts the service again."],
+  1778→      ["systemctl enable &lt;service&gt;", "Enable service at boot", "<code>systemctl enable nginx</code>", "Ensures the service starts automatically when the system boots. Creates a symlink in system targets."],
+  1779→      ["systemctl disable &lt;service&gt;", "Disable service at boot", "<code>systemctl disable nginx</code>", "Prevents the service from starting automatically at boot. Removes the symlink."],
+  1780→    ],
+  1781→  })}
+  1782→
+  1783→  <div class="body cols-2" style="margin-top:14px;">
+  1784→    ${conceptCard({ num: "5", tint: "gold", icon: ICON.gear, title: "Service Startup at Boot", body: "When enabled, the service starts automatically during system boot.", bullets: ["Check if enabled: <code>systemctl is-enabled &lt;service&gt;</code>", "Outputs: <code>enabled</code> / <code>disabled</code> / <code>static</code>"] })}
+  1785→    ${conceptCard({ num: "6", tint: "red", icon: ICON.warning, title: "Failed Services", body: "If a service fails, systemd will show it as \"failed\".", bullets: ["Check failed services: <code>systemctl --failed</code>", "To see details and logs: <code>systemctl status &lt;service&gt;</code>"] })}
+  1786→  </div>
+  1787→
+  1788→  ${sectionHeader("7. Common Service States")}
+  1789→  ${dataTable({
+  1790→    headers: ["STATE", "MEANING"],
+  1791→    monoCols: [0],
+  1792→    rows: [
+  1793→      ["active (running)", "Service is running."],
+  1794→      ["active (exited)", "Service ran and exited."],
+  1795→      ["inactive (dead)", "Service is stopped."],
+  1796→      ["failed", "Service failed to start."],
+  1797→      ["activating", "Service is starting."],
+  1798→      ["deactivating", "Service is stopping."],
+  1799→    ],
+  1800→  })}
+  1801→
+  1802→  ${sectionHeader("8. Practical: Start, Stop, Enable and Troubleshoot a Service")}
+  1803→  ${stepsFlow([
+  1804→    { n: "1", title: "Check current status", cmd: "$ sudo systemctl status nginx" },
+  1805→    { n: "2", title: "Start the service", cmd: "$ sudo systemctl start nginx" },
+  1806→    { n: "3", title: "Verify it is running", cmd: "$ systemctl status nginx" },
+  1807→    { n: "4", title: "Enable at boot", cmd: "$ sudo systemctl enable nginx" },
+  1808→    { n: "5", title: "Stop / restart", cmd: "$ sudo systemctl stop nginx\n$ sudo systemctl restart nginx" },
+  1809→    { n: "6", title: "Check logs and errors", cmd: "$ sudo journalctl -u nginx --no-pager" },
+  1810→  ])}
+  1811→
+  1812→  <div class="callout-grid cols-3">
+  1813→    ${calloutBox({ type: "tip", title: "TIPS", text: `<ul><li>Always check status before making changes.</li><li>Use <code>systemctl status &lt;service&gt;</code> to read logs and errors.</li></ul>` })}
+  1814→    ${calloutBox({ type: "success", title: "BEST PRACTICE", text: `<ul><li>Enable only necessary services.</li><li>Keep your system clean and secure.</li></ul>` })}
+  1815→    ${calloutBox({ type: "warning", title: "WARNING", text: "<p>Stopping critical services can cause your system or applications to fail.</p>" })}
+  1816→  </div>`;
+  1817→  return pageChrome(13, 20, "SYSTEMD", inner, "Always check status before making changes.");
+  1818→}
+  1819→
+  1820→// ---------------------------------------------------------------------------
+  1821→// PAGE 14 — Installing and Managing Software
+  1822→// ---------------------------------------------------------------------------
+  1823→function page14Packages(): string {
+  1824→  const inner = `
+  1825→  ${titleHtml("INSTALLING AND<br>MANAGING SOFTWARE", "MANAGE PACKAGES, UPDATES AND DEPENDENCIES IN LINUX")}
+  1826→  <div class="concept-grid cols-3">
+  1827→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.package, title: "What Is a Package?", bullets: ["A package is a pre-compiled software bundle.", "Contains the program and everything it needs to run.", "Includes files, libraries, dependencies and configuration."] })}
+  1828→    ${conceptCard({ num: "2", tint: "green", icon: ICON.server, title: "Package Repositories", bullets: ["Repositories store packages.", "Your system connects to repos to download and update software.", "Official repos are tested and reliable."] })}
+  1829→    ${conceptCard({ num: "3", tint: "purple", icon: ICON.gear, title: "Package Managers", body: `<div class="distro-row"><span class="distro">${ICON.ubuntu}apt · Debian/Ubuntu</span><span class="distro">${ICON.rhel}dnf · RHEL/Rocky</span><span class="distro">${ICON.rhel}yum · RHEL/CentOS 7</span></div>` })}
+  1830→    ${conceptCard({ num: "4", tint: "gold", icon: ICON.gear, title: "What They Do", bullets: ["Install new software", "Update existing software", "Remove software", "Resolve dependencies automatically", "Keep system consistent and secure", "Save time and prevent manual dependency errors"] })}
+  1831→    ${conceptCard({ num: "5", tint: "red", icon: ICON.warning, title: "Why Production Updates Require Care", bullets: ["Updates can introduce breaking changes.", "May affect application compatibility.", "Always test updates before applying.", "Use backups and maintenance windows.", "Read release notes.", "Update one system at a time."] })}
+  1832→  </div>
+  1833→
+  1834→  ${sectionHeader("6. Essential Package Management Commands")}
+  1835→  ${dataTable({
+  1836→    headers: ["TASK", "DEBIAN/UBUNTU (apt)", "RHEL/ROCKY (dnf)", "RHEL/CENTOS 7 (yum)"],
+  1837→    monoCols: [1, 2, 3],
+  1838→    rows: [
+  1839→      ["Update package list", "<code>sudo apt update</code>", "<code>sudo dnf makecache</code>", "<code>sudo yum check-update</code>"],
+  1840→      ["Install package", "<code>sudo apt install nginx</code>", "<code>sudo dnf install nginx</code>", "<code>sudo yum install nginx</code>"],
+  1841→      ["Update packages", "<code>sudo apt upgrade</code>", "<code>sudo dnf upgrade</code>", "<code>sudo yum update</code>"],
+  1842→      ["Remove package", "<code>sudo apt remove nginx</code>", "<code>sudo dnf remove nginx</code>", "<code>sudo yum remove nginx</code>"],
+  1843→      ["Check installed", "<code>dpkg -l | less</code>", "<code>dnf list installed | less</code>", "<code>yum list installed | less</code>"],
+  1844→      ["Search for package", "<code>apt search nginx</code>", "<code>dnf search nginx</code>", "<code>yum search nginx</code>"],
+  1845→    ],
+  1846→  })}
+  1847→
+  1848→  ${sectionHeader("7. Practical: Install and Verify a Web Server Package (NGINX)")}
+  1849→  ${stepsFlow([
+  1850→    { n: "1", title: "UPDATE REPO LIST — Update the package index first", cmd: "$ sudo apt update    # or: sudo dnf makecache" },
+  1851→    { n: "2", title: "INSTALL NGINX — Install the nginx web server", cmd: "$ sudo apt install nginx    # or: sudo dnf install nginx" },
+  1852→    { n: "3", title: "START SERVICE — Start nginx immediately", cmd: "$ sudo systemctl start nginx" },
+  1853→    { n: "4", title: "VERIFY STATUS — Check if nginx is running", cmd: "$ systemctl status nginx" },
+  1854→    { n: "5", title: "TEST IN BROWSER — Open your server IP in a browser", cmd: "# http://<your-server-ip>\n# You should see the nginx welcome page." },
+  1855→    { n: "6", title: "ENABLE AT BOOT — Enable nginx to start automatically", cmd: "$ sudo systemctl enable nginx" },
+  1856→  ])}
+  1857→
+  1858→  <div class="callout-grid cols-3">
+  1859→    ${calloutBox({ type: "success", title: "BEST PRACTICE", text: "<p>Always update the package list before installing. Use <code>apt search</code> to find the correct package name.</p>" })}
+  1860→    ${calloutBox({ type: "warning", title: "SECURITY", text: "<p>Only install packages from trusted repositories. Verify package integrity when possible.</p>" })}
+  1861→    ${calloutBox({ type: "warning", title: "WARNING", text: "<p>Production updates can break applications. Always test in staging first.</p>" })}
+  1862→  </div>`;
+  1863→  return pageChrome(14, 20, "SOFTWARE MGMT", inner, "Always update the package list first.");
+  1864→}
+  1865→
+  1866→// ---------------------------------------------------------------------------
+  1867→// PAGE 15 — Linux Networking Basics
+  1868→// ---------------------------------------------------------------------------
+  1869→function page15Networking(): string {
+  1870→  const inner = `
+  1871→  ${titleHtml("LINUX NETWORKING<br>BASICS", "THE ESSENTIAL NETWORKING SKILLS FOR EVERY LINUX ENGINEER")}
+  1872→  <div class="concept-grid cols-4">
+  1873→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.target, title: "IP Addresses", body: "Every device on a network has an IP address.<br><b>IPv4 example:</b> <code>192.168.1.10</code>" })}
+  1874→    ${conceptCard({ num: "2", tint: "green", icon: ICON.shield, title: "Private vs Public IP", body: "<b>PRIVATE IP (internal):</b> 10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16<br><b>PUBLIC IP (internet):</b> assigned by ISP or Cloud" })}
+  1875→    ${conceptCard({ num: "3", tint: "purple", icon: ICON.server, title: "Network Interfaces", body: "Linux uses interfaces to connect to networks.<br><b>Examples:</b> <code>eth0</code>, <code>ens33</code>, <code>enp0s3</code>, <code>ens5</code>" })}
+  1876→    ${conceptCard({ num: "4", tint: "gold", icon: ICON.server, title: "Ports", body: "Ports identify services on a host.<br><b>Examples:</b> 22 (SSH) · 80 (HTTP) · 443 (HTTPS)" })}
+  1877→    ${conceptCard({ num: "5", tint: "blue", icon: ICON.cloud, title: "DNS (Domain Name System)", body: "Converts domain names (e.g. <code>google.com</code>) to IP addresses. Without DNS, we must remember IPs." })}
+  1878→    ${conceptCard({ num: "6", tint: "green", icon: ICON.server, title: "Default Gateway", body: "The gateway sends traffic to other networks and the internet. Usually your router IP address." })}
+  1879→    ${conceptCard({ num: "7", tint: "purple", icon: ICON.terminal, title: "Common Tools", body: "<code>ip addr</code>, <code>ip route</code>, <code>ping</code>, <code>curl</code>, <code>ss</code>, <code>hostname</code>, <code>dig</code><br>These are your daily networking tools." })}
+  1880→    ${conceptCard({ num: "8", tint: "gold", icon: ICON.list, title: "Common Examples", body: "Ping gateway: <code>ping 192.168.1.1</code><br>Ping internet: <code>ping 8.8.8.8</code><br>Check route: <code>ip route | grep default</code><br>Get public IP: <code>curl ifconfig.me</code>" })}
+  1881→  </div>
+  1882→
+  1883→  ${calloutBox({ type: "tip", title: "QUICK TIP", text: "<p>Most connectivity problems fall into four areas: <b>DNS</b>, <b>Network</b>, <b>Port</b>, or <b>Application</b>.</p>" })}
+  1884→
+  1885→  ${sectionHeader("9. Networking Commands Cheat Sheet")}
+  1886→  ${dataTable({
+  1887→    headers: ["COMMAND", "PURPOSE", "EXAMPLE", "SAMPLE OUTPUT (MAY VARY)"],
+  1888→    monoCols: [0, 2],
+  1889→    rows: [
+  1890→      ["ip addr", "Show IP addresses of all interfaces", "<code>ip addr</code>", "2: ens33: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;<br>inet 192.168.1.10/24 brd 192.168.1.255 scope global ens33"],
+  1891→      ["ip route", "Show routing table", "<code>ip route</code>", "default via 192.168.1.1 dev ens33<br>192.168.1.0/24 dev ens33 proto kernel scope link src 192.168.1.10"],
+  1892→      ["ping", "Test connectivity to a host", "<code>ping 8.8.8.8</code>", "64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=20.1 ms"],
+  1893→      ["curl", "Fetch data from a URL", "<code>curl -I https://google.com</code>", "HTTP/2 200<br>content-type: text/html; charset=UTF-8"],
+  1894→      ["ss", "Show open ports and connections", "<code>ss -tulnp</code>", "LISTEN 0 128 0.0.0.0:22<br>LISTEN 0 128 0.0.0.0:80"],
+  1895→      ["hostname", "Show or set system hostname", "<code>hostname</code>", "server01"],
+  1896→      ["dig", "DNS lookup tool", "<code>dig google.com</code>", "google.com. 142 IN A 142.250.72.206"],
+  1897→    ],
+  1898→  })}
+  1899→
+  1900→  ${sectionHeader("10. Practical: Diagnose Connectivity Problems")}
+  1901→  ${dataTable({
+  1902→    headers: ["STEP", "CHECK", "COMMAND", "WHAT TO LOOK FOR", "IF IT FAILS"],
+  1903→    monoCols: [0, 2],
+  1904→    rows: [
+  1905→      ["1", "DNS Resolution", "<code>dig example.com</code>", "IP address in the ANSWER SECTION", "No IP: DNS problem (check DNS server or /etc/resolv.conf)"],
+  1906→      ["2", "Network Connectivity", "<code>ping &lt;IP-address&gt;</code>", "Replies from the IP address", "No reply: Network problem (routing, firewall, or host down)"],
+  1907→      ["3", "Port Reachability", "<code>ss -tulnp | grep :&lt;port&gt;</code>", "Port should be LISTENING", "Connection refused/timeout: port blocked or service not listening"],
+  1908→      ["4", "Application Check", "<code>curl -I http://&lt;IP&gt;:&lt;port&gt;</code>", "HTTP response (200, 301, 403, etc.)", "No response or HTTP errors: application problem (config, service)"],
+  1909→    ],
+  1910→  })}
+  1911→
+  1912→  <div class="callout-grid cols-2">
+  1913→    ${calloutBox({ type: "note", title: "TROUBLESHOOTING FLOW", text: "<p><b>DNS → NETWORK → PORT → APPLICATION</b></p><p>Fix the first failure before moving to the next step.</p>" })}
+  1914→    ${calloutBox({ type: "tip", title: "BEST PRACTICES", text: `<ul>
+  1915→      <li>Always test DNS first.</li>
+  1916→      <li>Then test network reachability.</li>
+  1917→      <li>Then test the port.</li>
+  1918→      <li>Finally test the application.</li>
+  1919→      <li>Document findings and fix the root cause.</li>
+  1920→    </ul>` })}
+  1921→  </div>`;
+  1922→  return pageChrome(15, 20, "NETWORKING", inner, "DNS → Network → Port → Application.");
+  1923→}
+  1924→
+  1925→// ---------------------------------------------------------------------------
+  1926→// PAGE 16 — SSH and Remote Linux Servers
+  1927→// ---------------------------------------------------------------------------
+  1928→function page16SSH(): string {
+  1929→  const inner = `
+  1930→  ${titleHtml("SSH AND REMOTE<br>LINUX SERVERS", "CONNECT SECURELY, TRANSFER FILES, AND MANAGE REMOTE SERVERS")}
+  1931→  <div class="concept-grid cols-2">
+  1932→    ${conceptCard({ num: "1", tint: "blue", icon: ICON.lock, title: "What SSH Does", bullets: ["SSH (Secure Shell) provides secure encrypted communication over insecure networks.", "Replaces insecure protocols like Telnet and rlogin."] })}
+  1933→    ${conceptCard({ num: "2", tint: "green", icon: ICON.server, title: "SSH Client and Server", bullets: ["<b>Client:</b> your local machine.", "<b>Server:</b> remote Linux server running SSH daemon (sshd).", "Default SSH port: <b>22/TCP</b>."] })}
+  1934→    ${conceptCard({ num: "3", tint: "purple", icon: ICON.terminal, title: "ssh user@server", body: "<b>Basic syntax:</b> <code>ssh user@server_ip</code><br>Connects to the server as the specified user.<br><b>Example:</b> <code>ssh ubuntu@192.168.1.10</code>", cmds: [{ cmd: "$ ssh ubuntu@192.168.1.10" }] })}
+  1935→    ${conceptCard({ num: "4", tint: "gold", icon: ICON.lock, title: "Password Authentication", bullets: ["The simplest method.", "You enter the user password when connecting.", "Less secure than key-based authentication."] })}
+  1936→    ${conceptCard({ num: "5", tint: "blue", icon: ICON.key, title: "SSH Keys", bullets: ["More secure and recommended.", "Uses asymmetric cryptography.", "No password needed after setup."] })}
+  1937→    ${conceptCard({ num: "6", tint: "green", icon: ICON.key, title: "Public vs Private Keys", body: "<b>PUBLIC KEY:</b> stored on the server. Shared.<br><b>PRIVATE KEY:</b> stored on your local machine. Never shared." })}
+  1938→    ${conceptCard({ num: "7", tint: "purple", icon: ICON.terminal, title: "ssh-keygen", body: "Generates a key pair.<br><b>Default location:</b> <code>~/.ssh/id_rsa</code><br><code>id_rsa</code> → private key · <code>id_rsa.pub</code> → public key", cmds: [{ cmd: "$ ssh-keygen -t rsa -b 4096" }] })}
+  1939→    ${conceptCard({ num: "8", tint: "gold", icon: ICON.book, title: "authorized_keys", body: "The server stores your public key in: <code>~/.ssh/authorized_keys</code><br>Allows key-based login. Permissions are critical." })}
+  1940→    ${conceptCard({ num: "9", tint: "blue", icon: ICON.folder, title: "scp (Secure Copy)", body: "Securely copy files between local and remote systems. Uses SSH for encryption.<br><b>Syntax:</b> <code>scp file user@server:/path</code>" })}
+  1941→    ${conceptCard({ num: "10", tint: "red", icon: ICON.shield, title: "Secure Key Permissions", body: "Keep keys private!", cmds: [{ cmd: "$ chmod 600 ~/.ssh/id_rsa\n$ chmod 700 ~/.ssh\n$ chmod 644 ~/.ssh/id_rsa.pub" }] })}
+  1942→  </div>
+  1943→
+  1944→  ${sectionHeader("11. Essential SSH Commands")}
+  1945→  ${dataTable({
+  1946→    headers: ["COMMAND", "PURPOSE", "EXAMPLE", "DESCRIPTION"],
+  1947→    monoCols: [0, 2],
+  1948→    rows: [
+  1949→      ["ssh user@server", "Connect to remote server", "<code>ssh ubuntu@192.168.1.10</code>", "Connect using default port 22."],
+  1950→      ["ssh -p PORT user@server", "Connect using custom port", "<code>ssh -p 2222 ubuntu@server</code>", "Use when SSH runs on a custom port."],
+  1951→      ["scp source user@server:/path", "Copy file to remote server", "<code>scp file.txt ubuntu@server:/home/ubuntu/</code>", "Upload file to server."],
+  1952→      ["scp user@server:/path dest", "Copy file from remote server", "<code>scp ubuntu@server:/etc/hosts ./</code>", "Download file from server."],
+  1953→      ["ssh-keygen -t rsa -b 4096", "Generate SSH key pair", "<code>ssh-keygen -t rsa -b 4096</code>", "Recommended: 4096-bit RSA."],
+  1954→      ["ssh-copy-id user@server", "Copy public key to server", "<code>ssh-copy-id ubuntu@server</code>", "Automatically adds key to authorized_keys."],
+  1955→      ["ssh -i ~/.ssh/id_rsa user@server", "Connect with specific key", "<code>ssh -i ~/.ssh/id_rsa ubuntu@server</code>", "Use a different private key."],
+  1956→      ["ssh -v user@server", "Verbose connection (debug)", "<code>ssh -v ubuntu@server</code>", "Shows detailed connection info."],
+  1957→    ],
+  1958→  })}
+  1959→
+  1960→  ${sectionHeader("12. Practical: Connect to a Remote Server and Transfer a File Securely")}
+  1961→  ${stepsFlow([
+  1962→    { n: "1", title: "GENERATE KEYS — Create a key pair on your local machine", cmd: "$ ssh-keygen -t rsa -b 4096" },
+  1963→    { n: "2", title: "COPY PUBLIC KEY — Copy your public key to the server", cmd: "$ ssh-copy-id user@server" },
+  1964→    { n: "3", title: "TEST SSH LOGIN — Login without password", cmd: "$ ssh user@server" },
+  1965→    { n: "4", title: "CHECK CONNECTION — Verify you are connected", cmd: "$ hostname\n$ whoami" },
+  1966→    { n: "5", title: "UPLOAD FILE — Transfer file to the server", cmd: "$ scp file.txt user@server:/tmp/" },
+  1967→    { n: "6", title: "VERIFY FILE — Check file on the server", cmd: "$ ls -l /tmp/file.txt" },
+  1968→    { n: "7", title: "DOWNLOAD FILE — Download file from server", cmd: "$ scp user@server:/tmp/file.txt ." },
+  1969→    { n: "8", title: "CLEAN UP — Remove test file (optional)", cmd: "$ rm /tmp/file.txt" },
+  1970→  ])}
+  1971→
+  1972→  <div class="callout-grid cols-3">
+  1973→    ${calloutBox({ type: "note", title: "COMMON SSH FILES", text: `<ul>
+  1974→      <li><code>~/.ssh/</code> — SSH directory</li>
+  1975→      <li><code>~/.ssh/id_rsa</code> — Private key</li>
+  1976→      <li><code>~/.ssh/id_rsa.pub</code> — Public key</li>
+  1977→      <li><code>~/.ssh/authorized_keys</code> — Authorized public keys (server)</li>
+  1978→      <li><code>/etc/ssh/sshd_config</code> — SSH server config</li>
+  1979→    </ul>` })}
+  1980→    ${calloutBox({ type: "success", title: "BEST PRACTICES", text: `<ul>
+  1981→      <li>Always use key-based authentication.</li>
+  1982→      <li>Use strong passphrases for your keys.</li>
+  1983→      <li>Keep private keys private.</li>
+  1984→      <li>Disable password authentication on servers.</li>
+  1985→      <li>Change SSH port from 22 (optional).</li>
+  1986→      <li>Keep your SSH software updated.</li>
+  1987→    </ul>` })}
+  1988→    ${calloutBox({ type: "warning", title: "TROUBLESHOOTING TIPS", text: `<ul>
+  1989→      <li><b>Permission denied (publickey):</b> check key permissions.</li>
+  1990→      <li><b>Connection refused:</b> SSH service may not be running.</li>
+  1991→      <li><b>Timeout:</b> check network, firewall, or IP address.</li>
+  1992→      <li>Use <code>ssh -v user@server</code> for detailed logs.</li>
+  1993→      <li>Ensure port 22 (or custom port) is open.</li>
+  1994→    </ul>` })}
+  1995→  </div>`;
+  1996→  return pageChrome(16, 20, "SSH & REMOTE", inner, "Always use key-based authentication.");
+  1997→}
+  1998→
+  1999→// ---------------------------------------------------------------------------
+  2000→// PAGE 17 — Storage and Disk Management
+
+[showing lines 1-2000 of 2306; use offset=2001 with limit to continue reading]
