@@ -672,12 +672,61 @@ export function NoteViewer() {
               title={note.title}
               src={note.contentPath}
               onLoad={(e) => {
-                // Grow the iframe to fit its document so the whole note
-                // is visible and scrollable inline — no inner scrollbar.
+                // Adapt the note's fixed-width (1080px) layout to the
+                // available viewport so it's readable on mobile/tablet
+                // without horizontal scrolling or tiny scaled-down text.
                 try {
                   const iframe = e.currentTarget;
                   const doc = iframe.contentDocument;
                   if (!doc) return;
+
+                  // Inject responsive overrides once.
+                  const STYLE_ID = "reader-responsive";
+                  const existing = doc.getElementById(STYLE_ID);
+                  if (!existing) {
+                    const style = doc.createElement("style");
+                    style.id = STYLE_ID;
+                    // Convert the fixed 1080px page into a fluid container.
+                    // The notebook aesthetic (background, padding, grid) is
+                    // preserved; only the hard 1080px width is relaxed.
+                    style.textContent = `
+                      html, body { width: 100% !important; max-width: 100% !important; overflow-x: hidden !important; }
+                      body { padding: 12px !important; }
+                      .page-wrapper, .page, .notebook,
+                      [class*="page-wrapper"], [class*="page"] {
+                        width: 100% !important;
+                        max-width: 1080px !important;
+                        margin-left: auto !important;
+                        margin-right: auto !important;
+                        box-sizing: border-box !important;
+                      }
+                      /* Keep the spiral binding from overflowing on mobile */
+                      .spiral-container, [class*="spiral"] {
+                        left: 6px !important;
+                      }
+                      /* The note uses .body for its 2-column grid (1.85fr 1fr).
+                         On small screens, stack it to a single column so the
+                         main content (.content) and sidebar (.sidebar) are
+                         both fully readable. */
+                      @media (max-width: 720px) {
+                        .body, .body-grid, .content-grid, .grid,
+                        [class*="body-grid"], [class*="content-grid"] {
+                          display: block !important;
+                          grid-template-columns: 1fr !important;
+                        }
+                        .sidebar, [class*="sidebar"] {
+                          margin-top: 24px !important;
+                        }
+                        .page, .notebook { padding: 28px 18px 22px 48px !important; }
+                      }
+                      @media (max-width: 480px) {
+                        .page, .notebook { padding: 22px 12px 18px 40px !important; }
+                        h1 { font-size: 1.6rem !important; }
+                      }
+                    `;
+                    doc.head.appendChild(style);
+                  }
+
                   const resize = () => {
                     const h = Math.max(
                       doc.body.scrollHeight,
