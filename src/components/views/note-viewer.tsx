@@ -468,6 +468,15 @@ export function NoteViewer() {
     setZoom(1);
   }, []);
 
+  // ─── Auto-hide the top nav bar when the tree opens ────────────
+  // When the user opens the tree sidebar, the top navigation bar
+  // collapses automatically so it doesn't compete for vertical space
+  // and the tree gets the full viewport height. The user can re-expand
+  // the nav bar via the collapsed handle (or the tree's own controls).
+  React.useEffect(() => {
+    if (treeOpen) setToolbarExpanded(false);
+  }, [treeOpen]);
+
   // ─── Page layout (background pattern) ─────────────────────────
   // Inject/replace a style block in the note's document to swap the
   // page background. "grid" removes the override so the note's original
@@ -619,14 +628,18 @@ export function NoteViewer() {
       {/* ═══ Tree sidebar ═══ */}
       {/* Desktop (≥768px): inline collapsible rail — 48px collapsed, 248px
           expanded. Mobile (<768px): no rail when closed; opens as a
-          left-docked overlay drawer (w-85vw max 320px) with a backdrop. */}
+          left-docked overlay drawer (w-85vw max 320px) with a backdrop.
+          The tree-toggle + home buttons live ONLY in the tree panel
+          header (when open) to avoid duplicating the top nav bar's
+          tree/home buttons. When the tree is collapsed, the rail is
+          hidden entirely — the top nav bar's Tree button re-opens it. */}
       <motion.aside
         key={isMobile ? "tree-mobile" : "tree-desktop"}
         initial={false}
         animate={
           isMobile
             ? { x: treeOpen ? "0%" : "-100%", opacity: treeOpen ? 1 : 0 }
-            : { width: treeOpen ? 248 : 48 }
+            : { width: treeOpen ? 248 : 0 }
         }
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className={cn(
@@ -637,36 +650,29 @@ export function NoteViewer() {
         )}
       >
         <div className="flex h-full w-full md:w-[248px]">
-          {/* ── Icon rail (desktop only — hidden on mobile where the tree is an overlay) ── */}
-          <div className="hidden w-12 shrink-0 flex-col items-center gap-1 border-r border-slate-200 bg-white py-2.5 md:flex">
-            <button
-              onClick={() => setTreeOpen(!treeOpen)}
-              className={cn(
-                "flex size-9 items-center justify-center rounded-lg transition-colors",
-                treeOpen
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
-              )}
-              title={treeOpen ? "Collapse tree (Esc)" : "Browse categories (tree)"}
-              aria-pressed={treeOpen}
-            >
-              <FolderTree className="h-4 w-4" />
-            </button>
-            <button
-              onClick={goHome}
-              className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-              title="Back to home"
-            >
-              <Home className="h-4 w-4" />
-            </button>
-          </div>
-
           {/* ── Expandable content panel (clipped when collapsed) ── */}
           <div className="flex min-w-0 flex-1 flex-col">
-            {/* Header */}
+            {/* Header — contains the tree toggle + home buttons (only
+                visible when the tree is open, avoiding duplicates with
+                the top nav bar). */}
             <div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2.5">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-slate-900">Browse</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setTreeOpen(false)}
+                  className="flex size-7 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  title="Collapse tree (Esc)"
+                  aria-pressed={treeOpen}
+                >
+                  <FolderTree className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={goHome}
+                  className="flex size-7 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  title="Back to home"
+                >
+                  <Home className="h-4 w-4" />
+                </button>
+                <span className="ml-1 text-sm font-semibold text-slate-900">Browse</span>
               </div>
               <button
                 onClick={() => setTreeOpen(false)}
