@@ -41,6 +41,49 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 type SidebarMode = "tile" | "list";
 
+// ─── Page layout (background pattern) ──────────────────────────
+// Viewer option that swaps the note's page background. The note's HTML/CSS
+// is never modified — we inject a small style block that overrides the
+// `.page::before` background used for the graph-paper grid.
+type PageLayout = "grid" | "plain" | "lined" | "dots";
+
+const PAGE_LAYOUTS: {
+  key: PageLayout;
+  label: string;
+  // CSS for the `.page::before` pseudo-element that draws the pattern.
+  // `grid` is empty (keeps the note's own graph-paper background).
+  css: string;
+}[] = [
+  {
+    key: "grid",
+    label: "Grid",
+    css: "", // use the note's original graph paper
+  },
+  {
+    key: "plain",
+    label: "Plain",
+    css: `.page::before, .notebook::before, .paper::before { background-image: none !important; }`,
+  },
+  {
+    key: "lined",
+    label: "Lined",
+    css: `.page::before, .notebook::before, .paper::before {
+      background-image: linear-gradient(to bottom, #b8c5d6 1px, transparent 1px) !important;
+      background-size: 28px 28px !important;
+      opacity: .6 !important;
+    }`,
+  },
+  {
+    key: "dots",
+    label: "Dots",
+    css: `.page::before, .notebook::before, .paper::before {
+      background-image: radial-gradient(circle, #b8c5d6 1px, transparent 1px) !important;
+      background-size: 24px 24px !important;
+      opacity: .8 !important;
+    }`,
+  },
+];
+
 // ─── Tree node type ───────────────────────────────────────────
 interface TreeNode {
   category: Category;
@@ -162,6 +205,10 @@ export function NoteViewer() {
   const [pageInputValue, setPageInputValue] = React.useState("");
   const [pageInputFocused, setPageInputFocused] = React.useState(false);
   const [isNavigating, setIsNavigating] = React.useState(false);
+
+  // Page layout (background pattern) — viewer option that swaps the note's
+  // page background via injected CSS. "grid" = the note's original graph paper.
+  const [pageLayout, setPageLayout] = React.useState<PageLayout>("grid");
 
   // Tree drawer state (Category → Topic → subtopic navigation)
   const [treeOpen, setTreeOpen] = React.useState(false);
@@ -351,6 +398,41 @@ export function NoteViewer() {
     const t = setTimeout(applyNoteScale, 320);
     return () => clearTimeout(t);
   }, [treeOpen, applyNoteScale]);
+
+  // ─── Page layout (background pattern) ─────────────────────────
+  // Inject/replace a style block in the note's document to swap the
+  // page background. "grid" removes the override so the note's original
+  // graph-paper shows through.
+  const applyPageLayout = React.useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      const doc = iframe.contentDocument;
+      if (!doc) return;
+      const STYLE_ID = "reader-page-layout";
+      const existing = doc.getElementById(STYLE_ID);
+      const layout = PAGE_LAYOUTS.find((l) => l.key === pageLayout);
+      if (layout && layout.css) {
+        if (existing) {
+          existing.textContent = layout.css;
+        } else {
+          const style = doc.createElement("style");
+          style.id = STYLE_ID;
+          style.textContent = layout.css;
+          doc.head.appendChild(style);
+        }
+      } else if (existing) {
+        // "grid" → remove the override so the note's original shows.
+        existing.remove();
+      }
+    } catch {
+      /* cross-origin — ignore */
+    }
+  }, [pageLayout]);
+
+  React.useEffect(() => {
+    applyPageLayout();
+  }, [applyPageLayout]);
 
   // Fullscreen
   const toggleFullscreen = React.useCallback(() => {
@@ -743,6 +825,7 @@ export function NoteViewer() {
               onLoad={(e) => {
                 iframeRef.current = e.currentTarget;
                 applyNoteScale();
+                applyPageLayout();
                 // Re-apply after fonts/images settle.
                 setTimeout(applyNoteScale, 400);
                 setTimeout(applyNoteScale, 1200);
@@ -1138,6 +1221,64 @@ export function NoteViewer() {
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
+
+            {/* Page layout — background pattern selector */}
+            <div className="mt-2 border-t border-slate-100 pt-2">
+              <div className="mb-1.5 px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Page layout
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 px-1">
+                {PAGE_LAYOUTS.map((layout) => (
+                  <button
+                    key={layout.key}
+                    onClick={() => setPageLayout(layout.key)}
+                    title={layout.label}
+                    className={cn(
+                      "flex flex-col items-center gap-1 rounded-md border p-1.5 transition-colors",
+                      pageLayout === layout.key
+                        ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30"
+                        : "border-slate-200 hover:border-slate-300 hover:bg-slate-50",
+                    )}
+                  >
+                    {/* Mini preview swatch of the pattern */}
+                    <span
+                      className="block h-7 w-full rounded-sm border border-slate-200 bg-[#f5f1e8]"
+                      style={
+                        layout.key === "grid"
+                          ? {
+                              backgroundImage:
+                                "linear-gradient(to right, #bcc8d6 1px, transparent 1px), linear-gradient(to bottom, #bcc8d6 1px, transparent 1px)",
+                              backgroundSize: "6px 6px",
+                            }
+                          : layout.key === "plain"
+                            ? { backgroundImage: "none" }
+                            : layout.key === "lined"
+                              ? {
+                                  backgroundImage:
+                                    "linear-gradient(to bottom, #b8c5d6 1px, transparent 1px)",
+                                  backgroundSize: "100% 5px",
+                                }
+                              : {
+                                  backgroundImage:
+                                    "radial-gradient(circle, #b8c5d6 1px, transparent 1px)",
+                                  backgroundSize: "5px 5px",
+                                }
+                      }
+                    />
+                    <span
+                      className={cn(
+                        "text-[10px]",
+                        pageLayout === layout.key
+                          ? "font-semibold text-emerald-700 dark:text-emerald-300"
+                          : "text-slate-500",
+                      )}
+                    >
+                      {layout.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Continue reading — recently viewed notes */}
