@@ -308,29 +308,15 @@ export function NoteViewer() {
       return n;
     });
 
-  // Fit-to-view (measures the main document area, excluding the tree sidebar)
+  // Fit-to-view: in "fit" mode, applyNoteScale uses zoomMul=1 and
+  // computes the fit scale directly from the container width. The
+  // zoom state is only used in "manual" mode as a multiplier on top
+  // of the fit scale, so no separate computeFitScale is needed.
   const computeFitScale = React.useCallback(() => {
-    const el = mainRef.current;
-    if (!el) return;
-    const w = el.clientWidth - 64;
-    if (w <= 0) return;
-    const fit = Math.min(w / 1136, 1);
-    setZoom(Math.max(0.25, fit));
+    // Kept as a no-op for backwards-compat with any callers; the real
+    // fit logic lives in applyNoteScale.
+    setZoom(1);
   }, []);
-
-  React.useEffect(() => {
-    if (zoomMode === "fit") {
-      const t = setTimeout(computeFitScale, 50);
-      return () => clearTimeout(t);
-    }
-  }, [note, zoomMode, computeFitScale, drawerOpen, treeOpen]);
-
-  React.useEffect(() => {
-    if (zoomMode !== "fit") return;
-    const handler = () => computeFitScale();
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
-  }, [zoomMode, computeFitScale]);
 
   // ─── Note scaling (unified page object) ───────────────────────
   // The ENTIRE notebook sheet — spiral rings + ring shadows + page
@@ -404,20 +390,25 @@ export function NoteViewer() {
       );
       const objectH = bodyH + SHADOW;
 
-      // Size the iframe to the complete page object. Setting the width
-      // first lets the body's flex centering place the page correctly;
-      // the rings (left:-30px) and shadow (~60px) now sit within the
-      // iframe's bounds and aren't clipped.
-      const NATIVE_W = objectW;
-      const scale = targetW < NATIVE_W ? targetW / NATIVE_W : 1;
+      // Base fit-to-width scale (page object fills the viewport).
+      const fitScale = targetW < objectW ? targetW / objectW : 1;
+      // Apply the user's zoom multiplier. In "fit" mode zoom stays at 1
+      // (fitScale alone). In "manual" mode the user's zoom (0.25–4)
+      // scales relative to the fit width.
+      const zoomMul = zoomMode === "manual" ? zoom : 1;
+      const scale = fitScale * zoomMul;
 
+      // Size the iframe to the complete page object.
+      const NATIVE_W = objectW;
       iframe.style.width = `${NATIVE_W}px`;
       iframe.style.height = `${objectH}px`;
       iframe.style.transform = `scale(${scale})`;
       iframe.style.transformOrigin = "top left";
 
       // Reserve the scaled footprint on the wrapper so the page can
-      // scroll vertically and centers horizontally.
+      // scroll vertically and centers horizontally. When zoomed in
+      // beyond the viewport width, the wrapper grows wider than the
+      // container and the scroll container handles horizontal scroll.
       const wrapper = iframe.parentElement;
       if (wrapper) {
         wrapper.style.width = `${NATIVE_W * scale}px`;
@@ -428,7 +419,7 @@ export function NoteViewer() {
     } catch {
       /* cross-origin — ignore */
     }
-  }, []);
+  }, [zoom, zoomMode]);
 
   // Re-scale when the viewport changes (resize, tree toggle, orientation).
   React.useEffect(() => {
@@ -441,6 +432,41 @@ export function NoteViewer() {
     const t = setTimeout(applyNoteScale, 320);
     return () => clearTimeout(t);
   }, [treeOpen, applyNoteScale]);
+
+  // Re-apply the scale whenever the user changes zoom / zoom mode.
+  React.useEffect(() => {
+    applyNoteScale();
+  }, [applyNoteScale]);
+
+  // ─── Zoom controls ────────────────────────────────────────────
+  // Zoom is a MULTIPLIER on top of the fit-to-width scale. In "fit" mode
+  // the multiplier is 1 (page fills the viewport). Switching to "manual"
+  // via the +/- buttons starts from 1.0 (the fit baseline) and adds the
+  // increment, so zoom-in always makes the page larger, never smaller.
+  const zoomIn = React.useCallback(() => {
+    setZoomMode("manual");
+    setZoom((z) => {
+      // If we were in fit mode, z holds a stale fit value (< 1 on
+      // mobile). Reset to 1.0 baseline before applying the increment.
+      const base = zoomMode === "fit" ? 1 : z;
+      return Math.min(4, +(base + 0.1).toFixed(2));
+    });
+  }, [zoomMode]);
+  const zoomOut = React.useCallback(() => {
+    setZoomMode("manual");
+    setZoom((z) => {
+      const base = zoomMode === "fit" ? 1 : z;
+      return Math.max(0.25, +(base - 0.1).toFixed(2));
+    });
+  }, [zoomMode]);
+  const zoomTo = React.useCallback((value: number) => {
+    setZoomMode("manual");
+    setZoom(value);
+  }, []);
+  const zoomToFit = React.useCallback(() => {
+    setZoomMode("fit");
+    setZoom(1);
+  }, []);
 
   // ─── Page layout (background pattern) ─────────────────────────
   // Inject/replace a style block in the note's document to swap the
@@ -522,13 +548,13 @@ export function NoteViewer() {
       }
 
       if ((e.ctrlKey || e.metaKey) && (e.key === "+" || e.key === "=")) {
-        e.preventDefault(); setZoomMode("manual"); setZoom(z => Math.min(4, z + 0.1)); return;
+        e.preventDefault(); zoomIn(); return;
       }
       if ((e.ctrlKey || e.metaKey) && e.key === "-") {
-        e.preventDefault(); setZoomMode("manual"); setZoom(z => Math.max(0.25, z - 0.1)); return;
+        e.preventDefault(); zoomOut(); return;
       }
       if ((e.ctrlKey || e.metaKey) && e.key === "0") {
-        e.preventDefault(); setZoomMode("fit"); computeFitScale(); return;
+        e.preventDefault(); zoomToFit(); return;
       }
       if (isTyping) return;
       if (e.key === "ArrowLeft" && !drawerOpen && !treeOpen && prevPage) { e.preventDefault(); handleNavigate(prevPage); }
@@ -536,7 +562,7 @@ export function NoteViewer() {
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, computeFitScale]);
+  }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, zoomIn, zoomOut, zoomToFit]);
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -962,7 +988,7 @@ export function NoteViewer() {
 
               {/* Zoom */}
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                onClick={() => { setZoomMode("manual"); setZoom(Math.max(0.25, zoom - 0.1)); }}
+                onClick={zoomOut}
                 title="Zoom out (Ctrl -)">
                 <ZoomOut className="h-4 w-4" />
               </Button>
@@ -983,13 +1009,13 @@ export function NoteViewer() {
                       transition={{ duration: 0.15 }}
                       className="absolute left-1/2 top-full mt-2 w-40 -translate-x-1/2 rounded-lg border border-slate-200 bg-white p-1 shadow-xl"
                     >
-                      <button onClick={() => { setZoomMode("fit"); computeFitScale(); setZoomPresetsOpen(false); }}
+                      <button onClick={() => { zoomToFit(); setZoomPresetsOpen(false); }}
                         className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
                         <Maximize className="h-3.5 w-3.5" /> Fit
                       </button>
                       <div className="my-1 h-px bg-slate-100" />
                       {["50%", "75%", "100%", "125%", "150%", "200%"].map(label => (
-                        <button key={label} onClick={() => { setZoomMode("manual"); setZoom(parseInt(label) / 100); setZoomPresetsOpen(false); }}
+                        <button key={label} onClick={() => { zoomTo(parseInt(label) / 100); setZoomPresetsOpen(false); }}
                           className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100">
                           {label}
                         </button>
@@ -999,7 +1025,7 @@ export function NoteViewer() {
                 </AnimatePresence>
               </div>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                onClick={() => { setZoomMode("manual"); setZoom(Math.min(4, zoom + 0.1)); }}
+                onClick={zoomIn}
                 title="Zoom in (Ctrl +)">
                 <ZoomIn className="h-4 w-4" />
               </Button>
@@ -1175,12 +1201,12 @@ export function NoteViewer() {
               </div>
               <div className="flex items-center gap-1 px-1">
                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                  onClick={() => { setZoomMode("manual"); setZoom(Math.max(0.25, zoom - 0.1)); }}
+                  onClick={zoomOut}
                   title="Zoom out">
                   <ZoomOut className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"
-                  onClick={() => { setZoomMode("manual"); setZoom(Math.min(4, zoom + 0.1)); }}
+                  onClick={zoomIn}
                   title="Zoom in">
                   <ZoomIn className="h-4 w-4" />
                 </Button>
@@ -1201,12 +1227,12 @@ export function NoteViewer() {
                     className="overflow-hidden"
                   >
                     <div className="mt-1 grid grid-cols-3 gap-1 border-t border-slate-100 p-2">
-                      <button onClick={() => { setZoomMode("fit"); computeFitScale(); setZoomPresetsOpen(false); }}
+                      <button onClick={() => { zoomToFit(); setZoomPresetsOpen(false); }}
                         className="flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-slate-700 hover:bg-slate-100">
                         <Maximize className="h-3 w-3" /> Fit
                       </button>
                       {["50%", "75%", "100%", "125%", "150%", "200%"].map(label => (
-                        <button key={label} onClick={() => { setZoomMode("manual"); setZoom(parseInt(label) / 100); setZoomPresetsOpen(false); }}
+                        <button key={label} onClick={() => { zoomTo(parseInt(label) / 100); setZoomPresetsOpen(false); }}
                           className="rounded-md px-2 py-1.5 text-center text-[11px] text-slate-700 hover:bg-slate-100">
                           {label}
                         </button>
