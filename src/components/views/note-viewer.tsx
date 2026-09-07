@@ -286,10 +286,11 @@ export function NoteViewer() {
   }, [zoomMode, computeFitScale]);
 
   // ─── Note scaling (Instagram-style) ──────────────────────────
-  // Render the note at its native 1080px desktop width, then scale the
-  // whole iframe down to fit the available width on mobile/tablet — like
-  // an Instagram post: the full page is visible (sidebar beside main
-  // content), just smaller, and you scroll vertically. No redesign.
+  // Render the note at its native desktop width (including the spiral
+  // binding rings that extend outside the page), then scale the whole
+  // iframe down to fit the available width on mobile/tablet — like an
+  // Instagram post: the full page (rings + content + sidebar) is visible,
+  // just smaller, and you scroll vertically. No redesign of the note.
   const applyNoteScale = React.useCallback(() => {
     const iframe = iframeRef.current;
     const container = mainRef.current;
@@ -297,7 +298,21 @@ export function NoteViewer() {
     try {
       const doc = iframe.contentDocument;
       const avail = container.clientWidth;
-      const NATIVE = 1080;
+
+      // The note's full width includes the 1080px page + body padding +
+      // the spiral rings that extend OUTSIDE the page's left edge. Use the
+      // document's actual scrollWidth so the rings aren't clipped.
+      let NATIVE = 1080;
+      if (doc) {
+        const sw = Math.max(
+          doc.body.scrollWidth,
+          doc.body.offsetWidth,
+          doc.documentElement.scrollWidth,
+          doc.documentElement.offsetWidth,
+        );
+        if (sw > 0) NATIVE = sw;
+      }
+
       const scale = avail < NATIVE ? avail / NATIVE : 1;
       iframe.style.width = `${NATIVE}px`;
       iframe.style.transform = `scale(${scale})`;
