@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin, getSessionUser, AuthError } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { createNoteVersionSnapshot } from "@/lib/versioning";
 
 export const dynamic = "force-dynamic";
 
@@ -73,16 +74,40 @@ interface UpdateNoteBody {
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    await requireAdmin();
+    const admin = await requireAdmin();
 
     const { id } = await context.params;
     const body = (await request.json()) as UpdateNoteBody;
 
-    const existing = await db.note.findUnique({ where: { id } });
+    const existing = await db.note.findUnique({
+      where: { id },
+      include: { tags: { select: { name: true } } },
+    });
     if (!existing) {
       return NextResponse.json(
         { success: false, error: "Note not found." },
         { status: 404 }
+      );
+    }
+
+    // Best-effort snapshot of the CURRENT state so this edit is reversible.
+    try {
+      await createNoteVersionSnapshot({
+        noteId: existing.id,
+        title: existing.title,
+        slug: existing.slug,
+        description: existing.description,
+        contentPath: existing.contentPath,
+        assetsPath: existing.assetsPath,
+        status: existing.status,
+        categoryId: existing.categoryId,
+        tags: existing.tags.map((t) => t.name),
+        user: admin,
+      });
+    } catch (snapErr) {
+      console.error(
+        "[versioning] snapshot-before-update failed:",
+        snapErr instanceof Error ? snapErr.message : snapErr
       );
     }
 

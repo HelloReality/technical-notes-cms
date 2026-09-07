@@ -3,10 +3,12 @@
 import * as React from "react";
 import {
   BookOpen,
+  CalendarClock,
   Eye,
   FileEdit,
   FilePlus2,
   FolderTree,
+  History,
   LayoutDashboard,
   Loader2,
   MoreHorizontal,
@@ -16,11 +18,13 @@ import {
   Tag,
   Trash2,
   Upload,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -64,9 +68,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { StatusBadge } from "@/components/status-badge";
+import { BulkActionBar } from "@/components/admin/bulk-action-bar";
+import { SchedulePublishDialog } from "@/components/admin/schedule-publish-dialog";
+import { VersionHistoryDialog } from "@/components/admin/version-history-dialog";
 import { useAppStore } from "@/lib/store";
-import type { Note, NoteStatus } from "@/lib/types";
-import { fromNow } from "@/lib/format";
+import type { Note, NoteStatus, ScheduledPublish } from "@/lib/types";
+import { formatDateTime, fromNow } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type SidebarKey = "dashboard" | "notes" | "categories" | "tags" | "settings";
@@ -92,6 +99,8 @@ export function AdminDashboard() {
   const publishNote = useAppStore((s) => s.publishNote);
   const unpublishNote = useAppStore((s) => s.unpublishNote);
   const deleteNote = useAppStore((s) => s.deleteNote);
+  const pendingSchedules = useAppStore((s) => s.pendingSchedules);
+  const loadPendingSchedules = useAppStore((s) => s.loadPendingSchedules);
 
   const [section, setSection] = React.useState<SidebarKey>("dashboard");
   const [search, setSearch] = React.useState("");
@@ -100,6 +109,44 @@ export function AdminDashboard() {
   );
   const [deleteTarget, setDeleteTarget] = React.useState<Note | null>(null);
   const [busyId, setBusyId] = React.useState<string | null>(null);
+
+  // Bulk selection state (lifted into AdminDashboard so the bulk action bar
+  // and the table share the same source of truth).
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const toggleSelect = React.useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+  const clearSelection = React.useCallback(() => setSelectedIds(new Set()), []);
+
+  // Schedule-publish dialog state.
+  const [scheduleTarget, setScheduleTarget] = React.useState<Note | null>(
+    null,
+  );
+  const [scheduleOpen, setScheduleOpen] = React.useState(false);
+
+  // Version-history dialog state.
+  const [versionTarget, setVersionTarget] = React.useState<Note | null>(null);
+  const [versionOpen, setVersionOpen] = React.useState(false);
+
+  // Load pending schedules once on mount so the UI knows which notes are
+  // already scheduled.
+  React.useEffect(() => {
+    void loadPendingSchedules();
+  }, [loadPendingSchedules]);
+
+  // Auto-clear selection when the user switches away from the notes section
+  // or changes the filter — selection should never silently persist across
+  // different filtered views.
+  React.useEffect(() => {
+    clearSelection();
+  }, [section, statusFilter, search, clearSelection]);
 
   const stats = React.useMemo(() => {
     const total = notes.length;
@@ -162,6 +209,13 @@ export function AdminDashboard() {
       await deleteNote(target.id);
       toast.success("Note deleted", { description: target.title });
       setDeleteTarget(null);
+      // Make sure the note is removed from the bulk selection.
+      setSelectedIds((prev) => {
+        if (!prev.has(target.id)) return prev;
+        const next = new Set(prev);
+        next.delete(target.id);
+        return next;
+      });
     } catch (err) {
       toast.error("Delete failed", {
         description: err instanceof Error ? err.message : "Try again later.",
@@ -170,6 +224,16 @@ export function AdminDashboard() {
       setBusyId(null);
     }
   };
+
+  const handleOpenSchedule = React.useCallback((note: Note) => {
+    setScheduleTarget(note);
+    setScheduleOpen(true);
+  }, []);
+
+  const handleOpenVersions = React.useCallback((note: Note) => {
+    setVersionTarget(note);
+    setVersionOpen(true);
+  }, []);
 
   const topCategories = React.useMemo(() => {
     return categories
@@ -187,6 +251,22 @@ export function AdminDashboard() {
       }))
       .sort((a, b) => b.count - a.count);
   }, [categories, notes]);
+
+  // Look up the note title for a pending schedule (defensive — schedule may
+  // exist for a note that was deleted in another session).
+  const scheduleWithNotes = React.useMemo(() => {
+    return pendingSchedules
+      .filter((s) => s.status === "PENDING")
+      .map((s) => ({
+        schedule: s,
+        note: notes.find((n) => n.id === s.noteId) ?? null,
+      }))
+      .sort(
+        (a, b) =>
+          new Date(a.schedule.publishAt).getTime() -
+          new Date(b.schedule.publishAt).getTime(),
+      );
+  }, [pendingSchedules, notes]);
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:px-8">
@@ -298,6 +378,22 @@ export function AdminDashboard() {
               />
             </div>
 
+            <ScheduledPublishesCard
+              schedules={scheduleWithNotes}
+              loading={false}
+              onCancel={async (noteId) => {
+                try {
+                  await useAppStore.getState().cancelSchedule(noteId);
+                  toast.success("Scheduled publish cancelled");
+                } catch (err) {
+                  toast.error("Failed to cancel schedule", {
+                    description:
+                      err instanceof Error ? err.message : "Try again later.",
+                  });
+                }
+              }}
+            />
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Top categories</CardTitle>
@@ -355,7 +451,11 @@ export function AdminDashboard() {
                   onOpen={openNote}
                   onTogglePublish={handleTogglePublish}
                   onDelete={setDeleteTarget}
+                  onSchedulePublish={handleOpenSchedule}
+                  onVersionHistory={handleOpenVersions}
                   busyId={busyId}
+                  pendingSchedules={pendingSchedules}
+                  enableSelection={false}
                 />
               </CardContent>
             </Card>
@@ -363,7 +463,7 @@ export function AdminDashboard() {
         )}
 
         {section === "notes" && (
-          <Card>
+          <Card className="overflow-visible">
             <CardHeader>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -402,13 +502,35 @@ export function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent className="px-0 pb-0">
+              <BulkActionBar
+                selectedIds={[...selectedIds]}
+                onClear={clearSelection}
+              />
               <NotesTable
                 notes={filteredNotes}
                 loading={dataLoading}
                 onOpen={openNote}
                 onTogglePublish={handleTogglePublish}
                 onDelete={setDeleteTarget}
+                onSchedulePublish={handleOpenSchedule}
+                onVersionHistory={handleOpenVersions}
                 busyId={busyId}
+                pendingSchedules={pendingSchedules}
+                enableSelection
+                selectedIds={selectedIds}
+                onToggleSelect={toggleSelect}
+                onSelectAll={(ids, checked) => {
+                  setSelectedIds((prev) => {
+                    const next = new Set(prev);
+                    if (checked) {
+                      for (const id of ids) next.add(id);
+                    } else {
+                      for (const id of ids) next.delete(id);
+                    }
+                    return next;
+                  });
+                }}
+                onClearSelection={clearSelection}
               />
             </CardContent>
           </Card>
@@ -529,6 +651,19 @@ export function AdminDashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SchedulePublishDialog
+        open={scheduleOpen}
+        onOpenChange={setScheduleOpen}
+        note={scheduleTarget}
+        pendingSchedules={pendingSchedules}
+      />
+
+      <VersionHistoryDialog
+        open={versionOpen}
+        onOpenChange={setVersionOpen}
+        note={versionTarget}
+      />
     </div>
   );
 }
@@ -572,13 +707,102 @@ function StatCard({ label, value, icon: Icon, accent = "default", loading }: Sta
   );
 }
 
+interface ScheduledPublishesCardProps {
+  schedules: { schedule: ScheduledPublish; note: Note | null }[];
+  loading: boolean;
+  onCancel: (noteId: string) => void | Promise<void>;
+}
+
+function ScheduledPublishesCard({
+  schedules,
+  loading,
+  onCancel,
+}: ScheduledPublishesCardProps) {
+  const [busyId, setBusyId] = React.useState<string | null>(null);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <CalendarClock className="size-4 text-emerald-600 dark:text-emerald-400" />
+          Scheduled publishes
+        </CardTitle>
+        <CardDescription>
+          Notes queued to be published automatically by the cron job.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full" />
+            ))}
+          </div>
+        ) : schedules.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No pending scheduled publishes. Use the row menu on a note to
+            schedule one.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {schedules.map(({ schedule, note }) => (
+              <li
+                key={schedule.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/60 bg-card p-3"
+              >
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="truncate text-sm font-medium">
+                    {note?.title ?? "Unknown note"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDateTime(schedule.publishAt)} ·{" "}
+                    {fromNow(schedule.publishAt)}
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  disabled={busyId === schedule.noteId}
+                  onClick={async () => {
+                    setBusyId(schedule.noteId);
+                    try {
+                      await onCancel(schedule.noteId);
+                    } finally {
+                      setBusyId(null);
+                    }
+                  }}
+                >
+                  {busyId === schedule.noteId ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <XCircle className="size-3.5" />
+                  )}
+                  Cancel
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 interface NotesTableProps {
   notes: Note[];
   loading: boolean;
   onOpen: (note: Note) => void;
   onTogglePublish: (note: Note) => void;
   onDelete: (note: Note) => void;
+  onSchedulePublish: (note: Note) => void;
+  onVersionHistory: (note: Note) => void;
   busyId: string | null;
+  pendingSchedules: ScheduledPublish[];
+  enableSelection?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
+  onSelectAll?: (ids: string[], checked: boolean) => void;
+  onClearSelection?: () => void;
 }
 
 function NotesTable({
@@ -587,8 +811,26 @@ function NotesTable({
   onOpen,
   onTogglePublish,
   onDelete,
+  onSchedulePublish,
+  onVersionHistory,
   busyId,
+  pendingSchedules,
+  enableSelection = false,
+  selectedIds,
+  onToggleSelect,
+  onSelectAll,
 }: NotesTableProps) {
+  const visibleIds = React.useMemo(() => notes.map((n) => n.id), [notes]);
+  const selectedCount = selectedIds
+    ? visibleIds.filter((id) => selectedIds.has(id)).length
+    : 0;
+  const headerChecked =
+    enableSelection &&
+    visibleIds.length > 0 &&
+    selectedCount === visibleIds.length;
+  const headerIndeterminate =
+    enableSelection && selectedCount > 0 && selectedCount < visibleIds.length;
+
   if (loading) {
     return (
       <div className="flex flex-col gap-2 px-6 pb-4">
@@ -616,7 +858,24 @@ function NotesTable({
       <Table>
         <TableHeader className="sticky top-0 bg-card">
           <TableRow>
-            <TableHead className="pl-6">Title</TableHead>
+            {enableSelection && (
+              <TableHead className="w-10 pl-3">
+                <Checkbox
+                  aria-label="Select all visible notes"
+                  checked={
+                    headerIndeterminate
+                      ? "indeterminate"
+                      : headerChecked
+                  }
+                  onCheckedChange={(checked) => {
+                    onSelectAll?.(visibleIds, checked === true);
+                  }}
+                />
+              </TableHead>
+            )}
+            <TableHead className={enableSelection ? "pl-0" : "pl-6"}>
+              Title
+            </TableHead>
             <TableHead className="hidden sm:table-cell">Category</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="hidden md:table-cell">Updated</TableHead>
@@ -624,110 +883,156 @@ function NotesTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {notes.map((note) => (
-            <TableRow key={note.id}>
-              <TableCell className="pl-6">
-                <button
-                  onClick={() => onOpen(note)}
-                  className="flex flex-col items-start text-left"
-                >
-                  <span className="text-sm font-medium hover:text-emerald-700 dark:hover:text-emerald-300">
-                    {note.title}
-                  </span>
-                  {note.description && (
-                    <span className="line-clamp-1 max-w-[36ch] text-xs text-muted-foreground">
-                      {note.description}
-                    </span>
-                  )}
-                </button>
-              </TableCell>
-              <TableCell className="hidden sm:table-cell">
-                <span className="text-xs text-muted-foreground">
-                  {note.category?.name ?? "—"}
-                </span>
-              </TableCell>
-              <TableCell>
-                <StatusBadge status={note.status} />
-              </TableCell>
-              <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
-                {fromNow(note.updatedAt)}
-              </TableCell>
-              <TableCell className="pr-6 text-right">
-                <div className="flex items-center justify-end gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-8"
+          {notes.map((note) => {
+            const schedule = pendingSchedules.find(
+              (s) => s.noteId === note.id && s.status === "PENDING",
+            );
+            const isSelected = selectedIds?.has(note.id) ?? false;
+            return (
+              <TableRow
+                key={note.id}
+                data-selected={isSelected ? "" : undefined}
+                className={isSelected ? "bg-emerald-50/60 dark:bg-emerald-950/20" : undefined}
+              >
+                {enableSelection && (
+                  <TableCell className="w-10 pl-3">
+                    <Checkbox
+                      aria-label={`Select ${note.title}`}
+                      checked={isSelected}
+                      onCheckedChange={() => onToggleSelect?.(note.id)}
+                    />
+                  </TableCell>
+                )}
+                <TableCell className={enableSelection ? "pl-0" : "pl-6"}>
+                  <button
                     onClick={() => onOpen(note)}
-                    aria-label="View note"
+                    className="flex flex-col items-start text-left"
                   >
-                    <Eye className="size-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-8"
-                    onClick={() => onTogglePublish(note)}
-                    disabled={busyId === note.id}
-                    aria-label={
-                      note.status === "PUBLISHED" ? "Unpublish" : "Publish"
-                    }
-                    title={
-                      note.status === "PUBLISHED" ? "Unpublish" : "Publish"
-                    }
-                  >
-                    {busyId === note.id ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : note.status === "PUBLISHED" ? (
-                      <ShieldCheck className="size-4" />
-                    ) : (
-                      <FileEdit className="size-4" />
+                    <span className="text-sm font-medium hover:text-emerald-700 dark:hover:text-emerald-300">
+                      {note.title}
+                    </span>
+                    {note.description && (
+                      <span className="line-clamp-1 max-w-[36ch] text-xs text-muted-foreground">
+                        {note.description}
+                      </span>
                     )}
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8"
-                        aria-label="More actions"
-                      >
-                        <MoreHorizontal className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => onOpen(note)}>
-                        <Eye className="size-4" />
-                        View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onTogglePublish(note)}>
-                        {note.status === "PUBLISHED" ? (
-                          <>
-                            <ShieldCheck className="size-4" />
-                            Unpublish
-                          </>
+                  </button>
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  <span className="text-xs text-muted-foreground">
+                    {note.category?.name ?? "—"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <StatusBadge status={note.status} />
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
+                  {fromNow(note.updatedAt)}
+                </TableCell>
+                <TableCell className="pr-6 text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-8"
+                      onClick={() => onOpen(note)}
+                      aria-label="View note"
+                    >
+                      <Eye className="size-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-8"
+                      onClick={() => onTogglePublish(note)}
+                      disabled={busyId === note.id}
+                      aria-label={
+                        note.status === "PUBLISHED" ? "Unpublish" : "Publish"
+                      }
+                      title={
+                        note.status === "PUBLISHED" ? "Unpublish" : "Publish"
+                      }
+                    >
+                      {busyId === note.id ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : note.status === "PUBLISHED" ? (
+                        <ShieldCheck className="size-4" />
+                      ) : (
+                        <FileEdit className="size-4" />
+                      )}
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="size-8"
+                          aria-label="More actions"
+                        >
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-52">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => onOpen(note)}>
+                          <Eye className="size-4" />
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onTogglePublish(note)}>
+                          {note.status === "PUBLISHED" ? (
+                            <>
+                              <ShieldCheck className="size-4" />
+                              Unpublish
+                            </>
+                          ) : (
+                            <>
+                              <FileEdit className="size-4" />
+                              Publish
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        {schedule ? (
+                          <DropdownMenuItem
+                            onClick={() => onSchedulePublish(note)}
+                          >
+                            <XCircle className="size-4" />
+                            <span className="flex flex-col">
+                              <span>Cancel scheduled publish</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {formatDateTime(schedule.publishAt)}
+                              </span>
+                            </span>
+                          </DropdownMenuItem>
                         ) : (
-                          <>
-                            <FileEdit className="size-4" />
-                            Publish
-                          </>
+                          <DropdownMenuItem
+                            onClick={() => onSchedulePublish(note)}
+                          >
+                            <CalendarClock className="size-4" />
+                            Schedule publish…
+                          </DropdownMenuItem>
                         )}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => onDelete(note)}
-                      >
-                        <Trash2 className="size-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                        <DropdownMenuItem
+                          onClick={() => onVersionHistory(note)}
+                        >
+                          <History className="size-4" />
+                          Version history…
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => onDelete(note)}
+                        >
+                          <Trash2 className="size-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
@@ -769,6 +1074,23 @@ function TagsCloud({ notes }: { notes: Note[] }) {
 
 function SettingsPanel() {
   const logout = useAppStore((s) => s.logout);
+  const clearRecent = useAppStore((s) => s.clearRecent);
+  const [clearing, setClearing] = React.useState(false);
+
+  const handleClearRecent = async () => {
+    setClearing(true);
+    try {
+      await clearRecent();
+      toast.success("Reading history cleared");
+    } catch (err) {
+      toast.error("Failed to clear history", {
+        description: err instanceof Error ? err.message : "Try again later.",
+      });
+    } finally {
+      setClearing(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -793,6 +1115,29 @@ function SettingsPanel() {
             Sign out
           </Button>
         </div>
+
+        <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
+          <p className="text-sm font-medium">Privacy</p>
+          <p className="text-xs text-muted-foreground">
+            Clear the notes you have recently viewed from this device. This
+            affects the &ldquo;Continue reading&rdquo; list in the reader.
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-3 gap-2 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            disabled={clearing}
+            onClick={handleClearRecent}
+          >
+            {clearing ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Trash2 className="size-4" />
+            )}
+            Clear my reading history
+          </Button>
+        </div>
+
         <div className="rounded-lg border border-dashed border-border/60 p-4 text-xs text-muted-foreground">
           Additional settings (default category, upload size limit, public
           registration) will be available here once the backend is wired up.

@@ -15,6 +15,7 @@ import {
   Folder,
   FolderOpen,
   FolderTree,
+  History,
   Home,
   Maximize,
   Menu,
@@ -22,6 +23,7 @@ import {
   MoreVertical,
   Search,
   Share2,
+  Trash2,
   X,
   ZoomIn,
   ZoomOut,
@@ -138,6 +140,12 @@ export function NoteViewer() {
   const openNote = useAppStore((s) => s.openNote);
   const goHome = useAppStore((s) => s.goHome);
   const openSearchModal = useAppStore((s) => s.openSearchModal);
+  // Recently-viewed tracking
+  const recentViews = useAppStore((s) => s.recentViews);
+  const recentLoading = useAppStore((s) => s.recentLoading);
+  const loadRecentViews = useAppStore((s) => s.loadRecentViews);
+  const clearRecent = useAppStore((s) => s.clearRecent);
+  const recordView = useAppStore((s) => s.recordView);
 
   // State
   const [toolbarExpanded, setToolbarExpanded] = React.useState(true);
@@ -188,6 +196,31 @@ export function NoteViewer() {
       .filter((n) => n.categoryId === note.categoryId)
       .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   }, [allNotes, note]);
+
+  // ─── Record a view on the active note (best-effort, fire-and-forget) ───
+  // Fires whenever the active note id changes — covers direct opens, tree
+  // navigation, page-prev/next, and continue-reading clicks.
+  const activeNoteId = note?.id;
+  React.useEffect(() => {
+    if (!activeNoteId) return;
+    recordView(activeNoteId).catch(() => {
+      /* view tracking is best-effort */
+    });
+  }, [activeNoteId, recordView]);
+
+  // ─── Load recent views when the actions panel opens ───
+  React.useEffect(() => {
+    if (!actionsOpen) return;
+    loadRecentViews(5).catch(() => {
+      /* best-effort */
+    });
+  }, [actionsOpen, loadRecentViews]);
+
+  // ─── Filter out the active note from the "Continue reading" list ───
+  // (we don't want to suggest re-opening the note the user is reading).
+  const visibleRecentViews = React.useMemo(() => {
+    return recentViews.filter((v) => v.noteId !== activeNoteId).slice(0, 5);
+  }, [recentViews, activeNoteId]);
 
   const currentIndex = React.useMemo(() => {
     if (!note) return -1;
@@ -957,6 +990,69 @@ export function NoteViewer() {
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
+
+            {/* Continue reading — recently viewed notes */}
+            <div className="mt-3 border-t border-slate-100 pt-2">
+              <div className="mb-1 flex items-center justify-between px-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <History className="h-3 w-3" /> Continue Reading
+                </div>
+                {visibleRecentViews.length > 0 && (
+                  <button
+                    onClick={() => clearRecent().catch(() => { /* ignore */ })}
+                    className="flex items-center gap-1 text-[10px] text-slate-400 transition-colors hover:text-rose-600"
+                    title="Clear history"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {recentLoading ? (
+                <div className="space-y-1 px-1 py-1">
+                  <Skeleton className="h-7 w-full rounded-md" />
+                  <Skeleton className="h-7 w-full rounded-md" />
+                  <Skeleton className="h-7 w-3/4 rounded-md" />
+                </div>
+              ) : visibleRecentViews.length === 0 ? (
+                <div className="px-2 py-2 text-[11px] text-slate-400">
+                  No recently viewed notes yet.
+                </div>
+              ) : (
+                <ScrollArea className="max-h-52">
+                  <div className="space-y-0.5 px-1 py-0.5">
+                    {visibleRecentViews.map((v) => {
+                      const target = v.note;
+                      const isDisabled = !target;
+                      return (
+                        <button
+                          key={v.id}
+                          onClick={() => {
+                            if (!target) return;
+                            handleNavigate(target);
+                          }}
+                          disabled={isDisabled}
+                          className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                          title={target ? target.title : "Note no longer available"}
+                        >
+                          <FileText className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-medium text-slate-700">
+                              {target ? target.title : "(deleted)"}
+                            </span>
+                            <span className="flex items-center gap-1 text-[10px] text-slate-400">
+                              <Clock className="h-2.5 w-2.5" />
+                              {fromNow(v.viewedAt)}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              )}
             </div>
 
             <div className="mt-3 border-t border-slate-100 pt-3">

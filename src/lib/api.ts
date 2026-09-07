@@ -15,6 +15,11 @@ import type {
   Session,
   SessionUser,
   UploadResult,
+  NoteVersion,
+  ScheduledPublish,
+  NoteView,
+  BulkAction,
+  BulkResult,
 } from "@/lib/types";
 
 const MOCK_DELAY = 250;
@@ -561,4 +566,204 @@ export async function uploadFile(file: File): Promise<UploadResult> {
       size: file.size,
     });
   }
+}
+
+// ---------- Note versioning / history ----------
+
+interface BackendNoteVersion {
+  id: string;
+  noteId: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  contentPath: string;
+  assetsPath?: string | null;
+  status: string;
+  categoryId: string;
+  tagsJson: string;
+  createdById?: string | null;
+  createdByName?: string | null;
+  createdAt: string;
+}
+
+function normalizeVersion(v: BackendNoteVersion): NoteVersion {
+  let tags: string[] = [];
+  try {
+    tags = JSON.parse(v.tagsJson || "[]");
+  } catch {
+    tags = [];
+  }
+  return {
+    id: v.id,
+    noteId: v.noteId,
+    title: v.title,
+    slug: v.slug,
+    description: v.description,
+    contentPath: v.contentPath,
+    assetsPath: v.assetsPath,
+    status: v.status as NoteStatus,
+    categoryId: v.categoryId,
+    tags,
+    createdById: v.createdById,
+    createdByName: v.createdByName,
+    createdAt: v.createdAt,
+  };
+}
+
+export async function fetchNoteVersions(noteId: string): Promise<NoteVersion[]> {
+  const data = await callJson<{ versions: BackendNoteVersion[] }>(
+    `/api/notes/${noteId}/versions`,
+    { method: "GET" },
+    () => delay({ versions: [] }),
+  );
+  return data.versions.map(normalizeVersion);
+}
+
+export async function restoreNoteVersion(
+  noteId: string,
+  versionId: string,
+): Promise<Note> {
+  const data = await callJson<{ success: boolean; note?: BackendNote; error?: string }>(
+    `/api/notes/${noteId}/versions/${versionId}/restore`,
+    { method: "POST" },
+    () => delay({ success: false, error: "offline" }),
+  );
+  if (!data.success || !data.note) {
+    throw new Error(data.error ?? "Failed to restore version.");
+  }
+  return normalizeNote(data.note);
+}
+
+// ---------- Scheduled publish ----------
+
+interface BackendScheduledPublish {
+  id: string;
+  noteId: string;
+  publishAt: string;
+  status: string;
+  createdById?: string | null;
+  createdByName?: string | null;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+function normalizeSchedule(s: BackendScheduledPublish): ScheduledPublish {
+  return {
+    id: s.id,
+    noteId: s.noteId,
+    publishAt: s.publishAt,
+    status: s.status as ScheduledPublish["status"],
+    createdById: s.createdById,
+    createdByName: s.createdByName,
+    createdAt: s.createdAt,
+    completedAt: s.completedAt,
+  };
+}
+
+export async function scheduleNotePublish(
+  noteId: string,
+  publishAt: Date,
+): Promise<ScheduledPublish> {
+  const data = await callJson<{ success: boolean; schedule?: BackendScheduledPublish; error?: string }>(
+    `/api/scheduled-publish`,
+    {
+      method: "POST",
+      body: JSON.stringify({ noteId, publishAt: publishAt.toISOString() }),
+    },
+    () => delay({ success: false, error: "offline" }),
+  );
+  if (!data.success || !data.schedule) {
+    throw new Error(data.error ?? "Failed to schedule publish.");
+  }
+  return normalizeSchedule(data.schedule);
+}
+
+export async function cancelScheduledPublish(noteId: string): Promise<void> {
+  await callJson<{ success: boolean }>(
+    `/api/scheduled-publish?noteId=${encodeURIComponent(noteId)}`,
+    { method: "DELETE" },
+    () => delay({ success: true }),
+  );
+}
+
+export async function fetchPendingSchedules(): Promise<ScheduledPublish[]> {
+  const data = await callJson<{ schedules: BackendScheduledPublish[] }>(
+    `/api/scheduled-publish`,
+    { method: "GET" },
+    () => delay({ schedules: [] }),
+  );
+  return data.schedules.map(normalizeSchedule);
+}
+
+// ---------- Recently viewed ----------
+
+interface BackendNoteView {
+  id: string;
+  noteId: string;
+  viewedAt: string;
+  note?: BackendNote;
+}
+
+function normalizeView(v: BackendNoteView): NoteView {
+  return {
+    id: v.id,
+    noteId: v.noteId,
+    viewedAt: v.viewedAt,
+    note: v.note ? normalizeNote(v.note) : undefined,
+  };
+}
+
+export async function recordNoteView(noteId: string): Promise<void> {
+  await callJson<{ success: boolean }>(
+    `/api/notes/${noteId}/view`,
+    { method: "POST" },
+    () => delay({ success: true }),
+  );
+}
+
+export async function fetchRecentViews(limit = 8): Promise<NoteView[]> {
+  const data = await callJson<{ views: BackendNoteView[] }>(
+    `/api/notes/recent?limit=${limit}`,
+    { method: "GET" },
+    () => delay({ views: [] }),
+  );
+  return data.views.map(normalizeView);
+}
+
+export async function clearRecentViews(): Promise<void> {
+  await callJson<{ success: boolean }>(
+    `/api/notes/recent`,
+    { method: "DELETE" },
+    () => delay({ success: true }),
+  );
+}
+
+// ---------- Bulk operations ----------
+
+export async function bulkUpdateNotes(
+  action: BulkAction,
+  noteIds: string[],
+): Promise<BulkResult> {
+  const data = await callJson<{ success: boolean; result?: BulkResult; error?: string }>(
+    `/api/notes/bulk`,
+    {
+      method: "POST",
+      body: JSON.stringify({ action, noteIds }),
+    },
+    () =>
+      delay({
+        success: true,
+        result: {
+          action,
+          requested: noteIds.length,
+          succeeded: noteIds.length,
+          failed: 0,
+          errors: [],
+        },
+      }),
+  );
+  if (!data.success || !data.result) {
+    throw new Error(data.error ?? "Bulk operation failed.");
+  }
+  return data.result;
 }

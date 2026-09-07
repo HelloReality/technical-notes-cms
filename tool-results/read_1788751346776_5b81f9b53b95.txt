@@ -1,0 +1,804 @@
+     1→"use client";
+     2→
+     3→import * as React from "react";
+     4→import {
+     5→  BookOpen,
+     6→  Eye,
+     7→  FileEdit,
+     8→  FilePlus2,
+     9→  FolderTree,
+    10→  LayoutDashboard,
+    11→  Loader2,
+    12→  MoreHorizontal,
+    13→  Search,
+    14→  Settings,
+    15→  ShieldCheck,
+    16→  Tag,
+    17→  Trash2,
+    18→  Upload,
+    19→} from "lucide-react";
+    20→import { toast } from "sonner";
+    21→
+    22→import { Button } from "@/components/ui/button";
+    23→import { Input } from "@/components/ui/input";
+    24→import {
+    25→  Card,
+    26→  CardContent,
+    27→  CardDescription,
+    28→  CardHeader,
+    29→  CardTitle,
+    30→} from "@/components/ui/card";
+    31→import {
+    32→  Table,
+    33→  TableBody,
+    34→  TableCell,
+    35→  TableHead,
+    36→  TableHeader,
+    37→  TableRow,
+    38→} from "@/components/ui/table";
+    39→import { Skeleton } from "@/components/ui/skeleton";
+    40→import { Badge } from "@/components/ui/badge";
+    41→import {
+    42→  Select,
+    43→  SelectContent,
+    44→  SelectItem,
+    45→  SelectTrigger,
+    46→  SelectValue,
+    47→} from "@/components/ui/select";
+    48→import {
+    49→  DropdownMenu,
+    50→  DropdownMenuContent,
+    51→  DropdownMenuItem,
+    52→  DropdownMenuLabel,
+    53→  DropdownMenuSeparator,
+    54→  DropdownMenuTrigger,
+    55→} from "@/components/ui/dropdown-menu";
+    56→import {
+    57→  AlertDialog,
+    58→  AlertDialogAction,
+    59→  AlertDialogCancel,
+    60→  AlertDialogContent,
+    61→  AlertDialogDescription,
+    62→  AlertDialogFooter,
+    63→  AlertDialogHeader,
+    64→  AlertDialogTitle,
+    65→} from "@/components/ui/alert-dialog";
+    66→import { StatusBadge } from "@/components/status-badge";
+    67→import { useAppStore } from "@/lib/store";
+    68→import type { Note, NoteStatus } from "@/lib/types";
+    69→import { fromNow } from "@/lib/format";
+    70→import { cn } from "@/lib/utils";
+    71→
+    72→type SidebarKey = "dashboard" | "notes" | "categories" | "tags" | "settings";
+    73→
+    74→const SIDEBAR_ITEMS: {
+    75→  key: SidebarKey;
+    76→  label: string;
+    77→  icon: React.ElementType;
+    78→}[] = [
+    79→  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    80→  { key: "notes", label: "Notes", icon: BookOpen },
+    81→  { key: "categories", label: "Categories", icon: FolderTree },
+    82→  { key: "tags", label: "Tags", icon: Tag },
+    83→  { key: "settings", label: "Settings", icon: Settings },
+    84→];
+    85→
+    86→export function AdminDashboard() {
+    87→  const notes = useAppStore((s) => s.notes);
+    88→  const dataLoading = useAppStore((s) => s.dataLoading);
+    89→  const categories = useAppStore((s) => s.categories);
+    90→  const openUploadModal = useAppStore((s) => s.openUploadModal);
+    91→  const openNote = useAppStore((s) => s.openNote);
+    92→  const publishNote = useAppStore((s) => s.publishNote);
+    93→  const unpublishNote = useAppStore((s) => s.unpublishNote);
+    94→  const deleteNote = useAppStore((s) => s.deleteNote);
+    95→
+    96→  const [section, setSection] = React.useState<SidebarKey>("dashboard");
+    97→  const [search, setSearch] = React.useState("");
+    98→  const [statusFilter, setStatusFilter] = React.useState<NoteStatus | "ALL">(
+    99→    "ALL",
+   100→  );
+   101→  const [deleteTarget, setDeleteTarget] = React.useState<Note | null>(null);
+   102→  const [busyId, setBusyId] = React.useState<string | null>(null);
+   103→
+   104→  const stats = React.useMemo(() => {
+   105→    const total = notes.length;
+   106→    const published = notes.filter((n) => n.status === "PUBLISHED").length;
+   107→    const draft = notes.filter((n) => n.status === "DRAFT").length;
+   108→    const unpublished = notes.filter((n) => n.status === "UNPUBLISHED").length;
+   109→    return { total, published, draft, unpublished };
+   110→  }, [notes]);
+   111→
+   112→  const filteredNotes = React.useMemo(() => {
+   113→    return notes.filter((n) => {
+   114→      if (statusFilter !== "ALL" && n.status !== statusFilter) return false;
+   115→      if (search.trim()) {
+   116→        const q = search.toLowerCase();
+   117→        return (
+   118→          n.title.toLowerCase().includes(q) ||
+   119→          n.description?.toLowerCase().includes(q) ||
+   120→          n.tags?.some((t) => t.name.toLowerCase().includes(q))
+   121→        );
+   122→      }
+   123→      return true;
+   124→    });
+   125→  }, [notes, search, statusFilter]);
+   126→
+   127→  const recentNotes = React.useMemo(
+   128→    () =>
+   129→      [...notes]
+   130→        .sort(
+   131→          (a, b) =>
+   132→            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+   133→        )
+   134→        .slice(0, 6),
+   135→    [notes],
+   136→  );
+   137→
+   138→  const handleTogglePublish = async (note: Note) => {
+   139→    setBusyId(note.id);
+   140→    try {
+   141→      if (note.status === "PUBLISHED") {
+   142→        await unpublishNote(note.id);
+   143→        toast.success("Note unpublished", { description: note.title });
+   144→      } else {
+   145→        await publishNote(note.id);
+   146→        toast.success("Note published", { description: note.title });
+   147→      }
+   148→    } catch (err) {
+   149→      toast.error("Action failed", {
+   150→        description: err instanceof Error ? err.message : "Try again later.",
+   151→      });
+   152→    } finally {
+   153→      setBusyId(null);
+   154→    }
+   155→  };
+   156→
+   157→  const handleDelete = async () => {
+   158→    if (!deleteTarget) return;
+   159→    const target = deleteTarget;
+   160→    setBusyId(target.id);
+   161→    try {
+   162→      await deleteNote(target.id);
+   163→      toast.success("Note deleted", { description: target.title });
+   164→      setDeleteTarget(null);
+   165→    } catch (err) {
+   166→      toast.error("Delete failed", {
+   167→        description: err instanceof Error ? err.message : "Try again later.",
+   168→      });
+   169→    } finally {
+   170→      setBusyId(null);
+   171→    }
+   172→  };
+   173→
+   174→  const topCategories = React.useMemo(() => {
+   175→    return categories
+   176→      .filter((c) => !c.parentId)
+   177→      .slice(0, 5)
+   178→      .map((c) => ({
+   179→        ...c,
+   180→        count:
+   181→          notes.filter(
+   182→            (n) =>
+   183→              n.categoryId === c.id ||
+   184→              n.category?.parentId === c.id ||
+   185→              c.children?.some((ch) => n.categoryId === ch.id),
+   186→          ).length ?? 0,
+   187→      }))
+   188→      .sort((a, b) => b.count - a.count);
+   189→  }, [categories, notes]);
+   190→
+   191→  return (
+   192→    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:px-8">
+   193→      {/* Sidebar */}
+   194→      <aside className="lg:w-60 lg:shrink-0">
+   195→        <div className="sticky top-20 flex flex-col gap-2">
+   196→          <div className="mb-2 flex items-center gap-2 px-2 lg:hidden">
+   197→            <Select
+   198→              value={section}
+   199→              onValueChange={(v) => setSection(v as SidebarKey)}
+   200→            >
+   201→              <SelectTrigger className="w-full">
+   202→                <SelectValue />
+   203→              </SelectTrigger>
+   204→              <SelectContent>
+   205→                {SIDEBAR_ITEMS.map((item) => (
+   206→                  <SelectItem key={item.key} value={item.key}>
+   207→                    {item.label}
+   208→                  </SelectItem>
+   209→                ))}
+   210→              </SelectContent>
+   211→            </Select>
+   212→          </div>
+   213→          <nav
+   214→            aria-label="Admin sections"
+   215→            className="hidden flex-col gap-1 lg:flex"
+   216→          >
+   217→            {SIDEBAR_ITEMS.map((item) => (
+   218→              <Button
+   219→                key={item.key}
+   220→                variant={section === item.key ? "secondary" : "ghost"}
+   221→                className="justify-start"
+   222→                onClick={() => setSection(item.key)}
+   223→              >
+   224→                <item.icon className="size-4" />
+   225→                {item.label}
+   226→              </Button>
+   227→            ))}
+   228→          </nav>
+   229→
+   230→          <div className="mt-4 hidden rounded-xl border border-border/60 bg-card p-4 lg:block">
+   231→            <div className="flex items-center gap-2 text-sm font-medium">
+   232→              <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" />
+   233→              Admin Console
+   234→            </div>
+   235→            <p className="mt-1 text-xs text-muted-foreground">
+   236→              Manage notes, categories, and tags from this panel.
+   237→            </p>
+   238→            <Button
+   239→              className="mt-3 w-full gap-2 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+   240→              size="sm"
+   241→              onClick={openUploadModal}
+   242→            >
+   243→              <Upload className="size-4" />
+   244→              Upload Note
+   245→            </Button>
+   246→          </div>
+   247→        </div>
+   248→      </aside>
+   249→
+   250→      {/* Main panel */}
+   251→      <main className="flex min-w-0 flex-1 flex-col gap-6">
+   252→        <div className="flex flex-wrap items-end justify-between gap-3">
+   253→          <div>
+   254→            <h1 className="text-2xl font-semibold tracking-tight">
+   255→              {SIDEBAR_ITEMS.find((i) => i.key === section)?.label}
+   256→            </h1>
+   257→            <p className="text-sm text-muted-foreground">
+   258→              Manage your technical knowledge base.
+   259→            </p>
+   260→          </div>
+   261→          <Button
+   262→            onClick={openUploadModal}
+   263→            className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+   264→          >
+   265→            <FilePlus2 className="size-4" />
+   266→            Upload Note
+   267→          </Button>
+   268→        </div>
+   269→
+   270→        {section === "dashboard" && (
+   271→          <>
+   272→            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+   273→              <StatCard
+   274→                label="Total Notes"
+   275→                value={stats.total}
+   276→                icon={BookOpen}
+   277→                loading={dataLoading}
+   278→              />
+   279→              <StatCard
+   280→                label="Published"
+   281→                value={stats.published}
+   282→                icon={Eye}
+   283→                accent="emerald"
+   284→                loading={dataLoading}
+   285→              />
+   286→              <StatCard
+   287→                label="Drafts"
+   288→                value={stats.draft}
+   289→                icon={FileEdit}
+   290→                accent="amber"
+   291→                loading={dataLoading}
+   292→              />
+   293→              <StatCard
+   294→                label="Unpublished"
+   295→                value={stats.unpublished}
+   296→                icon={ShieldCheck}
+   297→                loading={dataLoading}
+   298→              />
+   299→            </div>
+   300→
+   301→            <Card>
+   302→              <CardHeader>
+   303→                <CardTitle className="text-base">Top categories</CardTitle>
+   304→                <CardDescription>
+   305→                  Distribution of notes across top-level categories.
+   306→                </CardDescription>
+   307→              </CardHeader>
+   308→              <CardContent>
+   309→                {dataLoading ? (
+   310→                  <div className="flex flex-col gap-3">
+   311→                    {Array.from({ length: 4 }).map((_, i) => (
+   312→                      <Skeleton key={i} className="h-8 w-full" />
+   313→                    ))}
+   314→                  </div>
+   315→                ) : topCategories.length === 0 ? (
+   316→                  <p className="text-sm text-muted-foreground">
+   317→                    No categories yet.
+   318→                  </p>
+   319→                ) : (
+   320→                  <div className="flex flex-col gap-2">
+   321→                    {topCategories.map((c) => {
+   322→                      const max = topCategories[0]?.count ?? 1;
+   323→                      const pct = max ? (c.count / max) * 100 : 0;
+   324→                      return (
+   325→                        <div key={c.id} className="flex items-center gap-3">
+   326→                          <div className="w-32 shrink-0 text-sm">{c.name}</div>
+   327→                          <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+   328→                            <div
+   329→                              className="absolute inset-y-0 left-0 rounded-full bg-emerald-500"
+   330→                              style={{ width: `${pct}%` }}
+   331→                            />
+   332→                          </div>
+   333→                          <div className="w-8 shrink-0 text-right text-xs text-muted-foreground">
+   334→                            {c.count}
+   335→                          </div>
+   336→                        </div>
+   337→                      );
+   338→                    })}
+   339→                  </div>
+   340→                )}
+   341→              </CardContent>
+   342→            </Card>
+   343→
+   344→            <Card>
+   345→              <CardHeader>
+   346→                <CardTitle className="text-base">Recent notes</CardTitle>
+   347→                <CardDescription>
+   348→                  The most recently updated notes across all categories.
+   349→                </CardDescription>
+   350→              </CardHeader>
+   351→              <CardContent className="px-0 pb-0">
+   352→                <NotesTable
+   353→                  notes={recentNotes}
+   354→                  loading={dataLoading}
+   355→                  onOpen={openNote}
+   356→                  onTogglePublish={handleTogglePublish}
+   357→                  onDelete={setDeleteTarget}
+   358→                  busyId={busyId}
+   359→                />
+   360→              </CardContent>
+   361→            </Card>
+   362→          </>
+   363→        )}
+   364→
+   365→        {section === "notes" && (
+   366→          <Card>
+   367→            <CardHeader>
+   368→              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+   369→                <div>
+   370→                  <CardTitle className="text-base">All notes</CardTitle>
+   371→                  <CardDescription>
+   372→                    Filter, publish, unpublish, or delete notes.
+   373→                  </CardDescription>
+   374→                </div>
+   375→                <div className="flex flex-wrap items-center gap-2">
+   376→                  <div className="relative">
+   377→                    <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+   378→                    <Input
+   379→                      value={search}
+   380→                      onChange={(e) => setSearch(e.target.value)}
+   381→                      placeholder="Filter…"
+   382→                      className="h-9 w-full pl-8 sm:w-56"
+   383→                    />
+   384→                  </div>
+   385→                  <Select
+   386→                    value={statusFilter}
+   387→                    onValueChange={(v) =>
+   388→                      setStatusFilter(v as NoteStatus | "ALL")
+   389→                    }
+   390→                  >
+   391→                    <SelectTrigger className="h-9 w-[140px]">
+   392→                      <SelectValue />
+   393→                    </SelectTrigger>
+   394→                    <SelectContent>
+   395→                      <SelectItem value="ALL">All statuses</SelectItem>
+   396→                      <SelectItem value="PUBLISHED">Published</SelectItem>
+   397→                      <SelectItem value="DRAFT">Draft</SelectItem>
+   398→                      <SelectItem value="UNPUBLISHED">Unpublished</SelectItem>
+   399→                    </SelectContent>
+   400→                  </Select>
+   401→                </div>
+   402→              </div>
+   403→            </CardHeader>
+   404→            <CardContent className="px-0 pb-0">
+   405→              <NotesTable
+   406→                notes={filteredNotes}
+   407→                loading={dataLoading}
+   408→                onOpen={openNote}
+   409→                onTogglePublish={handleTogglePublish}
+   410→                onDelete={setDeleteTarget}
+   411→                busyId={busyId}
+   412→              />
+   413→            </CardContent>
+   414→          </Card>
+   415→        )}
+   416→
+   417→        {section === "categories" && (
+   418→          <Card>
+   419→            <CardHeader>
+   420→              <CardTitle className="text-base">Categories</CardTitle>
+   421→              <CardDescription>
+   422→                Top-level categories and their subcategories.
+   423→              </CardDescription>
+   424→            </CardHeader>
+   425→            <CardContent>
+   426→              {categories.filter((c) => !c.parentId).length === 0 ? (
+   427→                <p className="text-sm text-muted-foreground">
+   428→                  No categories yet.
+   429→                </p>
+   430→              ) : (
+   431→                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+   432→                  {categories
+   433→                    .filter((c) => !c.parentId)
+   434→                    .map((c) => {
+   435→                      const subs = categories.filter(
+   436→                        (sub) => sub.parentId === c.id,
+   437→                      );
+   438→                      const count =
+   439→                        notes.filter(
+   440→                          (n) =>
+   441→                            n.categoryId === c.id ||
+   442→                            subs.some((s) => n.categoryId === s.id),
+   443→                        ).length ?? 0;
+   444→                      return (
+   445→                        <div
+   446→                          key={c.id}
+   447→                          className="rounded-xl border border-border/60 bg-card p-4"
+   448→                        >
+   449→                          <div className="flex items-center justify-between">
+   450→                            <div className="flex items-center gap-2">
+   451→                              <span className="flex size-8 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+   452→                                <FolderTree className="size-4" />
+   453→                              </span>
+   454→                              <span className="text-sm font-medium">
+   455→                                {c.name}
+   456→                              </span>
+   457→                            </div>
+   458→                            <Badge variant="secondary">{count}</Badge>
+   459→                          </div>
+   460→                          {subs.length > 0 && (
+   461→                            <div className="mt-3 flex flex-wrap gap-1.5">
+   462→                              {subs.map((s) => (
+   463→                                <Badge
+   464→                                  key={s.id}
+   465→                                  variant="outline"
+   466→                                  className="font-normal text-muted-foreground"
+   467→                                >
+   468→                                  {s.name}
+   469→                                </Badge>
+   470→                              ))}
+   471→                            </div>
+   472→                          )}
+   473→                          {c.description && (
+   474→                            <p className="mt-3 text-xs text-muted-foreground">
+   475→                              {c.description}
+   476→                            </p>
+   477→                          )}
+   478→                        </div>
+   479→                      );
+   480→                    })}
+   481→                </div>
+   482→              )}
+   483→            </CardContent>
+   484→          </Card>
+   485→        )}
+   486→
+   487→        {section === "tags" && (
+   488→          <Card>
+   489→            <CardHeader>
+   490→              <CardTitle className="text-base">Tags</CardTitle>
+   491→              <CardDescription>
+   492→                All tags currently in use across notes.
+   493→              </CardDescription>
+   494→            </CardHeader>
+   495→            <CardContent>
+   496→              <TagsCloud notes={notes} />
+   497→            </CardContent>
+   498→          </Card>
+   499→        )}
+   500→
+   501→        {section === "settings" && <SettingsPanel />}
+   502→      </main>
+   503→
+   504→      <AlertDialog
+   505→        open={!!deleteTarget}
+   506→        onOpenChange={(o) => (!o ? setDeleteTarget(null) : null)}
+   507→      >
+   508→        <AlertDialogContent>
+   509→          <AlertDialogHeader>
+   510→            <AlertDialogTitle>Delete this note?</AlertDialogTitle>
+   511→            <AlertDialogDescription>
+   512→              <span className="block">
+   513→                You are about to permanently delete{" "}
+   514→                <strong>{deleteTarget?.title}</strong>.
+   515→              </span>
+   516→              <span className="mt-1 block">
+   517→                This action cannot be undone.
+   518→              </span>
+   519→            </AlertDialogDescription>
+   520→          </AlertDialogHeader>
+   521→          <AlertDialogFooter>
+   522→            <AlertDialogCancel>Cancel</AlertDialogCancel>
+   523→            <AlertDialogAction
+   524→              onClick={handleDelete}
+   525→              className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60"
+   526→            >
+   527→              Delete
+   528→            </AlertDialogAction>
+   529→          </AlertDialogFooter>
+   530→        </AlertDialogContent>
+   531→      </AlertDialog>
+   532→    </div>
+   533→  );
+   534→}
+   535→
+   536→// ---------- Sub-components ----------
+   537→
+   538→interface StatCardProps {
+   539→  label: string;
+   540→  value: number;
+   541→  icon: React.ElementType;
+   542→  accent?: "default" | "emerald" | "amber";
+   543→  loading?: boolean;
+   544→}
+   545→
+   546→function StatCard({ label, value, icon: Icon, accent = "default", loading }: StatCardProps) {
+   547→  const accentClass =
+   548→    accent === "emerald"
+   549→      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+   550→      : accent === "amber"
+   551→        ? "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+   552→        : "bg-muted text-muted-foreground";
+   553→  return (
+   554→    <Card className="overflow-hidden">
+   555→      <CardContent className="flex items-center gap-3 p-4">
+   556→        <span
+   557→          className={cn(
+   558→            "flex size-10 items-center justify-center rounded-lg",
+   559→            accentClass,
+   560→          )}
+   561→        >
+   562→          <Icon className="size-5" />
+   563→        </span>
+   564→        <div className="flex flex-col">
+   565→          <span className="text-2xl font-semibold leading-none">
+   566→            {loading ? <Skeleton className="h-6 w-10" /> : value}
+   567→          </span>
+   568→          <span className="mt-1 text-xs text-muted-foreground">{label}</span>
+   569→        </div>
+   570→      </CardContent>
+   571→    </Card>
+   572→  );
+   573→}
+   574→
+   575→interface NotesTableProps {
+   576→  notes: Note[];
+   577→  loading: boolean;
+   578→  onOpen: (note: Note) => void;
+   579→  onTogglePublish: (note: Note) => void;
+   580→  onDelete: (note: Note) => void;
+   581→  busyId: string | null;
+   582→}
+   583→
+   584→function NotesTable({
+   585→  notes,
+   586→  loading,
+   587→  onOpen,
+   588→  onTogglePublish,
+   589→  onDelete,
+   590→  busyId,
+   591→}: NotesTableProps) {
+   592→  if (loading) {
+   593→    return (
+   594→      <div className="flex flex-col gap-2 px-6 pb-4">
+   595→        {Array.from({ length: 4 }).map((_, i) => (
+   596→          <Skeleton key={i} className="h-10 w-full" />
+   597→        ))}
+   598→      </div>
+   599→    );
+   600→  }
+   601→
+   602→  if (notes.length === 0) {
+   603→    return (
+   604→      <div className="flex flex-col items-center justify-center gap-2 px-6 py-10 text-center">
+   605→        <BookOpen className="size-6 text-muted-foreground" />
+   606→        <p className="text-sm font-medium">No notes found</p>
+   607→        <p className="text-xs text-muted-foreground">
+   608→          Try changing the filters, or upload a new note.
+   609→        </p>
+   610→      </div>
+   611→    );
+   612→  }
+   613→
+   614→  return (
+   615→    <div className="scroll-thin max-h-[420px] overflow-y-auto">
+   616→      <Table>
+   617→        <TableHeader className="sticky top-0 bg-card">
+   618→          <TableRow>
+   619→            <TableHead className="pl-6">Title</TableHead>
+   620→            <TableHead className="hidden sm:table-cell">Category</TableHead>
+   621→            <TableHead>Status</TableHead>
+   622→            <TableHead className="hidden md:table-cell">Updated</TableHead>
+   623→            <TableHead className="pr-6 text-right">Actions</TableHead>
+   624→          </TableRow>
+   625→        </TableHeader>
+   626→        <TableBody>
+   627→          {notes.map((note) => (
+   628→            <TableRow key={note.id}>
+   629→              <TableCell className="pl-6">
+   630→                <button
+   631→                  onClick={() => onOpen(note)}
+   632→                  className="flex flex-col items-start text-left"
+   633→                >
+   634→                  <span className="text-sm font-medium hover:text-emerald-700 dark:hover:text-emerald-300">
+   635→                    {note.title}
+   636→                  </span>
+   637→                  {note.description && (
+   638→                    <span className="line-clamp-1 max-w-[36ch] text-xs text-muted-foreground">
+   639→                      {note.description}
+   640→                    </span>
+   641→                  )}
+   642→                </button>
+   643→              </TableCell>
+   644→              <TableCell className="hidden sm:table-cell">
+   645→                <span className="text-xs text-muted-foreground">
+   646→                  {note.category?.name ?? "—"}
+   647→                </span>
+   648→              </TableCell>
+   649→              <TableCell>
+   650→                <StatusBadge status={note.status} />
+   651→              </TableCell>
+   652→              <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
+   653→                {fromNow(note.updatedAt)}
+   654→              </TableCell>
+   655→              <TableCell className="pr-6 text-right">
+   656→                <div className="flex items-center justify-end gap-1">
+   657→                  <Button
+   658→                    size="icon"
+   659→                    variant="ghost"
+   660→                    className="size-8"
+   661→                    onClick={() => onOpen(note)}
+   662→                    aria-label="View note"
+   663→                  >
+   664→                    <Eye className="size-4" />
+   665→                  </Button>
+   666→                  <Button
+   667→                    size="icon"
+   668→                    variant="ghost"
+   669→                    className="size-8"
+   670→                    onClick={() => onTogglePublish(note)}
+   671→                    disabled={busyId === note.id}
+   672→                    aria-label={
+   673→                      note.status === "PUBLISHED" ? "Unpublish" : "Publish"
+   674→                    }
+   675→                    title={
+   676→                      note.status === "PUBLISHED" ? "Unpublish" : "Publish"
+   677→                    }
+   678→                  >
+   679→                    {busyId === note.id ? (
+   680→                      <Loader2 className="size-4 animate-spin" />
+   681→                    ) : note.status === "PUBLISHED" ? (
+   682→                      <ShieldCheck className="size-4" />
+   683→                    ) : (
+   684→                      <FileEdit className="size-4" />
+   685→                    )}
+   686→                  </Button>
+   687→                  <DropdownMenu>
+   688→                    <DropdownMenuTrigger asChild>
+   689→                      <Button
+   690→                        size="icon"
+   691→                        variant="ghost"
+   692→                        className="size-8"
+   693→                        aria-label="More actions"
+   694→                      >
+   695→                        <MoreHorizontal className="size-4" />
+   696→                      </Button>
+   697→                    </DropdownMenuTrigger>
+   698→                    <DropdownMenuContent align="end">
+   699→                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+   700→                      <DropdownMenuItem onClick={() => onOpen(note)}>
+   701→                        <Eye className="size-4" />
+   702→                        View
+   703→                      </DropdownMenuItem>
+   704→                      <DropdownMenuItem onClick={() => onTogglePublish(note)}>
+   705→                        {note.status === "PUBLISHED" ? (
+   706→                          <>
+   707→                            <ShieldCheck className="size-4" />
+   708→                            Unpublish
+   709→                          </>
+   710→                        ) : (
+   711→                          <>
+   712→                            <FileEdit className="size-4" />
+   713→                            Publish
+   714→                          </>
+   715→                        )}
+   716→                      </DropdownMenuItem>
+   717→                      <DropdownMenuSeparator />
+   718→                      <DropdownMenuItem
+   719→                        variant="destructive"
+   720→                        onClick={() => onDelete(note)}
+   721→                      >
+   722→                        <Trash2 className="size-4" />
+   723→                        Delete
+   724→                      </DropdownMenuItem>
+   725→                    </DropdownMenuContent>
+   726→                  </DropdownMenu>
+   727→                </div>
+   728→              </TableCell>
+   729→            </TableRow>
+   730→          ))}
+   731→        </TableBody>
+   732→      </Table>
+   733→    </div>
+   734→  );
+   735→}
+   736→
+   737→function TagsCloud({ notes }: { notes: Note[] }) {
+   738→  const tagMap = React.useMemo(() => {
+   739→    const m = new Map<string, number>();
+   740→    for (const n of notes) {
+   741→      for (const t of n.tags ?? []) {
+   742→        m.set(t.name, (m.get(t.name) ?? 0) + 1);
+   743→      }
+   744→    }
+   745→    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]);
+   746→  }, [notes]);
+   747→
+   748→  if (tagMap.length === 0) {
+   749→    return (
+   750→      <p className="text-sm text-muted-foreground">No tags are in use yet.</p>
+   751→    );
+   752→  }
+   753→  return (
+   754→    <div className="flex flex-wrap gap-2">
+   755→      {tagMap.map(([name, count]) => (
+   756→        <Badge
+   757→          key={name}
+   758→          variant="outline"
+   759→          className="gap-1.5 py-1 font-normal"
+   760→        >
+   761→          <Tag className="size-3" />
+   762→          {name}
+   763→          <span className="text-xs text-muted-foreground">{count}</span>
+   764→        </Badge>
+   765→      ))}
+   766→    </div>
+   767→  );
+   768→}
+   769→
+   770→function SettingsPanel() {
+   771→  const logout = useAppStore((s) => s.logout);
+   772→  return (
+   773→    <Card>
+   774→      <CardHeader>
+   775→        <CardTitle className="text-base">Settings</CardTitle>
+   776→        <CardDescription>
+   777→          Manage your CMS administrator account and site preferences.
+   778→        </CardDescription>
+   779→      </CardHeader>
+   780→      <CardContent className="flex flex-col gap-4">
+   781→        <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
+   782→          <p className="text-sm font-medium">Account</p>
+   783→          <p className="text-xs text-muted-foreground">
+   784→            You are signed in as an administrator. Sign out from this device.
+   785→          </p>
+   786→          <Button
+   787→            variant="outline"
+   788→            size="sm"
+   789→            className="mt-3 gap-2"
+   790→            onClick={() => logout()}
+   791→          >
+   792→            <ShieldCheck className="size-4" />
+   793→            Sign out
+   794→          </Button>
+   795→        </div>
+   796→        <div className="rounded-lg border border-dashed border-border/60 p-4 text-xs text-muted-foreground">
+   797→          Additional settings (default category, upload size limit, public
+   798→          registration) will be available here once the backend is wired up.
+   799→        </div>
+   800→      </CardContent>
+   801→    </Card>
+   802→  );
+   803→}
+   804→

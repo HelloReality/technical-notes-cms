@@ -5,6 +5,11 @@ import type {
   Category,
   Note,
   NoteStatus,
+  NoteVersion,
+  ScheduledPublish,
+  NoteView,
+  BulkAction,
+  BulkResult,
   Session,
   SessionUser,
   ViewKey,
@@ -56,6 +61,14 @@ interface AppState {
   loginModalOpen: boolean;
   uploadModalOpen: boolean;
   searchModalOpen: boolean;
+  // Versioning
+  noteVersions: NoteVersion[];
+  versionsLoading: boolean;
+  // Scheduled publish
+  pendingSchedules: ScheduledPublish[];
+  // Recently viewed
+  recentViews: NoteView[];
+  recentLoading: boolean;
 
   // ---------- Actions ----------
   setView: (view: ViewKey) => void;
@@ -85,6 +98,20 @@ interface AppState {
   deleteNote: (id: string) => Promise<void>;
   onNoteCreated: (note: Note) => void;
 
+  // Versioning
+  loadNoteVersions: (noteId: string) => Promise<void>;
+  restoreVersion: (noteId: string, versionId: string) => Promise<void>;
+  // Scheduled publish
+  schedulePublish: (noteId: string, publishAt: Date) => Promise<void>;
+  cancelSchedule: (noteId: string) => Promise<void>;
+  loadPendingSchedules: () => Promise<void>;
+  // Recently viewed
+  recordView: (noteId: string) => Promise<void>;
+  loadRecentViews: (limit?: number) => Promise<void>;
+  clearRecent: () => Promise<void>;
+  // Bulk operations
+  bulkAction: (action: BulkAction, noteIds: string[]) => Promise<BulkResult>;
+
   goToDashboard: () => void;
   goHome: () => void;
   goSearch: (q?: string) => void;
@@ -107,6 +134,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   loginModalOpen: false,
   uploadModalOpen: false,
   searchModalOpen: false,
+  noteVersions: [],
+  versionsLoading: false,
+  pendingSchedules: [],
+  recentViews: [],
+  recentLoading: false,
 
   setView: (view) => set({ view }),
 
@@ -277,6 +309,92 @@ export const useAppStore = create<AppState>((set, get) => ({
       uploadModalOpen: false,
       view: "admin-dashboard",
     });
+  },
+
+  // ─── Versioning ────────────────────────────────────────────
+  loadNoteVersions: async (noteId) => {
+    set({ versionsLoading: true });
+    try {
+      const versions = await api.fetchNoteVersions(noteId);
+      set({ noteVersions: versions });
+    } finally {
+      set({ versionsLoading: false });
+    }
+  },
+
+  restoreVersion: async (noteId, versionId) => {
+    const restored = await api.restoreNoteVersion(noteId, versionId);
+    const categories = get().categories;
+    const [enriched] = enrichNotes([restored], categories);
+    set({
+      notes: get().notes.map((n) => (n.id === noteId ? enriched : n)),
+      selectedNote: get().selectedNote?.id === noteId ? enriched : get().selectedNote,
+    });
+  },
+
+  // ─── Scheduled publish ────────────────────────────────────
+  schedulePublish: async (noteId, publishAt) => {
+    await api.scheduleNotePublish(noteId, publishAt);
+    await get().loadPendingSchedules();
+  },
+
+  cancelSchedule: async (noteId) => {
+    await api.cancelScheduledPublish(noteId);
+    set({
+      pendingSchedules: get().pendingSchedules.filter(
+        (s) => s.noteId !== noteId,
+      ),
+    });
+  },
+
+  loadPendingSchedules: async () => {
+    try {
+      const schedules = await api.fetchPendingSchedules();
+      set({ pendingSchedules: schedules });
+    } catch {
+      /* ignore */
+    }
+  },
+
+  // ─── Recently viewed ──────────────────────────────────────
+  recordView: async (noteId) => {
+    try {
+      await api.recordNoteView(noteId);
+    } catch {
+      /* ignore — view tracking is best-effort */
+    }
+  },
+
+  loadRecentViews: async (limit = 8) => {
+    set({ recentLoading: true });
+    try {
+      const views = await api.fetchRecentViews(limit);
+      set({ recentViews: views });
+    } finally {
+      set({ recentLoading: false });
+    }
+  },
+
+  clearRecent: async () => {
+    await api.clearRecentViews();
+    set({ recentViews: [] });
+  },
+
+  // ─── Bulk operations ──────────────────────────────────────
+  bulkAction: async (action, noteIds) => {
+    const result = await api.bulkUpdateNotes(action, noteIds);
+    // Refresh notes to reflect changes
+    if (action === "DELETE") {
+      set({
+        notes: get().notes.filter((n) => !noteIds.includes(n.id)),
+      });
+    } else {
+      const isAdmin = !!get().user;
+      const fresh = await api.fetchNotes(isAdmin ? { status: "ALL" } : undefined);
+      const categories = get().categories;
+      set({ notes: enrichNotes(fresh, categories) });
+    }
+    return result;
   },
 
   goToDashboard: () => set({ view: "admin-dashboard" }),

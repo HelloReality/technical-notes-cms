@@ -47,8 +47,69 @@ model Note {
   updatedAt   DateTime @updatedAt
   publishedAt DateTime?
 
+  // Versioning — every save creates a NoteVersion snapshot
+  versions      NoteVersion[]
+  // Scheduled publish — at most one pending schedule per note
+  schedule      ScheduledPublish?
+  // Recently-viewed tracking
+  views         NoteView[]
+
   @@index([categoryId])
   @@index([status])
+}
+
+/// Snapshot of a note's content + metadata at a point in time.
+/// Created on every PATCH so admins can browse history and restore.
+model NoteVersion {
+  id          String   @id @default(cuid())
+  noteId      String
+  note        Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  title       String
+  slug        String
+  description String?
+  contentPath String
+  assetsPath  String?
+  status      String
+  categoryId  String
+  tagsJson    String   // JSON-serialised array of tag names (SQLite has no array type)
+  createdById  String?
+  createdByName String?
+  createdAt   DateTime @default(now())
+
+  @@index([noteId])
+  @@index([createdAt])
+}
+
+/// A pending scheduled publish for a note. The cron/auto-publish endpoint
+/// promotes any row whose `publishAt` has passed to status=PUBLISHED.
+model ScheduledPublish {
+  id          String   @id @default(cuid())
+  noteId      String   @unique
+  note        Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  publishAt   DateTime
+  status      String   @default("PENDING") // PENDING, DONE, CANCELLED
+  createdById String?
+  createdByName String?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  @@index([status])
+  @@index([publishAt])
+}
+
+/// Tracks recently-viewed notes per user (or anonymous session token).
+/// Drives the "Continue reading" list in the reader.
+model NoteView {
+  id        String   @id @default(cuid())
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId    String?  // null for anonymous visitors
+  anonId    String?  // anonymous browser fingerprint token
+  viewedAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([anonId])
+  @@index([viewedAt])
 }
 
 model Tag {

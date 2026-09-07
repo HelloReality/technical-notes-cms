@@ -73,6 +73,54 @@ export interface UploadResult {
   size: number;
 }
 
+// ─── Note versioning ─────────────────────────────────────────
+export interface NoteVersion {
+  id: string;
+  noteId: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  contentPath: string;
+  assetsPath?: string | null;
+  status: NoteStatus;
+  categoryId: string;
+  tags: string[];
+  createdById?: string | null;
+  createdByName?: string | null;
+  createdAt: string;
+}
+
+// ─── Scheduled publish ───────────────────────────────────────
+export interface ScheduledPublish {
+  id: string;
+  noteId: string;
+  publishAt: string;
+  status: "PENDING" | "DONE" | "CANCELLED";
+  createdById?: string | null;
+  createdByName?: string | null;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+// ─── Recently viewed ────────────────────────────────────────
+export interface NoteView {
+  id: string;
+  noteId: string;
+  viewedAt: string;
+  note?: Note;
+}
+
+// ─── Bulk operations ────────────────────────────────────────
+export type BulkAction = "PUBLISH" | "UNPUBLISH" | "DELETE";
+
+export interface BulkResult {
+  action: BulkAction;
+  requested: number;
+  succeeded: number;
+  failed: number;
+  errors: string[];
+}
+
 // Curated default category list for the public homepage pills
 export const DEFAULT_CATEGORY_PILLS: { name: string; slug: string }[] = [
   { name: "Cybersecurity", slug: "cybersecurity" },
