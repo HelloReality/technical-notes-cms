@@ -206,6 +206,12 @@ export function NoteViewer() {
   const [pageInputFocused, setPageInputFocused] = React.useState(false);
   const [isNavigating, setIsNavigating] = React.useState(false);
 
+  // Pages WITHIN the current note. A note's HTML may contain multiple
+  // .page-wrapper elements (e.g. a 20-image carousel). We show ONE page
+  // at a time and navigate with the prev/next arrows in the top nav.
+  const [notePageCount, setNotePageCount] = React.useState(1);
+  const [notePageIndex, setNotePageIndex] = React.useState(0);
+
   // Page layout (background pattern) — viewer option that swaps the note's
   // page background via injected CSS. "grid" = the note's original graph paper.
   const [pageLayout, setPageLayout] = React.useState<PageLayout>("grid");
@@ -243,13 +249,85 @@ export function NoteViewer() {
       setExpandedTopics((prev) => new Set([...prev, noteCat.id]));
   }, [note, allCategories]);
 
-  // Pages
-  const pages = React.useMemo(() => {
-    if (!note) return [];
-    return allNotes
-      .filter((n) => n.categoryId === note.categoryId)
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  }, [allNotes, note]);
+  // ─── Pages within the current note ────────────────────────────
+  // The note's HTML may contain multiple .page-wrapper elements. We
+  // show ONE at a time and navigate with prev/next. For notes with a
+  // single page (or no .page-wrapper), there's nothing to navigate.
+  const hasPrevPage = notePageIndex > 0;
+  const hasNextPage = notePageIndex < notePageCount - 1;
+  const totalPages = notePageCount;
+  const currentIndex = notePageIndex;
+
+  // Show a specific page within the note by hiding all .page-wrapper
+  // elements except the one at `index`, then resize the iframe to fit
+  // just that page (so there's no empty scroll space below).
+  const showNotePage = React.useCallback((index: number) => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      const doc = iframe.contentDocument;
+      if (!doc) return;
+      const wrappers = doc.querySelectorAll(".page-wrapper");
+      if (wrappers.length === 0) return;
+      const clamped = Math.max(0, Math.min(index, wrappers.length - 1));
+      wrappers.forEach((el, i) => {
+        (el as HTMLElement).style.display = i === clamped ? "" : "none";
+      });
+      // Scroll the iframe's own scroll container to the top of the page.
+      doc.defaultView?.scrollTo(0, 0);
+    } catch {
+      /* cross-origin — ignore */
+    }
+  }, []);
+
+  // Detect how many .page-wrapper elements the note has, then show
+  // only the first page. Called from the iframe onLoad + applyNoteScale.
+  const detectNotePages = React.useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      const doc = iframe.contentDocument;
+      if (!doc) return;
+      const wrappers = doc.querySelectorAll(".page-wrapper");
+      const count = Math.max(1, wrappers.length);
+      setNotePageCount(count);
+      setNotePageIndex(0);
+      // Show only page 0 (hide the rest).
+      wrappers.forEach((el, i) => {
+        (el as HTMLElement).style.display = i === 0 ? "" : "none";
+      });
+    } catch {
+      /* cross-origin — ignore */
+    }
+  }, []);
+
+  // Reset to page 0 + detect pages when the active note changes.
+  React.useEffect(() => {
+    setNotePageIndex(0);
+    setNotePageCount(1);
+    // detectNotePages runs after the iframe loads (onLoad calls it).
+  }, [note?.id]);
+
+  // Navigate to the next/prev page within the note.
+  const goToPrevPage = React.useCallback(() => {
+    setNotePageIndex((i) => {
+      const next = Math.max(0, i - 1);
+      if (next !== i) showNotePage(next);
+      return next;
+    });
+  }, [showNotePage]);
+  const goToNextPage = React.useCallback(() => {
+    setNotePageIndex((i) => {
+      const next = Math.min(notePageCount - 1, i + 1);
+      if (next !== i) showNotePage(next);
+      return next;
+    });
+  }, [notePageCount, showNotePage]);
+  const goToPage = React.useCallback((index: number) => {
+    const clamped = Math.max(0, Math.min(notePageCount - 1, index));
+    setNotePageIndex(clamped);
+    showNotePage(clamped);
+  }, [notePageCount, showNotePage]);
 
   // ─── Record a view on the active note (best-effort, fire-and-forget) ───
   // Fires whenever the active note id changes — covers direct opens, tree
@@ -275,15 +353,6 @@ export function NoteViewer() {
   const visibleRecentViews = React.useMemo(() => {
     return recentViews.filter((v) => v.noteId !== activeNoteId).slice(0, 5);
   }, [recentViews, activeNoteId]);
-
-  const currentIndex = React.useMemo(() => {
-    if (!note) return -1;
-    return pages.findIndex((p) => p.id === note.id);
-  }, [pages, note]);
-
-  const totalPages = pages.length;
-  const prevPage = currentIndex > 0 ? pages[currentIndex - 1] : null;
-  const nextPage = currentIndex < totalPages - 1 ? pages[currentIndex + 1] : null;
 
   const handleNavigate = React.useCallback((page: Note) => {
     setIsNavigating(true);
@@ -566,12 +635,12 @@ export function NoteViewer() {
         e.preventDefault(); zoomToFit(); return;
       }
       if (isTyping) return;
-      if (e.key === "ArrowLeft" && !drawerOpen && !treeOpen && prevPage) { e.preventDefault(); handleNavigate(prevPage); }
-      if (e.key === "ArrowRight" && !drawerOpen && !treeOpen && nextPage) { e.preventDefault(); handleNavigate(nextPage); }
+      if (e.key === "ArrowLeft" && !drawerOpen && !treeOpen && hasPrevPage) { e.preventDefault(); goToPrevPage(); }
+      if (e.key === "ArrowRight" && !drawerOpen && !treeOpen && hasNextPage) { e.preventDefault(); goToNextPage(); }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, prevPage, nextPage, handleNavigate, zoomIn, zoomOut, zoomToFit]);
+  }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, hasPrevPage, hasNextPage, goToPrevPage, goToNextPage, zoomIn, zoomOut, zoomToFit]);
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -904,11 +973,13 @@ export function NoteViewer() {
                 // The note's HTML/CSS is never modified — we measure its
                 // true bounding box (rings + shadow + page) and scale the
                 // whole object as a unit. No body padding, no reflow.
+                // Detect pages (.page-wrapper elements) and show only #0.
+                detectNotePages();
                 applyNoteScale();
                 applyPageLayout();
                 // Re-apply after fonts/images settle (dimensions change).
-                setTimeout(applyNoteScale, 400);
-                setTimeout(applyNoteScale, 1200);
+                setTimeout(() => { detectNotePages(); applyNoteScale(); }, 400);
+                setTimeout(() => { applyNoteScale(); }, 1200);
               }}
               className="block border-0 bg-[#cfc9bb]"
               style={{
@@ -954,8 +1025,8 @@ export function NoteViewer() {
             <Sep />
 
             {/* Group 2: Page navigation (prev / counter-input / next) */}
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!prevPage}
-              onClick={() => prevPage && handleNavigate(prevPage)}
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasPrevPage}
+              onClick={() => goToPrevPage()}
               title="Previous page (←)">
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -968,7 +1039,7 @@ export function NoteViewer() {
                 onBlur={() => {
                   setPageInputFocused(false);
                   const n = parseInt(pageInputValue, 10);
-                  if (!isNaN(n) && n >= 1 && n <= totalPages) handleNavigate(pages[n - 1]);
+                  if (!isNaN(n) && n >= 1 && n <= totalPages) goToPage(n - 1);
                 }}
                 onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                 className="h-7 w-8 rounded border border-transparent bg-slate-100 text-center text-xs font-mono outline-none transition-colors hover:bg-slate-200 focus:border-slate-300 focus:bg-white"
@@ -977,8 +1048,8 @@ export function NoteViewer() {
               <span className="text-slate-400">/</span>
               <span className="min-w-[20px] text-center">{totalPages}</span>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!nextPage}
-              onClick={() => nextPage && handleNavigate(nextPage)}
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasNextPage}
+              onClick={() => goToNextPage()}
               title="Next page (→)">
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -1123,13 +1194,10 @@ export function NoteViewer() {
               <ScrollArea className="flex-1">
                 {pageViewMode === "list" ? (
                   <div className="space-y-0.5 p-3">
-                    {pages.map((page, idx) => (
-                      <motion.button
-                        key={page.id}
-                        custom={idx}
-                        initial={{ x: -10, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1, transition: { delay: idx * 0.03, duration: 0.15, ease: "easeOut" } }}
-                        onClick={() => handleNavigate(page)}
+                    {Array.from({ length: totalPages }, (_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => { goToPage(idx); setDrawerOpen(false); }}
                         className={cn("flex w-full items-center rounded-lg border px-3 py-2.5 text-left",
                           idx === currentIndex ? "border-rose-200 bg-rose-50" : "border-transparent hover:bg-slate-50")}
                       >
@@ -1137,42 +1205,33 @@ export function NoteViewer() {
                           {String(idx + 1).padStart(2, "0")}
                         </span>
                         <span className={cn("truncate text-sm", idx === currentIndex ? "font-medium text-rose-900" : "text-slate-700")}>
-                          {page.title}
+                          Page {idx + 1} of {totalPages}
                         </span>
-                      </motion.button>
+                      </button>
                     ))}
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2 p-3">
-                    {pages.map((page, idx) => (
-                      <motion.button
-                        key={page.id}
-                        custom={idx}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1, transition: { delay: idx * 0.04, duration: 0.2, ease: "easeOut" } }}
-                        whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleNavigate(page)}
+                    {Array.from({ length: totalPages }, (_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => { goToPage(idx); setDrawerOpen(false); }}
                         className={cn("overflow-hidden rounded-lg border-2 text-left",
                           idx === currentIndex ? "border-rose-400 shadow-md" : "border-slate-200 hover:border-slate-300")}
                       >
                         <div className="border-b border-slate-100 bg-slate-50 px-2 py-1 text-center text-[10px] font-semibold">
                           {String(idx + 1).padStart(2, "0")}
                         </div>
-                        {/* Real preview */}
+                        {/* Page number preview */}
                         <div className="relative aspect-[3/4] overflow-hidden bg-white">
-                          <iframe
-                            src={page.contentPath}
-                            className="pointer-events-none absolute left-0 top-0 border-0"
-                            style={{ width: "1080px", height: "1440px", transform: "scale(0.12)", transformOrigin: "top left" }}
-                            sandbox="allow-same-origin"
-                            title={page.title}
-                          />
+                          <div className="flex h-full items-center justify-center text-slate-300">
+                            <span className="text-3xl font-bold">{idx + 1}</span>
+                          </div>
                         </div>
                         <div className="truncate border-t border-slate-100 bg-slate-50 px-2 py-1 text-[10px] text-slate-600">
-                          {page.title}
+                          Page {idx + 1}
                         </div>
-                      </motion.button>
+                      </button>
                     ))}
                   </div>
                 )}
