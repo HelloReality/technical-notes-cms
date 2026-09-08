@@ -432,18 +432,11 @@ export function NoteViewer() {
       const doc = iframe.contentDocument;
       if (!doc || !doc.body) return;
 
-      // Neutralize the body's outer padding so the page-wrapper centers
-      // in the full iframe width. This does NOT change the note's page
-      // design — only removes the decorative margin the raw file uses
-      // when viewed standalone.
-      const NEUTRALIZE_ID = "reader-neutralize-body-pad";
-      if (!doc.getElementById(NEUTRALIZE_ID)) {
-        const s = doc.createElement("style");
-        s.id = NEUTRALIZE_ID;
-        s.textContent =
-          "body { padding: 0 !important; margin: 0 !important; }";
-        doc.head.appendChild(s);
-      }
+      // Preserve the body's padding so the spiral binding rings
+      // (positioned at left:-30px on .page-wrapper) have enough
+      // space to be fully visible. The template CSS sets
+      // body{padding:24px 48px} — we must NOT override it.
+      // (Previously this neutralized padding which clipped the rings.)
 
       const avail = container.clientWidth;
       // Small intentional margin so the shadow/rings don't touch the
