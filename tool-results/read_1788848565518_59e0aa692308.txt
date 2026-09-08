@@ -1,0 +1,402 @@
+   599→.step .bd{display:flex;flex-direction:column;gap:3px;}
+   600→.step .bd .t{font-size:12.5px;font-weight:700;color:var(--linux-green);text-transform:uppercase;letter-spacing:0.4px;}
+   601→.step .bd .term{
+   602→  background:var(--term-bg);color:var(--term-fg);
+   603→  font-family:"JetBrains Mono","Consolas",monospace;
+   604→  font-size:10.5px;line-height:1.5;
+   605→  padding:6px 9px;border-radius:5px;
+   606→  margin-top:3px;overflow-x:auto;white-space:pre;
+   607→}
+   608→.step .bd .term .pmt{color:#7ee787;}
+   609→.step .bd .term .out{color:#79c0ff;}
+   610→
+   611→/* ============================================================
+   612→   SECTION HEADER (in body)
+   613→   ============================================================ */
+   614→.section-h{
+   615→  display:flex;align-items:center;gap:10px;
+   616→  margin:8px 0 8px 0;
+   617→}
+   618→.section-h .bar{
+   619→  width:4px;height:18px;background:var(--linux-green);border-radius:2px;
+   620→}
+   621→.section-h h4{
+   622→  font-size:14px;font-weight:800;color:var(--linux-green);
+   623→  text-transform:uppercase;letter-spacing:0.6px;
+   624→}
+   625→.section-h .pill{
+   626→  margin-left:auto;
+   627→  background:#eef5ef;color:var(--linux-green);
+   628→  font-size:10px;font-weight:700;letter-spacing:0.6px;
+   629→  padding:3px 9px;border-radius:999px;
+   630→  text-transform:uppercase;
+   631→}
+   632→
+   633→/* two-column file/term rows */
+   634→.kv-row{
+   635→  display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:baseline;
+   636→  padding:6px 0;border-bottom:1px dashed rgba(21,38,77,0.10);
+   637→}
+   638→.kv-row:last-child{border-bottom:none;}
+   639→.kv-row .k{
+   640→  font-family:"JetBrains Mono","Consolas",monospace;
+   641→  font-size:11.5px;font-weight:700;color:var(--linux-green);
+   642→}
+   643→.kv-row .v{font-size:11.5px;color:var(--ink-2);line-height:1.45;}
+   644→
+   645→/* ============================================================
+   646→   PAGE FOOTER
+   647→   ============================================================ */
+   648→.page-footer{
+   649→  margin-top:20px;
+   650→  border-top:2px dashed rgba(21,38,77,0.18);
+   651→  padding-top:12px;
+   652→  display:flex;justify-content:space-between;align-items:center;
+   653→  font-size:11px;color:var(--ink-2);
+   654→  gap:16px;flex-wrap:wrap;
+   655→}
+   656→.page-footer .src{
+   657→  background:var(--green-soft);color:var(--linux-green);
+   658→  padding:5px 12px;border-radius:999px;font-weight:700;letter-spacing:0.4px;
+   659→}
+   660→.page-footer .tip{
+   661→  background:var(--gold-soft);color:#8a6500;
+   662→  padding:5px 12px;border-radius:999px;font-weight:700;letter-spacing:0.3px;
+   663→  flex:1;text-align:center;
+   664→}
+   665→.page-footer .pg{
+   666→  background:var(--linux-green);color:#fff;
+   667→  padding:5px 12px;border-radius:999px;font-weight:700;letter-spacing:0.6px;
+   668→}
+   669→
+   670→/* ============================================================
+   671→   PRINT / PDF
+   672→   ============================================================ */
+   673→@page{size:1080px 1420px;margin:0;}
+   674→@media print{
+   675→  html,body{background:#fff;padding:0;gap:0;}
+   676→  .page-wrapper{margin:0;}
+   677→  .page{box-shadow:none;border-radius:0;width:1080px;page-break-after:always;}
+   678→}
+   679→</style>
+   680→</head>
+   681→<body>
+   682→
+   683→<div class="page-wrapper">
+   684→  <div class="holes" aria-hidden="true"></div>
+   685→  <div class="spiral" aria-hidden="true"></div>
+   686→  <div class="page-bend" aria-hidden="true"></div>
+   687→  <div class="page">
+   688→    <div class="page-top-edge" aria-hidden="true"></div>
+   689→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   690→    <div class="content">
+   691→      <div class="top-strip">
+   692→        <div class="badges">
+   693→          <span class="badge green">LINUX FOR BEGINNERS</span>
+   694→          <span class="badge alt">COVER</span>
+   695→          <span class="badge">PAGE 01 / 20</span>
+   696→        </div>
+   697→      </div>
+   698→      
+   699→  <div class="cover">
+   700→    <span class="super">A PRACTICAL GUIDE</span>
+   701→    <h1 class="title-big">LINUX</h1>
+   702→    <div class="title-sub-wrap">
+   703→      <span class="hline"></span>
+   704→      <div class="title-sub">FOR COMPLETE BEGINNERS</div>
+   705→      <span class="hline"></span>
+   706→    </div>
+   707→    <div class="sub-box">
+   708→      <div class="tux"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 6c-7 0-12 6-12 14 0 4 1 7 3 9-3 4-7 11-9 18-1 4-2 9 0 11 1 1 2 1 3 0 1 3 3 4 5 4h20c2 0 4-1 5-4 1 1 2 1 3 0 2-2 1-7 0-11-2-7-6-14-9-18 2-2 3-5 3-9 0-8-5-14-12-14z" fill="#1a1a1a"/><path d="M32 8c-4 0-7 4-7 9 0 3 1 5 2 7 1-1 3-1 5-1s4 0 5 1c1-2 2-4 2-7 0-5-3-9-7-9z" fill="#fff"/><circle cx="27" cy="20" r="2.4" fill="#1a1a1a"/><circle cx="37" cy="20" r="2.4" fill="#1a1a1a"/><circle cx="27.6" cy="20" r="0.8" fill="#fff"/><circle cx="37.6" cy="20" r="0.8" fill="#fff"/><path d="M28 25c2 2 6 2 8 0-1 3-3 4-4 4s-3-1-4-4z" fill="#f5a623"/><path d="M22 33c-2 4-5 10-6 16 4-2 8-2 12-2-3-4-5-9-6-14z" fill="#fff" opacity=".92"/><path d="M42 33c2 4 5 10 6 16-4-2-8-2-12-2 3-4 5-9 6-14z" fill="#fff" opacity=".92"/><path d="M26 54c2 1 4 1 6 1s4 0 6-1c-2 2-4 3-6 3s-4-1-6-3z" fill="#f5a623"/><path d="M29 50c1 0 2 1 3 1s2-1 3-1c0 2-1 3-3 3s-3-1-3-3z" fill="#f5a623"/></svg></div>
+   709→      <div class="sub-text">A PRACTICAL GUIDE FROM<br>ZERO TO CONFIDENT LINUX USER</div>
+   710→    </div>
+   711→    <div class="icon-row">
+   712→      <div class="icon-pill">
+   713→        <div class="icn" style="border-color:#1565C0;color:#1565C0;"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+   714→        <div class="lbl">Command Line</div>
+   715→      </div>
+   716→      <div class="icon-pill">
+   717→        <div class="icn" style="border-color:#2E7D32;color:#2E7D32;"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+   718→        <div class="lbl">File System</div>
+   719→      </div>
+   720→      <div class="icon-pill">
+   721→        <div class="icn" style="border-color:#1565C0;color:#1565C0;"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="8" r="3.4" fill="currentColor"/><circle cx="15.5" cy="9" r="2.7" fill="currentColor" opacity=".75"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13.5 20c0-2.5 1.8-4.5 4-4.5s4 2 4 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".75"/></svg></div>
+   722→        <div class="lbl">Users &amp; Permissions</div>
+   723→      </div>
+   724→      <div class="icon-pill">
+   725→        <div class="icn" style="border-color:#EF6C00;color:#EF6C00;"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+   726→        <div class="lbl">Services &amp; Processes</div>
+   727→      </div>
+   728→      <div class="icon-pill">
+   729→        <div class="icn" style="border-color:#1565C0;color:#1565C0;"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 18a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5-1.5A4 4 0 0 1 18 18z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+   730→        <div class="lbl">Networking</div>
+   731→      </div>
+   732→    </div>
+   733→    <div class="features">
+   734→      <div>
+   735→        <h4>What You'll Get</h4>
+   736→        <ul>
+   737→          <li><span class="check"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Step-by-step Learning</li>
+   738→          <li><span class="check"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Hands-on Examples</li>
+   739→          <li><span class="check"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Real-world Scenarios</li>
+   740→          <li><span class="check"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Beginner Friendly</li>
+   741→          <li><span class="check"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> DevOps Ready</li>
+   742→          <li><span class="check"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Build Strong Foundation</li>
+   743→        </ul>
+   744→      </div>
+   745→      <div class="laptop-illu">
+   746→        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="14" width="42" height="28" rx="2.5" fill="#0d1117"/><rect x="13.5" y="16.5" width="37" height="23" rx="1" fill="#1c2230"/><text x="32" y="32" font-family="monospace" font-size="9" fill="#7ee787" text-anchor="middle">&gt;_</text><path d="M5 44h54l-3 5a3 3 0 0 1-2.6 1.5H10.6A3 3 0 0 1 8 49z" fill="#cfe9dd"/><rect x="26" y="46" width="12" height="1.5" fill="#7c9d92"/></svg>
+   747→        <div class="caption">From Zero to Confident</div>
+   748→      </div>
+   749→    </div>
+   750→    <div class="footer-tag">
+   751→      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="11" cy="11" r="4.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="11" cy="11" r="1.8" fill="currentColor"/><path d="M16 11l6-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M19 5l3 0 0 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+   752→      LEARN TODAY. PRACTICE DAILY. USE LINUX ANYWHERE.
+   753→    </div>
+   754→  </div>
+   755→      <div class="page-footer">
+   756→        <span class="src">Notebook · Practice Daily</span>
+   757→        <span class="tip">A 20-page practical guide</span>
+   758→        <span class="pg">01 / 20</span>
+   759→      </div>
+   760→    </div>
+   761→  </div>
+   762→</div>
+   763→
+   764→<div class="page-wrapper">
+   765→  <div class="holes" aria-hidden="true"></div>
+   766→  <div class="spiral" aria-hidden="true"></div>
+   767→  <div class="page-bend" aria-hidden="true"></div>
+   768→  <div class="page">
+   769→    <div class="page-top-edge" aria-hidden="true"></div>
+   770→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   771→    <div class="content">
+   772→      <div class="top-strip">
+   773→        <div class="badges">
+   774→          <span class="badge green">LINUX FOR BEGINNERS</span>
+   775→          <span class="badge alt">LINUX FROM ZERO</span>
+   776→          <span class="badge">PAGE 02 / 20</span>
+   777→        </div>
+   778→      </div>
+   779→      
+   780→  <div class="title-block">
+   781→    <h1 class="title">LINUX FROM ZERO</h1>
+   782→    <div class="subtitle">WHAT LINUX IS · HOW IT WORKS · YOUR FIRST COMMANDS</div>
+   783→  </div>
+   784→  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+   785→  <div class="body cols-2">
+   786→    <div class="concept-card">
+   787→    <div class="ch"><span class="num">1</span><span class="icn-mini bg-blue" style="color:var(--linux-green);"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 6c-7 0-12 6-12 14 0 4 1 7 3 9-3 4-7 11-9 18-1 4-2 9 0 11 1 1 2 1 3 0 1 3 3 4 5 4h20c2 0 4-1 5-4 1 1 2 1 3 0 2-2 1-7 0-11-2-7-6-14-9-18 2-2 3-5 3-9 0-8-5-14-12-14z" fill="#1a1a1a"/><path d="M32 8c-4 0-7 4-7 9 0 3 1 5 2 7 1-1 3-1 5-1s4 0 5 1c1-2 2-4 2-7 0-5-3-9-7-9z" fill="#fff"/><circle cx="27" cy="20" r="2.4" fill="#1a1a1a"/><circle cx="37" cy="20" r="2.4" fill="#1a1a1a"/><circle cx="27.6" cy="20" r="0.8" fill="#fff"/><circle cx="37.6" cy="20" r="0.8" fill="#fff"/><path d="M28 25c2 2 6 2 8 0-1 3-3 4-4 4s-3-1-4-4z" fill="#f5a623"/><path d="M22 33c-2 4-5 10-6 16 4-2 8-2 12-2-3-4-5-9-6-14z" fill="#fff" opacity=".92"/><path d="M42 33c2 4 5 10 6 16-4-2-8-2-12-2 3-4 5-9 6-14z" fill="#fff" opacity=".92"/><path d="M26 54c2 1 4 1 6 1s4 0 6-1c-2 2-4 3-6 3s-4-1-6-3z" fill="#f5a623"/><path d="M29 50c1 0 2 1 3 1s2-1 3-1c0 2-1 3-3 3s-3-1-3-3z" fill="#f5a623"/></svg></span><h3>What Linux Actually Is</h3></div>
+   788→    <ul><li>Open-source operating system.</li><li>Most popular OS for servers, cloud, DevOps and engineering work.</li><li>Stable, secure, fast and highly customizable.</li></ul>
+   789→  </div>
+   790→    <div class="concept-card">
+   791→    <div class="ch"><span class="num">2</span><span class="icn-mini bg-green" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span><h3>Linux Kernel vs Operating System</h3></div>
+   792→    <ul><li><b>Kernel:</b> core part of Linux. Talks to hardware (CPU, memory, storage, devices). Manages system resources.</li><li><b>Operating System:</b> everything around the kernel — system tools, libraries, commands, applications, utilities.</li></ul>
+   793→  </div>
+   794→    <div class="concept-card">
+   795→    <div class="ch"><span class="num">3</span><span class="icn-mini bg-purple" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l8 4.5v9.5l-8 4.5-8-4.5V7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M4 7l8 4.5 8-4.5M12 11.5v9.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></span><h3>Linux Distributions (Distros)</h3></div>
+   796→    <div class="body-text"><div class="distro-row">
+   797→          <span class="distro"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11" fill="#E95420"/><circle cx="12" cy="6.5" r="2.2" fill="#fff"/><circle cx="7" cy="15.5" r="2.2" fill="#fff"/><circle cx="17" cy="15.5" r="2.2" fill="#fff"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="#fff" stroke-width="1.4"/></svg>UBUNTU · Beginner friendly</span>
+   798→          <span class="distro"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 16l1-9a4 4 0 0 1 4-3.5h4A4 4 0 0 1 18 7l1 9z" fill="#CC0000"/><path d="M8 12h2v4m4-4v4m2-4h-4" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>RHEL · Enterprise</span>
+   799→          <span class="distro"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11" fill="#A80030"/><path d="M14 6c-2-1-5 0-6 3-1 2 0 5 2 6 2 1 5 0 6-2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M12 6.5c2 1 3 3 2 5" fill="none" stroke="#fff" stroke-width="1.2"/></svg>DEBIAN · Stable</span>
+   800→          <span class="distro"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11" fill="#10B981"/><path d="M7 14l5-7 5 7-5 3z" fill="#fff"/><path d="M7 14l5 3 5-3" fill="none" stroke="#0f6b3f" stroke-width="1"/></svg>ROCKY · RHEL-compatible</span>
+   801→        </div></div><ul><li>Many distributions use the Linux kernel.</li><li>Each distro packages tools and software differently.</li></ul>
+   802→  </div>
+   803→    <div class="concept-card">
+   804→    <div class="ch"><span class="num">4</span><span class="icn-mini bg-gold" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="14" width="18" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="7" r="0.8" fill="currentColor"/><circle cx="6" cy="17" r="0.8" fill="currentColor"/><line x1="9" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="1.2"/></svg></span><h3>Server Linux vs Desktop Linux</h3></div>
+   805→    <ul><li><b>Server Linux:</b> runs without UI (GUI). Optimized for performance, security and uptime. Used in data centers, cloud and production.</li><li><b>Desktop Linux:</b> has graphical interface (GUI). Designed for end users. Daily tasks like browsers and office apps.</li></ul>
+   806→  </div>
+   807→    <div class="concept-card">
+   808→    <div class="ch"><span class="num">5</span><span class="icn-mini bg-blue" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 18a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.5-1.5A4 4 0 0 1 18 18z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><h3>Why DevOps Engineers Use Linux</h3></div>
+   809→    <ul><li>Most servers &amp; cloud run Linux.</li><li>Automation, scripting and tooling work best on Linux.</li><li>Better security and control.</li><li>Essential for DevOps, SRE, Cloud &amp; Platform Engineering.</li></ul>
+   810→  </div>
+   811→    <div class="concept-card">
+   812→    <div class="ch"><span class="num">6</span><span class="icn-mini bg-green" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>Terminal vs Shell</h3></div>
+   813→    <ul><li><b>Terminal:</b> the application you open to interact with Linux. It is the window.</li><li><b>Shell:</b> the program inside the terminal that interprets and executes your commands. Example: bash, zsh, sh.</li></ul>
+   814→  </div>
+   815→  </div>
+   816→
+   817→  <div class="section-h">
+   818→    <span class="bar"></span>
+   819→    <h4>7. Your First Linux Commands (Practical)</h4>
+   820→    <span class="pill">Cheatsheet</span>
+   821→  </div>
+   822→  <table class="data-table">
+   823→    <thead><tr><th>COMMAND</th><th>WHAT IT DOES</th><th>EXAMPLE</th><th>SAMPLE OUTPUT (MAY VARY)</th></tr></thead>
+   824→    <tbody><tr><td class="mono">whoami</td><td>Shows the current user</td><td class="mono"><code>whoami</code></td><td>ubuntu</td></tr><tr><td class="mono">hostname</td><td>Shows the system hostname</td><td class="mono"><code>hostname</code></td><td>ip-172-31-20-15</td></tr><tr><td class="mono">uname -a</td><td>Shows system &amp; kernel info</td><td class="mono"><code>uname -a</code></td><td>Linux ip-172-31-20-15 5.15.0-101-generic #112~20.04.1-Ubuntu x86_64 GNU/Linux</td></tr><tr><td class="mono">date</td><td>Shows current date and time</td><td class="mono"><code>date</code></td><td>Sat May 11 10:30:45 UTC 2024</td></tr><tr><td class="mono">uptime</td><td>Shows how long the system has been running</td><td class="mono"><code>uptime</code></td><td>10:30:45 up 2 days, 3:15, 1 user, load average: 0.08, 0.07, 0.05</td></tr></tbody>
+   825→  </table>
+   826→
+   827→  <div class="callout-grid" style="margin-top:14px;">
+   828→    <div class="callout tip">
+   829→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 18h6m-5 2h4M12 3a6 6 0 0 0-4 10.5c.7.7 1.2 1.5 1.4 2.5h5.2c.2-1 .7-1.8 1.4-2.5A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+   830→    <div class="ct">
+   831→      <h5>PRACTICE TIP</h5>
+   832→      <p>Open your terminal and run each command. This builds your confidence and familiarity.</p>
+   833→    </div>
+   834→  </div>
+   835→    <div class="callout goal">
+   836→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="11" cy="11" r="4.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="11" cy="11" r="1.8" fill="currentColor"/><path d="M16 11l6-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M19 5l3 0 0 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+   837→    <div class="ct">
+   838→      <h5>GOAL</h5>
+   839→      <p>Understand Linux basics and feel comfortable in the terminal.</p>
+   840→    </div>
+   841→  </div>
+   842→  </div>
+   843→      <div class="page-footer">
+   844→        <span class="src">Notebook · Practice Daily</span>
+   845→        <span class="tip">Run every command on a real terminal — muscle memory matters.</span>
+   846→        <span class="pg">02 / 20</span>
+   847→      </div>
+   848→    </div>
+   849→  </div>
+   850→</div>
+   851→
+   852→<div class="page-wrapper">
+   853→  <div class="holes" aria-hidden="true"></div>
+   854→  <div class="spiral" aria-hidden="true"></div>
+   855→  <div class="page-bend" aria-hidden="true"></div>
+   856→  <div class="page">
+   857→    <div class="page-top-edge" aria-hidden="true"></div>
+   858→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   859→    <div class="content">
+   860→      <div class="top-strip">
+   861→        <div class="badges">
+   862→          <span class="badge green">LINUX FOR BEGINNERS</span>
+   863→          <span class="badge alt">FILESYSTEM</span>
+   864→          <span class="badge">PAGE 03 / 20</span>
+   865→        </div>
+   866→      </div>
+   867→      
+   868→  <div class="title-block">
+   869→    <h1 class="title">UNDERSTANDING THE<br>LINUX FILESYSTEM</h1>
+   870→    <div class="subtitle">THE LINUX FILESYSTEM IS ORGANIZED IN A TREE-LIKE STRUCTURE STARTING FROM THE ROOT DIRECTORY /</div>
+   871→  </div>
+   872→  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+   873→  <div class="body cols-2-uneven">
+   874→    <div>
+   875→      <div class="section-h">
+   876→    <span class="bar"></span>
+   877→    <h4>Linux Directory Structure</h4>
+   878→    
+   879→  </div>
+   880→      <table class="data-table">
+   881→    <thead><tr><th>DIRECTORY</th><th>PURPOSE</th><th>EXAMPLE CONTENT</th></tr></thead>
+   882→    <tbody><tr><td class="mono">/</td><td>Root of the filesystem. Everything starts here.</td><td>All directories and files</td></tr><tr><td class="mono">/home</td><td>Home directories for regular users.</td><td>/home/user1 /home/user2</td></tr><tr><td class="mono">/etc</td><td>System configuration files.</td><td>passwd, hosts, ssh, nginx</td></tr><tr><td class="mono">/var</td><td>Variable data that changes.</td><td>logs, spool, cache, databases</td></tr><tr><td class="mono">/tmp</td><td>Temporary files. Usually cleared on reboot.</td><td>Temporary files from apps</td></tr><tr><td class="mono">/usr</td><td>User programs and applications.</td><td>bin, sbin, lib, share, local</td></tr><tr><td class="mono">/opt</td><td>Optional add-on software packages.</td><td>Third-party applications</td></tr><tr><td class="mono">/bin</td><td>Essential user binaries (commands).</td><td>ls, cp, mv, cat, bash</td></tr><tr><td class="mono">/sbin</td><td>System binaries for administration.</td><td>fdisk, reboot, ifconfig, mkfs</td></tr><tr><td class="mono">/root</td><td>Home directory for the root (admin) user.</td><td>Root's personal files</td></tr></tbody>
+   883→  </table>
+   884→    </div>
+   885→    <div style="display:flex;flex-direction:column;gap:12px;">
+   886→      <div class="callout note">
+   887→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7v15H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13 4h7v15h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="6" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+   888→    <div class="ct">
+   889→      <h5>ABSOLUTE PATH</h5>
+   890→      <p>Starts from the root directory <code>/</code> and shows the full location.</p><p><code>/home/user/docs/file.txt</code></p>
+   891→    </div>
+   892→  </div>
+   893→      <div class="callout note">
+   894→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7v15H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13 4h7v15h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="6" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+   895→    <div class="ct">
+   896→      <h5>RELATIVE PATH</h5>
+   897→      <p>Starts from your current location.</p><p><code>docs/file.txt</code></p>
+   898→    </div>
+   899→  </div>
+   900→      <div class="callout note">
+   901→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7v15H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13 4h7v15h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="6" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+   902→    <div class="ct">
+   903→      <h5>. (DOT)</h5>
+   904→      <p>Refers to the current directory.</p><p><code>./script.sh</code></p>
+   905→    </div>
+   906→  </div>
+   907→      <div class="callout note">
+   908→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7v15H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13 4h7v15h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="6" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+   909→    <div class="ct">
+   910→      <h5>.. (DOT DOT)</h5>
+   911→      <p>Refers to the parent directory.</p><p><code>../</code> (go up one level)</p>
+   912→    </div>
+   913→  </div>
+   914→      <div class="callout tip">
+   915→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 18h6m-5 2h4M12 3a6 6 0 0 0-4 10.5c.7.7 1.2 1.5 1.4 2.5h5.2c.2-1 .7-1.8 1.4-2.5A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+   916→    <div class="ct">
+   917→      <h5>QUICK TIP</h5>
+   918→      <p>Linux is case-sensitive. <code>/Home</code> and <code>/home</code> are different directories.</p>
+   919→    </div>
+   920→  </div>
+   921→    </div>
+   922→  </div>
+   923→
+   924→  <div class="section-h">
+   925→    <span class="bar"></span>
+   926→    <h4>Practical: Navigate Through a Real Linux Filesystem</h4>
+   927→    
+   928→  </div>
+   929→  <div class="body cols-2">
+   930→    <div class="cmd-card">
+   931→    <div class="ic bg-green" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+   932→    <div class="body-text">
+   933→      <h4>pwd</h4>
+   934→      <div class="desc">Show your current location</div>
+   935→      <div class="term"><span class="pmt">$</span> pwd
+   936→<span class="out">/home/user</span></div>
+   937→    </div>
+   938→  </div>
+   939→    <div class="cmd-card">
+   940→    <div class="ic bg-green" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><line x1="8" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><line x1="8" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></svg></div>
+   941→    <div class="body-text">
+   942→      <h4>ls -l /</h4>
+   943→      <div class="desc">List the root directory</div>
+   944→      <div class="term"><span class="pmt">$</span> ls -l /</div>
+   945→    </div>
+   946→  </div>
+   947→    <div class="cmd-card">
+   948→    <div class="ic bg-blue" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+   949→    <div class="body-text">
+   950→      <h4>cd /home</h4>
+   951→      <div class="desc">Enter the /home directory</div>
+   952→      <div class="term"><span class="pmt">$</span> cd /home</div>
+   953→    </div>
+   954→  </div>
+   955→    <div class="cmd-card">
+   956→    <div class="ic bg-blue" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+   957→    <div class="body-text">
+   958→      <h4>cd ..</h4>
+   959→      <div class="desc">Go up one level</div>
+   960→      <div class="term"><span class="pmt">$</span> cd ..</div>
+   961→    </div>
+   962→  </div>
+   963→    <div class="cmd-card">
+   964→    <div class="ic bg-purple" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+   965→    <div class="body-text">
+   966→      <h4>cd /etc</h4>
+   967→      <div class="desc">Go to /etc and explore</div>
+   968→      <div class="term"><span class="pmt">$</span> cd /etc</div>
+   969→    </div>
+   970→  </div>
+   971→    <div class="cmd-card">
+   972→    <div class="ic bg-purple" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+   973→    <div class="body-text">
+   974→      <h4>cd /var/log</h4>
+   975→      <div class="desc">Explore log files</div>
+   976→      <div class="term"><span class="pmt">$</span> cd /var/log</div>
+   977→    </div>
+   978→  </div>
+   979→    <div class="cmd-card">
+   980→    <div class="ic bg-gold" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+   981→    <div class="body-text">
+   982→      <h4>cd ~</h4>
+   983→      <div class="desc">Go to your home directory</div>
+   984→      <div class="term"><span class="pmt">$</span> cd ~</div>
+   985→    </div>
+   986→  </div>
+   987→    <div class="cmd-card">
+   988→    <div class="ic bg-gold" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5h5.5l1.7 2H21v10.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="1.5"/></svg></div>
+   989→    <div class="body-text">
+   990→      <h4>cd -</h4>
+   991→      <div class="desc">Go back to previous directory</div>
+   992→      <div class="term"><span class="pmt">$</span> cd -</div>
+   993→    </div>
+   994→  </div>
+   995→  </div>
+   996→
+   997→  <div class="callout-grid cols-2" style="margin-top:14px;">
+   998→    <div class="callout goal">
+
+[showing lines 599-998 of 3837; use offset=999 with limit to continue reading]

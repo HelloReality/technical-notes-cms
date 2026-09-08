@@ -1,0 +1,768 @@
+     1→     1→<!DOCTYPE html>
+     2→     2→<html lang="en">
+     3→     3→<head>
+     4→     4→<meta charset="UTF-8">
+     5→     5→<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→     6→<title>Instagram Carousel — 20 Pages</title>
+     7→     7→<style>
+     8→     8→  /* ============================================================
+     9→     9→     RESET & ROOT VARIABLES
+    10→    10→     ============================================================ */
+    11→    11→  :root{
+    12→    12→    --paper:#f5f1e8;
+    13→    13→    --paper-2:#efe9dd;
+    14→    14→    --grid-line:#bcc8d6;
+    15→    15→    --navy:#15264d;
+    16→    16→    --navy-2:#1e3160;
+    17→    17→    --ink:#1c1c1c;
+    18→    18→    --ink-2:#3a3f47;
+    19→    19→    --blue:#2563eb;
+    20→    20→    --blue-soft:#cfe0ff;
+    21→    21→    --green:#16a34a;
+    22→    22→    --green-soft:#cdf3da;
+    23→    23→    --purple:#7c3aed;
+    24→    24→    --purple-soft:#e2d4ff;
+    25→    25→    --red:#dc2626;
+    26→    26→    --red-soft:#ffd4d4;
+    27→    27→    --gold:#d4a017;
+    28→    28→    --gold-soft:#fce9b6;
+    29→    29→  }
+    30→    30→  *{box-sizing:border-box;margin:0;padding:0}
+    31→    31→  html,body{background:#cfc9bb;}
+    32→    32→  body{
+    33→    33→    font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    34→    34→    -webkit-font-smoothing:antialiased;
+    35→    35→    color:var(--ink);
+    36→    36→    display:flex;flex-direction:column;align-items:center;gap:32px;
+    37→    37→    padding:24px 12px;
+    38→    38→  }
+    39→    39→
+    40→    40→  /* Wrapper holds page + binding, allows ring to extend outside page */
+    41→    41→  .page-wrapper{
+    42→    42→    position:relative;
+    43→    43→    width:1080px;
+    44→    44→  }
+    45→    45→
+    46→    46→  /* ============================================================
+    47→    47→     PAGE / NOTEBOOK SHEET
+    48→    48→     ============================================================ */
+    49→    49→  .page{
+    50→    50→    position:relative;
+    51→    51→    width:1080px;
+    52→    52→    background:var(--paper);
+    53→    53→    border-radius:14px;
+    54→    54→    box-shadow:0 22px 60px rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.06) inset;
+    55→    55→    overflow:hidden;
+    56→    56→    padding:42px 50px 26px 78px;
+    57→    57→  }
+    58→    58→
+    59→    59→  /* Graph paper grid */
+    60→    60→  .page::before{
+    61→    61→    content:"";
+    62→    62→    position:absolute;inset:0;
+    63→    63→    background-image:
+    64→    64→      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    65→    65→      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    66→    66→    background-size:26px 26px;
+    67→    67→    opacity:.5;
+    68→    68→    pointer-events:none;
+    69→    69→    z-index:0;
+    70→    70→  }
+    71→    71→
+    72→    72→  /* ============================================================
+    73→    73→     SPIRAL BINDING (left edge, extends outside page)
+    74→    74→     ============================================================ */
+    75→    75→  .spiral{
+    76→    76→    position:absolute;
+    77→    77→    z-index:7;
+    78→    78→    top:0;
+    79→    79→    left:-30px;
+    80→    80→    width:120px;
+    81→    81→    height:100%;
+    82→    82→    pointer-events:none;
+    83→    83→    background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+    84→    84→    background-repeat:repeat-y;
+    85→    85→    background-position:0 0;
+    86→    86→  }
+    87→    87→  /* Punch holes */
+    88→    88→  .holes{
+    89→    89→    position:absolute;
+    90→    90→    z-index:6;
+    91→    91→    top:0;
+    92→    92→    left:18px;
+    93→    93→    width:24px;
+    94→    94→    height:100%;
+    95→    95→    pointer-events:none;
+    96→    96→    background-image: radial-gradient(circle, #c9bfa8 3px, transparent 4px);
+    97→    97→    background-size:24px 80px;
+    98→    98→    background-position:center 40px;
+    99→    99→    background-repeat:repeat-y;
+   100→   100→  }
+   101→   101→
+   102→   102→  /* ============================================================
+   103→   103→     HEADER (badges)
+   104→   104→     ============================================================ */
+   105→   105→  header{
+   106→   106→    position:relative;
+   107→   107→    z-index:2;
+   108→   108→    display:flex;
+   109→   109→    justify-content:flex-end;
+   110→   110→    gap:12px;
+   111→   111→    margin-bottom:24px;
+   112→   112→  }
+   113→   113→  .badge{
+   114→   114→    background:var(--navy);
+   115→   115→    color:#fff;
+   116→   116→    padding:8px 18px;
+   117→   117→    border-radius:999px;
+   118→   118→    font-size:11px;
+   119→   119→    font-weight:700;
+   120→   120→    letter-spacing:.5px;
+   121→   121→    text-transform:uppercase;
+   122→   122→  }
+   123→   123→  .badge.alt{background:var(--navy-2);}
+   124→   124→
+   125→   125→  /* ============================================================
+   126→   126→     TITLE
+   127→   127→     ============================================================ */
+   128→   128→  .title-wrap{position:relative;z-index:2;margin-bottom:28px;}
+   129→   129→  h1{
+   130→   130→    font-size:2.4rem;
+   131→   131→    line-height:1.1;
+   132→   132→    color:var(--navy);
+   133→   133→    text-transform:uppercase;
+   134→   134→    font-weight:800;
+   135→   135→    letter-spacing:-.5px;
+   136→   136→    margin-bottom:10px;
+   137→   137→  }
+   138→   138→  .title-underline{
+   139→   139→    height:2px;
+   140→   140→    background:var(--navy);
+   141→   141→    width:100%;
+   142→   142→    position:relative;
+   143→   143→    display:flex;align-items:center;justify-content:center;
+   144→   144→  }
+   145→   145→  .title-underline::after{
+   146→   146→    content:"";
+   147→   147→    width:10px;height:10px;
+   148→   148→    background:var(--navy);
+   149→   149→    border-radius:50%;
+   150→   150→    position:absolute;
+   151→   151→    left:50%;
+   152→   152→    transform:translateX(-50%);
+   153→   153→    top:-4px;
+   154→   154→  }
+   155→   155→
+   156→   156→  /* ============================================================
+   157→   157→     IMAGE GRID
+   158→   158→     ============================================================ */
+   159→   159→  .images{
+   160→   160→    position:relative;
+   161→   161→    z-index:2;
+   162→   162→    display:grid;
+   163→   163→    grid-template-columns:1fr 1fr;
+   164→   164→    gap:24px;
+   165→   165→  }
+   166→   166→  .figure{
+   167→   167→    position:relative;
+   168→   168→    border-radius:12px;
+   169→   169→    overflow:hidden;
+   170→   170→    background:#fff;
+   171→   171→    box-shadow:0 4px 14px rgba(0,0,0,0.1);
+   172→   172→  }
+   173→   173→  .figure img{
+   174→   174→    display:block;
+   175→   175→    width:100%;
+   176→   176→    height:auto;
+   177→   177→  }
+   178→   178→  .figure .caption{
+   179→   179→    background:var(--navy);
+   180→   180→    color:#fff;
+   181→   181→    padding:8px 14px;
+   182→   182→    font-size:11px;
+   183→   183→    font-weight:700;
+   184→   184→    text-transform:uppercase;
+   185→   185→    letter-spacing:.5px;
+   186→   186→    display:flex;
+   187→   187→    justify-content:space-between;
+   188→   188→    align-items:center;
+   189→   189→  }
+   190→   190→  .figure .caption .pg{
+   191→   191→    background:var(--gold);
+   192→   192→    color:var(--navy);
+   193→   193→    border-radius:999px;
+   194→   194→    padding:2px 10px;
+   195→   195→    font-size:10px;
+   196→   196→  }
+   197→   197→
+   198→   198→  /* ============================================================
+   199→   199→     FOOTER
+   200→   200→     ============================================================ */
+   201→   201→  footer{
+   202→   202→    position:relative;
+   203→   203→    z-index:2;
+   204→   204→    margin-top:28px;
+   205→   205→    padding-top:16px;
+   206→   206→    border-top:2px dashed var(--grid-line);
+   207→   207→    display:flex;
+   208→   208→    justify-content:space-between;
+   209→   209→    align-items:center;
+   210→   210→    font-size:11px;
+   211→   211→    color:var(--ink-2);
+   212→   212→  }
+   213→   213→  footer .src{
+   214→   214→    background:var(--green-soft);
+   215→   215→    color:var(--green);
+   216→   216→    padding:6px 14px;
+   217→   217→    border-radius:999px;
+   218→   218→    font-weight:600;
+   219→   219→  }
+   220→   220→</style>
+   221→   221→</head>
+   222→   222→<body>
+   223→   223→
+   224→   224→
+   225→   225→  <div class="page-wrapper">
+   226→   226→    <div class="spiral" aria-hidden="true"></div>
+   227→   227→    <div class="holes" aria-hidden="true"></div>
+   228→   228→    <section class="page">
+   229→   229→      <header>
+   230→   230→        <span class="badge">Instagram Carousel</span>
+   231→   231→        <span class="badge alt">Page 1 of 20</span>
+   232→   232→      </header>
+   233→   233→      <div class="title-wrap">
+   234→   234→        <h1>Carousel Page 01</h1>
+   235→   235→        <div class="title-underline"></div>
+   236→   236→      </div>
+   237→   237→      <div class="images">
+   238→   238→        <figure class="figure">
+   239→   239→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-01.jpg" alt="Instagram carousel page 1 of 20" loading="lazy" />
+   240→   240→          <figcaption class="caption">
+   241→   241→            <span>Carousel Image</span>
+   242→   242→            <span class="pg">01 / 20</span>
+   243→   243→          </figcaption>
+   244→   244→        </figure>
+   245→   245→      </div>
+   246→   246→      <footer>
+   247→   247→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   248→   248→        <span class="src">instagram.com</span>
+   249→   249→      </footer>
+   250→   250→    </section>
+   251→   251→  </div>
+   252→   252→  <div class="page-wrapper">
+   253→   253→    <div class="spiral" aria-hidden="true"></div>
+   254→   254→    <div class="holes" aria-hidden="true"></div>
+   255→   255→    <section class="page">
+   256→   256→      <header>
+   257→   257→        <span class="badge">Instagram Carousel</span>
+   258→   258→        <span class="badge alt">Page 2 of 20</span>
+   259→   259→      </header>
+   260→   260→      <div class="title-wrap">
+   261→   261→        <h1>Carousel Page 02</h1>
+   262→   262→        <div class="title-underline"></div>
+   263→   263→      </div>
+   264→   264→      <div class="images">
+   265→   265→        <figure class="figure">
+   266→   266→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-02.jpg" alt="Instagram carousel page 2 of 20" loading="lazy" />
+   267→   267→          <figcaption class="caption">
+   268→   268→            <span>Carousel Image</span>
+   269→   269→            <span class="pg">02 / 20</span>
+   270→   270→          </figcaption>
+   271→   271→        </figure>
+   272→   272→      </div>
+   273→   273→      <footer>
+   274→   274→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   275→   275→        <span class="src">instagram.com</span>
+   276→   276→      </footer>
+   277→   277→    </section>
+   278→   278→  </div>
+   279→   279→  <div class="page-wrapper">
+   280→   280→    <div class="spiral" aria-hidden="true"></div>
+   281→   281→    <div class="holes" aria-hidden="true"></div>
+   282→   282→    <section class="page">
+   283→   283→      <header>
+   284→   284→        <span class="badge">Instagram Carousel</span>
+   285→   285→        <span class="badge alt">Page 3 of 20</span>
+   286→   286→      </header>
+   287→   287→      <div class="title-wrap">
+   288→   288→        <h1>Carousel Page 03</h1>
+   289→   289→        <div class="title-underline"></div>
+   290→   290→      </div>
+   291→   291→      <div class="images">
+   292→   292→        <figure class="figure">
+   293→   293→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-03.jpg" alt="Instagram carousel page 3 of 20" loading="lazy" />
+   294→   294→          <figcaption class="caption">
+   295→   295→            <span>Carousel Image</span>
+   296→   296→            <span class="pg">03 / 20</span>
+   297→   297→          </figcaption>
+   298→   298→        </figure>
+   299→   299→      </div>
+   300→   300→      <footer>
+   301→   301→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   302→   302→        <span class="src">instagram.com</span>
+   303→   303→      </footer>
+   304→   304→    </section>
+   305→   305→  </div>
+   306→   306→  <div class="page-wrapper">
+   307→   307→    <div class="spiral" aria-hidden="true"></div>
+   308→   308→    <div class="holes" aria-hidden="true"></div>
+   309→   309→    <section class="page">
+   310→   310→      <header>
+   311→   311→        <span class="badge">Instagram Carousel</span>
+   312→   312→        <span class="badge alt">Page 4 of 20</span>
+   313→   313→      </header>
+   314→   314→      <div class="title-wrap">
+   315→   315→        <h1>Carousel Page 04</h1>
+   316→   316→        <div class="title-underline"></div>
+   317→   317→      </div>
+   318→   318→      <div class="images">
+   319→   319→        <figure class="figure">
+   320→   320→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-04.jpg" alt="Instagram carousel page 4 of 20" loading="lazy" />
+   321→   321→          <figcaption class="caption">
+   322→   322→            <span>Carousel Image</span>
+   323→   323→            <span class="pg">04 / 20</span>
+   324→   324→          </figcaption>
+   325→   325→        </figure>
+   326→   326→      </div>
+   327→   327→      <footer>
+   328→   328→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   329→   329→        <span class="src">instagram.com</span>
+   330→   330→      </footer>
+   331→   331→    </section>
+   332→   332→  </div>
+   333→   333→  <div class="page-wrapper">
+   334→   334→    <div class="spiral" aria-hidden="true"></div>
+   335→   335→    <div class="holes" aria-hidden="true"></div>
+   336→   336→    <section class="page">
+   337→   337→      <header>
+   338→   338→        <span class="badge">Instagram Carousel</span>
+   339→   339→        <span class="badge alt">Page 5 of 20</span>
+   340→   340→      </header>
+   341→   341→      <div class="title-wrap">
+   342→   342→        <h1>Carousel Page 05</h1>
+   343→   343→        <div class="title-underline"></div>
+   344→   344→      </div>
+   345→   345→      <div class="images">
+   346→   346→        <figure class="figure">
+   347→   347→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-05.jpg" alt="Instagram carousel page 5 of 20" loading="lazy" />
+   348→   348→          <figcaption class="caption">
+   349→   349→            <span>Carousel Image</span>
+   350→   350→            <span class="pg">05 / 20</span>
+   351→   351→          </figcaption>
+   352→   352→        </figure>
+   353→   353→      </div>
+   354→   354→      <footer>
+   355→   355→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   356→   356→        <span class="src">instagram.com</span>
+   357→   357→      </footer>
+   358→   358→    </section>
+   359→   359→  </div>
+   360→   360→  <div class="page-wrapper">
+   361→   361→    <div class="spiral" aria-hidden="true"></div>
+   362→   362→    <div class="holes" aria-hidden="true"></div>
+   363→   363→    <section class="page">
+   364→   364→      <header>
+   365→   365→        <span class="badge">Instagram Carousel</span>
+   366→   366→        <span class="badge alt">Page 6 of 20</span>
+   367→   367→      </header>
+   368→   368→      <div class="title-wrap">
+   369→   369→        <h1>Carousel Page 06</h1>
+   370→   370→        <div class="title-underline"></div>
+   371→   371→      </div>
+   372→   372→      <div class="images">
+   373→   373→        <figure class="figure">
+   374→   374→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-06.jpg" alt="Instagram carousel page 6 of 20" loading="lazy" />
+   375→   375→          <figcaption class="caption">
+   376→   376→            <span>Carousel Image</span>
+   377→   377→            <span class="pg">06 / 20</span>
+   378→   378→          </figcaption>
+   379→   379→        </figure>
+   380→   380→      </div>
+   381→   381→      <footer>
+   382→   382→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   383→   383→        <span class="src">instagram.com</span>
+   384→   384→      </footer>
+   385→   385→    </section>
+   386→   386→  </div>
+   387→   387→  <div class="page-wrapper">
+   388→   388→    <div class="spiral" aria-hidden="true"></div>
+   389→   389→    <div class="holes" aria-hidden="true"></div>
+   390→   390→    <section class="page">
+   391→   391→      <header>
+   392→   392→        <span class="badge">Instagram Carousel</span>
+   393→   393→        <span class="badge alt">Page 7 of 20</span>
+   394→   394→      </header>
+   395→   395→      <div class="title-wrap">
+   396→   396→        <h1>Carousel Page 07</h1>
+   397→   397→        <div class="title-underline"></div>
+   398→   398→      </div>
+   399→   399→      <div class="images">
+   400→   400→        <figure class="figure">
+   401→   401→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-07.jpg" alt="Instagram carousel page 7 of 20" loading="lazy" />
+   402→   402→          <figcaption class="caption">
+   403→   403→            <span>Carousel Image</span>
+   404→   404→            <span class="pg">07 / 20</span>
+   405→   405→          </figcaption>
+   406→   406→        </figure>
+   407→   407→      </div>
+   408→   408→      <footer>
+   409→   409→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   410→   410→        <span class="src">instagram.com</span>
+   411→   411→      </footer>
+   412→   412→    </section>
+   413→   413→  </div>
+   414→   414→  <div class="page-wrapper">
+   415→   415→    <div class="spiral" aria-hidden="true"></div>
+   416→   416→    <div class="holes" aria-hidden="true"></div>
+   417→   417→    <section class="page">
+   418→   418→      <header>
+   419→   419→        <span class="badge">Instagram Carousel</span>
+   420→   420→        <span class="badge alt">Page 8 of 20</span>
+   421→   421→      </header>
+   422→   422→      <div class="title-wrap">
+   423→   423→        <h1>Carousel Page 08</h1>
+   424→   424→        <div class="title-underline"></div>
+   425→   425→      </div>
+   426→   426→      <div class="images">
+   427→   427→        <figure class="figure">
+   428→   428→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-08.jpg" alt="Instagram carousel page 8 of 20" loading="lazy" />
+   429→   429→          <figcaption class="caption">
+   430→   430→            <span>Carousel Image</span>
+   431→   431→            <span class="pg">08 / 20</span>
+   432→   432→          </figcaption>
+   433→   433→        </figure>
+   434→   434→      </div>
+   435→   435→      <footer>
+   436→   436→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   437→   437→        <span class="src">instagram.com</span>
+   438→   438→      </footer>
+   439→   439→    </section>
+   440→   440→  </div>
+   441→   441→  <div class="page-wrapper">
+   442→   442→    <div class="spiral" aria-hidden="true"></div>
+   443→   443→    <div class="holes" aria-hidden="true"></div>
+   444→   444→    <section class="page">
+   445→   445→      <header>
+   446→   446→        <span class="badge">Instagram Carousel</span>
+   447→   447→        <span class="badge alt">Page 9 of 20</span>
+   448→   448→      </header>
+   449→   449→      <div class="title-wrap">
+   450→   450→        <h1>Carousel Page 09</h1>
+   451→   451→        <div class="title-underline"></div>
+   452→   452→      </div>
+   453→   453→      <div class="images">
+   454→   454→        <figure class="figure">
+   455→   455→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-09.jpg" alt="Instagram carousel page 9 of 20" loading="lazy" />
+   456→   456→          <figcaption class="caption">
+   457→   457→            <span>Carousel Image</span>
+   458→   458→            <span class="pg">09 / 20</span>
+   459→   459→          </figcaption>
+   460→   460→        </figure>
+   461→   461→      </div>
+   462→   462→      <footer>
+   463→   463→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   464→   464→        <span class="src">instagram.com</span>
+   465→   465→      </footer>
+   466→   466→    </section>
+   467→   467→  </div>
+   468→   468→  <div class="page-wrapper">
+   469→   469→    <div class="spiral" aria-hidden="true"></div>
+   470→   470→    <div class="holes" aria-hidden="true"></div>
+   471→   471→    <section class="page">
+   472→   472→      <header>
+   473→   473→        <span class="badge">Instagram Carousel</span>
+   474→   474→        <span class="badge alt">Page 10 of 20</span>
+   475→   475→      </header>
+   476→   476→      <div class="title-wrap">
+   477→   477→        <h1>Carousel Page 10</h1>
+   478→   478→        <div class="title-underline"></div>
+   479→   479→      </div>
+   480→   480→      <div class="images">
+   481→   481→        <figure class="figure">
+   482→   482→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-10.jpg" alt="Instagram carousel page 10 of 20" loading="lazy" />
+   483→   483→          <figcaption class="caption">
+   484→   484→            <span>Carousel Image</span>
+   485→   485→            <span class="pg">10 / 20</span>
+   486→   486→          </figcaption>
+   487→   487→        </figure>
+   488→   488→      </div>
+   489→   489→      <footer>
+   490→   490→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   491→   491→        <span class="src">instagram.com</span>
+   492→   492→      </footer>
+   493→   493→    </section>
+   494→   494→  </div>
+   495→   495→  <div class="page-wrapper">
+   496→   496→    <div class="spiral" aria-hidden="true"></div>
+   497→   497→    <div class="holes" aria-hidden="true"></div>
+   498→   498→    <section class="page">
+   499→   499→      <header>
+   500→   500→        <span class="badge">Instagram Carousel</span>
+   501→   501→        <span class="badge alt">Page 11 of 20</span>
+   502→   502→      </header>
+   503→   503→      <div class="title-wrap">
+   504→   504→        <h1>Carousel Page 11</h1>
+   505→   505→        <div class="title-underline"></div>
+   506→   506→      </div>
+   507→   507→      <div class="images">
+   508→   508→        <figure class="figure">
+   509→   509→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-11.jpg" alt="Instagram carousel page 11 of 20" loading="lazy" />
+   510→   510→          <figcaption class="caption">
+   511→   511→            <span>Carousel Image</span>
+   512→   512→            <span class="pg">11 / 20</span>
+   513→   513→          </figcaption>
+   514→   514→        </figure>
+   515→   515→      </div>
+   516→   516→      <footer>
+   517→   517→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   518→   518→        <span class="src">instagram.com</span>
+   519→   519→      </footer>
+   520→   520→    </section>
+   521→   521→  </div>
+   522→   522→  <div class="page-wrapper">
+   523→   523→    <div class="spiral" aria-hidden="true"></div>
+   524→   524→    <div class="holes" aria-hidden="true"></div>
+   525→   525→    <section class="page">
+   526→   526→      <header>
+   527→   527→        <span class="badge">Instagram Carousel</span>
+   528→   528→        <span class="badge alt">Page 12 of 20</span>
+   529→   529→      </header>
+   530→   530→      <div class="title-wrap">
+   531→   531→        <h1>Carousel Page 12</h1>
+   532→   532→        <div class="title-underline"></div>
+   533→   533→      </div>
+   534→   534→      <div class="images">
+   535→   535→        <figure class="figure">
+   536→   536→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-12.jpg" alt="Instagram carousel page 12 of 20" loading="lazy" />
+   537→   537→          <figcaption class="caption">
+   538→   538→            <span>Carousel Image</span>
+   539→   539→            <span class="pg">12 / 20</span>
+   540→   540→          </figcaption>
+   541→   541→        </figure>
+   542→   542→      </div>
+   543→   543→      <footer>
+   544→   544→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   545→   545→        <span class="src">instagram.com</span>
+   546→   546→      </footer>
+   547→   547→    </section>
+   548→   548→  </div>
+   549→   549→  <div class="page-wrapper">
+   550→   550→    <div class="spiral" aria-hidden="true"></div>
+   551→   551→    <div class="holes" aria-hidden="true"></div>
+   552→   552→    <section class="page">
+   553→   553→      <header>
+   554→   554→        <span class="badge">Instagram Carousel</span>
+   555→   555→        <span class="badge alt">Page 13 of 20</span>
+   556→   556→      </header>
+   557→   557→      <div class="title-wrap">
+   558→   558→        <h1>Carousel Page 13</h1>
+   559→   559→        <div class="title-underline"></div>
+   560→   560→      </div>
+   561→   561→      <div class="images">
+   562→   562→        <figure class="figure">
+   563→   563→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-13.jpg" alt="Instagram carousel page 13 of 20" loading="lazy" />
+   564→   564→          <figcaption class="caption">
+   565→   565→            <span>Carousel Image</span>
+   566→   566→            <span class="pg">13 / 20</span>
+   567→   567→          </figcaption>
+   568→   568→        </figure>
+   569→   569→      </div>
+   570→   570→      <footer>
+   571→   571→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   572→   572→        <span class="src">instagram.com</span>
+   573→   573→      </footer>
+   574→   574→    </section>
+   575→   575→  </div>
+   576→   576→  <div class="page-wrapper">
+   577→   577→    <div class="spiral" aria-hidden="true"></div>
+   578→   578→    <div class="holes" aria-hidden="true"></div>
+   579→   579→    <section class="page">
+   580→   580→      <header>
+   581→   581→        <span class="badge">Instagram Carousel</span>
+   582→   582→        <span class="badge alt">Page 14 of 20</span>
+   583→   583→      </header>
+   584→   584→      <div class="title-wrap">
+   585→   585→        <h1>Carousel Page 14</h1>
+   586→   586→        <div class="title-underline"></div>
+   587→   587→      </div>
+   588→   588→      <div class="images">
+   589→   589→        <figure class="figure">
+   590→   590→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-14.jpg" alt="Instagram carousel page 14 of 20" loading="lazy" />
+   591→   591→          <figcaption class="caption">
+   592→   592→            <span>Carousel Image</span>
+   593→   593→            <span class="pg">14 / 20</span>
+   594→   594→          </figcaption>
+   595→   595→        </figure>
+   596→   596→      </div>
+   597→   597→      <footer>
+   598→   598→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   599→   599→        <span class="src">instagram.com</span>
+   600→   600→      </footer>
+   601→   601→    </section>
+   602→   602→  </div>
+   603→   603→  <div class="page-wrapper">
+   604→   604→    <div class="spiral" aria-hidden="true"></div>
+   605→   605→    <div class="holes" aria-hidden="true"></div>
+   606→   606→    <section class="page">
+   607→   607→      <header>
+   608→   608→        <span class="badge">Instagram Carousel</span>
+   609→   609→        <span class="badge alt">Page 15 of 20</span>
+   610→   610→      </header>
+   611→   611→      <div class="title-wrap">
+   612→   612→        <h1>Carousel Page 15</h1>
+   613→   613→        <div class="title-underline"></div>
+   614→   614→      </div>
+   615→   615→      <div class="images">
+   616→   616→        <figure class="figure">
+   617→   617→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-15.jpg" alt="Instagram carousel page 15 of 20" loading="lazy" />
+   618→   618→          <figcaption class="caption">
+   619→   619→            <span>Carousel Image</span>
+   620→   620→            <span class="pg">15 / 20</span>
+   621→   621→          </figcaption>
+   622→   622→        </figure>
+   623→   623→      </div>
+   624→   624→      <footer>
+   625→   625→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   626→   626→        <span class="src">instagram.com</span>
+   627→   627→      </footer>
+   628→   628→    </section>
+   629→   629→  </div>
+   630→   630→  <div class="page-wrapper">
+   631→   631→    <div class="spiral" aria-hidden="true"></div>
+   632→   632→    <div class="holes" aria-hidden="true"></div>
+   633→   633→    <section class="page">
+   634→   634→      <header>
+   635→   635→        <span class="badge">Instagram Carousel</span>
+   636→   636→        <span class="badge alt">Page 16 of 20</span>
+   637→   637→      </header>
+   638→   638→      <div class="title-wrap">
+   639→   639→        <h1>Carousel Page 16</h1>
+   640→   640→        <div class="title-underline"></div>
+   641→   641→      </div>
+   642→   642→      <div class="images">
+   643→   643→        <figure class="figure">
+   644→   644→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-16.jpg" alt="Instagram carousel page 16 of 20" loading="lazy" />
+   645→   645→          <figcaption class="caption">
+   646→   646→            <span>Carousel Image</span>
+   647→   647→            <span class="pg">16 / 20</span>
+   648→   648→          </figcaption>
+   649→   649→        </figure>
+   650→   650→      </div>
+   651→   651→      <footer>
+   652→   652→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   653→   653→        <span class="src">instagram.com</span>
+   654→   654→      </footer>
+   655→   655→    </section>
+   656→   656→  </div>
+   657→   657→  <div class="page-wrapper">
+   658→   658→    <div class="spiral" aria-hidden="true"></div>
+   659→   659→    <div class="holes" aria-hidden="true"></div>
+   660→   660→    <section class="page">
+   661→   661→      <header>
+   662→   662→        <span class="badge">Instagram Carousel</span>
+   663→   663→        <span class="badge alt">Page 17 of 20</span>
+   664→   664→      </header>
+   665→   665→      <div class="title-wrap">
+   666→   666→        <h1>Carousel Page 17</h1>
+   667→   667→        <div class="title-underline"></div>
+   668→   668→      </div>
+   669→   669→      <div class="images">
+   670→   670→        <figure class="figure">
+   671→   671→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-17.jpg" alt="Instagram carousel page 17 of 20" loading="lazy" />
+   672→   672→          <figcaption class="caption">
+   673→   673→            <span>Carousel Image</span>
+   674→   674→            <span class="pg">17 / 20</span>
+   675→   675→          </figcaption>
+   676→   676→        </figure>
+   677→   677→      </div>
+   678→   678→      <footer>
+   679→   679→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   680→   680→        <span class="src">instagram.com</span>
+   681→   681→      </footer>
+   682→   682→    </section>
+   683→   683→  </div>
+   684→   684→  <div class="page-wrapper">
+   685→   685→    <div class="spiral" aria-hidden="true"></div>
+   686→   686→    <div class="holes" aria-hidden="true"></div>
+   687→   687→    <section class="page">
+   688→   688→      <header>
+   689→   689→        <span class="badge">Instagram Carousel</span>
+   690→   690→        <span class="badge alt">Page 18 of 20</span>
+   691→   691→      </header>
+   692→   692→      <div class="title-wrap">
+   693→   693→        <h1>Carousel Page 18</h1>
+   694→   694→        <div class="title-underline"></div>
+   695→   695→      </div>
+   696→   696→      <div class="images">
+   697→   697→        <figure class="figure">
+   698→   698→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-18.jpg" alt="Instagram carousel page 18 of 20" loading="lazy" />
+   699→   699→          <figcaption class="caption">
+   700→   700→            <span>Carousel Image</span>
+   701→   701→            <span class="pg">18 / 20</span>
+   702→   702→          </figcaption>
+   703→   703→        </figure>
+   704→   704→      </div>
+   705→   705→      <footer>
+   706→   706→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   707→   707→        <span class="src">instagram.com</span>
+   708→   708→      </footer>
+   709→   709→    </section>
+   710→   710→  </div>
+   711→   711→  <div class="page-wrapper">
+   712→   712→    <div class="spiral" aria-hidden="true"></div>
+   713→   713→    <div class="holes" aria-hidden="true"></div>
+   714→   714→    <section class="page">
+   715→   715→      <header>
+   716→   716→        <span class="badge">Instagram Carousel</span>
+   717→   717→        <span class="badge alt">Page 19 of 20</span>
+   718→   718→      </header>
+   719→   719→      <div class="title-wrap">
+   720→   720→        <h1>Carousel Page 19</h1>
+   721→   721→        <div class="title-underline"></div>
+   722→   722→      </div>
+   723→   723→      <div class="images">
+   724→   724→        <figure class="figure">
+   725→   725→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-19.jpg" alt="Instagram carousel page 19 of 20" loading="lazy" />
+   726→   726→          <figcaption class="caption">
+   727→   727→            <span>Carousel Image</span>
+   728→   728→            <span class="pg">19 / 20</span>
+   729→   729→          </figcaption>
+   730→   730→        </figure>
+   731→   731→      </div>
+   732→   732→      <footer>
+   733→   733→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   734→   734→        <span class="src">instagram.com</span>
+   735→   735→      </footer>
+   736→   736→    </section>
+   737→   737→  </div>
+   738→   738→  <div class="page-wrapper">
+   739→   739→    <div class="spiral" aria-hidden="true"></div>
+   740→   740→    <div class="holes" aria-hidden="true"></div>
+   741→   741→    <section class="page">
+   742→   742→      <header>
+   743→   743→        <span class="badge">Instagram Carousel</span>
+   744→   744→        <span class="badge alt">Page 20 of 20</span>
+   745→   745→      </header>
+   746→   746→      <div class="title-wrap">
+   747→   747→        <h1>Carousel Page 20</h1>
+   748→   748→        <div class="title-underline"></div>
+   749→   749→      </div>
+   750→   750→      <div class="images">
+   751→   751→        <figure class="figure">
+   752→   752→          <img src="/uploads/instagram-carousel-DcdSiAhFbh0/page-20.jpg" alt="Instagram carousel page 20 of 20" loading="lazy" />
+   753→   753→          <figcaption class="caption">
+   754→   754→            <span>Carousel Image</span>
+   755→   755→            <span class="pg">20 / 20</span>
+   756→   756→          </figcaption>
+   757→   757→        </figure>
+   758→   758→      </div>
+   759→   759→      <footer>
+   760→   760→        <span>Imported from Instagram post DcdSiAhFbh0</span>
+   761→   761→        <span class="src">instagram.com</span>
+   762→   762→      </footer>
+   763→   763→    </section>
+   764→   764→  </div>
+   765→   765→
+   766→   766→</body>
+   767→   767→</html>
+   768→   768→
