@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  BookImage,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -214,6 +215,16 @@ export function NoteViewer() {
   const [notePageCount, setNotePageCount] = React.useState(1);
   const [notePageIndex, setNotePageIndex] = React.useState(0);
 
+  // Whether the note's FIRST .page-wrapper is a cover page (contains a
+  // `.cover` element). Cover pages are excluded from the pagination so
+  // they don't affect the page numbering — page 1 in the viewer is the
+  // first CONTENT page. The cover is still reachable via a dedicated
+  // "Cover" toggle button in the toolbar.
+  const [hasCoverPage, setHasCoverPage] = React.useState(false);
+  // When true, the viewer shows the cover wrapper instead of the current
+  // content page. The page counter is replaced with a "Cover" label.
+  const [showCover, setShowCover] = React.useState(false);
+
   // Page layout (background pattern) — viewer option that swaps the note's
   // page background via injected CSS. "grid" = the note's original graph paper.
   const [pageLayout, setPageLayout] = React.useState<PageLayout>("grid");
@@ -255,6 +266,12 @@ export function NoteViewer() {
   // The note's HTML may contain multiple .page-wrapper elements. We
   // show ONE at a time and navigate with prev/next. For notes with a
   // single page (or no .page-wrapper), there's nothing to navigate.
+  //
+  // COVER PAGE HANDLING: if the first .page-wrapper is a cover page
+  // (it contains a `.cover` element), it is EXCLUDED from pagination.
+  // The cover wrapper is always hidden during normal navigation and
+  // only shown when the user toggles the "Cover" button. This keeps
+  // the page counter accurate (page 1 = first real content page).
   const hasPrevPage = notePageIndex > 0;
   const hasNextPage = notePageIndex < notePageCount - 1;
   const totalPages = notePageCount;
@@ -263,7 +280,33 @@ export function NoteViewer() {
   // Show a specific page within the note by hiding all .page-wrapper
   // elements except the one at `index`, then resize the iframe to fit
   // just that page (so there's no empty scroll space below).
-  const showNotePage = React.useCallback((index: number) => {
+  const showNotePage = React.useCallback(
+    (viewerIndex: number) => {
+      const iframe = iframeRef.current;
+      if (!iframe) return;
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc) return;
+        const wrappers = doc.querySelectorAll(".page-wrapper");
+        if (wrappers.length === 0) return;
+        const coverOffset = hasCoverPage ? 1 : 0;
+        const wrapperIdx = viewerIndex + coverOffset;
+        const clamped = Math.max(0, Math.min(wrapperIdx, wrappers.length - 1));
+        wrappers.forEach((el, i) => {
+          (el as HTMLElement).style.display = i === clamped ? "" : "none";
+        });
+        // Scroll the iframe's own scroll container to the top of the page.
+        doc.defaultView?.scrollTo(0, 0);
+      } catch {
+        /* cross-origin — ignore */
+      }
+    },
+    [hasCoverPage],
+  );
+
+  // Show ONLY the cover wrapper (the first .page-wrapper). Used by the
+  // "Cover" toggle button in the toolbar.
+  const showCoverPage = React.useCallback(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
     try {
@@ -271,19 +314,33 @@ export function NoteViewer() {
       if (!doc) return;
       const wrappers = doc.querySelectorAll(".page-wrapper");
       if (wrappers.length === 0) return;
-      const clamped = Math.max(0, Math.min(index, wrappers.length - 1));
       wrappers.forEach((el, i) => {
-        (el as HTMLElement).style.display = i === clamped ? "" : "none";
+        (el as HTMLElement).style.display = i === 0 ? "" : "none";
       });
-      // Scroll the iframe's own scroll container to the top of the page.
       doc.defaultView?.scrollTo(0, 0);
     } catch {
       /* cross-origin — ignore */
     }
   }, []);
 
+  // Toggle the cover view. When switching to cover we remember nothing
+  // (notePageIndex stays put so returning to content resumes the same
+  // page). When switching back to content we re-show the current page.
+  const toggleCover = React.useCallback(() => {
+    setShowCover((prev) => {
+      const next = !prev;
+      if (next) {
+        showCoverPage();
+      } else {
+        showNotePage(notePageIndex);
+      }
+      return next;
+    });
+  }, [showCoverPage, showNotePage, notePageIndex]);
+
   // Detect how many .page-wrapper elements the note has, then show
-  // only the first page. Called from the iframe onLoad + applyNoteScale.
+  // only the first CONTENT page (skipping the cover if one exists).
+  // Called from the iframe onLoad + applyNoteScale.
   const detectNotePages = React.useCallback(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -291,18 +348,31 @@ export function NoteViewer() {
       const doc = iframe.contentDocument;
       if (!doc) return;
       const wrappers = doc.querySelectorAll(".page-wrapper");
-      const count = Math.max(1, wrappers.length);
-      setNotePageCount(count);
+      // Detect a cover page: the first wrapper contains a `.cover` element.
+      const firstWrapper = wrappers[0] as HTMLElement | null;
+      const coverDetected =
+        !!firstWrapper && !!firstWrapper.querySelector(".cover");
+      setHasCoverPage(coverDetected);
+      // Content page count = total wrappers minus the cover (if present).
+      const contentCount = Math.max(
+        1,
+        wrappers.length - (coverDetected ? 1 : 0),
+      );
+      setNotePageCount(contentCount);
       setNotePageIndex(0);
-      // Show only page 0 (hide the rest).
+      setShowCover(false);
+      // Hide the cover wrapper (if any) and show only the first content
+      // page. When no cover exists, wrapper 0 is the first content page.
+      const firstContentIdx = coverDetected ? 1 : 0;
       wrappers.forEach((el, i) => {
-        (el as HTMLElement).style.display = i === 0 ? "" : "none";
+        (el as HTMLElement).style.display = i === firstContentIdx ? "" : "none";
       });
-      // Extract the title (h1) and subtitle/overview for each page
-      // so the pages drawer can show meaningful labels instead of just
-      // "Page 1 of 20".
+      // Extract the title (h1) and subtitle/overview for each CONTENT
+      // page (skipping the cover) so the pages drawer can show meaningful
+      // labels instead of just "Page 1 of 20".
       const titles: string[] = [];
-      wrappers.forEach((el) => {
+      for (let i = firstContentIdx; i < wrappers.length; i++) {
+        const el = wrappers[i] as HTMLElement;
         const h1 = el.querySelector("h1, h2, .title");
         const subtitle = el.querySelector(".subtitle, .page-subtitle, .sub-text");
         let label = "";
@@ -312,9 +382,9 @@ export function NoteViewer() {
         if (!label && subtitle) {
           label = (subtitle.textContent || "").replace(/\s+/g, " ").trim();
         }
-        if (!label) label = "Cover Page";
+        if (!label) label = `Page ${i - firstContentIdx + 1}`;
         titles.push(label);
-      });
+      }
       // If the note has no .page-wrapper (single page), use the note title.
       if (titles.length === 0 && note) {
         titles.push(note.title);
@@ -329,29 +399,48 @@ export function NoteViewer() {
   React.useEffect(() => {
     setNotePageIndex(0);
     setNotePageCount(1);
+    setHasCoverPage(false);
+    setShowCover(false);
     // detectNotePages runs after the iframe loads (onLoad calls it).
   }, [note?.id]);
 
   // Navigate to the next/prev page within the note.
+  // While the cover is being shown, navigation exits the cover view
+  // first (so the counter stays accurate) before moving pages.
   const goToPrevPage = React.useCallback(() => {
+    if (showCover) {
+      setShowCover(false);
+      showNotePage(notePageIndex);
+      return;
+    }
     setNotePageIndex((i) => {
       const next = Math.max(0, i - 1);
       if (next !== i) showNotePage(next);
       return next;
     });
-  }, [showNotePage]);
+  }, [showCover, notePageIndex, showNotePage]);
   const goToNextPage = React.useCallback(() => {
+    if (showCover) {
+      setShowCover(false);
+      showNotePage(notePageIndex);
+      return;
+    }
     setNotePageIndex((i) => {
       const next = Math.min(notePageCount - 1, i + 1);
       if (next !== i) showNotePage(next);
       return next;
     });
-  }, [notePageCount, showNotePage]);
-  const goToPage = React.useCallback((index: number) => {
-    const clamped = Math.max(0, Math.min(notePageCount - 1, index));
-    setNotePageIndex(clamped);
-    showNotePage(clamped);
-  }, [notePageCount, showNotePage]);
+  }, [showCover, notePageCount, notePageIndex, showNotePage]);
+  const goToPage = React.useCallback(
+    (index: number) => {
+      // Selecting a page from the pages drawer exits cover view.
+      setShowCover(false);
+      const clamped = Math.max(0, Math.min(notePageCount - 1, index));
+      setNotePageIndex(clamped);
+      showNotePage(clamped);
+    },
+    [notePageCount, showNotePage],
+  );
 
   // ─── Record a view on the active note (best-effort, fire-and-forget) ───
   // Fires whenever the active note id changes — covers direct opens, tree
@@ -652,12 +741,16 @@ export function NoteViewer() {
         e.preventDefault(); zoomToFit(); return;
       }
       if (isTyping) return;
-      if (e.key === "ArrowLeft" && !drawerOpen && !treeOpen && hasPrevPage) { e.preventDefault(); goToPrevPage(); }
-      if (e.key === "ArrowRight" && !drawerOpen && !treeOpen && hasNextPage) { e.preventDefault(); goToNextPage(); }
+      if (e.key === "ArrowLeft" && !drawerOpen && !treeOpen && (hasPrevPage || showCover)) { e.preventDefault(); goToPrevPage(); }
+      if (e.key === "ArrowRight" && !drawerOpen && !treeOpen && (hasNextPage || showCover)) { e.preventDefault(); goToNextPage(); }
+      // "c" toggles the cover view (only for notes that have a cover).
+      if ((e.key === "c" || e.key === "C") && !drawerOpen && !treeOpen && hasCoverPage) {
+        e.preventDefault(); toggleCover();
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, hasPrevPage, hasNextPage, goToPrevPage, goToNextPage, zoomIn, zoomOut, zoomToFit]);
+  }, [drawerOpen, treeOpen, downloadOpen, actionsOpen, zoomPresetsOpen, hasPrevPage, hasNextPage, hasCoverPage, showCover, goToPrevPage, goToNextPage, toggleCover, zoomIn, zoomOut, zoomToFit]);
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -990,7 +1083,8 @@ export function NoteViewer() {
                 // The note's HTML/CSS is never modified — we measure its
                 // true bounding box (rings + shadow + page) and scale the
                 // whole object as a unit. No body padding, no reflow.
-                // Detect pages (.page-wrapper elements) and show only #0.
+                // Detect pages (.page-wrapper elements) and show only the
+                // first CONTENT page (skipping the cover if present).
                 detectNotePages();
                 applyNoteScale();
                 applyPageLayout();
@@ -1042,34 +1136,70 @@ export function NoteViewer() {
             <Sep />
 
             {/* Group 2: Page navigation (prev / counter-input / next) */}
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasPrevPage}
+            {/* When showing the cover, the counter is replaced with a
+                "Cover" label and prev/next are disabled. The cover is
+                NOT counted in the page total. */}
+            <Button variant="ghost" size="icon" className="h-8 w-8"
+              disabled={!hasPrevPage || showCover}
               onClick={() => goToPrevPage()}
               title="Previous page (←)">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-0.5 text-xs font-mono text-slate-700">
-              <input
-                type="text"
-                value={pageInputFocused ? pageInputValue : String(currentIndex + 1)}
-                onChange={(e) => setPageInputValue(e.target.value.replace(/[^0-9]/g, ""))}
-                onFocus={() => { setPageInputFocused(true); setPageInputValue(String(currentIndex + 1)); }}
-                onBlur={() => {
-                  setPageInputFocused(false);
-                  const n = parseInt(pageInputValue, 10);
-                  if (!isNaN(n) && n >= 1 && n <= totalPages) goToPage(n - 1);
-                }}
-                onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
-                className="h-7 w-8 rounded border border-transparent bg-slate-100 text-center text-xs font-mono outline-none transition-colors hover:bg-slate-200 focus:border-slate-300 focus:bg-white"
-                title="Type page number"
-              />
-              <span className="text-slate-400">/</span>
-              <span className="min-w-[20px] text-center">{totalPages}</span>
-            </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasNextPage}
+            {showCover ? (
+              <div className="flex items-center gap-1 text-xs font-mono">
+                <span className="rounded bg-amber-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                  Cover
+                </span>
+                <span className="text-slate-400">/</span>
+                <span className="min-w-[20px] text-center text-slate-600">{totalPages}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-0.5 text-xs font-mono text-slate-700">
+                <input
+                  type="text"
+                  value={pageInputFocused ? pageInputValue : String(currentIndex + 1)}
+                  onChange={(e) => setPageInputValue(e.target.value.replace(/[^0-9]/g, ""))}
+                  onFocus={() => { setPageInputFocused(true); setPageInputValue(String(currentIndex + 1)); }}
+                  onBlur={() => {
+                    setPageInputFocused(false);
+                    const n = parseInt(pageInputValue, 10);
+                    if (!isNaN(n) && n >= 1 && n <= totalPages) goToPage(n - 1);
+                  }}
+                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+                  className="h-7 w-8 rounded border border-transparent bg-slate-100 text-center text-xs font-mono outline-none transition-colors hover:bg-slate-200 focus:border-slate-300 focus:bg-white"
+                  title="Type page number"
+                />
+                <span className="text-slate-400">/</span>
+                <span className="min-w-[20px] text-center">{totalPages}</span>
+              </div>
+            )}
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled={!hasNextPage || showCover}
               onClick={() => goToNextPage()}
               title="Next page (→)">
               <ChevronRight className="h-4 w-4" />
             </Button>
+
+            {/* Cover toggle — only shown when the note has a cover page.
+                Clicking it swaps between the cover view and the current
+                content page WITHOUT affecting the page counter. */}
+            {hasCoverPage && (
+              <Button
+                variant={showCover ? "secondary" : "ghost"}
+                size="sm"
+                className={cn(
+                  "h-8 gap-1 px-2 text-xs",
+                  showCover
+                    ? "bg-amber-100 text-amber-700 hover:bg-amber-200 hover:text-amber-800"
+                    : "text-slate-600 hover:bg-slate-100",
+                )}
+                onClick={toggleCover}
+                title={showCover ? "Back to content" : "View cover page"}
+                aria-pressed={showCover}
+              >
+                <BookImage className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Cover</span>
+              </Button>
+            )}
 
             {/* Group 3: Zoom (hidden on mobile — duplicates the actions panel's
                 mobile zoom section to avoid horizontal overflow on 390px). */}
@@ -1166,7 +1296,11 @@ export function NoteViewer() {
             title="Show toolbar"
           >
             <ChevronDown className="h-3 w-3" />
-            <span className="font-mono">{currentIndex + 1}/{totalPages}</span>
+            {showCover ? (
+              <span className="font-mono uppercase tracking-wide">Cover · {totalPages}p</span>
+            ) : (
+              <span className="font-mono">{currentIndex + 1}/{totalPages}</span>
+            )}
           </motion.button>
         )}
       </AnimatePresence>

@@ -231,6 +231,7 @@ export function PublicHome() {
               <NoteCard
                 key={note.id}
                 note={note}
+                showCoverPreview
                 onOpen={(n: Note) => openNote(n)}
               />
             ))}

@@ -5,6 +5,7 @@ import { ArrowUpRight, Calendar, FolderTree, Tag } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { NoteCoverThumb } from "@/components/note-cover-thumb";
 import type { Category, Note } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -14,9 +15,20 @@ interface NoteCardProps {
   category?: Category | null;
   className?: string;
   onOpen?: (note: Note) => void;
+  /** When true, render a live scaled-down preview of the note's cover
+   *  page above the card body. Enabled on the public home page so each
+   *  note card shows the cover with an "Open note" affordance — the
+   *  cover is no longer counted as page 1 in the viewer. */
+  showCoverPreview?: boolean;
 }
 
-export function NoteCard({ note, category, className, onOpen }: NoteCardProps) {
+export function NoteCard({
+  note,
+  category,
+  className,
+  onOpen,
+  showCoverPreview = false,
+}: NoteCardProps) {
   const cat = category ?? note.category ?? null;
   const subcategory =
     note.subcategory ?? (cat?.parentId ? cat : null) ?? null;
@@ -29,7 +41,16 @@ export function NoteCard({ note, category, className, onOpen }: NoteCardProps) {
         className,
       )}
     >
-      <div className="h-1 w-full bg-gradient-to-r from-emerald-500 to-teal-400" />
+      {showCoverPreview ? (
+        // Cover preview replaces the gradient strip — the card leads
+        // with the note's cover so the user immediately recognises the
+        // note. Clicking the cover opens the note.
+        <div className="p-3 pb-0">
+          <NoteCoverThumb note={note} onOpen={onOpen} />
+        </div>
+      ) : (
+        <div className="h-1 w-full bg-gradient-to-r from-emerald-500 to-teal-400" />
+      )}
       <CardContent className="flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {topCategory && (
