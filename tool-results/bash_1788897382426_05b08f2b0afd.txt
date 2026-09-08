@@ -1,0 +1,716 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15. Networking with Shell Scripts - VeriQTA</title>
+    <style>
+        :root {
+            --primary-green: #0d4a2e;
+            --dark-green: #083020;
+            --light-bg: #f8f9fa;
+            --card-border: #e0e0e0;
+            --text-main: #212529;
+            --code-bg: #f1f3f5;
+            --status-200: #28a745;
+            --status-301: #ffc107;
+            --status-404: #dc3545;
+            --status-500: #c82333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header Section */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--primary-green);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .page-badge {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            border: 3px solid #000;
+            padding: 5px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            margin: 10px 0;
+            line-height: 1.1;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            letter-spacing: 3px;
+            border-top: 3px solid var(--primary-green);
+            border-bottom: 3px solid var(--primary-green);
+            display: inline-block;
+            padding: 5px 20px;
+            margin-top: 10px;
+        }
+
+        .header-icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 20px auto 0;
+        }
+
+        .icon-large {
+            width: 80px;
+            height: 80px;
+            color: var(--primary-green);
+        }
+
+        /* Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Card Styles */
+        .card {
+            border: 2px solid #000;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .card-header {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 12px;
+            font-size: 0.85rem;
+        }
+
+        .card-desc {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: "Courier New", monospace;
+            font-size: 0.8rem;
+            margin: 10px 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .icon-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            color: var(--primary-green);
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .check-list li {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .check-icon {
+            color: var(--primary-green);
+            min-width: 16px;
+            margin-top: 2px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .bg-200 { background-color: var(--status-200); }
+        .bg-301 { background-color: var(--status-301); color: #000; }
+        .bg-404 { background-color: var(--status-404); }
+        .bg-500 { background-color: var(--status-500); }
+
+        .red-text { color: var(--status-404); font-weight: bold; }
+
+        /* Bottom Section */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .wide-card {
+            grid-column: span 1;
+        }
+
+        /* Footer */
+        footer {
+            border: 2px solid #000;
+            border-radius: 12px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: auto 1fr auto 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            background: white;
+        }
+
+        .footer-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-icon {
+            width: 40px;
+            height: 40px;
+            color: var(--primary-green);
+        }
+
+        .footer-text h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--primary-green);
+            font-weight: 900;
+        }
+
+        .footer-text p {
+            margin: 2px 0 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .social-footer {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .social-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Utility */
+        .center-text { text-align: center; }
+        .bold { font-weight: bold; }
+        .mt-10 { margin-top: 10px; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+        
+        td {
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        .script-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 15px 0;
+            color: var(--primary-green);
+        }
+        
+        .flow-step {
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-container, .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+            footer {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo-area">
+            <!-- VQ Logo Icon -->
+            <svg viewBox="0 0 100 100" width="40" height="40" fill="currentColor">
+                <path d="M20 80 L50 20 L80 80 M30 65 L70 65" stroke="currentColor" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="70" cy="35" r="12" fill="currentColor"/>
+            </svg>
+            VERIQTA
+        </div>
+        
+        <div class="page-badge">PAGE 15</div>
+
+        <div class="header-icons">
+            <!-- Terminal Icon -->
+            <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+                <rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect>
+            </svg>
+
+            <div>
+                <h1>15. Networking<br>with Shell Scripts</h1>
+                <div class="subtitle">TEST. MONITOR. ENSURE AVAILABILITY.</div>
+            </div>
+
+            <!-- Globe Icon -->
+            <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                <circle cx="18" cy="6" r="2" fill="currentColor"></circle>
+                <circle cx="20" cy="18" r="2" fill="currentColor"></circle>
+            </svg>
+        </div>
+    </header>
+
+    <!-- MAIN GRID (Top Row) -->
+    <div class="grid-container">
+        
+        <!-- Card 1 -->
+        <div class="card">
+            <div class="card-header">1. CURL – SEND HTTP REQUESTS</div>
+            <div class="card-body">
+                <div class="card-desc">Send HTTP requests to endpoints.</div>
+                <div class="code-block">curl https://example.com
+curl -I https://example.com
+curl -s -o /dev/null -w "%{http_code}" 
+https://example.com</div>
+                <div style="font-size: 0.8rem;">
+                    <strong>-I</strong> &nbsp;&nbsp;Fetch headers only<br>
+                    <strong>-s</strong> &nbsp;&nbsp;&nbsp;Silent mode<br>
+                    <strong>-o /dev/null</strong> &nbsp;Discard body<br>
+                    <strong>-w "%{http_code}"</strong> &nbsp;Show status code
+                </div>
+                <div class="icon-row">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/></svg>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="4" y="10" width="16" height="4" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card">
+            <div class="card-header">2. PING – TEST CONNECTIVITY</div>
+            <div class="card-body">
+                <div class="card-desc">Test whether a host is reachable.</div>
+                <div class="code-block">ping -c 4 google.com
+ping -c 4 8.8.8.8</div>
+                
+                <div class="icon-row">
+                    <svg width="60" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span style="font-size: 2rem; letter-spacing: 5px;">•••••••</span>
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10z"/></svg>
+                </div>
+
+                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+                    <div class="bold mb-5">Common use:</div>
+                    <ul class="check-list">
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check network connectivity</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Troubleshoot reachability issues</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Measure response time</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card">
+            <div class="card-header">3. SS – CHECK CONNECTIONS</div>
+            <div class="card-body">
+                <div class="card-desc">Show network sockets and connections.</div>
+                <table>
+                    <tr><td>ss -tuln</td><td># Listening ports</td></tr>
+                    <tr><td>ss -tnp</td><td># All connections</td></tr>
+                    <tr><td>ss -ltnp</td><td># Listening with PID</td></tr>
+                </table>
+
+                <div class="icon-row">
+                    <svg width="50" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span>——<span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span>|<span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span>——<span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span></span>
+                    <svg width="50" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+
+                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+                    <div class="bold mb-5">Useful to:</div>
+                    <ul class="check-list">
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check open ports</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> See active connections</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Diagnose network issues</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card">
+            <div class="card-header">4. HOSTNAME – SHOW SYSTEM NAME</div>
+            <div class="card-body">
+                <div class="card-desc">Get or set the system hostname.</div>
+                <table>
+                    <tr><td>hostname</td><td># Show hostname</td></tr>
+                    <tr><td>hostname -I</td><td># Show IP addresses</td></tr>
+                    <tr><td>hostnamectl</td><td># Detailed info</td></tr>
+                </table>
+
+                <div class="icon-row">
+                    <svg width="50" height="40" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="4" y="10" width="16" height="4" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/></svg>
+                    <div style="text-align:left; font-size:0.8rem;">
+                        <div class="bold">Server: web01</div>
+                        <div class="bold">IP: 192.168.1.10</div>
+                    </div>
+                </div>
+
+                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+                    <div class="bold mb-5">Use cases:</div>
+                    <ul class="check-list">
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Identify servers</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Log server identity</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Script environment awareness</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="card">
+            <div class="card-header">5. DNS CHECKS – RESOLVE NAMES</div>
+            <div class="card-body">
+                <div class="card-desc">Check DNS resolution.</div>
+                <div class="code-block">nslookup example.com
+dig example.com
+host example.com</div>
+
+                <div class="icon-row">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10z"/></svg>
+                    <div style="background:black; color:white; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">DNS</div>
+                </div>
+
+                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+                    <div class="bold mb-5">Useful to:</div>
+                    <ul class="check-list">
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Verify DNS records</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Troubleshoot name resolution</li>
+                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check DNS propagation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="card">
+            <div class="card-header">6. HTTP STATUS CODES</div>
+            <div class="card-body">
+                <div class="card-desc">Check HTTP response codes.</div>
+                <div class="code-block">curl -o /dev/null -s -w "%{http_code}"
+https://example.com</div>
+                
+                <div style="margin: 15px 0;">
+                    <div class="status-item"><span class="status-badge bg-200">200</span> OK – Success</div>
+                    <div class="status-item"><span class="status-badge bg-301">301/302</span> Redirect</div>
+                    <div class="status-item"><span class="status-badge bg-404">404</span> Not Found</div>
+                    <div class="status-item"><span class="status-badge bg-500">500</span> Server Error</div>
+                </div>
+
+                <div class="center-text bold mt-10">Always check status codes, not just ping!</div>
+            </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="card">
+            <div class="card-header">7. TEST ENDPOINT AVAILABILITY</div>
+            <div class="card-body">
+                <div class="card-desc">Quickly test if an endpoint is up.</div>
+                <div class="code-block">curl -s -o /dev/null -w "%{http_code}"
+https://example.com</div>
+                
+                <div class="mt-10 bold">Returns:</div>
+                <div style="margin-left: 10px; margin-top:5px; font-size:0.85rem;">
+                    • 200–399 &nbsp;= Available<br>
+                    • 400–599 &nbsp;= <span class="red-text">Not Available</span><br>
+                    • 000 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span class="red-text">No Response</span>
+                </div>
+
+                <div class="icon-row">
+                    <svg width="50" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v12H4zM4 20h16v-2H4z"/><path d="M8 8l4 4 4-4" stroke="white" stroke-width="2" fill="none"/></svg>
+                    <span style="font-size: 1.5rem;">•••••••→</span>
+                    <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="card">
+            <div class="card-header">8. CHECK APPLICATION HEALTH</div>
+            <div class="card-body">
+                <div class="card-desc">Check if application health endpoint is OK.</div>
+                <div class="code-block">curl -s https://example.com/health
+curl -s -f https://example.com/health
+&& echo "Healthy" || echo "Unhealthy"</div>
+                
+                <div class="icon-row">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/><path d="M3 12h4l3-9 4 18 3-9h4" stroke="white" stroke-width="2" fill="none"/></svg>
+                </div>
+
+                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+                    <div class="bold mb-5">Best practice:</div>
+                    <div>Expose a /health endpoint in apps.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 9 -->
+        <div class="card">
+            <div class="card-header">9. SIMPLE WEBSITE AVAILABILITY SCRIPT</div>
+            <div class="card-body">
+                <div class="card-desc">Example: Check website availability.</div>
+                <div class="code-block"><span style="color:blue">#!/bin/bash</span>
+URL="<span style="color:red">https://example.com</span>"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "<span style="color:red">$URL</span>")
+if [ "$STATUS" = <span style="color:red">"200"</span> ]; then
+  echo "[<span style="color:green">OK</span>] $URL is UP (200)"
+else
+  echo "[<span style="color:red">DOWN</span>] $URL is DOWN (Code: $STATUS)"
+fi</div>
+
+                <div class="script-flow">
+                    <div class="flow-step">
+                        <svg width="40" height="35" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v12H4zM4 20h16v-2H4z"/><path d="M8 8l4 4 4-4" stroke="white" stroke-width="2" fill="none"/></svg>
+                        <div>CHECK URL</div>
+                    </div>
+                    <span style="font-size:1.5rem;">→</span>
+                    <div class="flow-step">
+                        <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                        <div>GET STATUS</div>
+                    </div>
+                    <span style="font-size:1.5rem;">→</span>
+                    <div class="flow-step">
+                        <svg width="35" height="35" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <div>REPORT RESULT</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM SECTION -->
+    <div class="bottom-grid">
+        
+        <!-- Card 10 -->
+        <div class="card wide-card">
+            <div class="card-header">10. COMMON NETWORKING COMMANDS QUICK REFERENCE</div>
+            <div class="card-body">
+                <table style="width:100%; font-size:0.75rem;">
+                    <tr><td style="font-weight:bold; width:40%;">curl URL</td><td>Send HTTP request</td></tr>
+                    <tr><td style="font-weight:bold;">ping HOST</td><td>Test connectivity</td></tr>
+                    <tr><td style="font-weight:bold;">ss -tuln</td><td>Show listening ports</td></tr>
+                    <tr><td style="font-weight:bold;">hostname</td><td>Show hostname</td></tr>
+                    <tr><td style="font-weight:bold;">nslookup DOMAIN</td><td>DNS lookup (basic)</td></tr>
+                    <tr><td style="font-weight:bold;">dig DOMAIN</td><td>DNS lookup (advanced)</td></tr>
+                    <tr><td style="font-weight:bold;">host DOMAIN</td><td>DNS lookup (simple)</td></tr>
+                    <tr><td style="font-weight:bold;">curl -I URL</td><td>Fetch HTTP headers</td></tr>
+                    <tr><td style="font-weight:bold;">curl -o /dev/null -w "%{http_code}" URL</td><td>Get HTTP status code</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Middle Graphic Card -->
+        <div class="card wide-card">
+            <div class="card-header" style="visibility:hidden;">Spacer</div>
+            <div class="card-body center-text">
+                <div class="icon-row" style="margin: 30px 0;">
+                    <svg width="60" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span style="font-size: 2rem; letter-spacing: 5px;">•••••••</span>
+                    <svg width="60" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+                </div>
+                <ul class="check-list" style="display:inline-block; text-align:left;">
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Test</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Monitor</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Ensure Availability</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Best Practices Card -->
+        <div class="card wide-card">
+            <div class="card-header">BEST PRACTICES</div>
+            <div class="card-body">
+                <ul class="check-list">
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Always check HTTP status codes.</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Use timeouts to avoid hanging scripts.</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check both connectivity and application health.</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Log results for monitoring and alerting.</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Use meaningful alerts when a service is down.</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Test from the same network as users.</li>
+                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Keep scripts simple, clear, and maintainable.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-section">
+            <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 01-2 2H10a2 2 0 01-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 017-7zM9 21v-1h6v1a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <div class="footer-text">
+                <h4>KEY<br>TAKEAWAY</h4>
+            </div>
+        </div>
+        <div class="footer-text" style="font-size:0.8rem;">
+            Automate your network checks.<br>
+            Detect issues early.<br>
+            Keep your systems and services reliable.
+        </div>
+
+        <div class="footer-section">
+            <svg class="footer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/></svg>
+            <div class="footer-text">
+                <h4>CHECK<br>NETWORK</h4>
+            </div>
+        </div>
+        <div style="width: 1px; height: 40px; background: #ccc;"></div>
+
+        <div class="footer-section">
+            <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/><path d="M3 12h4l3-9 4 18 3-9h4" stroke="white" stroke-width="2" fill="none"/></svg>
+            <div class="footer-text">
+                <h4>VERIFY<br>HEALTH</h4>
+            </div>
+        </div>
+        <div style="width: 1px; height: 40px; background: #ccc;"></div>
+
+        <div class="footer-section">
+            <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div class="footer-text">
+                <h4>ENSURE<br>UPTIME</h4>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Social Footer -->
+    <div class="social-footer">
+        <div class="social-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            YOUTUBE
+        </div>
+        <div class="social-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GITHUB
+        </div>
+        <div class="social-item" style="font-size:1.2rem; color:var(--primary-green);">
+            <svg width="25" height="25" viewBox="0 0 100 100" fill="currentColor">
+                <path d="M20 80 L50 20 L80 80 M30 65 L70 65" stroke="currentColor" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="70" cy="35" r="12" fill="currentColor"/>
+            </svg>
+            VERIQTA
+        </div>
+        <div class="social-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X
+        </div>
+        <div class="social-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            INSTAGRAM
+        </div>
+        <div class="social-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            TELEGRAM
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+```

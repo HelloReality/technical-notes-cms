@@ -1,0 +1,740 @@
+     1→```html
+     2→<!DOCTYPE html>
+     3→<html lang="en">
+     4→<head>
+     5→    <meta charset="UTF-8">
+     6→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     7→    <title>Veriqta - Logical Operators and Multiple Conditions</title>
+     8→    <style>
+     9→        :root {
+    10→            --primary-green: #0f4c2e;
+    11→            --accent-red: #d32f2f;
+    12→            --bg-color: #fdfbf7; /* Slight off-white/paper look */
+    13→            --card-bg: #ffffff;
+    14→            --text-main: #1a1a1a;
+    15→            --border-color: #dcdcdc;
+    16→            --code-bg: #f5f5f5;
+    17→        }
+    18→
+    19→        * {
+    20→            box-sizing: border-box;
+    21→            margin: 0;
+    22→            padding: 0;
+    23→        }
+    24→
+    25→        body {
+    26→            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    27→            background-color: var(--bg-color);
+    28→            color: var(--text-main);
+    29→            line-height: 1.5;
+    30→            padding: 20px;
+    31→            /* Simulating the spiral notebook edge */
+    32→            border-left: 20px solid #fff;
+    33→            box-shadow: inset 15px 0 0 -10px #333, 
+    34→                        inset 18px 0 0 -10px #333,
+    35→                        inset 21px 0 0 -10px #333,
+    36→                        inset 24px 0 0 -10px #333,
+    37→                        inset 27px 0 0 -10px #333,
+    38→                        inset 30px 0 0 -10px #333,
+    39→                        inset 33px 0 0 -10px #333,
+    40→                        inset 36px 0 0 -10px #333,
+    41→                        inset 39px 0 0 -10px #333,
+    42→                        inset 42px 0 0 -10px #333,
+    43→                        inset 45px 0 0 -10px #333,
+    44→                        inset 48px 0 0 -10px #333,
+    45→                        inset 51px 0 0 -10px #333,
+    46→                        inset 54px 0 0 -10px #333,
+    47→                        inset 57px 0 0 -10px #333,
+    48→                        inset 60px 0 0 -10px #333;
+    49→            min-height: 100vh;
+    50→        }
+    51→
+    52→        /* Watermark */
+    53→        body::before {
+    54→            content: "VERIQTA";
+    55→            position: fixed;
+    56→            top: 50%;
+    57→            left: 50%;
+    58→            transform: translate(-50%, -50%) rotate(-45deg);
+    59→            font-size: 80px;
+    60→            font-weight: 900;
+    61→            color: rgba(0,0,0,0.03);
+    62→            z-index: -1;
+    63→            pointer-events: none;
+    64→            white-space: nowrap;
+    65→        }
+    66→
+    67→        .container {
+    68→            max-width: 1100px;
+    69→            margin: 0 auto;
+    70→            padding-left: 40px; /* Space for spiral */
+    71→        }
+    72→
+    73→        /* Header Section */
+    74→        header {
+    75→            text-align: center;
+    76→            margin-bottom: 25px;
+    77→            position: relative;
+    78→        }
+    79→
+    80→        .logo-area {
+    81→            display: flex;
+    82→            justify-content: center;
+    83→            align-items: center;
+    84→            gap: 10px;
+    85→            margin-bottom: 10px;
+    86→            color: var(--primary-green);
+    87→            font-weight: bold;
+    88→            font-size: 1.2rem;
+    89→            letter-spacing: 2px;
+    90→        }
+    91→        
+    92→        .logo-icon {
+    93→            width: 35px;
+    94→            height: 35px;
+    95→            fill: currentColor;
+    96→        }
+    97→
+    98→        .page-badge {
+    99→            position: absolute;
+   100→            top: 0;
+   101→            right: 0;
+   102→            border: 3px solid var(--primary-green);
+   103→            color: var(--primary-green);
+   104→            font-weight: 900;
+   105→            padding: 5px 15px;
+   106→            border-radius: 8px;
+   107→            font-size: 1.2rem;
+   108→        }
+   109→
+   110→        .header-icon-left {
+   111→            position: absolute;
+   112→            top: 10px;
+   113→            left: 0;
+   114→            color: var(--primary-green);
+   115→            width: 50px;
+   116→            height: 50px;
+   117→        }
+   118→
+   119→        .header-icon-right {
+   120→            position: absolute;
+   121→            top: 40px;
+   122→            right: 0;
+   123→            color: var(--primary-green);
+   124→            width: 70px;
+   125→            height: 70px;
+   126→        }
+   127→
+   128→        h1 {
+   129→            color: var(--primary-green);
+   130→            font-size: 2.8rem;
+   131→            text-transform: uppercase;
+   132→            line-height: 1.1;
+   133→            margin-bottom: 10px;
+   134→            font-weight: 900;
+   135→        }
+   136→
+   137→        .subtitle {
+   138→            color: var(--primary-green);
+   139→            font-weight: 800;
+   140→            font-size: 1.3rem;
+   141→            letter-spacing: 1px;
+   142→            display: flex;
+   143→            align-items: center;
+   144→            justify-content: center;
+   145→            gap: 15px;
+   146→        }
+   147→        
+   148→        .subtitle::before, .subtitle::after {
+   149→            content: "";
+   150→            height: 3px;
+   151→            flex-grow: 1;
+   152→            background-color: var(--primary-green);
+   153→            max-width: 150px;
+   154→        }
+   155→
+   156→        /* Grid Layouts */
+   157→        .grid-2 {
+   158→            display: grid;
+   159→            grid-template-columns: 1fr 1fr;
+   160→            gap: 20px;
+   161→            margin-bottom: 20px;
+   162→        }
+   163→
+   164→        .grid-3 {
+   165→            display: grid;
+   166→            grid-template-columns: repeat(3, 1fr);
+   167→            gap: 20px;
+   168→            margin-bottom: 20px;
+   169→        }
+   170→
+   171→        /* Card Styles */
+   172→        .card {
+   173→            background: var(--card-bg);
+   174→            border-radius: 12px;
+   175→            overflow: hidden;
+   176→            border: 2px solid #eee;
+   177→            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+   178→            display: flex;
+   179→            flex-direction: column;
+   180→        }
+   181→
+   182→        .card-header {
+   183→            background-color: var(--primary-green);
+   184→            color: white;
+   185→            padding: 10px 15px;
+   186→            font-weight: 800;
+   187→            text-transform: uppercase;
+   188→            font-size: 1.1rem;
+   189→            text-align: center;
+   190→        }
+   191→
+   192→        .card-body {
+   193→            padding: 15px;
+   194→            flex-grow: 1;
+   195→            display: flex;
+   196→            flex-direction: column;
+   197→            gap: 10px;
+   198→        }
+   199→
+   200→        /* Table Specifics */
+   201→        table {
+   202→            width: 100%;
+   203→            border-collapse: collapse;
+   204→            font-size: 0.9rem;
+   205→        }
+   206→
+   207→        th {
+   208→            background-color: var(--primary-green);
+   209→            color: white;
+   210→            padding: 8px;
+   211→            text-align: center;
+   212→            font-weight: 700;
+   213→            text-transform: uppercase;
+   214→            font-size: 0.85rem;
+   215→        }
+   216→
+   217→        td {
+   218→            padding: 10px 8px;
+   219→            border-bottom: 1px solid #eee;
+   220→            vertical-align: middle;
+   221→            text-align: center;
+   222→        }
+   223→        
+   224→        td:first-child {
+   225→            font-weight: 900;
+   226→            font-size: 1.2rem;
+   227→            color: var(--primary-green);
+   228→            width: 15%;
+   229→        }
+   230→
+   231→        tr:last-child td {
+   232→            border-bottom: none;
+   233→        }
+   234→
+   235→        /* Code Blocks */
+   236→        code, .code-block {
+   237→            font-family: "Courier New", Courier, monospace;
+   238→            background-color: transparent;
+   239→            font-size: 0.85rem;
+   240→            line-height: 1.4;
+   241→            display: block;
+   242→            white-space: pre-wrap;
+   243→        }
+   244→
+   245→        .keyword { color: var(--accent-red); font-weight: bold; }
+   246→        .string { color: #2e7d32; } /* Greenish for strings/echo content */
+   247→        .var { color: #d32f2f; } /* Red for vars in image usually, or distinct */
+   248→
+   249→        /* List Items (Short Circuit) */
+   250→        .list-item {
+   251→            display: flex;
+   252→            align-items: flex-start;
+   253→            gap: 12px;
+   254→            margin-bottom: 12px;
+   255→            font-size: 0.95rem;
+   256→        }
+   257→
+   258→        .icon-circle {
+   259→            background-color: var(--primary-green);
+   260→            color: white;
+   261→            width: 28px;
+   262→            height: 28px;
+   263→            border-radius: 50%;
+   264→            display: flex;
+   265→            align-items: center;
+   266→            justify-content: center;
+   267→            font-weight: bold;
+   268→            flex-shrink: 0;
+   269→            font-family: monospace;
+   270→            font-size: 1.1rem;
+   271→        }
+   272→
+   273→        /* Footer / Tip Area */
+   274→        .tip-bar {
+   275→            background: white;
+   276→            border: 2px solid #ccc;
+   277→            border-radius: 12px;
+   278→            padding: 15px 20px;
+   279→            display: flex;
+   280→            align-items: center;
+   281→            gap: 20px;
+   282→            margin-top: 20px;
+   283→            margin-bottom: 30px;
+   284→        }
+   285→
+   286→        .tip-icon-large {
+   287→            background-color: var(--primary-green);
+   288→            color: white;
+   289→            width: 45px;
+   290→            height: 45px;
+   291→            border-radius: 50%;
+   292→            display: flex;
+   293→            align-items: center;
+   294→            justify-content: center;
+   295→            flex-shrink: 0;
+   296→        }
+   297→
+   298→        .tip-text {
+   299→            font-weight: 700;
+   300→            font-size: 1.1rem;
+   301→            color: #222;
+   302→        }
+   303→
+   304→        .code-tag-icon {
+   305→            background-color: var(--primary-green);
+   306→            color: white;
+   307→            padding: 5px 10px;
+   308→            border-radius: 6px;
+   309→            font-family: monospace;
+   310→            font-weight: bold;
+   311→            font-size: 1.2rem;
+   312→            margin-left: auto;
+   313→        }
+   314→
+   315→        /* Footer Socials */
+   316→        footer {
+   317→            border-top: 2px solid var(--primary-green);
+   318→            padding-top: 15px;
+   319→            display: flex;
+   320→            justify-content: space-between;
+   321→            align-items: center;
+   322→            margin-bottom: 40px;
+   323→        }
+   324→
+   325→        .social-links {
+   326→            display: flex;
+   327→            gap: 20px;
+   328→            flex-wrap: wrap;
+   329→        }
+   330→
+   331→        .social-item {
+   332→            display: flex;
+   333→            align-items: center;
+   334→            gap: 8px;
+   335→            font-weight: 800;
+   336→            font-size: 0.9rem;
+   337→            color: #333;
+   338→            text-transform: uppercase;
+   339→        }
+   340→
+   341→        .social-icon {
+   342→            width: 24px;
+   343→            height: 24px;
+   344→            fill: var(--primary-green);
+   345→        }
+   346→
+   347→        .footer-logo {
+   348→            display: flex;
+   349→            align-items: center;
+   350→            gap: 10px;
+   351→            color: var(--primary-green);
+   352→            font-weight: 900;
+   353→            font-size: 1.2rem;
+   354→            letter-spacing: 1px;
+   355→        }
+   356→
+   357→        /* Utility */
+   358→        .check-row {
+   359→            display: flex;
+   360→            align-items: center;
+   361→            gap: 10px;
+   362→            margin-top: auto;
+   363→            padding-top: 10px;
+   364→            font-weight: 600;
+   365→            font-size: 0.9rem;
+   366→        }
+   367→
+   368→        .check-icon {
+   369→            color: var(--primary-green);
+   370→            width: 24px;
+   371→            height: 24px;
+   372→        }
+   373→
+   374→        .section-desc {
+   375→            font-weight: 700;
+   376→            margin-bottom: 10px;
+   377→            font-size: 0.95rem;
+   378→        }
+   379→
+   380→        /* Responsive */
+   381→        @media (max-width: 900px) {
+   382→            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+   383→            h1 { font-size: 2rem; }
+   384→            .header-icons { display: none; }
+   385→        }
+   386→    </style>
+   387→</head>
+   388→<body>
+   389→
+   390→<div class="container">
+   391→    
+   392→    <!-- HEADER -->
+   393→    <header>
+   394→        <div class="header-icon-left header-icons">
+   395→            <!-- Terminal Icon -->
+   396→            <svg viewBox="0 0 24 24" fill="currentColor">
+   397→                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-7l-5-3.5L13 10l-5 3.5L9 11l5-3z"/> 
+   398→                <!-- Simplified representation of the terminal icon in image -->
+   399→                <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+   400→                <path d="M7 9l3 3-3 3M13 15h4" stroke="currentColor" stroke-width="2" fill="none"/>
+   401→            </svg>
+   402→        </div>
+   403→        
+   404→        <div class="page-badge">PAGE 8</div>
+   405→
+   406→        <div class="logo-area">
+   407→            <svg class="logo-icon" viewBox="0 0 24 24">
+   408→                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/> <!-- Abstract VQ shape -->
+   409→                <path d="M4 12l4-8 4 8-4 8z" fill="none" stroke="currentColor" stroke-width="2"/>
+   410→                <path d="M12 4l4 8-4 8 4-8z" fill="none" stroke="currentColor" stroke-width="2"/>
+   411→            </svg>
+   412→            VERIQTA
+   413→        </div>
+   414→
+   415→        <h1>8. LOGICAL OPERATORS<br>AND MULTIPLE CONDITIONS</h1>
+   416→        <div class="subtitle">COMBINE TESTS. MAKE SMARTER DECISIONS.</div>
+   417→
+   418→        <div class="header-icon-right header-icons">
+   419→             <!-- Flowchart Icon -->
+   420→             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+   421→                 <rect x="2" y="3" width="6" height="4" />
+   422→                 <rect x="16" y="3" width="6" height="4" />
+   423→                 <rect x="9" y="10" width="6" height="4" />
+   424→                 <rect x="2" y="17" width="6" height="4" />
+   425→                 <rect x="16" y="17" width="6" height="4" />
+   426→                 <path d="M5 7v3h4M20 7v3h-4M12 14v3M5 17h4M20 17h-4" />
+   427→             </svg>
+   428→        </div>
+   429→    </header>
+   430→
+   431→    <!-- ROW 1: TABLE & SHORT CIRCUIT -->
+   432→    <div class="grid-2">
+   433→        <!-- Card 1: Table -->
+   434→        <div class="card">
+   435→            <div class="card-header">1. LOGICAL OPERATORS</div>
+   436→            <div class="card-body" style="padding:0;">
+   437→                <table>
+   438→                    <thead>
+   439→                        <tr>
+   440→                            <th>OPERATOR</th>
+   441→                            <th>MEANING</th>
+   442→                            <th>EXAMPLE</th>
+   443→                            <th>DESCRIPTION</th>
+   444→                        </tr>
+   445→                    </thead>
+   446→                    <tbody>
+   447→                        <tr>
+   448→                            <td>&&</td>
+   449→                            <td>AND</td>
+   450→                            <td style="text-align:left; font-family:monospace; font-size:0.8rem;">
+   451→                                <span class="keyword">if</span> [ $a <span class="keyword">-gt</span> 5 ]<br>
+   452→                                <span style="color:#000; font-weight:bold;">&&</span> [ $b <span class="keyword">-lt</span> 10 ]
+   453→                            </td>
+   454→                            <td style="text-align:left;">Both conditions must be true.</td>
+   455→                        </tr>
+   456→                        <tr>
+   457→                            <td>||</td>
+   458→                            <td>OR</td>
+   459→                            <td style="text-align:left; font-family:monospace; font-size:0.8rem;">
+   460→                                <span class="keyword">if</span> [ $a <span class="keyword">-gt</span> 5 ]<br>
+   461→                                <span style="color:#000; font-weight:bold;">||</span> [ $b <span class="keyword">-lt</span> 10 ]
+   462→                            </td>
+   463→                            <td style="text-align:left;">At least one condition must be true.</td>
+   464→                        </tr>
+   465→                        <tr>
+   466→                            <td>!</td>
+   467→                            <td>NOT</td>
+   468→                            <td style="text-align:left; font-family:monospace; font-size:0.8rem;">
+   469→                                <span class="keyword">if !</span> [ <span class="keyword">-f</span> file.txt ]
+   470→                            </td>
+   471→                            <td style="text-align:left;">Reverses the result.</td>
+   472→                        </tr>
+   473→                    </tbody>
+   474→                </table>
+   475→            </div>
+   476→        </div>
+   477→
+   478→        <!-- Card 2: Short Circuit -->
+   479→        <div class="card">
+   480→            <div class="card-header">2. SHORT-CIRCUIT EXECUTION</div>
+   481→            <div class="card-body">
+   482→                <div class="list-item">
+   483→                    <div class="icon-circle">&amp;&amp;</div>
+   484→                    <div>If the first condition is false, the second condition is NOT executed.</div>
+   485→                </div>
+   486→                <div class="list-item">
+   487→                    <div class="icon-circle">||</div>
+   488→                    <div>If the first condition is true, the second condition is NOT executed.</div>
+   489→                </div>
+   490→                <div class="list-item">
+   491→                    <div class="icon-circle">!</div>
+   492→                    <div>Flips true to false, and false to true.</div>
+   493→                </div>
+   494→                <div class="list-item">
+   495→                    <div class="icon-circle" style="font-size:1.4rem;">💡</div> <!-- Using emoji for lightbulb or SVG if preferred, using SVG below for fidelity -->
+   496→                    <div>Saves time and prevents unnecessary checks.</div>
+   497→                </div>
+   498→            </div>
+   499→        </div>
+   500→    </div>
+   501→
+   502→    <!-- ROW 2: AND, OR, NOT CONDITIONS -->
+   503→    <div class="grid-3">
+   504→        <!-- Card 3: AND -->
+   505→        <div class="card">
+   506→            <div class="card-header">3. AND CONDITIONS (&amp;&amp;)</div>
+   507→            <div class="card-body">
+   508→                <div class="section-desc">Both conditions must be true.</div>
+   509→                <div class="code-block">
+   510→<span class="keyword">if</span> [ <span class="keyword">-f</span> app.sh ] <span style="font-weight:bold;color:#000;">&amp;&amp;</span> [ <span class="keyword">-x</span> app.sh ]; <span class="keyword">then</span>
+   511→    echo <span class="string">"File exists and is executable"</span>
+   512→<span class="keyword">else</span>
+   513→    echo <span class="string">"Check failed"</span>
+   514→<span class="keyword">fi</span>
+   515→                </div>
+   516→                <div class="check-row">
+   517→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   518→                    Use for strict requirements.
+   519→                </div>
+   520→            </div>
+   521→        </div>
+   522→
+   523→        <!-- Card 4: OR -->
+   524→        <div class="card">
+   525→            <div class="card-header">4. OR CONDITIONS (||)</div>
+   526→            <div class="card-body">
+   527→                <div class="section-desc">At least one condition must be true.</div>
+   528→                <div class="code-block">
+   529→<span class="keyword">if</span> [ <span class="keyword">-f</span> app.sh ] <span style="font-weight:bold;color:#000;">||</span> [ <span class="keyword">-f</span> app.py ]; <span class="keyword">then</span>
+   530→    echo <span class="string">"Script found"</span>
+   531→<span class="keyword">else</span>
+   532→    echo <span class="string">"No script found"</span>
+   533→<span class="keyword">fi</span>
+   534→                </div>
+   535→                <div class="check-row">
+   536→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   537→                    Use for alternatives.
+   538→                </div>
+   539→            </div>
+   540→        </div>
+   541→
+   542→        <!-- Card 5: NOT -->
+   543→        <div class="card">
+   544→            <div class="card-header">5. NOT CONDITION (!)</div>
+   545→            <div class="card-body">
+   546→                <div class="section-desc">Reverse a condition.</div>
+   547→                <div class="code-block">
+   548→<span class="keyword">if</span> [ <span style="font-weight:bold;color:#000;">!</span> <span class="keyword">-f</span> config.env ]; <span class="keyword">then</span>
+   549→    echo <span class="string">"Config file missing"</span>
+   550→<span class="keyword">else</span>
+   551→    echo <span class="string">"Config file exists"</span>
+   552→<span class="keyword">fi</span>
+   553→                </div>
+   554→                <div class="check-row">
+   555→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   556→                    Use to detect missing items.
+   557→                </div>
+   558→            </div>
+   559→        </div>
+   560→    </div>
+   561→
+   562→    <!-- ROW 3: COMBINING MULTIPLE TESTS -->
+   563→    <div class="card" style="margin-bottom: 20px;">
+   564→        <div class="card-header">6. COMBINING MULTIPLE TESTS</div>
+   565→        <div class="card-body" style="flex-direction: row; justify-content: space-between; align-items: stretch;">
+   566→            
+   567→            <div style="text-align:center; width:100%; margin-bottom:10px; font-weight:600;">
+   568→                You can mix &amp;&amp;, ||, and ! for powerful checks.
+   569→            </div>
+   570→
+   571→            <div class="grid-3" style="width:100%;">
+   572→                <!-- Ex 1 -->
+   573→                <div class="card">
+   574→                    <div class="card-header" style="font-size:0.9rem; padding:8px;">EXAMPLE 1: MIX AND & OR</div>
+   575→                    <div class="card-body">
+   576→                        <div class="code-block" style="font-size:0.75rem;">
+   577→<span class="keyword">if</span> [ <span class="keyword">-f</span> deploy.sh ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-x</span> deploy.sh ] <span style="color:#000;font-weight:bold;">||</span>
+   578→  [ <span class="keyword">-f</span> deploy.py ]; <span class="keyword">then</span>
+   579→  echo <span class="string">"Ready to deploy"</span>
+   580→<span class="keyword">else</span>
+   581→  echo <span class="string">"Deployment script missing"</span>
+   582→<span class="keyword">fi</span>
+   583→                        </div>
+   584→                        <div class="check-row" style="font-size:0.8rem;">
+   585→                            <svg class="check-icon" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   586→                            Executable deploy.sh OR deploy.py exists.
+   587→                        </div>
+   588→                    </div>
+   589→                </div>
+   590→
+   591→                <!-- Ex 2 -->
+   592→                <div class="card">
+   593→                    <div class="card-header" style="font-size:0.9rem; padding:8px;">EXAMPLE 2: NEGATION WITH AND</div>
+   594→                    <div class="card-body">
+   595→                        <div class="code-block" style="font-size:0.75rem;">
+   596→<span class="keyword">if</span> [ <span style="color:#000;font-weight:bold;">!</span> <span class="keyword">-f</span> .lock ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-d</span> /var/log ]; <span class="keyword">then</span>
+   597→  echo <span class="string">"Safe to proceed"</span>
+   598→<span class="keyword">else</span>
+   599→  echo <span class="string">"Lock file exists or log directory missing"</span>
+   600→<span class="keyword">fi</span>
+   601→                        </div>
+   602→                        <div class="check-row" style="font-size:0.8rem;">
+   603→                            <svg class="check-icon" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   604→                            No lock file AND directory exists.
+   605→                        </div>
+   606→                    </div>
+   607→                </div>
+   608→
+   609→                <!-- Ex 3 -->
+   610→                <div class="card">
+   611→                    <div class="card-header" style="font-size:0.9rem; padding:8px;">EXAMPLE 3: COMPLEX COMBINATION</div>
+   612→                    <div class="card-body">
+   613→                        <div class="code-block" style="font-size:0.75rem;">
+   614→<span class="keyword">if</span> [ <span class="keyword">-f</span> app.conf ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-r</span> app.conf ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span>
+   615→  <span style="color:#000;font-weight:bold;">!</span> [ <span class="keyword">-z</span> "$1" ]; <span class="keyword">then</span>
+   616→  echo <span class="string">"All checks passed"</span>
+   617→<span class="keyword">else</span>
+   618→  echo <span class="string">"Validation failed"</span>
+   619→<span class="keyword">fi</span>
+   620→                        </div>
+   621→                        <div class="check-row" style="font-size:0.8rem;">
+   622→                            <svg class="check-icon" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   623→                            File exists, readable AND first argument is not empty.
+   624→                        </div>
+   625→                    </div>
+   626→                </div>
+   627→            </div>
+   628→        </div>
+   629→    </div>
+   630→
+   631→    <!-- ROW 4: BUILDING SAFER DEPLOYMENT CHECKS -->
+   632→    <div class="card" style="margin-bottom: 20px;">
+   633→        <div class="card-header">7. BUILDING SAFER DEPLOYMENT CHECKS</div>
+   634→        <div class="card-body" style="flex-direction: row; align-items: flex-start;">
+   635→            
+   636→            <div style="flex: 1; padding-right: 20px; border-right: 2px dashed #ccc;">
+   637→                <div style="text-align:center; font-weight:700; margin-bottom:10px;">Example: Before deploying, validate everything.</div>
+   638→                <div class="code-block" style="background:#f9f9f9; padding:10px; border-radius:8px; font-size:0.8rem;">
+   639→<span class="keyword">if</span> [ <span class="keyword">-f</span> app.tar.gz ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-s</span> app.tar.gz ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-x</span> /usr/bin/docker ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span>
+   640→  <span style="color:#000;font-weight:bold;">!</span> systemctl is-active --quiet app; <span class="keyword">then</span>
+   641→  echo <span class="string">"All checks passed. Starting deployment..."</span>
+   642→  <span style="color:#666;"># Your deployment commands here</span>
+   643→<span class="keyword">else</span>
+   644→  echo <span class="string">"Deployment aborted. Check requirements."</span>
+   645→  exit 1
+   646→<span class="keyword">fi</span>
+   647→                </div>
+   648→            </div>
+   649→
+   650→            <div style="flex: 1; padding-left: 20px; display:flex; flex-direction:column; justify-content:center;">
+   651→                <div class="list-item">
+   652→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   653→                    <div>File exists AND not empty</div>
+   654→                </div>
+   655→                <div class="list-item">
+   656→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   657→                    <div>Docker is installed</div>
+   658→                </div>
+   659→                <div class="list-item">
+   660→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   661→                    <div>App service is not running</div>
+   662→                </div>
+   663→                <div class="list-item">
+   664→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   665→                    <div>Proceed only when everything is correct</div>
+   666→                </div>
+   667→                <div class="list-item">
+   668→                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+   669→                    <div>Prevents failed or risky deployments</div>
+   670→                </div>
+   671→            </div>
+   672→
+   673→            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:20px; min-width:140px;">
+   674→                <svg viewBox="0 0 24 24" fill="#0f4c2e" width="80" height="80">
+   675→                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+   676→                </svg>
+   677→                <div style="text-align:center; font-weight:900; color:#0f4c2e; line-height:1.2; margin-top:5px;">
+   678→                    SAFE<br>DEPLOYMENT<br>STARTS HERE!
+   679→                </div>
+   680→            </div>
+   681→
+   682→        </div>
+   683→    </div>
+   684→
+   685→    <!-- TIP BAR -->
+   686→    <div class="tip-bar">
+   687→        <div class="tip-icon-large">
+   688→            <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
+   689→                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+   690→            </svg>
+   691→        </div>
+   692→        <div class="tip-text">
+   693→            TIP: Combine checks, validate early, and fail fast.<br>
+   694→            Smart conditions = reliable automation.
+   695→        </div>
+   696→        <div class="code-tag-icon">&lt;/&gt;</div>
+   697→    </div>
+   698→
+   699→    <!-- FOOTER -->
+   700→    <footer>
+   701→        <div class="social-links">
+   702→            <div class="social-item">
+   703→                <svg class="social-icon" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+   704→                YOUTUBE
+   705→            </div>
+   706→            <div class="social-item">
+   707→                <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+   708→                GITHUB
+   709→            </div>
+   710→            <div class="social-item">
+   711→                <svg class="social-icon" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+   712→                LINKEDIN
+   713→            </div>
+   714→            <div class="social-item">
+   715→                <svg class="social-icon" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+   716→                X
+   717→            </div>
+   718→            <div class="social-item">
+   719→                <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+   720→                INSTAGRAM
+   721→            </div>
+   722→            <div class="social-item">
+   723→                <svg class="social-icon" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.677-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+   724→                TELEGRAM
+   725→            </div>
+   726→        </div>
+   727→
+   728→        <div class="footer-logo">
+   729→            <svg class="logo-icon" viewBox="0 0 24 24" style="width:24px; height:24px;">
+   730→                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/> 
+   731→            </svg>
+   732→            VERIQTA
+   733→        </div>
+   734→    </footer>
+   735→
+   736→</div>
+   737→
+   738→</body>
+   739→</html>
+   740→```

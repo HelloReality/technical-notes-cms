@@ -1,0 +1,716 @@
+     1→```html
+     2→<!DOCTYPE html>
+     3→<html lang="en">
+     4→<head>
+     5→    <meta charset="UTF-8">
+     6→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     7→    <title>15. Networking with Shell Scripts - VeriQTA</title>
+     8→    <style>
+     9→        :root {
+    10→            --primary-green: #0d4a2e;
+    11→            --dark-green: #083020;
+    12→            --light-bg: #f8f9fa;
+    13→            --card-border: #e0e0e0;
+    14→            --text-main: #212529;
+    15→            --code-bg: #f1f3f5;
+    16→            --status-200: #28a745;
+    17→            --status-301: #ffc107;
+    18→            --status-404: #dc3545;
+    19→            --status-500: #c82333;
+    20→        }
+    21→
+    22→        body {
+    23→            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    24→            background-color: #ffffff;
+    25→            color: var(--text-main);
+    26→            margin: 0;
+    27→            padding: 20px;
+    28→            line-height: 1.5;
+    29→        }
+    30→
+    31→        .container {
+    32→            max-width: 1200px;
+    33→            margin: 0 auto;
+    34→            position: relative;
+    35→        }
+    36→
+    37→        /* Header Section */
+    38→        header {
+    39→            text-align: center;
+    40→            margin-bottom: 30px;
+    41→            position: relative;
+    42→        }
+    43→
+    44→        .logo-area {
+    45→            display: flex;
+    46→            justify-content: center;
+    47→            align-items: center;
+    48→            gap: 10px;
+    49→            margin-bottom: 10px;
+    50→            font-weight: bold;
+    51→            color: var(--primary-green);
+    52→            font-size: 1.2rem;
+    53→            letter-spacing: 2px;
+    54→        }
+    55→
+    56→        .page-badge {
+    57→            position: absolute;
+    58→            top: -10px;
+    59→            right: 0;
+    60→            border: 3px solid #000;
+    61→            padding: 5px 20px;
+    62→            border-radius: 8px;
+    63→            font-weight: bold;
+    64→            font-size: 1.5rem;
+    65→            letter-spacing: 2px;
+    66→        }
+    67→
+    68→        h1 {
+    69→            font-size: 3rem;
+    70→            color: var(--primary-green);
+    71→            text-transform: uppercase;
+    72→            margin: 10px 0;
+    73→            line-height: 1.1;
+    74→            font-weight: 900;
+    75→        }
+    76→
+    77→        .subtitle {
+    78→            font-size: 1.3rem;
+    79→            font-weight: bold;
+    80→            color: var(--primary-green);
+    81→            letter-spacing: 3px;
+    82→            border-top: 3px solid var(--primary-green);
+    83→            border-bottom: 3px solid var(--primary-green);
+    84→            display: inline-block;
+    85→            padding: 5px 20px;
+    86→            margin-top: 10px;
+    87→        }
+    88→
+    89→        .header-icons {
+    90→            display: flex;
+    91→            justify-content: space-between;
+    92→            align-items: center;
+    93→            max-width: 800px;
+    94→            margin: 20px auto 0;
+    95→        }
+    96→
+    97→        .icon-large {
+    98→            width: 80px;
+    99→            height: 80px;
+   100→            color: var(--primary-green);
+   101→        }
+   102→
+   103→        /* Grid Layout */
+   104→        .grid-container {
+   105→            display: grid;
+   106→            grid-template-columns: repeat(3, 1fr);
+   107→            gap: 15px;
+   108→            margin-bottom: 20px;
+   109→        }
+   110→
+   111→        /* Card Styles */
+   112→        .card {
+   113→            border: 2px solid #000;
+   114→            border-radius: 12px;
+   115→            overflow: hidden;
+   116→            background: white;
+   117→        }
+   118→
+   119→        .card-header {
+   120→            background-color: var(--primary-green);
+   121→            color: white;
+   122→            padding: 10px;
+   123→            font-weight: bold;
+   124→            font-size: 0.95rem;
+   125→            text-transform: uppercase;
+   126→            text-align: center;
+   127→        }
+   128→
+   129→        .card-body {
+   130→            padding: 12px;
+   131→            font-size: 0.85rem;
+   132→        }
+   133→
+   134→        .card-desc {
+   135→            margin-bottom: 10px;
+   136→            font-weight: 600;
+   137→        }
+   138→
+   139→        .code-block {
+   140→            background-color: var(--code-bg);
+   141→            border: 1px solid #ddd;
+   142→            border-radius: 6px;
+   143→            padding: 10px;
+   144→            font-family: "Courier New", monospace;
+   145→            font-size: 0.8rem;
+   146→            margin: 10px 0;
+   147→            overflow-x: auto;
+   148→            white-space: pre-wrap;
+   149→            word-break: break-all;
+   150→        }
+   151→
+   152→        .icon-row {
+   153→            display: flex;
+   154→            align-items: center;
+   155→            justify-content: center;
+   156→            gap: 15px;
+   157→            margin: 15px 0;
+   158→            color: var(--primary-green);
+   159→        }
+   160→
+   161→        .check-list {
+   162→            list-style: none;
+   163→            padding: 0;
+   164→            margin: 10px 0;
+   165→        }
+   166→
+   167→        .check-list li {
+   168→            display: flex;
+   169→            align-items: start;
+   170→            gap: 8px;
+   171→            margin-bottom: 6px;
+   172→        }
+   173→
+   174→        .check-icon {
+   175→            color: var(--primary-green);
+   176→            min-width: 16px;
+   177→            margin-top: 2px;
+   178→        }
+   179→
+   180→        .status-item {
+   181→            display: flex;
+   182→            align-items: center;
+   183→            gap: 10px;
+   184→            margin: 8px 0;
+   185→            font-weight: 600;
+   186→        }
+   187→
+   188→        .status-badge {
+   189→            color: white;
+   190→            padding: 4px 10px;
+   191→            border-radius: 4px;
+   192→            font-weight: bold;
+   193→            min-width: 50px;
+   194→            text-align: center;
+   195→            font-size: 0.85rem;
+   196→        }
+   197→
+   198→        .bg-200 { background-color: var(--status-200); }
+   199→        .bg-301 { background-color: var(--status-301); color: #000; }
+   200→        .bg-404 { background-color: var(--status-404); }
+   201→        .bg-500 { background-color: var(--status-500); }
+   202→
+   203→        .red-text { color: var(--status-404); font-weight: bold; }
+   204→
+   205→        /* Bottom Section */
+   206→        .bottom-grid {
+   207→            display: grid;
+   208→            grid-template-columns: 1fr 1fr 1fr;
+   209→            gap: 15px;
+   210→            margin-bottom: 20px;
+   211→        }
+   212→
+   213→        .wide-card {
+   214→            grid-column: span 1;
+   215→        }
+   216→
+   217→        /* Footer */
+   218→        footer {
+   219→            border: 2px solid #000;
+   220→            border-radius: 12px;
+   221→            padding: 20px;
+   222→            display: grid;
+   223→            grid-template-columns: auto 1fr auto 1fr auto 1fr;
+   224→            gap: 20px;
+   225→            align-items: center;
+   226→            background: white;
+   227→        }
+   228→
+   229→        .footer-section {
+   230→            display: flex;
+   231→            align-items: center;
+   232→            gap: 10px;
+   233→        }
+   234→
+   235→        .footer-icon {
+   236→            width: 40px;
+   237→            height: 40px;
+   238→            color: var(--primary-green);
+   239→        }
+   240→
+   241→        .footer-text h4 {
+   242→            margin: 0;
+   243→            font-size: 0.9rem;
+   244→            text-transform: uppercase;
+   245→            color: var(--primary-green);
+   246→            font-weight: 900;
+   247→        }
+   248→
+   249→        .footer-text p {
+   250→            margin: 2px 0 0;
+   251→            font-size: 0.75rem;
+   252→            font-weight: 600;
+   253→        }
+   254→
+   255→        .social-footer {
+   256→            text-align: center;
+   257→            margin-top: 20px;
+   258→            display: flex;
+   259→            justify-content: center;
+   260→            gap: 30px;
+   261→            align-items: center;
+   262→            font-size: 0.8rem;
+   263→            font-weight: bold;
+   264→            color: #555;
+   265→        }
+   266→
+   267→        .social-item {
+   268→            display: flex;
+   269→            align-items: center;
+   270→            gap: 5px;
+   271→        }
+   272→
+   273→        /* Utility */
+   274→        .center-text { text-align: center; }
+   275→        .bold { font-weight: bold; }
+   276→        .mt-10 { margin-top: 10px; }
+   277→        
+   278→        table {
+   279→            width: 100%;
+   280→            border-collapse: collapse;
+   281→            font-size: 0.8rem;
+   282→            font-family: monospace;
+   283→        }
+   284→        
+   285→        td {
+   286→            padding: 3px;
+   287→            vertical-align: top;
+   288→        }
+   289→
+   290→        .script-flow {
+   291→            display: flex;
+   292→            justify-content: space-around;
+   293→            align-items: center;
+   294→            margin: 15px 0;
+   295→            color: var(--primary-green);
+   296→        }
+   297→        
+   298→        .flow-step {
+   299→            text-align: center;
+   300→            font-size: 0.7rem;
+   301→            font-weight: bold;
+   302→        }
+   303→
+   304→        @media (max-width: 1024px) {
+   305→            .grid-container, .bottom-grid {
+   306→                grid-template-columns: 1fr;
+   307→            }
+   308→            footer {
+   309→                grid-template-columns: 1fr;
+   310→                gap: 15px;
+   311→            }
+   312→        }
+   313→    </style>
+   314→</head>
+   315→<body>
+   316→
+   317→<div class="container">
+   318→
+   319→    <!-- HEADER -->
+   320→    <header>
+   321→        <div class="logo-area">
+   322→            <!-- VQ Logo Icon -->
+   323→            <svg viewBox="0 0 100 100" width="40" height="40" fill="currentColor">
+   324→                <path d="M20 80 L50 20 L80 80 M30 65 L70 65" stroke="currentColor" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+   325→                <circle cx="70" cy="35" r="12" fill="currentColor"/>
+   326→            </svg>
+   327→            VERIQTA
+   328→        </div>
+   329→        
+   330→        <div class="page-badge">PAGE 15</div>
+   331→
+   332→        <div class="header-icons">
+   333→            <!-- Terminal Icon -->
+   334→            <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   335→                <polyline points="4 17 10 11 4 5"></polyline>
+   336→                <line x1="12" y1="19" x2="20" y2="19"></line>
+   337→                <rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect>
+   338→            </svg>
+   339→
+   340→            <div>
+   341→                <h1>15. Networking<br>with Shell Scripts</h1>
+   342→                <div class="subtitle">TEST. MONITOR. ENSURE AVAILABILITY.</div>
+   343→            </div>
+   344→
+   345→            <!-- Globe Icon -->
+   346→            <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   347→                <circle cx="12" cy="12" r="10"></circle>
+   348→                <line x1="2" y1="12" x2="22" y2="12"></line>
+   349→                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+   350→                <circle cx="18" cy="6" r="2" fill="currentColor"></circle>
+   351→                <circle cx="20" cy="18" r="2" fill="currentColor"></circle>
+   352→            </svg>
+   353→        </div>
+   354→    </header>
+   355→
+   356→    <!-- MAIN GRID (Top Row) -->
+   357→    <div class="grid-container">
+   358→        
+   359→        <!-- Card 1 -->
+   360→        <div class="card">
+   361→            <div class="card-header">1. CURL – SEND HTTP REQUESTS</div>
+   362→            <div class="card-body">
+   363→                <div class="card-desc">Send HTTP requests to endpoints.</div>
+   364→                <div class="code-block">curl https://example.com
+   365→curl -I https://example.com
+   366→curl -s -o /dev/null -w "%{http_code}" 
+   367→https://example.com</div>
+   368→                <div style="font-size: 0.8rem;">
+   369→                    <strong>-I</strong> &nbsp;&nbsp;Fetch headers only<br>
+   370→                    <strong>-s</strong> &nbsp;&nbsp;&nbsp;Silent mode<br>
+   371→                    <strong>-o /dev/null</strong> &nbsp;Discard body<br>
+   372→                    <strong>-w "%{http_code}"</strong> &nbsp;Show status code
+   373→                </div>
+   374→                <div class="icon-row">
+   375→                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/></svg>
+   376→                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+   377→                    <svg width="50" height="50" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="4" y="10" width="16" height="4" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/></svg>
+   378→                </div>
+   379→            </div>
+   380→        </div>
+   381→
+   382→        <!-- Card 2 -->
+   383→        <div class="card">
+   384→            <div class="card-header">2. PING – TEST CONNECTIVITY</div>
+   385→            <div class="card-body">
+   386→                <div class="card-desc">Test whether a host is reachable.</div>
+   387→                <div class="code-block">ping -c 4 google.com
+   388→ping -c 4 8.8.8.8</div>
+   389→                
+   390→                <div class="icon-row">
+   391→                    <svg width="60" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+   392→                    <span style="font-size: 2rem; letter-spacing: 5px;">•••••••</span>
+   393→                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10z"/></svg>
+   394→                </div>
+   395→
+   396→                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+   397→                    <div class="bold mb-5">Common use:</div>
+   398→                    <ul class="check-list">
+   399→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check network connectivity</li>
+   400→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Troubleshoot reachability issues</li>
+   401→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Measure response time</li>
+   402→                    </ul>
+   403→                </div>
+   404→            </div>
+   405→        </div>
+   406→
+   407→        <!-- Card 3 -->
+   408→        <div class="card">
+   409→            <div class="card-header">3. SS – CHECK CONNECTIONS</div>
+   410→            <div class="card-body">
+   411→                <div class="card-desc">Show network sockets and connections.</div>
+   412→                <table>
+   413→                    <tr><td>ss -tuln</td><td># Listening ports</td></tr>
+   414→                    <tr><td>ss -tnp</td><td># All connections</td></tr>
+   415→                    <tr><td>ss -ltnp</td><td># Listening with PID</td></tr>
+   416→                </table>
+   417→
+   418→                <div class="icon-row">
+   419→                    <svg width="50" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+   420→                    <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span>——<span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span>|<span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span>——<span style="width:10px; height:10px; border:2px solid; border-radius:50%;"></span></span>
+   421→                    <svg width="50" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+   422→                </div>
+   423→
+   424→                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+   425→                    <div class="bold mb-5">Useful to:</div>
+   426→                    <ul class="check-list">
+   427→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check open ports</li>
+   428→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> See active connections</li>
+   429→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Diagnose network issues</li>
+   430→                    </ul>
+   431→                </div>
+   432→            </div>
+   433→        </div>
+   434→
+   435→        <!-- Card 4 -->
+   436→        <div class="card">
+   437→            <div class="card-header">4. HOSTNAME – SHOW SYSTEM NAME</div>
+   438→            <div class="card-body">
+   439→                <div class="card-desc">Get or set the system hostname.</div>
+   440→                <table>
+   441→                    <tr><td>hostname</td><td># Show hostname</td></tr>
+   442→                    <tr><td>hostname -I</td><td># Show IP addresses</td></tr>
+   443→                    <tr><td>hostnamectl</td><td># Detailed info</td></tr>
+   444→                </table>
+   445→
+   446→                <div class="icon-row">
+   447→                    <svg width="50" height="40" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="4" rx="1"/><rect x="4" y="10" width="16" height="4" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/></svg>
+   448→                    <div style="text-align:left; font-size:0.8rem;">
+   449→                        <div class="bold">Server: web01</div>
+   450→                        <div class="bold">IP: 192.168.1.10</div>
+   451→                    </div>
+   452→                </div>
+   453→
+   454→                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+   455→                    <div class="bold mb-5">Use cases:</div>
+   456→                    <ul class="check-list">
+   457→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Identify servers</li>
+   458→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Log server identity</li>
+   459→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Script environment awareness</li>
+   460→                    </ul>
+   461→                </div>
+   462→            </div>
+   463→        </div>
+   464→
+   465→        <!-- Card 5 -->
+   466→        <div class="card">
+   467→            <div class="card-header">5. DNS CHECKS – RESOLVE NAMES</div>
+   468→            <div class="card-body">
+   469→                <div class="card-desc">Check DNS resolution.</div>
+   470→                <div class="code-block">nslookup example.com
+   471→dig example.com
+   472→host example.com</div>
+   473→
+   474→                <div class="icon-row">
+   475→                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10z"/></svg>
+   476→                    <div style="background:black; color:white; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">DNS</div>
+   477→                </div>
+   478→
+   479→                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+   480→                    <div class="bold mb-5">Useful to:</div>
+   481→                    <ul class="check-list">
+   482→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Verify DNS records</li>
+   483→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Troubleshoot name resolution</li>
+   484→                        <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check DNS propagation</li>
+   485→                    </ul>
+   486→                </div>
+   487→            </div>
+   488→        </div>
+   489→
+   490→        <!-- Card 6 -->
+   491→        <div class="card">
+   492→            <div class="card-header">6. HTTP STATUS CODES</div>
+   493→            <div class="card-body">
+   494→                <div class="card-desc">Check HTTP response codes.</div>
+   495→                <div class="code-block">curl -o /dev/null -s -w "%{http_code}"
+   496→https://example.com</div>
+   497→                
+   498→                <div style="margin: 15px 0;">
+   499→                    <div class="status-item"><span class="status-badge bg-200">200</span> OK – Success</div>
+   500→                    <div class="status-item"><span class="status-badge bg-301">301/302</span> Redirect</div>
+   501→                    <div class="status-item"><span class="status-badge bg-404">404</span> Not Found</div>
+   502→                    <div class="status-item"><span class="status-badge bg-500">500</span> Server Error</div>
+   503→                </div>
+   504→
+   505→                <div class="center-text bold mt-10">Always check status codes, not just ping!</div>
+   506→            </div>
+   507→        </div>
+   508→
+   509→        <!-- Card 7 -->
+   510→        <div class="card">
+   511→            <div class="card-header">7. TEST ENDPOINT AVAILABILITY</div>
+   512→            <div class="card-body">
+   513→                <div class="card-desc">Quickly test if an endpoint is up.</div>
+   514→                <div class="code-block">curl -s -o /dev/null -w "%{http_code}"
+   515→https://example.com</div>
+   516→                
+   517→                <div class="mt-10 bold">Returns:</div>
+   518→                <div style="margin-left: 10px; margin-top:5px; font-size:0.85rem;">
+   519→                    • 200–399 &nbsp;= Available<br>
+   520→                    • 400–599 &nbsp;= <span class="red-text">Not Available</span><br>
+   521→                    • 000 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span class="red-text">No Response</span>
+   522→                </div>
+   523→
+   524→                <div class="icon-row">
+   525→                    <svg width="50" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v12H4zM4 20h16v-2H4z"/><path d="M8 8l4 4 4-4" stroke="white" stroke-width="2" fill="none"/></svg>
+   526→                    <span style="font-size: 1.5rem;">•••••••→</span>
+   527→                    <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10z"/></svg>
+   528→                </div>
+   529→            </div>
+   530→        </div>
+   531→
+   532→        <!-- Card 8 -->
+   533→        <div class="card">
+   534→            <div class="card-header">8. CHECK APPLICATION HEALTH</div>
+   535→            <div class="card-body">
+   536→                <div class="card-desc">Check if application health endpoint is OK.</div>
+   537→                <div class="code-block">curl -s https://example.com/health
+   538→curl -s -f https://example.com/health
+   539→&& echo "Healthy" || echo "Unhealthy"</div>
+   540→                
+   541→                <div class="icon-row">
+   542→                    <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/><path d="M3 12h4l3-9 4 18 3-9h4" stroke="white" stroke-width="2" fill="none"/></svg>
+   543→                </div>
+   544→
+   545→                <div style="background:#f8f9fa; padding:8px; border-radius:6px;">
+   546→                    <div class="bold mb-5">Best practice:</div>
+   547→                    <div>Expose a /health endpoint in apps.</div>
+   548→                </div>
+   549→            </div>
+   550→        </div>
+   551→
+   552→        <!-- Card 9 -->
+   553→        <div class="card">
+   554→            <div class="card-header">9. SIMPLE WEBSITE AVAILABILITY SCRIPT</div>
+   555→            <div class="card-body">
+   556→                <div class="card-desc">Example: Check website availability.</div>
+   557→                <div class="code-block"><span style="color:blue">#!/bin/bash</span>
+   558→URL="<span style="color:red">https://example.com</span>"
+   559→STATUS=$(curl -s -o /dev/null -w "%{http_code}" "<span style="color:red">$URL</span>")
+   560→if [ "$STATUS" = <span style="color:red">"200"</span> ]; then
+   561→  echo "[<span style="color:green">OK</span>] $URL is UP (200)"
+   562→else
+   563→  echo "[<span style="color:red">DOWN</span>] $URL is DOWN (Code: $STATUS)"
+   564→fi</div>
+   565→
+   566→                <div class="script-flow">
+   567→                    <div class="flow-step">
+   568→                        <svg width="40" height="35" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v12H4zM4 20h16v-2H4z"/><path d="M8 8l4 4 4-4" stroke="white" stroke-width="2" fill="none"/></svg>
+   569→                        <div>CHECK URL</div>
+   570→                    </div>
+   571→                    <span style="font-size:1.5rem;">→</span>
+   572→                    <div class="flow-step">
+   573→                        <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+   574→                        <div>GET STATUS</div>
+   575→                    </div>
+   576→                    <span style="font-size:1.5rem;">→</span>
+   577→                    <div class="flow-step">
+   578→                        <svg width="35" height="35" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+   579→                        <div>REPORT RESULT</div>
+   580→                    </div>
+   581→                </div>
+   582→            </div>
+   583→        </div>
+   584→
+   585→    </div>
+   586→
+   587→    <!-- BOTTOM SECTION -->
+   588→    <div class="bottom-grid">
+   589→        
+   590→        <!-- Card 10 -->
+   591→        <div class="card wide-card">
+   592→            <div class="card-header">10. COMMON NETWORKING COMMANDS QUICK REFERENCE</div>
+   593→            <div class="card-body">
+   594→                <table style="width:100%; font-size:0.75rem;">
+   595→                    <tr><td style="font-weight:bold; width:40%;">curl URL</td><td>Send HTTP request</td></tr>
+   596→                    <tr><td style="font-weight:bold;">ping HOST</td><td>Test connectivity</td></tr>
+   597→                    <tr><td style="font-weight:bold;">ss -tuln</td><td>Show listening ports</td></tr>
+   598→                    <tr><td style="font-weight:bold;">hostname</td><td>Show hostname</td></tr>
+   599→                    <tr><td style="font-weight:bold;">nslookup DOMAIN</td><td>DNS lookup (basic)</td></tr>
+   600→                    <tr><td style="font-weight:bold;">dig DOMAIN</td><td>DNS lookup (advanced)</td></tr>
+   601→                    <tr><td style="font-weight:bold;">host DOMAIN</td><td>DNS lookup (simple)</td></tr>
+   602→                    <tr><td style="font-weight:bold;">curl -I URL</td><td>Fetch HTTP headers</td></tr>
+   603→                    <tr><td style="font-weight:bold;">curl -o /dev/null -w "%{http_code}" URL</td><td>Get HTTP status code</td></tr>
+   604→                </table>
+   605→            </div>
+   606→        </div>
+   607→
+   608→        <!-- Middle Graphic Card -->
+   609→        <div class="card wide-card">
+   610→            <div class="card-header" style="visibility:hidden;">Spacer</div>
+   611→            <div class="card-body center-text">
+   612→                <div class="icon-row" style="margin: 30px 0;">
+   613→                    <svg width="60" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+   614→                    <span style="font-size: 2rem; letter-spacing: 5px;">•••••••</span>
+   615→                    <svg width="60" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+   616→                </div>
+   617→                <ul class="check-list" style="display:inline-block; text-align:left;">
+   618→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Test</li>
+   619→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Monitor</li>
+   620→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Ensure Availability</li>
+   621→                </ul>
+   622→            </div>
+   623→        </div>
+   624→
+   625→        <!-- Best Practices Card -->
+   626→        <div class="card wide-card">
+   627→            <div class="card-header">BEST PRACTICES</div>
+   628→            <div class="card-body">
+   629→                <ul class="check-list">
+   630→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Always check HTTP status codes.</li>
+   631→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Use timeouts to avoid hanging scripts.</li>
+   632→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Check both connectivity and application health.</li>
+   633→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Log results for monitoring and alerting.</li>
+   634→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Use meaningful alerts when a service is down.</li>
+   635→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Test from the same network as users.</li>
+   636→                    <li><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Keep scripts simple, clear, and maintainable.</li>
+   637→                </ul>
+   638→            </div>
+   639→        </div>
+   640→
+   641→    </div>
+   642→
+   643→    <!-- FOOTER -->
+   644→    <footer>
+   645→        <div class="footer-section">
+   646→            <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 01-2 2H10a2 2 0 01-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 017-7zM9 21v-1h6v1a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+   647→            <div class="footer-text">
+   648→                <h4>KEY<br>TAKEAWAY</h4>
+   649→            </div>
+   650→        </div>
+   651→        <div class="footer-text" style="font-size:0.8rem;">
+   652→            Automate your network checks.<br>
+   653→            Detect issues early.<br>
+   654→            Keep your systems and services reliable.
+   655→        </div>
+   656→
+   657→        <div class="footer-section">
+   658→            <svg class="footer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/></svg>
+   659→            <div class="footer-text">
+   660→                <h4>CHECK<br>NETWORK</h4>
+   661→            </div>
+   662→        </div>
+   663→        <div style="width: 1px; height: 40px; background: #ccc;"></div>
+   664→
+   665→        <div class="footer-section">
+   666→            <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/><path d="M3 12h4l3-9 4 18 3-9h4" stroke="white" stroke-width="2" fill="none"/></svg>
+   667→            <div class="footer-text">
+   668→                <h4>VERIFY<br>HEALTH</h4>
+   669→            </div>
+   670→        </div>
+   671→        <div style="width: 1px; height: 40px; background: #ccc;"></div>
+   672→
+   673→        <div class="footer-section">
+   674→            <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+   675→            <div class="footer-text">
+   676→                <h4>ENSURE<br>UPTIME</h4>
+   677→            </div>
+   678→        </div>
+   679→    </footer>
+   680→
+   681→    <!-- Social Footer -->
+   682→    <div class="social-footer">
+   683→        <div class="social-item">
+   684→            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+   685→            YOUTUBE
+   686→        </div>
+   687→        <div class="social-item">
+   688→            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+   689→            GITHUB
+   690→        </div>
+   691→        <div class="social-item" style="font-size:1.2rem; color:var(--primary-green);">
+   692→            <svg width="25" height="25" viewBox="0 0 100 100" fill="currentColor">
+   693→                <path d="M20 80 L50 20 L80 80 M30 65 L70 65" stroke="currentColor" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+   694→                <circle cx="70" cy="35" r="12" fill="currentColor"/>
+   695→            </svg>
+   696→            VERIQTA
+   697→        </div>
+   698→        <div class="social-item">
+   699→            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+   700→            X
+   701→        </div>
+   702→        <div class="social-item">
+   703→            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+   704→            INSTAGRAM
+   705→        </div>
+   706→        <div class="social-item">
+   707→            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+   708→            TELEGRAM
+   709→        </div>
+   710→    </div>
+   711→
+   712→</div>
+   713→
+   714→</body>
+   715→</html>
+   716→```

@@ -1,0 +1,740 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veriqta - Logical Operators and Multiple Conditions</title>
+    <style>
+        :root {
+            --primary-green: #0f4c2e;
+            --accent-red: #d32f2f;
+            --bg-color: #fdfbf7; /* Slight off-white/paper look */
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --border-color: #dcdcdc;
+            --code-bg: #f5f5f5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+            /* Simulating the spiral notebook edge */
+            border-left: 20px solid #fff;
+            box-shadow: inset 15px 0 0 -10px #333, 
+                        inset 18px 0 0 -10px #333,
+                        inset 21px 0 0 -10px #333,
+                        inset 24px 0 0 -10px #333,
+                        inset 27px 0 0 -10px #333,
+                        inset 30px 0 0 -10px #333,
+                        inset 33px 0 0 -10px #333,
+                        inset 36px 0 0 -10px #333,
+                        inset 39px 0 0 -10px #333,
+                        inset 42px 0 0 -10px #333,
+                        inset 45px 0 0 -10px #333,
+                        inset 48px 0 0 -10px #333,
+                        inset 51px 0 0 -10px #333,
+                        inset 54px 0 0 -10px #333,
+                        inset 57px 0 0 -10px #333,
+                        inset 60px 0 0 -10px #333;
+            min-height: 100vh;
+        }
+
+        /* Watermark */
+        body::before {
+            content: "VERIQTA";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(0,0,0,0.03);
+            z-index: -1;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding-left: 40px; /* Space for spiral */
+        }
+
+        /* Header Section */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .logo-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: var(--primary-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            fill: currentColor;
+        }
+
+        .page-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            border: 3px solid var(--primary-green);
+            color: var(--primary-green);
+            font-weight: 900;
+            padding: 5px 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+        }
+
+        .header-icon-left {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            color: var(--primary-green);
+            width: 50px;
+            height: 50px;
+        }
+
+        .header-icon-right {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            color: var(--primary-green);
+            width: 70px;
+            height: 70px;
+        }
+
+        h1 {
+            color: var(--primary-green);
+            font-size: 2.8rem;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            color: var(--primary-green);
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .subtitle::before, .subtitle::after {
+            content: "";
+            height: 3px;
+            flex-grow: 1;
+            background-color: var(--primary-green);
+            max-width: 150px;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #eee;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 10px 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Table Specifics */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+            text-align: center;
+        }
+        
+        td:first-child {
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--primary-green);
+            width: 15%;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Code Blocks */
+        code, .code-block {
+            font-family: "Courier New", Courier, monospace;
+            background-color: transparent;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            display: block;
+            white-space: pre-wrap;
+        }
+
+        .keyword { color: var(--accent-red); font-weight: bold; }
+        .string { color: #2e7d32; } /* Greenish for strings/echo content */
+        .var { color: #d32f2f; } /* Red for vars in image usually, or distinct */
+
+        /* List Items (Short Circuit) */
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .icon-circle {
+            background-color: var(--primary-green);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        /* Footer / Tip Area */
+        .tip-bar {
+            background: white;
+            border: 2px solid #ccc;
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tip-icon-large {
+            background-color: var(--primary-green);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tip-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #222;
+        }
+
+        .code-tag-icon {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-left: auto;
+        }
+
+        /* Footer Socials */
+        footer {
+            border-top: 2px solid var(--primary-green);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .social-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-green);
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-green);
+            font-weight: 900;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        /* Utility */
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .check-icon {
+            color: var(--primary-green);
+            width: 24px;
+            height: 24px;
+        }
+
+        .section-desc {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+            .header-icons { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- HEADER -->
+    <header>
+        <div class="header-icon-left header-icons">
+            <!-- Terminal Icon -->
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-7l-5-3.5L13 10l-5 3.5L9 11l5-3z"/> 
+                <!-- Simplified representation of the terminal icon in image -->
+                <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M7 9l3 3-3 3M13 15h4" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
+        
+        <div class="page-badge">PAGE 8</div>
+
+        <div class="logo-area">
+            <svg class="logo-icon" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/> <!-- Abstract VQ shape -->
+                <path d="M4 12l4-8 4 8-4 8z" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 4l4 8-4 8 4-8z" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            VERIQTA
+        </div>
+
+        <h1>8. LOGICAL OPERATORS<br>AND MULTIPLE CONDITIONS</h1>
+        <div class="subtitle">COMBINE TESTS. MAKE SMARTER DECISIONS.</div>
+
+        <div class="header-icon-right header-icons">
+             <!-- Flowchart Icon -->
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <rect x="2" y="3" width="6" height="4" />
+                 <rect x="16" y="3" width="6" height="4" />
+                 <rect x="9" y="10" width="6" height="4" />
+                 <rect x="2" y="17" width="6" height="4" />
+                 <rect x="16" y="17" width="6" height="4" />
+                 <path d="M5 7v3h4M20 7v3h-4M12 14v3M5 17h4M20 17h-4" />
+             </svg>
+        </div>
+    </header>
+
+    <!-- ROW 1: TABLE & SHORT CIRCUIT -->
+    <div class="grid-2">
+        <!-- Card 1: Table -->
+        <div class="card">
+            <div class="card-header">1. LOGICAL OPERATORS</div>
+            <div class="card-body" style="padding:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>OPERATOR</th>
+                            <th>MEANING</th>
+                            <th>EXAMPLE</th>
+                            <th>DESCRIPTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>&&</td>
+                            <td>AND</td>
+                            <td style="text-align:left; font-family:monospace; font-size:0.8rem;">
+                                <span class="keyword">if</span> [ $a <span class="keyword">-gt</span> 5 ]<br>
+                                <span style="color:#000; font-weight:bold;">&&</span> [ $b <span class="keyword">-lt</span> 10 ]
+                            </td>
+                            <td style="text-align:left;">Both conditions must be true.</td>
+                        </tr>
+                        <tr>
+                            <td>||</td>
+                            <td>OR</td>
+                            <td style="text-align:left; font-family:monospace; font-size:0.8rem;">
+                                <span class="keyword">if</span> [ $a <span class="keyword">-gt</span> 5 ]<br>
+                                <span style="color:#000; font-weight:bold;">||</span> [ $b <span class="keyword">-lt</span> 10 ]
+                            </td>
+                            <td style="text-align:left;">At least one condition must be true.</td>
+                        </tr>
+                        <tr>
+                            <td>!</td>
+                            <td>NOT</td>
+                            <td style="text-align:left; font-family:monospace; font-size:0.8rem;">
+                                <span class="keyword">if !</span> [ <span class="keyword">-f</span> file.txt ]
+                            </td>
+                            <td style="text-align:left;">Reverses the result.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Card 2: Short Circuit -->
+        <div class="card">
+            <div class="card-header">2. SHORT-CIRCUIT EXECUTION</div>
+            <div class="card-body">
+                <div class="list-item">
+                    <div class="icon-circle">&amp;&amp;</div>
+                    <div>If the first condition is false, the second condition is NOT executed.</div>
+                </div>
+                <div class="list-item">
+                    <div class="icon-circle">||</div>
+                    <div>If the first condition is true, the second condition is NOT executed.</div>
+                </div>
+                <div class="list-item">
+                    <div class="icon-circle">!</div>
+                    <div>Flips true to false, and false to true.</div>
+                </div>
+                <div class="list-item">
+                    <div class="icon-circle" style="font-size:1.4rem;">💡</div> <!-- Using emoji for lightbulb or SVG if preferred, using SVG below for fidelity -->
+                    <div>Saves time and prevents unnecessary checks.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 2: AND, OR, NOT CONDITIONS -->
+    <div class="grid-3">
+        <!-- Card 3: AND -->
+        <div class="card">
+            <div class="card-header">3. AND CONDITIONS (&amp;&amp;)</div>
+            <div class="card-body">
+                <div class="section-desc">Both conditions must be true.</div>
+                <div class="code-block">
+<span class="keyword">if</span> [ <span class="keyword">-f</span> app.sh ] <span style="font-weight:bold;color:#000;">&amp;&amp;</span> [ <span class="keyword">-x</span> app.sh ]; <span class="keyword">then</span>
+    echo <span class="string">"File exists and is executable"</span>
+<span class="keyword">else</span>
+    echo <span class="string">"Check failed"</span>
+<span class="keyword">fi</span>
+                </div>
+                <div class="check-row">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    Use for strict requirements.
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: OR -->
+        <div class="card">
+            <div class="card-header">4. OR CONDITIONS (||)</div>
+            <div class="card-body">
+                <div class="section-desc">At least one condition must be true.</div>
+                <div class="code-block">
+<span class="keyword">if</span> [ <span class="keyword">-f</span> app.sh ] <span style="font-weight:bold;color:#000;">||</span> [ <span class="keyword">-f</span> app.py ]; <span class="keyword">then</span>
+    echo <span class="string">"Script found"</span>
+<span class="keyword">else</span>
+    echo <span class="string">"No script found"</span>
+<span class="keyword">fi</span>
+                </div>
+                <div class="check-row">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    Use for alternatives.
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 5: NOT -->
+        <div class="card">
+            <div class="card-header">5. NOT CONDITION (!)</div>
+            <div class="card-body">
+                <div class="section-desc">Reverse a condition.</div>
+                <div class="code-block">
+<span class="keyword">if</span> [ <span style="font-weight:bold;color:#000;">!</span> <span class="keyword">-f</span> config.env ]; <span class="keyword">then</span>
+    echo <span class="string">"Config file missing"</span>
+<span class="keyword">else</span>
+    echo <span class="string">"Config file exists"</span>
+<span class="keyword">fi</span>
+                </div>
+                <div class="check-row">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    Use to detect missing items.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 3: COMBINING MULTIPLE TESTS -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">6. COMBINING MULTIPLE TESTS</div>
+        <div class="card-body" style="flex-direction: row; justify-content: space-between; align-items: stretch;">
+            
+            <div style="text-align:center; width:100%; margin-bottom:10px; font-weight:600;">
+                You can mix &amp;&amp;, ||, and ! for powerful checks.
+            </div>
+
+            <div class="grid-3" style="width:100%;">
+                <!-- Ex 1 -->
+                <div class="card">
+                    <div class="card-header" style="font-size:0.9rem; padding:8px;">EXAMPLE 1: MIX AND & OR</div>
+                    <div class="card-body">
+                        <div class="code-block" style="font-size:0.75rem;">
+<span class="keyword">if</span> [ <span class="keyword">-f</span> deploy.sh ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-x</span> deploy.sh ] <span style="color:#000;font-weight:bold;">||</span>
+  [ <span class="keyword">-f</span> deploy.py ]; <span class="keyword">then</span>
+  echo <span class="string">"Ready to deploy"</span>
+<span class="keyword">else</span>
+  echo <span class="string">"Deployment script missing"</span>
+<span class="keyword">fi</span>
+                        </div>
+                        <div class="check-row" style="font-size:0.8rem;">
+                            <svg class="check-icon" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            Executable deploy.sh OR deploy.py exists.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ex 2 -->
+                <div class="card">
+                    <div class="card-header" style="font-size:0.9rem; padding:8px;">EXAMPLE 2: NEGATION WITH AND</div>
+                    <div class="card-body">
+                        <div class="code-block" style="font-size:0.75rem;">
+<span class="keyword">if</span> [ <span style="color:#000;font-weight:bold;">!</span> <span class="keyword">-f</span> .lock ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-d</span> /var/log ]; <span class="keyword">then</span>
+  echo <span class="string">"Safe to proceed"</span>
+<span class="keyword">else</span>
+  echo <span class="string">"Lock file exists or log directory missing"</span>
+<span class="keyword">fi</span>
+                        </div>
+                        <div class="check-row" style="font-size:0.8rem;">
+                            <svg class="check-icon" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            No lock file AND directory exists.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ex 3 -->
+                <div class="card">
+                    <div class="card-header" style="font-size:0.9rem; padding:8px;">EXAMPLE 3: COMPLEX COMBINATION</div>
+                    <div class="card-body">
+                        <div class="code-block" style="font-size:0.75rem;">
+<span class="keyword">if</span> [ <span class="keyword">-f</span> app.conf ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-r</span> app.conf ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span>
+  <span style="color:#000;font-weight:bold;">!</span> [ <span class="keyword">-z</span> "$1" ]; <span class="keyword">then</span>
+  echo <span class="string">"All checks passed"</span>
+<span class="keyword">else</span>
+  echo <span class="string">"Validation failed"</span>
+<span class="keyword">fi</span>
+                        </div>
+                        <div class="check-row" style="font-size:0.8rem;">
+                            <svg class="check-icon" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            File exists, readable AND first argument is not empty.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 4: BUILDING SAFER DEPLOYMENT CHECKS -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">7. BUILDING SAFER DEPLOYMENT CHECKS</div>
+        <div class="card-body" style="flex-direction: row; align-items: flex-start;">
+            
+            <div style="flex: 1; padding-right: 20px; border-right: 2px dashed #ccc;">
+                <div style="text-align:center; font-weight:700; margin-bottom:10px;">Example: Before deploying, validate everything.</div>
+                <div class="code-block" style="background:#f9f9f9; padding:10px; border-radius:8px; font-size:0.8rem;">
+<span class="keyword">if</span> [ <span class="keyword">-f</span> app.tar.gz ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-s</span> app.tar.gz ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span> [ <span class="keyword">-x</span> /usr/bin/docker ] <span style="color:#000;font-weight:bold;">&amp;&amp;</span>
+  <span style="color:#000;font-weight:bold;">!</span> systemctl is-active --quiet app; <span class="keyword">then</span>
+  echo <span class="string">"All checks passed. Starting deployment..."</span>
+  <span style="color:#666;"># Your deployment commands here</span>
+<span class="keyword">else</span>
+  echo <span class="string">"Deployment aborted. Check requirements."</span>
+  exit 1
+<span class="keyword">fi</span>
+                </div>
+            </div>
+
+            <div style="flex: 1; padding-left: 20px; display:flex; flex-direction:column; justify-content:center;">
+                <div class="list-item">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <div>File exists AND not empty</div>
+                </div>
+                <div class="list-item">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <div>Docker is installed</div>
+                </div>
+                <div class="list-item">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <div>App service is not running</div>
+                </div>
+                <div class="list-item">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <div>Proceed only when everything is correct</div>
+                </div>
+                <div class="list-item">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="currentColor" style="min-width:24px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <div>Prevents failed or risky deployments</div>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:20px; min-width:140px;">
+                <svg viewBox="0 0 24 24" fill="#0f4c2e" width="80" height="80">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                </svg>
+                <div style="text-align:center; font-weight:900; color:#0f4c2e; line-height:1.2; margin-top:5px;">
+                    SAFE<br>DEPLOYMENT<br>STARTS HERE!
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TIP BAR -->
+    <div class="tip-bar">
+        <div class="tip-icon-large">
+            <svg viewBox="0 0 24 24" fill="white" width="28" height="28">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+        </div>
+        <div class="tip-text">
+            TIP: Combine checks, validate early, and fail fast.<br>
+            Smart conditions = reliable automation.
+        </div>
+        <div class="code-tag-icon">&lt;/&gt;</div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="social-links">
+            <div class="social-item">
+                <svg class="social-icon" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                YOUTUBE
+            </div>
+            <div class="social-item">
+                <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                GITHUB
+            </div>
+            <div class="social-item">
+                <svg class="social-icon" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                LINKEDIN
+            </div>
+            <div class="social-item">
+                <svg class="social-icon" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                X
+            </div>
+            <div class="social-item">
+                <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                INSTAGRAM
+            </div>
+            <div class="social-item">
+                <svg class="social-icon" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.677-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                TELEGRAM
+            </div>
+        </div>
+
+        <div class="footer-logo">
+            <svg class="logo-icon" viewBox="0 0 24 24" style="width:24px; height:24px;">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/> 
+            </svg>
+            VERIQTA
+        </div>
+    </footer>
+
+</div>
+
+</body>
+</html>
+```
