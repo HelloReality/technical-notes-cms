@@ -1,0 +1,400 @@
+===== page-01.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided image, here is the concise extraction:\n\n**1. Main Page Title**\n*   **LINUX FOR COMPLETE BEGINNERS**\n\n**2. Section Headers / Subheaders**\n*   A PRACTICAL GUIDE FROM ZERO TO CONFIDENT LINUX USER\n*   COMMAND LINE\n*   FILE SYSTEM\n*   USERS & PERMISSIONS\n*   SERVICES & PROCESSES\n*   NETWORKING\n*   LEARN TODAY. PRACTICE DAILY. USE LINUX ANYWHERE.\n\n**3. Tables**\n*   None present on this page.\n\n**4. Numbered Practical Steps**\n*   None present on this page (features are listed as bullet points, not numbered steps).\n\n**5. Callout Boxes**\n*   **Goal/Feature Box:** Contains 6 learning features:\n    *   Step-by-step Learning\n    *   Hands-on Examples\n    *   Real-world Scenarios\n    *   Beginner Friendly\n    *   DevOps Ready\n    *   Build Strong Foundation\n\n**Commands Shown**\n*   None (this is the title/cover page).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788848924,
+  "id": "2026090814283820c154797d694500",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090814283820c154797d694500",
+  "usage": {
+    "completion_tokens": 223,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 3
+    },
+    "total_tokens": 3862
+  }
+}
+===== page-02.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**1. PAGE TITLE:**\nLINUX FROM ZERO\n\n**2. SECTION HEADERS (in order):**\n1. WHAT LINUX ACTUALLY IS\n2. LINUX KERNEL VS OPERATING SYSTEM\n3. LINUX DISTRIBUTIONS (DISTROS)\n4. SERVER LINUX VS DESKTOP LINUX\n5. WHY DEVOPS ENGINEERS USE LINUX\n6. TERMINAL VS SHELL\n7. YOUR FIRST LINUX COMMANDS (PRACTICAL)\n\n**3. TABLES:**\n*   **Table 1 (Server vs Desktop Linux)**\n    *   **Headers:** SERVER LINUX, DESKTOP LINUX\n    *   **Rows:** 1 data row (plus header row)\n*   **Table 2 (Linux Commands)**\n    *   **Headers:** COMMAND, WHAT IT DOES, EXAMPLE, SAMPLE OUTPUT (MAY VARY)\n    *   **Rows:** 5 data rows (`whoami`, `hostname`, `uname -a`, `date`, `uptime`)\n\n**4. NUMBERED PRACTICAL STEPS:**\n*   None explicitly numbered as a procedure (Section 7 is a reference table, not a step-by-step guide).\n\n**5. CALLOUT BOXES:**\n*   **Tip:** PRACTICE TIP: Open your terminal and run each command...\n*   **Goal:** GOAL: Understand Linux basics and feel comfortable in the terminal.\n*   **Note/Info (Starred box):** All are powerful and widely used in real world engineering environments.\n\n**COMMANDS SHOWN:**\n`whoami`, `hostname`, `uname -a`, `date`, `uptime`, `bash`, `zsh`, `sh`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788848930,
+  "id": "20260908142838ce58dcd676714e85",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908142838ce58dcd676714e85",
+  "usage": {
+    "completion_tokens": 344,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3983
+  }
+}
+===== page-03.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the concise extraction of the page content:\n\n**1. PAGE TITLE**\nUnderstanding the Linux Filesystem\n\n**2. SECTION HEADERS (in order)**\n*   The Linux Filesystem is organized in a tree-like structure starting from the root directory /\n*   Absolute vs Relative Paths\n*   Understanding . and ..\n*   Practical: Navigate Through a Real Linux Filesystem\n\n**3. TABLES**\n*   **Directory Structure Table**\n    *   **Headers:** Directory, Purpose, Example Content\n    *   **Row Count:** 10 rows (/, /home, /etc, /var, /tmp, /usr, /opt, /bin, /sbin, /root)\n\n**4. NUMBERED PRACTICAL STEPS**\n*   **Section:** Practice Steps\n*   **Total Steps:** 9 steps\n    1.  `pwd` (Show current location)\n    2.  `ls -l /` (List root directory)\n    3.  `cd /home` (Enter home directory)\n    4.  `ls` (List contents)\n    5.  `cd ..` (Go up one level)\n    6.  `cd /etc` (Go to /etc)\n    7.  `cd /var/log` (Explore log files)\n    8.  `cd ~` (Go to home directory)\n    9.  `cd -` (Go to previous directory)\n\n**5. CALLOUT BOXES**\n*   **Quick Tip:** Linux is case-sensitive. /Home and /home are different directories.\n*   **Goal:** Understand where important files live so you can work confidently in Linux.\n*   **Key Takeaway:** The filesystem hierarchy is the foundation of Linux. Learn it once, use it every day.\n\n**COMMANDS SHOWN**\n`pwd`, `ls`, `ls -l`, `cd`, `cd ..`, `cd /home`, `cd /etc`, `cd /var/log`, `cd ~`, `cd -`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788848951,
+  "id": "202609081428586bf12e11e40a4e11",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609081428586bf12e11e40a4e11",
+  "usage": {
+    "completion_tokens": 425,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4064
+  }
+}
+===== page-04.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the concise extraction of the Linux notebook page:\n\n**1. PAGE TITLE**\n*   **MOVING AROUND LINUX**\n    *   *Subtitle:* ESSENTIAL COMMANDS TO NAVIGATE LIKE A PRO\n\n**2. SECTION HEADERS (in order)**\n*   pwd\n*   ls\n*   cd\n*   clear\n*   history\n*   man\n*   Tab Completion\n*   Hidden Files\n*   USEFUL ls OPTIONS\n*   READING COMMAND HELP\n*   PRACTICAL: NAVIGATE BETWEEN DIRECTORIES WITHOUT USING A GUI\n*   PRACTICE DAILY\n\n**3. TABLES**\n*   **Table 1: USEFUL ls OPTIONS**\n    *   *Headers:* OPTION, WHAT IT DOES, EXAMPLE, OUTPUT (MAY VARY)\n    *   *Row Count:* 6 rows (ls -l, -a, -la, -lh, -lt, -R)\n*   **Table 2: READING COMMAND HELP**\n    *   *Headers:* Command/Option, Description, Example\n    *   *Row Count:* 3 rows (--help, man, info)\n\n**4. PRACTICAL STEPS**\n*   **PRACTICAL: NAVIGATE BETWEEN DIRECTORIES WITHOUT USING A GUI**\n    *   *Step Count:* 6 Steps\n        1.  Start at your home directory (`$ pwd /home/user`)\n        2.  List files and folders (`$ ls`)\n        3.  Move into a directory (`$ cd folder_name`)\n        4.  Move deeper into subfolders (`$ cd subfolder`)\n        5.  Move back to parent directory (`$ cd ..`)\n        6.  Go back to your home (`$ cd ~`)\n\n**5. CALLOUT BOXES**\n*   **TIP:** Whenever you forgot a command, use `--help` or `man` before guessing.\n*   **GOAL/PRACTICE:** PRACTICE DAILY: The more you use the terminal, the faster and more confident you become.\n\n**COMMANDS SHOWN**\n`pwd`, `ls`, `cd`, `clear`, `history`, `man`, `info`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849000,
+  "id": "20260908142929b53b7a9d72124d62",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908142929b53b7a9d72124d62",
+  "usage": {
+    "completion_tokens": 462,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4101
+  }
+}
+===== page-05.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided image, here is the concise extraction:\n\n**1. PAGE TITLE**\n*   **CREATING, COPYING, MOVING, AND DELETING** (Subtitle: Master the basics of file and directory management)\n\n**2. SECTION HEADERS & SUBHEADERS (in order)**\n*   touch\n*   rm\n*   mkdir\n*   rmdir\n*   cp\n*   RECURSIVE OPERATIONS\n*   mv\n*   WILDCARDS\n*   SAFE DELETION HABITS\n*   PRACTICAL: CREATE, ORGANIZE, COPY, AND CLEAN UP A PROJECT\n\n**3. TABLES**\n*   **Command Reference Table:** 6 rows of command definitions (touch, rm, mkdir, rmdir, cp, mv) with \"EXAMPLE\" columns.\n    *   *Headers:* [Icon] | Command Name | Description | EXAMPLE\n*   **Concept Table:** 2 rows for special operations (Recursive Operations, Wildcards).\n    *   *Headers:* [Icon] | Topic | Description | EXAMPLE\n\n**4. NUMBERED PRACTICAL STEPS**\n*   **Total Steps:** 10 steps (labeled 1–10).\n    *   1. Create project directory (`mkdir my_project`, `cd my_project`)\n    *   2. Create subdirectories (`mkdir src docs logs`)\n    *   3. Create some files (`touch src/app.py`, `touch docs/readme.md`, `touch logs/app.log`)\n    *   4. List project structure (`ls -R`)\n    *   5. Copy a file (`cp docs/readme.md docs/readme_backup.md`)\n    *   6. Move/rename a file (`mv src/app.py src/main.py`)\n    *   7. Copy entire directory (`cp -r src/ src_backup/`)\n    *   8. Delete a file (`rm logs/app.log`)\n    *   9. Remove empty directory (`rmdir logs`)\n    *   10. Final project structure (Visual tree diagram)\n\n**5. CALLOUT BOXES**\n*   **SAFE DELETION HABITS** (Warning/Tip Box):\n    *   Always preview before deleting (`ls -l *.log`).\n    *   Use `rm -i` to confirm each deletion (`rm -i file.txt`).\n    *   Avoid `rm -rf /` (very dangerous).\n    *   Double-check paths and filenames (`pwd`).\n*   **KEY TAKEAWAY** (Note/Goal Box):\n    *   Once you master these commands, you can create, organize, manage, and clean up files and directories confidently from the terminal.\n\n**COMMANDS SHOWN**\n`touch`, `rm`, `mkdir`, `rmdir`, `cp`, `mv`, `ls`, `pwd`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788848961,
+  "id": "20260908142858264b184108ca4fb2",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908142858264b184108ca4fb2",
+  "usage": {
+    "completion_tokens": 592,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 4231
+  }
+}
+===== page-06.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the concise extraction of the page content:\n\n**1. Main Page Title**\n*   **READING AND EDITING FILES** (Subtitle: VIEW, INSPECT, AND EDIT FILES LIKE A PRO)\n\n**2. Section Headers (in order)**\n*   **cat**, **less**, **head**, **tail**, **nano**, **introduction to vim**, **wc**, **viewing large files**, **following changing files with tail -f**, **COMMON tail OPTIONS**\n*   **TEXT EDITOR QUICK REFERENCE** (Sub-headers: NANO ESSENTIALS, VIM ESSENTIALS)\n*   **PRACTICAL: CREATE, EDIT, AND INSPECT FILES**\n*   **KEY TAKEAWAY**\n\n**3. Tables**\n*   **Table 1:** TEXT EDITOR QUICK REFERENCE\n    *   **Columns:** Action / Command (Left side), Shortcut/Command (Right side)\n    *   **Rows:** 6 rows for Nano (Open, Save, Exit, Cut, Paste, Search) + 7 rows for Vim (Open, Insert, Save, Save & Quit, Quit, Search, Exit Insert) = **13 data rows total**.\n\n**4. Numbered Practical Steps**\n*   **Section:** PRACTICAL: CREATE, EDIT, AND INSPECT FILES\n*   **Count:** 6 Steps\n    1.  Create a directory for the lab.\n    2.  Create a configuration file with nano.\n    3.  View the file content using cat.\n    4.  Check first and last lines of a log file.\n    5.  Monitor a log file in real time.\n    6.  Count lines, words, and characters.\n\n**5. Callout Boxes**\n*   **TIP (Nano):** \"Nano is perfect for beginners. Use it for config files and quick edits.\"\n*   **TIP (Vim):** \"Vim is powerful at first, but very efficient once learned.\"\n*   **KEY TAKEAWAY:** \"Master these commands and you can read, inspect, monitor, and edit any file in Linux confidently...\"\n\n**Commands Shown**\n`cat`, `less`, `head`, `tail`, `nano`, `vim`, `wc`, `mkdir`, `cd`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788848986,
+  "id": "202609081429299df38567aa1e4a32",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609081429299df38567aa1e4a32",
+  "usage": {
+    "completion_tokens": 475,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4114
+  }
+}
+===== page-07.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided image, here is the concise extraction:\n\n**1. Main Page Title**\n*   **LINUX USERS AND GROUPS**\n    *   *Subtitle:* MANAGE ACCESS, PERMISSIONS, AND OWNERSHIP\n\n**2. Section Headers (in order)**\n1.  KEY CONCEPTS\n2.  IMPORTANT FILES\n3.  ESSENTIAL COMMANDS\n4.  USER AND GROUP INFORMATION AT A GLANCE\n5.  COMMON usermod OPTIONS\n6.  CHECK USER DETAILS\n7.  BEST PRACTICES\n8.  PRACTICAL: CREATE A USER AND ASSIGN TO A GROUP\n9.  KEY TAKEAWAY\n\n**3. Tables**\n*   **Table 1: User and Group Information at a Glance**\n    *   *Headers:* TYPE, DESCRIPTION, EXAMPLE, UID, GID, LOGIN ABILITY, HOME DIRECTORY\n    *   *Row Count:* 3 (Root User, Regular User, System User)\n*   **Table 2: Common usermod Options**\n    *   *Headers:* (Options/Flags), Description\n    *   *Row Count:* 5 (-aG, -G, -l, -d, -s)\n\n**4. Numbered Practical Steps**\n*   **Section:** PRACTICAL: CREATE A USER AND ASSIGN TO A GROUP\n*   **Total Steps:** 7\n    1.  Create a group.\n    2.  Create a new user.\n    3.  Set a password for the user.\n    4.  Add user to the group.\n    5.  Verify user details with id.\n    6.  Check group membership.\n    7.  List all users.\n\n**5. Callout Boxes**\n*   **KEY TAKEAWAY:** Users and groups control who can access what in Linux. Understanding them is fundamental for system security and administration.\n\n**Commands Shown**\n*   `cat /etc/passwd`\n*   `sudo useradd alice`\n*   `sudo usermod -aG developers alice`\n*   `sudo userdel bob`\n*   `sudo groupadd developers`\n*   `id alice`\n*   `groups alice`\n*   `sudo groupadd developers` (Step 1)\n*   `sudo useradd -m -s /bin/bash alice` (Step 2)\n*   `sudo passwd alice` (Step 3)\n*   `sudo usermod -aG developers alice` (Step 4)\n*   `id alice` (Step 5)\n*   `groups alice` (Step 6)\n*   `cat /etc/passwd` (Step 7)",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849059,
+  "id": "20260908143031c3940aa92d7541b9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908143031c3940aa92d7541b9",
+  "usage": {
+    "completion_tokens": 556,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 4195
+  }
+}
+===== page-08.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided image, here is the concise extraction:\n\n**1. PAGE TITLE**\n*   **FILE OWNERSHIP AND PERMISSIONS**\n    *   *Subtitle:* CONTROL WHO CAN READ, WRITE, AND EXECUTE FILES\n\n**2. SECTION HEADERS (in order)**\n1.  PERMISSION BASICS\n2.  USER, GROUP, OTHERS\n3.  UNDERSTANDING RWX\n4.  PERMISSION NUMERIC VALUES\n5.  CHMOD\n6.  CHOWN\n7.  CHGRP\n8.  WHY CHMOD 777 IS BAD\n9.  PERMISSION DENIED TROUBLESHOOTING\n10. QUICK REFERENCE\n11. PRACTICAL: DIAGNOSE AND REPAIR A FILE PERMISSION PROBLEM\n\n**3. TABLES**\n*   **Table A: Permission Numeric Values**\n    *   *Headers:* Permission | Symbol | Numeric Value\n    *   *Rows:* 5 (Read, Write, Execute, None)\n*   **Table B: Common Numeric Permissions**\n    *   *Headers:* Numeric | RWX | Meaning\n    *   *Rows:* 6 (755, 644, 600, 664, 700, 777)\n\n**4. NUMBERED PRACTICAL STEPS**\n*   **Section:** Practical: Diagnose and Repair a File Permission Problem\n*   **Count:** 7 Steps\n    1.  Create a project directory and file.\n    2.  Give wrong permissions.\n    3.  Try to run the file.\n    4.  Check ownership and permissions.\n    5.  Fix permissions (owner full).\n    6.  Run again (works now).\n    7.  Change group ownership.\n\n**5. CALLOUT BOXES**\n*   **Warning (Red Triangle Icon):** WHY CHMOD 777 IS BAD\n    *   *Content:* Gives full access to everyone; creates security risks; attackers can exploit writable files; use the principle of least privilege.\n*   **Key Takeaway (Lightbulb Icon):** KEY TAKEAWAY\n    *   *Content:* Properly managing file ownership and permissions keeps your system secure, stable, and predictable. Grant the minimum access required—nothing more.\n\n**COMMANDS SHOWN**\n*   `chmod` (e.g., `chmod 755 script.sh`, `chmod -R 644 data/`, `chmod 700 app.sh`)\n*   `chown` (e.g., `chown alice file.txt`, `chown alice:developers file.txt`)\n*   `chgrp` (e.g., `chgrp developers file.txt`, `chgrp -R developers project/`)\n*   `ls -l`\n*   `whoami`\n*   `groups`\n*   `mkdir`\n*   `cd`\n*   `touch`\n*   `usermod`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849022,
+  "id": "20260908143008c25c8dda19cc48fc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908143008c25c8dda19cc48fc",
+  "usage": {
+    "completion_tokens": 607,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 99
+    },
+    "total_tokens": 4246
+  }
+}
+===== page-09.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided image, here is the concise extraction:\n\n**1. PAGE TITLE**\nSUDO, ROOT, AND PRIVILEGE\n*Subtitle: CONTROL. SECURITY. RESPONSIBILITY.*\n\n**2. SECTION HEADERS (in order)**\n*   1. WHAT ROOT CAN DO\n*   2. SUDO\n*   3. SU\n*   4. PRIVILEGE ESCALATION\n*   5. /ETC/SUDOERS\n*   6. VISUDO\n*   7. LEAST PRIVILEGE\n*   8. WHY RUNNING EVERYTHING AS ROOT IS DANGEROUS\n*   9. QUICK COMMAND REFERENCE\n*   10. PRACTICAL: ALLOW A USER TO PERFORM AN ADMINISTRATIVE TASK SAFELY\n\n**3. TABLES**\n*   **Table:** Quick Command Reference (Section 9)\n    *   **Headers:** Command, Description\n    *   **Row Count:** 6 rows (`whoami`, `sudo -l`, `sudo -v`, `su -`, `id`, `groups`)\n\n**4. PRACTICAL STEPS**\n*   **Topic:** Allow user \"devops\" to restart nginx without full root access.\n*   **Step Count:** 6 Steps\n    1.  Create a user (if not exists)\n    2.  Allow user to run systemctl restart nginx\n    3.  Add this line at the end of the file\n    4.  Save and exit visudo\n    5.  Test as devops user\n    6.  Verify it works\n\n**5. CALLOUT BOXES**\n*   **Warning (Red):** ROOT HAS UNLIMITED POWER. USE CAREFULLY.\n*   **Warning (Yellow):** NEVER EDIT THIS FILE WITH A NORMAL TEXT EDITOR.\n*   **Goal/Success (Green):** SUCCESS! User \"devops\" can restart nginx using sudo, but cannot run other administrative commands.\n*   **Important (Red):** IMPORTANT — Grant only the specific command needed. Avoid giving NOPASSWD access unless necessary and trusted.\n\n**COMMANDS SHOWN**\n`sudo command`, `sudo systemctl restart nginx`, `sudo apt update`, `su -`, `sudo visudo`, `sudo useradd devops`, `sudo passwd devops`, `sudo -u devops -i`, `systemctl status nginx`, `whoami`, `sudo -l`, `sudo -v`, `id`, `groups`.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849018,
+  "id": "202609081430087c2feb200f004916",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609081430087c2feb200f004916",
+  "usage": {
+    "completion_tokens": 526,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4165
+  }
+}
+===== page-10.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided image, here is the concise extraction:\n\n**1. PAGE TITLE**\nFinding Files and Information\n\n**2. SECTION HEADERS (in order)**\n*   1. FIND\n*   2. LOCATE\n*   3. WHICH\n*   4. WHEREIS\n*   5. GREP\n*   6. COMMON SEARCH TYPES WITH FIND\n    *   A. RECURSIVE SEARCH\n    *   B. SEARCH BY FILENAME\n    *   C. SEARCH BY FILE TYPE\n    *   D. SEARCH BY SIZE\n    *   E. SEARCH BY TIME\n*   7. COMBINING FIND AND GREP (POWERFUL!)\n*   8. PRACTICAL: FIND A CONFIGURATION FILE AND LOCATE A SPECIFIC VALUE\n\n**3. TABLES**\n*   **Table:** Comparison of the first 5 commands (Find, Locate, Which, Whereis, Grep).\n    *   **Columns:** Command Name, Description, Syntax, Example.\n    *   **Rows:** 5 (one for each command).\n\n**4. NUMBERED PRACTICAL STEPS**\n*   **Section:** \"8. PRACTICAL: FIND A CONFIGURATION FILE...\"\n*   **Total Steps:** 5 steps.\n\n**5. CALLOUT BOXES**\n*   **Tip (Lightbulb Icon):**\n    *   *Heading:* Database updated by: updatedb\n    *   *Heading:* TIPS\n*   **Success/Goal (Checkmark Icon):**\n    *   *Heading:* SUCCESS!\n*   **Warning (Triangle Icon):**\n    *   *Heading:* REMEMBER\n\n**COMMANDS SHOWN**\n`find`, `locate`, `which`, `whereis`, `grep`, `ls`, `updatedb`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849082,
+  "id": "2026090814310803bfe6be975c4f98",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090814310803bfe6be975c4f98",
+  "usage": {
+    "completion_tokens": 379,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 3
+    },
+    "total_tokens": 4018
+  }
+}
+===== page-11.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the concise extraction of the page content:\n\n**1. PAGE TITLE**\nPipes and Redirection\n\n**2. SECTION HEADERS (in order)**\n*   Control Where Command Input and Output Go\n*   1. Standard Input (STDIN)\n*   2. Standard Output (STDOUT)\n*   3. Standard Error (STDERR)\n*   4. Redirection Operators\n*   5. Why Pipelines Matter\n*   6. Tee Command (Example)\n*   7. Practical: Take Command Output, Filter It, and Save to a File\n*   Quick Reference\n*   Tips\n*   Key Takeaway\n\n**3. TABLES**\n*   **Table:** Redirection Operators\n    *   **Headers:** Operator, Name, Description, Syntax Example, Example Use\n    *   **Row Count:** 7 rows (>, >>, <, 2>, 2>>, |, tee)\n\n**4. PRACTICAL STEPS**\n*   **Section 7:** \"Take Command Output, Filter It, and Save to a File\"\n    *   **Total Steps:** 6 steps\n    1.  List all running processes.\n    2.  Filter lines containing \"nginx\".\n    3.  Show output on screen and save to a file.\n    4.  Count the number of nginx processes.\n    5.  Save only errors to a log file.\n    6.  Append output to log file.\n\n**5. CALLOUT BOXES**\n*   **Tips** (Lightbulb icon):\n    *   Use quotes when searching for text with spaces.\n    *   Combine pipes with grep, awk, sort, uniq, wc, head, tail...\n    *   Always check your redirections before running important commands.\n*   **Key Takeaway** (Target icon):\n    *   Pipes and redirection let you control the flow of data between commands...\n\n**COMMANDS SHOWN**\n`command < file.txt`, `command > output.txt`, `command 2> error.log`, `command > file.txt`, `command >> file.txt`, `command < file.txt`, `command 2> error.log`, `command 2>> error.log`, `command1 | command2`, `command | tee file.txt`, `ls -l | tee listing.txt`, `ps aux`, `ps aux | grep nginx`, `ps aux | grep nginx | tee nginx_processes.txt`, `ps aux | grep nginx | wc -l`, `some_command 2> errors.log`, `echo \"Done\" >> process.log`",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849049,
+  "id": "2026090814303117dab82e42e44e05",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090814303117dab82e42e44e05",
+  "usage": {
+    "completion_tokens": 539,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4178
+  }
+}
+===== page-12.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the concise extraction of the page content:\n\n**1. PAGE TITLE**\n**PROCESSES AND JOBS**\n*Subtitle: Understand, monitor and control running tasks in Linux*\n\n**2. SECTION HEADERS (in order)**\n1.  What is a Process?\n2.  PID and PPID\n3.  Foreground vs Background\n4.  Key Commands\n5.  Signals (Common Ones)\n6.  Practical: Identify a Running Process and Stop it Safely\n\n**3. TABLES**\n*   **Table 1: Key Commands**\n    *   **Headers:** Command, Purpose, Example\n    *   **Rows:** 8\n    *   **Commands listed:** `ps`, `top`, `pgrep`, `kill`, `pkill`, `jobs`, `bg`, `fg`, `&`\n\n*   **Table 2: Signals (Common Ones)**\n    *   **Headers:** SIGHUP, SIGINT, SIGTERM, SIGKILL, SIGSTOP, SIGCONT (with numbers and descriptions)\n    *   **Rows:** 1 (Data row containing 6 signal columns)\n\n**4. NUMBERED PRACTICAL STEPS**\n*   **Section:** Practical: Identify a Running Process and Stop it Safely\n*   **Total Steps:** 6\n    1.  List Processes (`ps aux`)\n    2.  Find PID (`ps aux | grep nginx`)\n    3.  Verify Process (`ps -p <PID>`)\n    4.  Graceful Stop (`kill <PID>`)\n    5.  Force Stop (`kill -9 <PID>`)\n    6.  Confirm (`ps aux | grep <name>`)\n\n**5. CALLOUT BOXES**\n*   **TIP:** Use SIGTERM first. Use SIGKILL only when necessary.\n*   **BEST PRACTICE:** Always try a graceful stop (SIGTERM) first. Use SIGKILL (-9) only when necessary.\n*   **WARNING:** Killing critical system processes can make your system unstable.\n*   **GOAL:** Understand how processes work and control them confidently.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849077,
+  "id": "20260908143108f3afe51442ac48f9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908143108f3afe51442ac48f9",
+  "usage": {
+    "completion_tokens": 445,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4084
+  }
+}
+===== page-13.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the concise extraction of the page content:\n\n**1. PAGE TITLE**\nLinux Services with Systemd\n*(Subtitle: Manage, Control and Automate Services on Linux)*\n\n**2. SECTION HEADERS (in order)**\n1. What is a Service?\n2. Systemd\n3. Units\n4. Basic Systemctl Commands\n5. Service Startup at Boot\n6. Failed Services\n7. Common Service States\n8. Practical: Start, Stop, Enable and Troubleshoot a Service\n\n**3. TABLE**\n*   **Table:** Basic Systemctl Commands\n*   **Headers:** Command | Purpose | Example | Description\n*   **Row Count:** 6 (status, start, stop, restart, enable, disable)\n\n**4. NUMBERED PRACTICAL STEPS**\n*   **Section 8 (Practical):** 6 Steps total.\n    1. Check Status (`systemctl status <service>`)\n    2. Start Service (`systemctl start <service>`)\n    3. Verify Running (`systemctl status <service>`)\n    4. Enable at Boot (`systemctl enable <service>`)\n    5. Stop Service (`systemctl stop <service>`)\n    6. Troubleshoot (`systemctl status <service>`)\n\n**5. CALLOUT BOXES**\n*   **TIPS:**\n    *   Always check status before making changes.\n    *   Use `systemctl status <service>` to read logs and errors.\n*   **BEST PRACTICE:**\n    *   Enable only necessary services. Keep your system clean and secure.\n*   **WARNING:**\n    *   Stopping critical services can cause your system or applications to fail.\n\n**COMMANDS SHOWN**\n`systemctl status`, `systemctl start`, `systemctl stop`, `systemctl restart`, `systemctl enable`, `systemctl disable`, `systemctl is-enabled`, `systemctl --failed`.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788849100,
+  "id": "2026090814313079ee15ee415f4b82",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090814313079ee15ee415f4b82",
+  "usage": {
+    "completion_tokens": 404,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3639,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 4043
+  }
+}
+===== page-14.json =====
+
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**1. PAGE TITLE**\nINSTALLING AND MANAGING SOFTWARE\n*Subtitle: Manage packages, updates and dependencies in Linux*\n\n**2. SECTION HEADERS (in order)**\n1.  What is a Package?\n2.  Package Repositories\n3.  Package Managers\n4.  What They Do\n5.  Why Production Updates Require Care\n6.  Essential Package Management Commands\n7.  Practical: Install and Verify a Web Server Package (Nginx)\n8.  Common Nginx Port\n\n**3. TABLES**\n*   **Table: Essential Package Management Commands**\n    *   **Headers:** Task | Debian / Ubuntu (apt) [Command, Example] | RHEL / Rocky / AlmaLinux (dnf) [Command, Example] | RHEL / CentOS 7 (yum) [Command, Example]\n    *   **Row Count:** 6 data rows (Update package list, Install package, Update packages, Remove package, Check installed packages, Search for package info)\n\n**4. NUMBERED PRACTICAL STEPS**\n*   **Section:** Practical: Install and Verify a Web Server Package (Nginx)\n*   **Total Steps:** 6 Steps\n    1.  Update Repo List (`sudo apt update` or `sudo dnf makecache`)\n    2.  Install Nginx (`sudo apt install nginx` or `sudo dnf install nginx`)\n    3.  Start Service (`sudo systemctl start nginx`)\n    4.  Verify Status (`systemctl status nginx`)\n    5.  Test in Browser (Open `http://<your-server-ip>`)\n    6.  Enable at Boot (`sudo systemctl enable nginx`)\n\n**5. CALLOUT BOXES**\n*   **NOTE:** Always use sudo (administrative privileges) for package management commands.\n*   **BEST PRACTICE:** Keep system updated but tested; Read changelogs; Update during maintenance windows.\n*   **SECURITY REMINDER:** Only install what you need; Remove unused packages; Keep system clean/secure.\n*   **WARNING:** Unplanned updates can break applications; Always test before updating production environments.\n\n**KEY COMMANDS LISTED:**\n`sudo apt update`, `sudo apt install <pkg>`, `sudo apt upgrade`, `sudo apt remove <pkg>`, `dpkg -l`, `apt search <pkg>`, `sudo dnf makecache`, `sudo dnf install <pkg>`, `sudo dnf upgrade`, `sudo dnf remove <pkg>`, `dnf list installed`, `dnf search <pkg>`, `sudo yum check-update`, `sudo yum install <pkg>`, `sudo yum update`, `sudo yum remove <pkg>`, `yum list installed`, `yum search <pkg>`, `systemctl start nginx`, `systemctl status nginx`, `systemctl enable nginx`, `nginx -t`, `systemctl restart nginx`, `journalctl -u nginx`, `ss -tulpn | grep :80`.",
+        "role": "assistant"

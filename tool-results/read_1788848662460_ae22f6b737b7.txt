@@ -1,0 +1,402 @@
+  2360→          <span class="badge">PAGE 11 / 20</span>
+  2361→        </div>
+  2362→      </div>
+  2363→      
+  2364→  <div class="title-block">
+  2365→    <h1 class="title">PIPES AND<br>REDIRECTION</h1>
+  2366→    <div class="subtitle">CONTROL WHERE COMMAND INPUT AND OUTPUT GO</div>
+  2367→  </div>
+  2368→  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+  2369→  <div class="concept-grid cols-3">
+  2370→    <div class="concept-card">
+  2371→    <div class="ch"><span class="num">1</span><span class="icn-mini bg-blue" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>Standard Input (STDIN)</h3></div>
+  2372→    <div class="body-text">Data that a command receives as input. Usually from keyboard or a file.</div><div class="mini-term"><span class="pmt">$</span> command < file.txt</div>
+  2373→  </div>
+  2374→    <div class="concept-card">
+  2375→    <div class="ch"><span class="num">2</span><span class="icn-mini bg-green" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>Standard Output (STDOUT)</h3></div>
+  2376→    <div class="body-text">Normal output of a command. Displayed on screen by default.</div><div class="mini-term"><span class="pmt">$</span> command > output.txt</div>
+  2377→  </div>
+  2378→    <div class="concept-card">
+  2379→    <div class="ch"><span class="num">3</span><span class="icn-mini bg-red" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l10.5 18.5H1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1.2" fill="currentColor"/></svg></span><h3>Standard Error (STDERR)</h3></div>
+  2380→    <div class="body-text">Error messages from a command. Displayed on screen by default.</div><div class="mini-term"><span class="pmt">$</span> command 2> error.log</div>
+  2381→  </div>
+  2382→  </div>
+  2383→
+  2384→  <div class="section-h">
+  2385→    <span class="bar"></span>
+  2386→    <h4>4. Redirection Operators</h4>
+  2387→    
+  2388→  </div>
+  2389→  <table class="data-table">
+  2390→    <thead><tr><th>OPERATOR</th><th>NAME</th><th>DESCRIPTION</th><th>SYNTAX EXAMPLE</th><th>EXAMPLE USE</th></tr></thead>
+  2391→    <tbody><tr><td class="mono">></td><td>Redirect Output</td><td>Redirect standard output (overwrite).</td><td class="mono"><code>$ command &gt; file.txt</code></td><td>Save output to file.txt (overwrite if file exists).</td></tr><tr><td class="mono">>></td><td>Append Output</td><td>Redirect standard output (append).</td><td class="mono"><code>$ command &gt;&gt; file.txt</code></td><td>Append output to file.txt (create if not exists).</td></tr><tr><td class="mono"><</td><td>Redirect Input</td><td>Use file as standard input instead of keyboard.</td><td class="mono"><code>$ command &lt; file.txt</code></td><td>Read input from file.txt instead of typing.</td></tr><tr><td class="mono">2></td><td>Redirect Error</td><td>Redirect standard error (overwrite).</td><td class="mono"><code>$ command 2&gt; error.log</code></td><td>Save errors to error.log (overwrite if exists).</td></tr><tr><td class="mono">2>></td><td>Append Error</td><td>Redirect standard error (append).</td><td class="mono"><code>$ command 2&gt;&gt; error.log</code></td><td>Append errors to error.log.</td></tr><tr><td class="mono">|</td><td>Pipe</td><td>Send output of one command as input to another.</td><td class="mono"><code>$ command1 | command2</code></td><td>Use output of command1 as input to command2.</td></tr><tr><td class="mono">tee</td><td>Tee</td><td>Read from input and write to both output and file.</td><td class="mono"><code>$ command | tee file.txt</code></td><td>Show output on screen and save to file.txt.</td></tr></tbody>
+  2392→  </table>
+  2393→
+  2394→  <div class="body cols-2" style="margin-top:14px;">
+  2395→    <div class="concept-card">
+  2396→    <div class="ch"><span class="num">5</span><span class="icn-mini bg-purple" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span><h3>Why Pipelines Matter</h3></div>
+  2397→    <ul><li>Chain multiple commands together.</li><li>Filter and transform data quickly.</li><li>Reduce intermediate files.</li><li>Automate complex tasks easily.</li><li>Essential skill for DevOps, SRE and system administrators.</li></ul>
+  2398→  </div>
+  2399→    <div class="concept-card">
+  2400→    <div class="ch"><span class="num">6</span><span class="icn-mini bg-gold" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>tee Command (Example)</h3></div>
+  2401→    <div class="body-text"><code>tee</code> duplicates the input: one copy to screen, one copy to file.</div><div class="mini-term"><span class="pmt">$</span> ls -l | tee listing.txt</div>
+  2402→  </div>
+  2403→  </div>
+  2404→
+  2405→  <div class="section-h">
+  2406→    <span class="bar"></span>
+  2407→    <h4>7. Practical: Take Command Output, Filter It, and Save to a File</h4>
+  2408→    
+  2409→  </div>
+  2410→  <div class="steps-flow"><div class="step">
+  2411→        <div class="n">1</div>
+  2412→        <div class="bd">
+  2413→          <div class="t">List all running processes</div>
+  2414→          <div class="term"><span class="pmt">$</span> ps aux</div>
+  2415→        </div>
+  2416→      </div><div class="step">
+  2417→        <div class="n">2</div>
+  2418→        <div class="bd">
+  2419→          <div class="t">Filter lines containing "nginx"</div>
+  2420→          <div class="term"><span class="pmt">$</span> ps aux | grep nginx</div>
+  2421→        </div>
+  2422→      </div><div class="step">
+  2423→        <div class="n">3</div>
+  2424→        <div class="bd">
+  2425→          <div class="t">Show output on screen and save to a file</div>
+  2426→          <div class="term"><span class="pmt">$</span> ps aux | grep nginx | tee nginx_processes.txt</div>
+  2427→        </div>
+  2428→      </div><div class="step">
+  2429→        <div class="n">4</div>
+  2430→        <div class="bd">
+  2431→          <div class="t">Count the number of nginx processes</div>
+  2432→          <div class="term"><span class="pmt">$</span> ps aux | grep nginx | wc -l</div>
+  2433→        </div>
+  2434→      </div><div class="step">
+  2435→        <div class="n">5</div>
+  2436→        <div class="bd">
+  2437→          <div class="t">Save only errors to a log file</div>
+  2438→          <div class="term"><span class="pmt">$</span> some_command 2&gt; errors.log</div>
+  2439→        </div>
+  2440→      </div><div class="step">
+  2441→        <div class="n">6</div>
+  2442→        <div class="bd">
+  2443→          <div class="t">Append output to log file</div>
+  2444→          <div class="term"><span class="pmt">$</span> echo "Done" &gt;&gt; process.log</div>
+  2445→        </div>
+  2446→      </div></div>
+  2447→
+  2448→  <div class="callout-grid cols-3">
+  2449→    <div class="callout note">
+  2450→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7v15H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M13 4h7v15h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="6" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="11" x2="9" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="8" x2="18" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="15" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+  2451→    <div class="ct">
+  2452→      <h5>QUICK REFERENCE</h5>
+  2453→      <ul>
+  2454→      <li><code>&gt;</code> redirect output (overwrite)</li>
+  2455→      <li><code>&gt;&gt;</code> redirect output (append)</li>
+  2456→      <li><code>&lt;</code> redirect input</li>
+  2457→      <li><code>2&gt;</code> redirect error (overwrite)</li>
+  2458→      <li><code>2&gt;&gt;</code> redirect error (append)</li>
+  2459→      <li><code>|</code> pipe</li>
+  2460→      <li><code>tee</code> duplicate to file and screen</li>
+  2461→    </ul>
+  2462→    </div>
+  2463→  </div>
+  2464→    <div class="callout tip">
+  2465→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 18h6m-5 2h4M12 3a6 6 0 0 0-4 10.5c.7.7 1.2 1.5 1.4 2.5h5.2c.2-1 .7-1.8 1.4-2.5A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+  2466→    <div class="ct">
+  2467→      <h5>TIPS</h5>
+  2468→      <ul>
+  2469→      <li>Use quotes when searching for text with spaces.</li>
+  2470→      <li>Combine pipes with grep, awk, sort, uniq, wc, head, tail for powerful text processing.</li>
+  2471→      <li>Always check your redirections before running important commands.</li>
+  2472→    </ul>
+  2473→    </div>
+  2474→  </div>
+  2475→    <div class="callout success">
+  2476→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2 L20 5 V12 C20 17 16 20.5 12 22 C8 20.5 4 17 4 12 V5 Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  2477→    <div class="ct">
+  2478→      <h5>KEY TAKEAWAY</h5>
+  2479→      <p>Pipes and redirection let you control the flow of data between commands, files, and the screen — making you more efficient and powerful on the Linux CLI.</p>
+  2480→    </div>
+  2481→  </div>
+  2482→  </div>
+  2483→      <div class="page-footer">
+  2484→        <span class="src">Notebook · Practice Daily</span>
+  2485→        <span class="tip">Master |, >, >>, <, 2>, tee.</span>
+  2486→        <span class="pg">11 / 20</span>
+  2487→      </div>
+  2488→    </div>
+  2489→  </div>
+  2490→</div>
+  2491→
+  2492→<div class="page-wrapper">
+  2493→  <div class="holes" aria-hidden="true"></div>
+  2494→  <div class="spiral" aria-hidden="true"></div>
+  2495→  <div class="page-bend" aria-hidden="true"></div>
+  2496→  <div class="page">
+  2497→    <div class="page-top-edge" aria-hidden="true"></div>
+  2498→    <div class="page-bottom-edge" aria-hidden="true"></div>
+  2499→    <div class="content">
+  2500→      <div class="top-strip">
+  2501→        <div class="badges">
+  2502→          <span class="badge green">LINUX FOR BEGINNERS</span>
+  2503→          <span class="badge alt">PROCESSES & JOBS</span>
+  2504→          <span class="badge">PAGE 12 / 20</span>
+  2505→        </div>
+  2506→      </div>
+  2507→      
+  2508→  <div class="title-block">
+  2509→    <h1 class="title">PROCESSES<br>AND JOBS</h1>
+  2510→    <div class="subtitle">UNDERSTAND, MONITOR AND CONTROL RUNNING TASKS IN LINUX</div>
+  2511→  </div>
+  2512→  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+  2513→  <div class="concept-grid cols-3">
+  2514→    <div class="concept-card">
+  2515→    <div class="ch"><span class="num">1</span><span class="icn-mini bg-blue" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span><h3>What Is a Process?</h3></div>
+  2516→    <ul><li>A process is an instance of a running program.</li><li>Every process has a unique Process ID (PID).</li><li>The parent process that started it has a Parent Process ID (PPID).</li></ul>
+  2517→  </div>
+  2518→    <div class="concept-card">
+  2519→    <div class="ch"><span class="num">2</span><span class="icn-mini bg-green" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>PID and PPID</h3></div>
+  2520→    <ul><li><b>PID:</b> Unique ID of the process.</li><li><b>PPID:</b> ID of the parent process.</li><li>All processes (except init/systemd) have a parent.</li></ul>
+  2521→  </div>
+  2522→    <div class="concept-card">
+  2523→    <div class="ch"><span class="num">3</span><span class="icn-mini bg-purple" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="4" width="19" height="16" rx="2.2" fill="#0d1117"/><rect x="2.5" y="4" width="19" height="3" rx="2.2" fill="#1c2230"/><circle cx="5" cy="5.5" r="0.6" fill="#ff5f56"/><circle cx="6.8" cy="5.5" r="0.6" fill="#ffbd2e"/><circle cx="8.6" cy="5.5" r="0.6" fill="#27c93f"/><path d="M6 11 L9 13.5 L6 16" fill="none" stroke="#7ee787" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="16" x2="17" y2="16" stroke="#e6edf3" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>Foreground vs Background</h3></div>
+  2524→    <div class="body-text"><b>FOREGROUND:</b> runs in the current terminal. You can see the output. You must wait for it to finish.<br><b>BACKGROUND:</b> runs behind the scenes. Does not block your terminal. You can continue working.</div>
+  2525→  </div>
+  2526→  </div>
+  2527→
+  2528→  <div class="section-h">
+  2529→    <span class="bar"></span>
+  2530→    <h4>4. Key Commands</h4>
+  2531→    
+  2532→  </div>
+  2533→  <table class="data-table">
+  2534→    <thead><tr><th>COMMAND</th><th>PURPOSE</th><th>EXAMPLE</th></tr></thead>
+  2535→    <tbody><tr><td class="mono">ps</td><td>Show running processes snapshot</td><td class="mono"><code>ps aux</code></td></tr><tr><td class="mono">top</td><td>Interactive real-time process monitor</td><td class="mono"><code>top</code></td></tr><tr><td class="mono">pgrep</td><td>Search for processes by name</td><td class="mono"><code>pgrep nginx</code></td></tr><tr><td class="mono">kill</td><td>Send signal to a process using PID</td><td class="mono"><code>kill 1234</code></td></tr><tr><td class="mono">pkill</td><td>Send signal to processes by name</td><td class="mono"><code>pkill nginx</code></td></tr><tr><td class="mono">jobs</td><td>List background and stopped jobs</td><td class="mono"><code>jobs</code></td></tr><tr><td class="mono">bg</td><td>Resume a stopped job in background</td><td class="mono"><code>bg %1</code></td></tr><tr><td class="mono">fg</td><td>Bring a background job to foreground</td><td class="mono"><code>fg %1</code></td></tr><tr><td class="mono">&</td><td>Run a command in background</td><td class="mono"><code>sleep 100 &amp;</code></td></tr></tbody>
+  2536→  </table>
+  2537→
+  2538→  <div class="section-h">
+  2539→    <span class="bar"></span>
+  2540→    <h4>5. Signals (Common Ones)</h4>
+  2541→    
+  2542→  </div>
+  2543→  <table class="data-table">
+  2544→    <thead><tr><th>SIGNAL</th><th>NUM</th><th>MEANING</th></tr></thead>
+  2545→    <tbody><tr><td class="mono">SIGHUP</td><td class="mono">1</td><td>Reload / Reopen config</td></tr><tr><td class="mono">SIGINT</td><td class="mono">2</td><td>Ctrl + C · Interrupt (terminate)</td></tr><tr><td class="mono">SIGTERM</td><td class="mono">15</td><td>Graceful terminate</td></tr><tr><td class="mono">SIGKILL</td><td class="mono">9</td><td>Force kill (cannot be ignored)</td></tr><tr><td class="mono">SIGSTOP</td><td class="mono">19</td><td>Stop / Pause a process</td></tr><tr><td class="mono">SIGCONT</td><td class="mono">18</td><td>Continue a stopped process</td></tr></tbody>
+  2546→  </table>
+  2547→  <div class="callout tip">
+  2548→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 18h6m-5 2h4M12 3a6 6 0 0 0-4 10.5c.7.7 1.2 1.5 1.4 2.5h5.2c.2-1 .7-1.8 1.4-2.5A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+  2549→    <div class="ct">
+  2550→      <h5>TIP</h5>
+  2551→      <p>Use <code>SIGTERM</code> first. Use <code>SIGKILL</code> only when necessary.</p>
+  2552→    </div>
+  2553→  </div>
+  2554→
+  2555→  <div class="section-h">
+  2556→    <span class="bar"></span>
+  2557→    <h4>6. Practical: Identify a Running Process and Stop It Safely</h4>
+  2558→    
+  2559→  </div>
+  2560→  <div class="steps-flow"><div class="step">
+  2561→        <div class="n">1</div>
+  2562→        <div class="bd">
+  2563→          <div class="t">LIST PROCESSES — Use ps aux or top to find the process</div>
+  2564→          <div class="term"><span class="pmt">$</span> ps aux</div>
+  2565→        </div>
+  2566→      </div><div class="step">
+  2567→        <div class="n">2</div>
+  2568→        <div class="bd">
+  2569→          <div class="t">FIND PID — Note the PID of the process</div>
+  2570→          <div class="term"><span class="pmt">$</span> ps aux | grep nginx</div>
+  2571→        </div>
+  2572→      </div><div class="step">
+  2573→        <div class="n">3</div>
+  2574→        <div class="bd">
+  2575→          <div class="t">VERIFY PROCESS — Confirm it is the correct process</div>
+  2576→          <div class="term"><span class="pmt">$</span> ps -p &lt;PID&gt;</div>
+  2577→        </div>
+  2578→      </div><div class="step">
+  2579→        <div class="n">4</div>
+  2580→        <div class="bd">
+  2581→          <div class="t">GRACEFUL STOP — Try SIGTERM first (graceful stop)</div>
+  2582→          <div class="term"><span class="pmt">$</span> kill &lt;PID&gt;</div>
+  2583→        </div>
+  2584→      </div><div class="step">
+  2585→        <div class="n">5</div>
+  2586→        <div class="bd">
+  2587→          <div class="t">FORCE STOP — If still running, use SIGKILL</div>
+  2588→          <div class="term"><span class="pmt">$</span> kill -9 &lt;PID&gt;</div>
+  2589→        </div>
+  2590→      </div><div class="step">
+  2591→        <div class="n">6</div>
+  2592→        <div class="bd">
+  2593→          <div class="t">CONFIRM — Check again to make sure it stopped</div>
+  2594→          <div class="term"><span class="pmt">$</span> ps aux | grep &lt;name&gt;</div>
+  2595→        </div>
+  2596→      </div></div>
+  2597→      <div class="page-footer">
+  2598→        <span class="src">Notebook · Practice Daily</span>
+  2599→        <span class="tip">SIGTERM first, SIGKILL only when necessary.</span>
+  2600→        <span class="pg">12 / 20</span>
+  2601→      </div>
+  2602→    </div>
+  2603→  </div>
+  2604→</div>
+  2605→
+  2606→<div class="page-wrapper">
+  2607→  <div class="holes" aria-hidden="true"></div>
+  2608→  <div class="spiral" aria-hidden="true"></div>
+  2609→  <div class="page-bend" aria-hidden="true"></div>
+  2610→  <div class="page">
+  2611→    <div class="page-top-edge" aria-hidden="true"></div>
+  2612→    <div class="page-bottom-edge" aria-hidden="true"></div>
+  2613→    <div class="content">
+  2614→      <div class="top-strip">
+  2615→        <div class="badges">
+  2616→          <span class="badge green">LINUX FOR BEGINNERS</span>
+  2617→          <span class="badge alt">SYSTEMD</span>
+  2618→          <span class="badge">PAGE 13 / 20</span>
+  2619→        </div>
+  2620→      </div>
+  2621→      
+  2622→  <div class="title-block">
+  2623→    <h1 class="title">LINUX SERVICES<br>WITH SYSTEMD</h1>
+  2624→    <div class="subtitle">MANAGE, CONTROL AND AUTOMATE SERVICES ON LINUX</div>
+  2625→  </div>
+  2626→  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+  2627→  <div class="concept-grid cols-3">
+  2628→    <div class="concept-card">
+  2629→    <div class="ch"><span class="num">1</span><span class="icn-mini bg-blue" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span><h3>What Is a Service?</h3></div>
+  2630→    <ul><li>A service is a background program that starts, runs and continues working to provide a function.</li><li>Examples: web server, database, SSH server, logging, etc.</li></ul>
+  2631→  </div>
+  2632→    <div class="concept-card">
+  2633→    <div class="ch"><span class="num">2</span><span class="icn-mini bg-green" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span><h3>systemd</h3></div>
+  2634→    <ul><li>The init system and service manager for most modern Linux distributions.</li><li>Starts services at boot, supervises them, restarts on failure and manages dependencies.</li></ul>
+  2635→  </div>
+  2636→    <div class="concept-card">
+  2637→    <div class="ch"><span class="num">3</span><span class="icn-mini bg-purple" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l8 4.5v9.5l-8 4.5-8-4.5V7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M4 7l8 4.5 8-4.5M12 11.5v9.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></span><h3>Units</h3></div>
+  2638→    <ul><li>systemd manages everything as "units".</li><li>Most common unit type is service (.service).</li><li>Other unit types: socket, timer, mount, target, etc.</li></ul>
+  2639→  </div>
+  2640→  </div>
+  2641→
+  2642→  <div class="section-h">
+  2643→    <span class="bar"></span>
+  2644→    <h4>4. Basic systemctl Commands</h4>
+  2645→    
+  2646→  </div>
+  2647→  <table class="data-table">
+  2648→    <thead><tr><th>COMMAND</th><th>PURPOSE</th><th>EXAMPLE</th><th>DESCRIPTION</th></tr></thead>
+  2649→    <tbody><tr><td class="mono">systemctl status &lt;service&gt;</td><td>Check status of a service</td><td class="mono"><code>systemctl status nginx</code></td><td>Shows if the service is active, inactive, failed, etc. Displays logs and last few messages.</td></tr><tr><td class="mono">systemctl start &lt;service&gt;</td><td>Start a service</td><td class="mono"><code>systemctl start nginx</code></td><td>Starts the service immediately.</td></tr><tr><td class="mono">systemctl stop &lt;service&gt;</td><td>Stop a running service</td><td class="mono"><code>systemctl stop nginx</code></td><td>Stops the service immediately.</td></tr><tr><td class="mono">systemctl restart &lt;service&gt;</td><td>Restart a service</td><td class="mono"><code>systemctl restart nginx</code></td><td>Stops and starts the service again.</td></tr><tr><td class="mono">systemctl enable &lt;service&gt;</td><td>Enable service at boot</td><td class="mono"><code>systemctl enable nginx</code></td><td>Ensures the service starts automatically when the system boots. Creates a symlink in system targets.</td></tr><tr><td class="mono">systemctl disable &lt;service&gt;</td><td>Disable service at boot</td><td class="mono"><code>systemctl disable nginx</code></td><td>Prevents the service from starting automatically at boot. Removes the symlink.</td></tr></tbody>
+  2650→  </table>
+  2651→
+  2652→  <div class="body cols-2" style="margin-top:14px;">
+  2653→    <div class="concept-card">
+  2654→    <div class="ch"><span class="num">5</span><span class="icn-mini bg-gold" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm-2 3.5a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" fill="currentColor"/><path d="M19.4 12.9a7.5 7.5 0 0 0 .06-1.8l1.5-1.1-1.5-2.6-1.8.6a7.6 7.6 0 0 0-1.55-.9l-.4-1.85h-3l-.4 1.85a7.6 7.6 0 0 0-1.55.9l-1.8-.6L7.04 9.99l1.5 1.1a7.5 7.5 0 0 0 0 1.8l-1.5 1.1 1.5 2.6 1.8-.6a7.6 7.6 0 0 0 1.55.9l.4 1.85h3l.4-1.85a7.6 7.6 0 0 0 1.55-.9l1.8.6 1.5-2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></span><h3>Service Startup at Boot</h3></div>
+  2655→    <div class="body-text">When enabled, the service starts automatically during system boot.</div><ul><li>Check if enabled: <code>systemctl is-enabled &lt;service&gt;</code></li><li>Outputs: <code>enabled</code> / <code>disabled</code> / <code>static</code></li></ul>
+  2656→  </div>
+  2657→    <div class="concept-card">
+  2658→    <div class="ch"><span class="num">6</span><span class="icn-mini bg-red" style="color:var(--linux-green);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l10.5 18.5H1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1.2" fill="currentColor"/></svg></span><h3>Failed Services</h3></div>
+  2659→    <div class="body-text">If a service fails, systemd will show it as "failed".</div><ul><li>Check failed services: <code>systemctl --failed</code></li><li>To see details and logs: <code>systemctl status &lt;service&gt;</code></li></ul>
+  2660→  </div>
+  2661→  </div>
+  2662→
+  2663→  <div class="section-h">
+  2664→    <span class="bar"></span>
+  2665→    <h4>7. Common Service States</h4>
+  2666→    
+  2667→  </div>
+  2668→  <table class="data-table">
+  2669→    <thead><tr><th>STATE</th><th>MEANING</th></tr></thead>
+  2670→    <tbody><tr><td class="mono">active (running)</td><td>Service is running.</td></tr><tr><td class="mono">active (exited)</td><td>Service ran and exited.</td></tr><tr><td class="mono">inactive (dead)</td><td>Service is stopped.</td></tr><tr><td class="mono">failed</td><td>Service failed to start.</td></tr><tr><td class="mono">activating</td><td>Service is starting.</td></tr><tr><td class="mono">deactivating</td><td>Service is stopping.</td></tr></tbody>
+  2671→  </table>
+  2672→
+  2673→  <div class="section-h">
+  2674→    <span class="bar"></span>
+  2675→    <h4>8. Practical: Start, Stop, Enable and Troubleshoot a Service</h4>
+  2676→    
+  2677→  </div>
+  2678→  <div class="steps-flow"><div class="step">
+  2679→        <div class="n">1</div>
+  2680→        <div class="bd">
+  2681→          <div class="t">Check current status</div>
+  2682→          <div class="term"><span class="pmt">$</span> sudo systemctl status nginx</div>
+  2683→        </div>
+  2684→      </div><div class="step">
+  2685→        <div class="n">2</div>
+  2686→        <div class="bd">
+  2687→          <div class="t">Start the service</div>
+  2688→          <div class="term"><span class="pmt">$</span> sudo systemctl start nginx</div>
+  2689→        </div>
+  2690→      </div><div class="step">
+  2691→        <div class="n">3</div>
+  2692→        <div class="bd">
+  2693→          <div class="t">Verify it is running</div>
+  2694→          <div class="term"><span class="pmt">$</span> systemctl status nginx</div>
+  2695→        </div>
+  2696→      </div><div class="step">
+  2697→        <div class="n">4</div>
+  2698→        <div class="bd">
+  2699→          <div class="t">Enable at boot</div>
+  2700→          <div class="term"><span class="pmt">$</span> sudo systemctl enable nginx</div>
+  2701→        </div>
+  2702→      </div><div class="step">
+  2703→        <div class="n">5</div>
+  2704→        <div class="bd">
+  2705→          <div class="t">Stop / restart</div>
+  2706→          <div class="term"><span class="pmt">$</span> sudo systemctl stop nginx
+  2707→$ sudo systemctl restart nginx</div>
+  2708→        </div>
+  2709→      </div><div class="step">
+  2710→        <div class="n">6</div>
+  2711→        <div class="bd">
+  2712→          <div class="t">Check logs and errors</div>
+  2713→          <div class="term"><span class="pmt">$</span> sudo journalctl -u nginx --no-pager</div>
+  2714→        </div>
+  2715→      </div></div>
+  2716→
+  2717→  <div class="callout-grid cols-3">
+  2718→    <div class="callout tip">
+  2719→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 18h6m-5 2h4M12 3a6 6 0 0 0-4 10.5c.7.7 1.2 1.5 1.4 2.5h5.2c.2-1 .7-1.8 1.4-2.5A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+  2720→    <div class="ct">
+  2721→      <h5>TIPS</h5>
+  2722→      <ul><li>Always check status before making changes.</li><li>Use <code>systemctl status &lt;service&gt;</code> to read logs and errors.</li></ul>
+  2723→    </div>
+  2724→  </div>
+  2725→    <div class="callout success">
+  2726→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2 L20 5 V12 C20 17 16 20.5 12 22 C8 20.5 4 17 4 12 V5 Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5L16 9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  2727→    <div class="ct">
+  2728→      <h5>BEST PRACTICE</h5>
+  2729→      <ul><li>Enable only necessary services.</li><li>Keep your system clean and secure.</li></ul>
+  2730→    </div>
+  2731→  </div>
+  2732→    <div class="callout warning">
+  2733→    <div class="icn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5l10.5 18.5H1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1.2" fill="currentColor"/></svg></div>
+  2734→    <div class="ct">
+  2735→      <h5>WARNING</h5>
+  2736→      <p>Stopping critical services can cause your system or applications to fail.</p>
+  2737→    </div>
+  2738→  </div>
+  2739→  </div>
+  2740→      <div class="page-footer">
+  2741→        <span class="src">Notebook · Practice Daily</span>
+  2742→        <span class="tip">Always check status before making changes.</span>
+  2743→        <span class="pg">13 / 20</span>
+  2744→      </div>
+  2745→    </div>
+  2746→  </div>
+  2747→</div>
+  2748→
+  2749→<div class="page-wrapper">
+  2750→  <div class="holes" aria-hidden="true"></div>
+  2751→  <div class="spiral" aria-hidden="true"></div>
+  2752→  <div class="page-bend" aria-hidden="true"></div>
+  2753→  <div class="page">
+  2754→    <div class="page-top-edge" aria-hidden="true"></div>
+  2755→    <div class="page-bottom-edge" aria-hidden="true"></div>
+  2756→    <div class="content">
+  2757→      <div class="top-strip">
+  2758→        <div class="badges">
+  2759→          <span class="badge green">LINUX FOR BEGINNERS</span>
+
+[showing lines 2360-2759 of 3837; use offset=2760 with limit to continue reading]
