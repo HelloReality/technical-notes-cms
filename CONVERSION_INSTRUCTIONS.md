@@ -135,3 +135,68 @@ After recreating the page, **remove all branding**:
 7. Place any image assets in `public/uploads/<note-name>/`.
 8. Add the note to the database (via a bun script using `db.note.create`).
 9. Verify in the browser with agent-browser + VLM.
+
+---
+
+## Enhancement lessons (LEARNED — apply to ALL future conversions)
+
+These are quality enhancements discovered during the "Linux for Complete Beginners" conversion. **Apply ALL of these to every future note you build.**
+
+### A. Page titles — single-line, compact
+- Use `font-size: 38px` for page titles (NOT 42px — too large, causes wrapping).
+- Add `white-space: nowrap` to `.title` so titles stay on one line.
+- For genuinely long titles (22+ chars at 38px), add a `.title.long { font-size: 32px; }` class — do NOT use `<br>` unless the title is extremely long (30+ chars even at 32px).
+- Only 3-4 titles in a 20-page notebook should need `<br>`. If more than that have `<br>`, reduce the font size.
+- Single-line titles save vertical space and look cleaner.
+
+### B. Table alignment rules (ALL tables)
+- **Header cells**: `text-align: center; vertical-align: middle;`
+- **Body cells**: `text-align: left; vertical-align: middle; word-break: break-word;`
+- **Code/command cells** (`.mono`, `code`): `white-space: nowrap;` — commands must NEVER wrap mid-word.
+- **Font size**: `10.5px` for body cells, `10px` for headers — small enough to fit content without wrapping.
+- **Padding**: `7px 10px` — tight but readable.
+- **Even rows**: `background: #f8f5ec;` for zebra striping.
+- If a table has many columns (7+), reduce font to `10px` and consider `table-layout: fixed` with column widths.
+
+### C. Multi-column layouts for compact sections
+- When 3 related sections appear together (e.g., a table + a terminal block + a tip box), use a **3-column flex layout**: `<div style="display:flex; gap:16px;">` with each child `flex:1; min-width:0;`.
+- When 2 sections appear together, use **2-column**: `<div style="display:flex; gap:16px;">` with 2 children.
+- This saves vertical space vs. stacking each section full-width.
+
+### D. Practical exercise steps — 2-column grid
+- Use `display: grid; grid-template-columns: 1fr 1fr; gap: 8px;` for steps-flow (NOT vertical stack).
+- Add `.steps-flow .step:last-child:nth-child(odd) { grid-column: 1 / -1; }` so an odd last step spans full width.
+- This matches the reference images which show steps flowing horizontally.
+
+### E. Content completeness checklist (per page)
+Before finishing each page, verify:
+1. **Important Files** — every file mentioned must have a **description** of what it stores/does (e.g., `/etc/passwd — Stores user account information`). Don't just show the file path.
+2. **Command tables** — must include BOTH the **generic command** (e.g., `sudo apt install <pkg>`) AND the **specific example** (e.g., `sudo apt install nginx`). Don't show only one.
+3. **Practical exercises** — every page that has a practical section in the reference must have it in the HTML. Check for missing steps.
+4. **Tips/Notes** — every tip box, note, warning, and "KEY TAKEAWAY" in the reference must be present.
+5. **Footer content** — practice tips, goals, and page numbers must match.
+6. **No empty space** — if a section in the reference is dense, the HTML should be dense too. Remove unnecessary vertical gaps.
+
+### F. Spacing — compact, reference-matching
+- Section gaps: `12-14px` between sections (NOT 20-30px).
+- Card padding: `12px 14px` (NOT 20px+).
+- Terminal block padding: `8px 10px`.
+- Concept card padding: `12px 14px`.
+- Title block margin: `14px 0 6px 0`.
+- Divider margin: `8px 0`.
+- The reference images are DENSE — match that density.
+
+### G. VLM verification per page
+- After generating the HTML, use `z-ai vision` to compare EACH page against its reference image.
+- Check: title text, section headings, command names, table rows, tips, practical steps.
+- If the VLM finds missing or incorrect content, fix it before moving on.
+- At minimum, verify: (1) all sections present, (2) all commands present, (3) all tables have correct columns, (4) all practical exercises have the right number of steps.
+
+### H. Structural integrity check
+After all pages are built:
+1. Count `.page-wrapper` elements — must equal the number of pages.
+2. Count `<table>` open/close tags — must balance.
+3. Count `<div>` open/close tags — must balance (check with a script).
+4. Verify no "VERIQTA" text anywhere.
+5. Verify the file is fully self-contained (no external URLs in `<link>`, `<script>`, `<img src>`).
+
