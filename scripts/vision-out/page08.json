@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\n7. SSH SERVER HARDENING\n\n# SUBTITLE\nLINUX SECURITY HANDBOOK\n\n# BADGES\nPAGE 7 OF 20\n\n# SECTION_HEADINGS\n- SSH ATTACK SURFACE\n- KEY-BASED AUTHENTICATION\n- DISABLING ROOT SSH LOGIN\n- DISABLING PASSWORD AUTHENTICATION\n- SSHD_CONFIG\n- RESTRICTING USERS AND GROUPS\n- SSH KEY PERMISSIONS\n- IDLE-SESSION CONTROLS\n- TESTING CONFIGURATION BEFORE RESTART\n- REVIEWING SSH AUTHENTICATION LOGS\n- IMPORTANT SSHD_CONFIG SETTINGS\n- SSH KEY GENERATION (ON CLIENT)\n- COPY PUBLIC KEY TO SERVER\n- VALIDATE SSH CONFIGURATION\n- RELOAD SSH SERVICE\n- REVIEW AUTHENTICATION LOGS\n\n# BODY_PARAGRAPHS\n**SSH ATTACK SURFACE**\nSSH is a common target for attackers. Reduce exposure by limiting access, strengthening authentication, and monitoring activity.\n\n**KEY-BASED AUTHENTICATION**\nUse SSH keys instead of passwords. Stronger, more secure, and resistant to brute-force attacks.\n\n**DISABLING ROOT SSH LOGIN**\nDo not allow root to login via SSH. Use a regular user and sudo for administrative tasks.\n\n**DISABLING PASSWORD AUTHENTICATION**\nDisable password-based login. Prevents brute-force and credential stuffing attacks.\n\n**SSHD_CONFIG**\nMain SSH server configuration file. Harden settings in /etc/ssh/sshd_config and reload SSH service safely.\n\n**RESTRICTING USERS AND GROUPS**\nAllow only specific users or groups to access SSH. Deny all others.\n\n**SSH KEY PERMISSIONS**\nPrivate key (id_rsa): 600\nPublic key (id_rsa.pub): 644\n~/.ssh directory: 700\nauthorized_keys file: 600\nWrong permissions = login failure.\n\n**IDLE-SESSION CONTROLS**\nSet timeouts for idle sessions. Disconnect inactive sessions automatically to reduce risk.\n\n**TESTING CONFIGURATION BEFORE RESTART**\nAlways validate SSH configuration before restarting to avoid lockout. Use test mode: sshd -t\n\n**REVIEWING SSH AUTHENTICATION LOGS**\nMonitor SSH login attempts, failed logins, and suspicious activity regularly. Logs help detect brute-force attacks early.\n\n# IMPORTANT_FILES\n| File Path | Description |\n| :--- | :--- |\n| /etc/ssh/sshd_config | Main SSH server configuration file. Harden settings here and reload SSH service safely. |\n| ~/.ssh/id_rsa | Private key file. Requires permissions of 600. |\n| ~/.ssh/id_rsa.pub | Public key file. Requires permissions of 644. |\n| ~/.ssh | User's SSH directory. Requires permissions of 700. |\n| ~/.ssh/authorized_keys | File storing authorized public keys. Requires permissions of 600. |\n| /var/log/auth.log | Log file containing authentication logs and login attempts. |\n\n# TABLES\n## IMPORTANT SSHD_CONFIG SETTINGS\n| Setting | Value |\n| :--- | :--- |\n| Port | 22 |\n| Protocol | 2 |\n| PermitRootLogin | no |\n| PasswordAuthentication | no |\n| ChallengeResponseAuthentication | no |\n| UsePAM | yes |\n| AllowUsers | user1 user2 |\n| AllowGroups | sshusers |\n| X11Forwarding | no |\n| MaxAuthTries | 3 |\n| LoginGraceTime | 30s |\n| ClientAliveInterval | 300 |\n| ClientAliveCountMax | 2 |\n\n# COMMANDS\n| Command | Description | Example |\n| :--- | :--- | :--- |\n| `ssh-keygen` | Generates a new SSH key pair on the client machine. | `ssh-keygen -t ed25519 -C \"your_email@domain.com\" -f ~/.ssh/id_ed25519` |\n| `ssh-copy-id` | Copies the public key to the remote server's authorized_keys file. | `ssh-copy-id -i ~/.ssh/id_ed25519.pub user@server_ip` |\n| `cat` (with pipe) | Alternative method to copy the public key to the server by creating the directory and appending the key. | `cat ~/.ssh/id_ed25519.pub \\| ssh user@server_ip \"mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys\"` |\n| `sshd -t` | Validates the SSH configuration syntax without restarting the service. | `sshd -t` |\n| `sudo systemctl reload sshd` | Reloads the SSH daemon to apply configuration changes without dropping existing connections. | `sudo systemctl reload sshd` |\n| `sudo systemctl restart sshd` | Restarts the SSH daemon completely if a reload is not sufficient. | `sudo systemctl restart sshd` |\n| `sudo journalctl` | Views system logs, specifically filtering for SSH service entries since a specific time. | `sudo journalctl -u ssh --since \"1 hour ago\"` |\n| `sudo grep` | Searches authentication log files for specific keywords like \"sshd\" or \"Failed password\". | `sudo grep \"sshd\" /var/log/auth.log`<br>`sudo grep \"Failed password\" /var/log/auth.log` |\n\n# TIPS_NOTES_WARNINGS\n- **Note:** If `sshd -t` produces no output, the configuration is valid.\n- **Warning:** If errors are found during validation, fix them before restarting the service to avoid being locked out.\n- **Tip:** Use `sudo systemctl reload sshd` to apply changes, or restart if necessary.\n\n# PRACTICAL_EXERCISES\n*(No explicit numbered practical exercise steps are present on this page; the commands and configurations serve as the procedural guide.)*\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\n\n# PAGE_NUMBER\nPAGE 7 OF 20",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853268,
+  "id": "2026090815403053b68d8d7cc340dc",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090815403053b68d8d7cc340dc",
+  "usage": {
+    "completion_tokens": 1210,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4735
+  }
+}

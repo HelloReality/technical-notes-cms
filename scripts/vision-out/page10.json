@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\n9. NETWORK EXPOSURE AND OPEN PORTS\n\n# SUBTITLE\nLINUX SECURITY HANDBOOK\n\n# BADGES\nPAGE 9 OF 20\n\n# SECTION_HEADINGS\n- LISTENING SOCKETS\n- TCP AND UDP EXPOSURE\n- SS\n- LSOF\n- IDENTIFYING PROCESSES BEHIND PORTS\n- LOOPBACK VERSUS PUBLIC INTERFACES\n- UNEXPECTED LISTENING SERVICES\n- NETWORK EXPOSURE INVESTIGATION\n- PRODUCTION PORT AUDITING\n\n# BODY_PARAGRAPHS\n**LISTENING SOCKETS**\nListening sockets are endpoints that accept incoming connections or packets on the system.\n\n**TCP AND UDP EXPOSURE**\nOpen TCP ports establish connections.\nOpen UDP ports receive datagrams.\nBoth increase the attack surface.\n\n**SS**\nss is the modern tool to view socket statistics, listening ports, and network connections. Use it to identify what is listening on the system.\n\n**LSOF**\nlsof lists open files and the processes that opened them, including network sockets. Useful for identifying listening ports and connections.\n\n**IDENTIFYING PROCESSES BEHIND PORTS**\nFind which process is listening on a specific port. Understand the service, user, and risk associated with that process.\n\n**LOOPBACK VERSUS PUBLIC INTERFACES**\nServices bound to 127.0.0.1 are only accessible locally. Services bound to 0.0.0.0 or public IPs are accessible from the network or internet.\n\n**UNEXPECTED LISTENING SERVICES**\nUnexpected or unnecessary services listening on ports may indicate misconfiguration or potential compromise. Always review and minimize exposed services.\n\n**NETWORK EXPOSURE INVESTIGATION**\nInvestigate open ports, services, and connections. Correlate with logs and configurations to assess the security impact.\n\n**PRODUCTION PORT AUDITING**\nRegularly audit open ports and listening services. Validate that only required services are exposed. Document, monitor, and review continuously.\n\n# IMPORTANT_FILES\n(No specific file paths listed on this page)\n\n# TABLES\n| Topic | Description |\n| :--- | :--- |\n| **LISTENING SOCKETS** | Listening sockets are endpoints that accept incoming connections or packets on the system. |\n| **TCP AND UDP EXPOSURE** | Open TCP ports establish connections.<br>Open UDP ports receive datagrams.<br>Both increase the attack surface. |\n| **SS** | ss is the modern tool to view socket statistics, listening ports, and network connections.<br>Use it to identify what is listening on the system. |\n| **LSOF** | lsof lists open files and the processes that opened them, including network sockets.<br>Useful for identifying listening ports and connections. |\n| **IDENTIFYING PROCESSES BEHIND PORTS** | Find which process is listening on a specific port.<br>Understand the service, user, and risk associated with that process. |\n| **LOOPBACK VERSUS PUBLIC INTERFACES** | Services bound to 127.0.0.1 are only accessible locally.<br>Services bound to 0.0.0.0 or public IPs are accessible from the network or internet. |\n| **UNEXPECTED LISTENING SERVICES** | Unexpected or unnecessary services listening on ports may indicate misconfiguration or potential compromise.<br>Always review and minimize exposed services. |\n| **NETWORK EXPOSURE INVESTIGATION** | Investigate open ports, services, and connections.<br>Correlate with logs and configurations to assess the security impact. |\n| **PRODUCTION PORT AUDITING** | Regularly audit open ports and listening services.<br>Validate that only required services are exposed.<br>Document, monitor, and review continuously. |\n\n# COMMANDS\n| Command | Description | Example |\n| :--- | :--- | :--- |\n| `ss` | The modern tool to view socket statistics, listening ports, and network connections. Use it to identify what is listening on the system. | `$ ss -tulpn` |\n\n# TIPS_NOTES_WARNINGS\n**WARNING: UNEXPECTED LISTENING SERVICES**\nUnexpected or unnecessary services listening on ports may indicate misconfiguration or potential compromise. Always review and minimize exposed services.\n\n# PRACTICAL_EXERCISES\n(No specific practical exercise steps listed on this page)\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\nVERIQTA\n\n# PAGE_NUMBER\n9",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853319,
+  "id": "20260908154135776052f8090e42fb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908154135776052f8090e42fb",
+  "usage": {
+    "completion_tokens": 950,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 193
+    },
+    "total_tokens": 4475
+  }
+}

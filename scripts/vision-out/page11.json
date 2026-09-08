@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\n10. LINUX FIREWALL SECURITY\n\n# SUBTITLE\nVERIQTA\n\n# BADGES\nLINUX SECURITY HANDBOOK\nPAGE 10 OF 20\n\n# SECTION_HEADINGS\n- HOST-BASED FIREWALL PURPOSE\n- NFTABLES\n- IPTABLES CONCEPTS\n- UFW AND FIREWALLD\n- DEFAULT-DENY STRATEGY\n- INBOUND VERSUS OUTBOUND RULES\n- RESTRICTING ADMINISTRATIVE PORTS\n- RULE ORDERING\n- PERSISTENT FIREWALL CONFIGURATION\n- TESTING RULES WITHOUT LOCKING YOURSELF OUT\n\n# BODY_PARAGRAPHS\n**HOST-BASED FIREWALL PURPOSE**\nA host-based firewall controls network traffic to and from your Linux system. It blocks unauthorized access, reduces attack surface, and enforces security policies at the host level.\n\n**NFTABLES**\nnftables is the modern Linux packet filtering framework. It is powerful, fast, and replaces legacy iptables. It supports complex rules, sets, maps, and stateful filtering.\n\n**IPTABLES CONCEPTS**\niptables is the legacy firewall tool based on tables, chains, and rules. Key tables: filter, nat, mangle, raw.\nKey chains: INPUT, OUTPUT, FORWARD.\n\n**UFW AND FIREWALLD**\nUFW is a simple frontend for iptables/nftables.\nfirewalld provides a dynamic firewall with zones, services, and runtime management.\n\n**DEFAULT-DENY STRATEGY**\nStart with default deny for incoming connections. Allow only what is required. This minimizes risk by blocking everything except explicitly allowed traffic.\n\n**INBOUND VERSUS OUTBOUND RULES**\nInbound rules control traffic coming into the system.\nOutbound rules control traffic leaving the system.\nBoth should be defined intentionally.\n\n**RESTRICTING ADMINISTRATIVE PORTS**\nLimit access to administrative ports (SSH, RDP, etc.) to trusted IPs or networks only.\nNever expose admin ports to the public internet.\n\n**RULE ORDERING**\nFirewall rules are processed in order from top to bottom.\nPlace specific allow rules before general deny rules.\nIncorrect ordering can create security gaps.\n\n**PERSISTENT FIREWALL CONFIGURATION**\nFirewall rules must survive reboots.\nUse appropriate tools to save rules:\nnft list ruleset > file, iptables-save, ufw enable, firewalld --permanent.\n\n**TESTING RULES WITHOUT LOCKING YOURSELF OUT**\nAlways test firewall changes carefully.\nUse a second SSH session or console access.\nApply changes gradually and verify before closing your session.\n\n# IMPORTANT_FILES\n*(None explicitly listed as file paths in this specific page content)*\n\n# TABLES\n| Icon / Topic | Description |\n| :--- | :--- |\n| **HOST-BASED FIREWALL PURPOSE** | A host-based firewall controls network traffic to and from your Linux system. It blocks unauthorized access, reduces attack surface, and enforces security policies at the host level. |\n| **NFTABLES** | nftables is the modern Linux packet filtering framework. It is powerful, fast, and replaces legacy iptables. It supports complex rules, sets, maps, and stateful filtering. |\n| **IPTABLES CONCEPTS** | iptables is the legacy firewall tool based on tables, chains, and rules. Key tables: filter, nat, mangle, raw. Key chains: INPUT, OUTPUT, FORWARD. |\n| **UFW AND FIREWALLD** | UFW is a simple frontend for iptables/nftables. firewalld provides a dynamic firewall with zones, services, and runtime management. |\n| **DEFAULT-DENY STRATEGY** | Start with default deny for incoming connections. Allow only what is required. This minimizes risk by blocking everything except explicitly allowed traffic. |\n| **INBOUND VERSUS OUTBOUND RULES** | Inbound rules control traffic coming into the system. Outbound rules control traffic leaving the system. Both should be defined intentionally. |\n| **RESTRICTING ADMINISTRATIVE PORTS** | Limit access to administrative ports (SSH, RDP, etc.) to trusted IPs or networks only. Never expose admin ports to the public internet. |\n| **RULE ORDERING** | Firewall rules are processed in order from top to bottom. Place specific allow rules before general deny rules. Incorrect ordering can create security gaps. |\n| **PERSISTENT FIREWALL CONFIGURATION** | Firewall rules must survive reboots. Use appropriate tools to save rules: nft list ruleset > file, iptables-save, ufw enable, firewalld --permanent. |\n| **TESTING RULES WITHOUT LOCKING YOURSELF OUT** | Always test firewall changes carefully. Use a second SSH session or console access. Apply changes gradually and verify before closing your session. |\n\n# COMMANDS\n- **Command:** `nft list ruleset > file`\n  - **Description:** Saves nftables rules to a file for persistence.\n- **Command:** `iptables-save`\n  - **Description:** Saves current iptables rules.\n- **Command:** `ufw enable`\n  - **Description:** Enables UFW and ensures it starts on boot.\n- **Command:** `firewalld --permanent`\n  - **Description:** Applies firewalld rules permanently (survives reboot).\n\n# TIPS_NOTES_WARNINGS\n*(No explicit \"Tip\", \"Note\", or \"Warning\" boxes are present on this page; however, the \"TESTING RULES\" section serves as a critical warning/guideline)*\n\n# PRACTICAL_EXERCISES\n*(No numbered practical exercise steps are present on this page)*\n\n# FOOTER_TEXT\nYouTube @veriqta | GitHub @veriqta | LinkedIn @veriqta | X @veriqta | Instagram @veriqta | Telegram @veriqta\n\n# PAGE_NUMBER\n10",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853360,
+  "id": "2026090815415936d787de707245b4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090815415936d787de707245b4",
+  "usage": {
+    "completion_tokens": 1215,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4740
+  }
+}

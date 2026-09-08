@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```markdown\n# TITLE\n12. LOGGING AND SECURITY INVESTIGATION\n\n# SUBTITLE\nLINUX SECURITY HANDBOOK\n\n# BADGES\nVERIQTA\nPAGE 12 OF 20\n\n# SECTION_HEADINGS\n- LINUX AUTHENTICATION LOGS\n- JOURNALCTL\n- /VAR/LOG\n- SSH LOGIN EVENTS\n- SUDO ACTIVITY\n- FAILED AUTHENTICATION\n- SERVICE FAILURES\n- KERNEL MESSAGES\n- SEARCHING AND FILTERING LOGS\n- BUILDING AN INCIDENT TIMELINE\n\n# BODY_PARAGRAPHS\n\n**LINUX AUTHENTICATION LOGS**\nAuthentication logs record user logins, logouts, and security-relevant events.\nKey sources: /var/log/auth.log, /var/log/secure.\n\n**JOURNALCTL**\njournalctl is the systemd log manager.\nView system, service, kernel, and boot logs.\nPowerful filtering with time, unit, priority, and more.\n\n**/VAR/LOG**\nTraditional log files stored in /var/log.\nContains authentication, system, application, and service logs.\n\n**SSH LOGIN EVENTS**\nTrack successful and failed SSH logins.\nLogs show IP address, user, time, and authentication method.\nHelps detect brute-force and suspicious access.\n\n**SUDO ACTIVITY**\nMonitor sudo command usage and privilege escalation.\nLogs show who ran what command and when.\nEssential for auditing privileged access.\n\n**FAILED AUTHENTICATION**\nFailed login attempts indicate attacks or misconfiguration.\nTrack repeated failures from the same IP or user.\nHelps identify brute-force and password attacks.\n\n**SERVICE FAILURES**\nService errors can impact availability and security.\nLogs show crashes, dependency issues, and start failures.\nHelps detect misconfigurations and potential attacks.\n\n**KERNEL MESSAGES**\nKernel logs report hardware, driver, and system events.\nImportant for detecting panics, OOM kills, and security issues.\nAccess via dmesg or journalctl -k.\n\n**SEARCHING AND FILTERING LOGS**\nUse tools like grep, awk, sed, and journalctl filters.\nFilter by time, user, IP, service, priority, or keywords.\nEffective searching speeds up investigation.\n\n**BUILDING AN INCIDENT TIMELINE**\nCorrelate events from multiple logs to understand what happened.\nEstablish sequence: initial access, actions, and impact.\nA clear timeline is critical for response and reporting.\n\n# IMPORTANT_FILES\n| File Path | Description |\n| :--- | :--- |\n| /var/log/auth.log | Stores authentication logs (user logins, logouts, security events) |\n| /var/log/secure | Stores authentication logs (user logins, logouts, security events) |\n| /var/log | Directory containing traditional log files including authentication, system, application, and service logs |\n\n# TABLES\n(See IMPORTANT_FILES section above for file path table)\n\n# COMMANDS\n| Command | Description |\n| :--- | :--- |\n| journalctl | The systemd log manager used to view system, service, kernel, and boot logs. Supports powerful filtering with time, unit, priority, etc. |\n| dmesg | Used to access kernel messages/logs. |\n| journalctl -k | Alternative command to view kernel messages via journalctl. |\n| grep | Tool for searching and filtering log content. |\n| awk | Tool for searching and filtering log content. |\n| sed | Tool for searching and filtering log content. |\n\n# TIPS_NOTES_WARNINGS\n*(None explicitly labeled as Tip, Note, or Warning on this page)*\n\n# PRACTICAL_EXERCISES\n*(No specific practical exercise steps listed on this page)*\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\n\n# PAGE_NUMBER\nPAGE 12 OF 20\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853404,
+  "id": "202609081542599ddf3e1e17d84323",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609081542599ddf3e1e17d84323",
+  "usage": {
+    "completion_tokens": 793,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4318
+  }
+}

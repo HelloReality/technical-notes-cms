@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\n4. FILE AND DIRECTORY PERMISSIONS\n\n# SUBTITLE\nLINUX SECURITY HANDBOOK\n\n# BADGES\nPAGE 4 OF 20\n\n# SECTION_HEADINGS\n- OWNER, GROUP, AND OTHER PERMISSIONS\n- READ, WRITE, AND EXECUTE\n- NUMERIC AND SYMBOLIC PERMISSIONS\n- CHMOD, CHOWN, CHGRP\n- DIRECTORY PERMISSION BEHAVIOR\n- UMASK\n- FINDING DANGEROUS PERMISSIONS\n- PRODUCTION PERMISSION MISTAKES\n- PERMISSION REFERENCE\n- EXAMPLES\n- QUICK CHECK COMMANDS\n\n# BODY_PARAGRAPHS\n\n**OWNER, GROUP, AND OTHER PERMISSIONS**\nEvery file and directory has three types of access: Owner (user), Group, and Other (everyone else). Permissions control what each can do.\n\n**READ, WRITE, AND EXECUTE**\nR (read): View file contents or list directory.\nW (write): Modify file or create/delete in directory.\nX (execute): Run file or access directory.\n\n**NUMERIC AND SYMBOLIC PERMISSIONS**\nNumeric: Use numbers (0–7) to represent permissions.\nSymbolic: Use letters (r, w, x) to set permissions.\nExample: 755 = rwxr-xr-x\n\n**CHMOD, CHOWN, CHGRP**\nchmod : Change file or directory permissions\nchown : Change file or directory owner\nchgrp : Change file or directory group\n\n**DIRECTORY PERMISSION BEHAVIOR**\nRead (r): List files in the directory\nWrite (w): Create, delete, or rename files\nExecute (x): Enter and access the directory\nWithout x, you cannot access files inside.\n\n**UMASK**\nThe umask sets default permissions for new files and directories.\nIt determines what permissions are removed by default.\nCheck with: umask\n\n**FINDING DANGEROUS PERMISSIONS**\nLook for world-writable files and directories.\nUse tools to find risky permissions.\nExample: chmod 777 or writable system files.\nCommand: find / -type f -perm -002 -ls\n\n**PRODUCTION PERMISSION MISTAKES**\n* Using 777 permissions\n* Making sensitive files world-readable\n* Incorrect ownership of application files\n* Writable permissions on critical system directories\n* Ignoring umask settings\n\n# IMPORTANT_FILES\n(No specific files listed on this page)\n\n# TABLES\n\n## PERMISSION REFERENCE\n| PERMISSION | SYMBOL | NUMBER |\n| :--- | :--- | :--- |\n| READ | r | 4 |\n| WRITE | w | 2 |\n| EXECUTE | x | 1 |\n| NONE | - | 0 |\n\n## EXAMPLES\n| TYPE | PATH/NAME | PERMISSION STRING | NUMBER |\n| :--- | :--- | :--- | :--- |\n| FILE | script.sh | -rw-r--r-- | (644) |\n| FILE | application.log | -rw-rw---- | (660) |\n| DIRECTORY | /var/www | drwxr-xr-x | (755) |\n| DIRECTORY | /data | drwx------ | (700) |\n\n# COMMANDS\n\n| Command | Description | Example |\n| :--- | :--- | :--- |\n| `ls -l` | List files with permissions | |\n| `namei -l /path/to/file` | Show full path permissions | |\n| `stat file.txt` | Detailed file information | |\n| `find / -type d -perm -002` | Find world-writable directories | |\n| `find / -type f -perm -o+w` | Find world-writable files | |\n\n# TIPS_NOTES_WARNINGS\n(No specific tip/note/warning boxes present; the \"FINDING DANGEROUS PERMISSIONS\" section contains a warning icon but is categorized as a body paragraph above)\n\n# PRACTICAL_EXERCISES\n(None listed on this page)\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\nVERIQTA\n\n# PAGE_NUMBER\n4",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853175,
+  "id": "20260908153818b0695813c4dd4ce7",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908153818b0695813c4dd4ce7",
+  "usage": {
+    "completion_tokens": 862,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4387
+  }
+}

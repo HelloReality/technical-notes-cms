@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\nLINUX SECURITY HANDBOOK\n\n# SUBTITLE\n6. SUDO AND PRIVILEGE ESCALATION SECURITY\n\n# BADGES\nPAGE 6 OF 20\n\n# SECTION_HEADINGS\n- ROOT ACCESS RISKS\n- /ETC/SUDOERS\n- /ETC/SUDOERS.D/\n- VISUDO\n- COMMAND-SPECIFIC SUDO ACCESS\n- DANGEROUS SUDO CONFIGURATIONS\n- NOPASSWD RISKS\n- REVIEWING SUDO PRIVILEGES\n- LEAST-PRIVILEGE ADMINISTRATION\n- SUDO COMMAND EXAMPLES\n- SUDO SECURITY CHECKLIST\n\n# BODY_PARAGRAPHS\n\n**ROOT ACCESS RISKS**\nRoot has unlimited power on the system.\nA single mistake or compromise can lead to full system takeover.\nLimit and monitor root access carefully.\n\n**/ETC/SUDOERS**\nMain sudo configuration file.\nControls which users or groups can run which commands as root or another user.\nAlways edit with visudo, never a text editor.\n\n**/ETC/SUDOERS.D/**\nDirectory for additional sudo configuration files.\nUsed to add custom rules without modifying the main sudoers file.\nEach file in this directory is included automatically.\n\n**VISUDO**\nSafe way to edit sudoers files.\nSyntax is checked before saving.\nPrevents locking yourself out of sudo access.\nAlways use: visudo or visudo -f <file>\n\n**COMMAND-SPECIFIC SUDO ACCESS**\nGrant users access to only the commands they need.\nExample: Allow restart of specific services without full root access.\nReduces the attack surface.\n\n**DANGEROUS SUDO CONFIGURATIONS**\nAvoid broad permissions and wildcard commands.\nDangerous examples:\n• ALL=(ALL) ALL\n• ALL=(ALL) NOPASSWD: ALL\n• Command wildcards like /bin/*\nThese can lead to full privilege escalation.\n\n**NOPASSWD RISKS**\nNOPASSWD allows running commands without entering a password.\nIf misconfigured, attackers can escalate privileges without any authentication.\nUse only when absolutely necessary.\n\n**REVIEWING SUDO PRIVILEGES**\nRegularly review who has sudo access and what they can run.\nRemove unused or excessive privileges.\nUse audit logs to monitor sudo activity.\n\n**LEAST-PRIVILEGE ADMINISTRATION**\nGrant only the minimum access required.\nRemove elevated access when not needed.\nUse groups, command restrictions, and logging to enforce least-privilege principles.\n\n# IMPORTANT_FILES\n| File Path | Description |\n| :--- | :--- |\n| /etc/sudoers | Main sudo configuration file. Controls which users or groups can run which commands as root or another user. |\n| /etc/sudoers.d/ | Directory for additional sudo configuration files. Used to add custom rules without modifying the main sudoers file. |\n\n# TABLES\n## Sudo Command Examples Table\n| Command | Description |\n| :--- | :--- |\n| sudo -l | List allowed sudo commands for current user |\n| sudo -ll | List all privileges in detail |\n| sudo -u \\<user\\> \\<command\\> | Run command as another user |\n| visudo | Edit /etc/sudoers safely |\n| visudo -f /etc/sudoers.d/\\<file\\> | Edit a file in sudoers.d directory |\n| sudo -k | Invalidate password timestamp (next sudo will ask password) |\n| sudo -v | Refresh the sudo timestamp (extend login session) |\n\n## Sudo Security Checklist Table\n| Checklist Item |\n| :--- |\n| Limit users with sudo access |\n| Use command-specific permissions |\n| Avoid NOPASSWD unless required |\n| Do not use wildcards carelessly |\n| Review /etc/sudoers regularly |\n| Audit sudo usage in logs |\n| Remove unnecessary privileges |\n| Use least-privilege principles |\n| Test configurations before deployment |\n\n# COMMANDS\n1. **Command:** `sudo -l`\n   **Description:** List allowed sudo commands for current user\n   \n2. **Command:** `sudo -ll`\n   **Description:** List all privileges in detail\n   \n3. **Command:** `sudo -u <user> <command>`\n   **Description:** Run command as another user\n   \n4. **Command:** `visudo`\n   **Description:** Edit /etc/sudoers safely\n   \n5. **Command:** `visudo -f /etc/sudoers.d/<file>`\n   **Description:** Edit a file in sudoers.d directory\n   \n6. **Command:** `sudo -k`\n   **Description:** Invalidate password timestamp (next sudo will ask password)\n   \n7. **Command:** `sudo -v`\n   **Description:** Refresh the sudo timestamp (extend login session)\n\n# TIPS_NOTES_WARNINGS\n- Always edit with visudo, never a text editor.\n- Always use: visudo or visudo -f <file>\n- Avoid broad permissions and wildcard commands.\n- Use only when absolutely necessary [referring to NOPASSWD].\n\n# PRACTICAL_EXERCISES\nNone listed on this page.\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta | GitHub @veriqta | LinkedIn @veriqta | X @veriqta | Instagram @veriqta | Telegram @veriqta\n\n# PAGE_NUMBER\n6 OF 20",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853230,
+  "id": "20260908153959a7200c55c7374c74",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908153959a7200c55c7374c74",
+  "usage": {
+    "completion_tokens": 1086,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 193
+    },
+    "total_tokens": 4611
+  }
+}

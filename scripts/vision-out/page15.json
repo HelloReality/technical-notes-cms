@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\nLINUX SECURITY HANDBOOK\n\n# SUBTITLE\n14. SELINUX AND APPARMOR\n\n# BADGES\nPAGE 14 OF 20\n\n# SECTION_HEADINGS\n- MANDATORY ACCESS CONTROL\n- SELINUX MODES\n- ENFORCING, PERMISSIVE, AND DISABLED\n- SELINUX CONTEXTS\n- POLICY VIOLATIONS\n- GETENFORCE\n- SESTATUS\n- APPARMOR PROFILES\n- ENFORCE VERSUS COMPLAIN MODE\n- TROUBLESHOOTING BLOCKED APPLICATIONS SAFELY\n\n# BODY_PARAGRAPHS\n**MANDATORY ACCESS CONTROL**\nSELinux and AppArmor are Mandatory Access Control (MAC) systems that restrict what processes can do, even if they are compromised or running as root.\n\n**SELINUX MODES**\nSELinux operates in three main modes that determine how policies are enforced.\n\n**ENFORCING, PERMISSIVE, AND DISABLED**\n- Enforcing: Policies are active and violations are blocked.\n- Permissive: Policies are active but violations are only logged.\n- Disabled: SELinux is turned off (not recommended).\n\n**SELINUX CONTEXTS**\nSELinux uses security contexts (labels) to define what users, roles, types, and levels a process or file has. Contexts control access decisions.\n\n**POLICY VIOLATIONS**\nWhen a process is blocked by SELinux, an AVC (Access Vector Cache) denial is logged. These logs show what was blocked and why.\n\n**GETENFORCE**\ngetenforce shows the current SELinux mode.\nCommand: getenforce\nExample output: Enforcing | Permissive | Disabled\n\n**SESTATUS**\nsestatus displays SELinux status, mode, policy type, and other important details.\nCommand: sestatus\n\n**APPARMOR PROFILES**\nAppArmor uses profiles to restrict programs. Each profile defines what the program can access. Profiles are stored in /etc/apparmor.d/\n\n**ENFORCE VERSUS COMPLAIN MODE**\n- Enforce: Violations are blocked.\n- Complain: Violations are logged but not blocked.\nUse complain mode to test profiles before enforcing.\n\n**TROUBLESHOOTING BLOCKED APPLICATIONS SAFELY**\n- Review AVC logs: ausearch -m avc -ts recent\n- Identify the blocked action and target.\n- Adjust the policy or profile.\n- Use permissive or complain mode during troubleshooting.\n- Return to Enforcing/Enforce mode after validation.\n\n# IMPORTANT_FILES\n- **/etc/apparmor.d/**: Stores AppArmor profiles that define program access restrictions.\n\n# TABLES\n| Topic | Description |\n| :--- | :--- |\n| **MANDATORY ACCESS CONTROL** | SELinux and AppArmor are Mandatory Access Control (MAC) systems that restrict what processes can do, even if they are compromised or running as root. |\n| **SELINUX MODES** | SELinux operates in three main modes that determine how policies are enforced. |\n| **ENFORCING, PERMISSIVE, AND DISABLED** | • Enforcing: Policies are active and violations are blocked.<br>• Permissive: Policies are active but violations are only logged.<br>• Disabled: SELinux is turned off (not recommended). |\n| **SELINUX CONTEXTS** | SELinux uses security contexts (labels) to define what users, roles, types, and levels a process or file has. Contexts control access decisions. |\n| **POLICY VIOLATIONS** | When a process is blocked by SELinux, an AVC (Access Vector Cache) denial is logged. These logs show what was blocked and why. |\n| **GETENFORCE** | getenforce shows the current SELinux mode.<br>Command: getenforce<br>Example output: Enforcing \\| Permissive \\| Disabled |\n| **SESTATUS** | sestatus displays SELinux status, mode, policy type, and other important details.<br>Command: sestatus |\n| **APPARMOR PROFILES** | AppArmor uses profiles to restrict programs. Each profile defines what the program can access. Profiles are stored in /etc/apparmor.d/ |\n| **ENFORCE VERSUS COMPLAIN MODE** | • Enforce: Violations are blocked.<br>• Complain: Violations are logged but not blocked.<br>Use complain mode to test profiles before enforcing. |\n| **TROUBLESHOOTING BLOCKED APPLICATIONS SAFELY** | • Review AVC logs: ausearch -m avc -ts recent<br>• Identify the blocked action and target.<br>• Adjust the policy or profile.<br>• Use permissive or complain mode during troubleshooting.<br>• Return to Enforcing/Enforce mode after validation. |\n\n# COMMANDS\n1.  **getenforce**\n    *   Description: Shows the current SELinux mode.\n    *   Example output: Enforcing | Permissive | Disabled\n2.  **sestatus**\n    *   Description: Displays SELinux status, mode, policy type, and other important details.\n3.  **ausearch -m avc -ts recent**\n    *   Description: Reviews AVC logs for recent security events.\n\n# TIPS_NOTES_WARNINGS\n*Note:* \"Disabled\" mode for SELinux is not recommended.\n\n# PRACTICAL_EXERCISES\n*(None listed on this page)*\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\n\n# PAGE_NUMBER\nPAGE 14 OF 20",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853532,
+  "id": "20260908154512fcf649058dc74fe6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908154512fcf649058dc74fe6",
+  "usage": {
+    "completion_tokens": 1158,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4683
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\nLINUX SECURITY HANDBOOK\n\n# SUBTITLE\n3. PASSWORD AND ACCOUNT SECURITY\n\n# BADGES\nPAGE 3 OF 20\n\n# SECTION_HEADINGS\n- PASSWORD AGING\n- PASSWORD EXPIRATION\n- ACCOUNT EXPIRATION\n- PAM PASSWORD POLICIES\n- FAILED AUTHENTICATION ATTEMPTS\n- DORMANT ACCOUNTS\n- LOGIN RESTRICTIONS\n- REVIEWING PASSWORD STATUS\n- SECURE SERVICE-ACCOUNT PRACTICES\n- KEY COMMANDS\n\n# BODY_PARAGRAPHS\n**PASSWORD AGING**\nDefines the minimum number of days before a password can be changed again.\nPrevents frequent and weak password changes.\n\n**PASSWORD EXPIRATION**\nForces users to change passwords after a specified number of days.\nReduces risk from compromised passwords.\n\n**ACCOUNT EXPIRATION**\nSets an expiration date for user accounts.\nPrevents unused or unnecessary accounts from remaining active.\n\n**PAM PASSWORD POLICIES**\nPluggable Authentication Modules (PAM) enforce password strength, complexity, and reuse rules.\nConfigured in /etc/pam.d/ and /etc/security/.\n\n**FAILED AUTHENTICATION ATTEMPTS**\nLimit and monitor failed login attempts.\nHelps prevent brute-force and password guessing attacks.\n\n**DORMANT ACCOUNTS**\nAccounts that have not been used for a long time increase risk.\nIdentify and disable or remove dormant accounts.\n\n**LOGIN RESTRICTIONS**\nRestrict login access by time, source IP, or TTY.\nEnhances security for privileged and system accounts.\n\n**REVIEWING PASSWORD STATUS**\nRegularly review password aging, expiration, and account status.\nUse tools to ensure policies are enforced.\n\n**SECURE SERVICE-ACCOUNT PRACTICES**\nUse strong, long passwords or keys for service accounts. Restrict permissions and avoid interactive logins.\n\n# IMPORTANT_FILES\n| File Path | Description |\n| :--- | :--- |\n| /etc/pam.d/ | Pluggable Authentication Modules (PAM) configuration directory |\n| /etc/security/ | Security configuration files (e.g., for password policies) |\n| /var/log/auth.log | System authentication log file |\n\n# TABLES\n*(No standard data tables present on this page)*\n\n# COMMANDS\n| Command | Description |\n| :--- | :--- |\n| `chage -l <user>` | Display password aging information |\n| `chage -M 90 <user>` | Set password expiration (days) |\n| `chage -E 2025-12-31 <user>` | Set account expiration date |\n| `pam-config` | Manage PAM configuration |\n| `grep \"failed password\" /var/log/auth.log` | View failed login attempts |\n| `lastlog` | Check last login time for all users |\n| `passwd -S <user>` | Show password status |\n| `usermod -L <user>` | Lock user account |\n| `usermod -e 1 <user>` | Expire user account immediately |\n\n# TIPS_NOTES_WARNINGS\n*(No specific tip boxes, warnings, or notes are explicitly boxed on this page)*\n\n# PRACTICAL_EXERCISES\n*(No practical exercise steps are listed on this page)*\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\nVERIQTA\n\n# PAGE_NUMBER\nPAGE 3 OF 20",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853098,
+  "id": "20260908153757ff0cf31002344f1b",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908153757ff0cf31002344f1b",
+  "usage": {
+    "completion_tokens": 720,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 4245
+  }
+}

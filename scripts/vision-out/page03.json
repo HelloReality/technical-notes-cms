@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\nLINUX SECURITY HANDBOOK\n\n# SUBTITLE\n2. USERS, GROUPS, AND IDENTITY SECURITY\n\n# BADGES\nPAGE 2 OF 20\n\n# SECTION_HEADINGS\n- LOCAL USERS AND SYSTEM ACCOUNTS\n- /ETC/PASSWD\n- /ETC/SHADOW\n- /ETC/GROUP\n- UID AND GID SECURITY\n- DETECTING UNEXPECTED ACCOUNTS\n- LOCKING AND DISABLING ACCOUNTS\n- REVIEWING PRIVILEGED USERS\n- KEY MANAGEMENT COMMANDS\n- KEY ACCOUNT FILES\n- KEY COMMANDS\n\n# BODY_PARAGRAPHS\n**LOCAL USERS AND SYSTEM ACCOUNTS**\nLinux uses local users and system accounts to manage access and ownership.\nSystem accounts usually have low UIDs and no login shell.\n\n**/ETC/PASSWD**\nStores user account information including username, UID, GID, home directory, and default shell.\n\n**/ETC/SHADOW**\nStores encrypted passwords and password aging information. Access is restricted to the root user.\n\n**/ETC/GROUP**\nStores group information including GID and member list.\n\n**UID AND GID SECURITY**\nEvery user and group has a unique UID and GID.\nProtect UID 0 (root) and other privileged IDs.\n\n**DETECTING UNEXPECTED ACCOUNTS**\nRegularly check for unknown or suspicious user accounts and groups.\n\n**LOCKING AND DISABLING ACCOUNTS**\nLock or disable unused or compromised accounts to prevent unauthorized access.\n\n**REVIEWING PRIVILEGED USERS**\nReview users with UID 0 and sudo access.\nLimit privileged access to only what is necessary.\n\n**KEY MANAGEMENT COMMANDS**\nUse Linux commands to inspect and manage users, groups, and account settings.\n\nThese files are critical for identity security.\nProtect them carefully.\n\n# IMPORTANT_FILES\n| File Path | Description |\n| :--- | :--- |\n| /etc/passwd | User account information |\n| /etc/shadow | Encrypted passwords and aging info |\n| /etc/group | Group information and members |\n\n# TABLES\n\n## Main Content Table (Rows)\n| Icon/Header | Content |\n| :--- | :--- |\n| **LOCAL USERS AND SYSTEM ACCOUNTS** | Linux uses local users and system accounts to manage access and ownership.<br>System accounts usually have low UIDs and no login shell. |\n| **/ETC/PASSWD** | Stores user account information including username, UID, GID, home directory, and default shell. |\n| **/ETC/SHADOW** | Stores encrypted passwords and password aging information. Access is restricted to the root user. |\n| **/ETC/GROUP** | Stores group information including GID and member list. |\n| **UID AND GID SECURITY** | Every user and group has a unique UID and GID.<br>Protect UID 0 (root) and other privileged IDs. |\n| **DETECTING UNEXPECTED ACCOUNTS** | Regularly check for unknown or suspicious user accounts and groups. |\n| **LOCKING AND DISABLING ACCOUNTS** | Lock or disable unused or compromised accounts to prevent unauthorized access. |\n| **REVIEWING PRIVILEGED USERS** | Review users with UID 0 and sudo access.<br>Limit privileged access to only what is necessary. |\n| **KEY MANAGEMENT COMMANDS** | Use Linux commands to inspect and manage users, groups, and account settings. |\n\n## Key Account Files Table (Rows)\n| File Path | Description |\n| :--- | :--- |\n| /etc/passwd | User account information |\n| /etc/shadow | Encrypted passwords and aging info |\n| /etc/group | Group information and members |\n\n# COMMANDS\n| Command | Description | Example |\n| :--- | :--- | :--- |\n| `id` | Show user and group identity information | >_ |\n| `getent` | Query user and group database | |\n| `passwd` | Manage user passwords | |\n| `usermod` | Modify user account properties | |\n| `chage` | Manage password aging and expiry | |\n\n# TIPS_NOTES_WARNINGS\n**Warning:**\nThese files are critical for identity security.\nProtect them carefully.\n\n# PRACTICAL_EXERCISES\nNone listed on this page.\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\nVERIQTA\n\n# PAGE_NUMBER\n2",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853077,
+  "id": "20260908153729d3be3b6f24b04ced",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908153729d3be3b6f24b04ced",
+  "usage": {
+    "completion_tokens": 929,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 4454
+  }
+}

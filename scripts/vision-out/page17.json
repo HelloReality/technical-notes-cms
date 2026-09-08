@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```markdown\n# TITLE\nLINUX SECURITY HANDBOOK\n\n# SUBTITLE\nFROM LINUX HARDENING TO PRODUCTION SECURITY\n\n# BADGES\nPAGE 16 OF 20\n\n# SECTION_HEADINGS\n- PAGE 16: FILE INTEGRITY AND PERSISTENCE DETECTION\n- KEY TOPICS\n- FILE HASHES WITH SHA256SUM\n- FILE INTEGRITY MONITORING\n- PERSISTENCE LOCATIONS\n- CRITICAL SYSTEM FILES TO MONITOR\n- DETECTING UNAUTHORIZED CHANGES\n\n# BODY_PARAGRAPHS\n(No standalone body paragraphs outside of lists/tables)\n\n# IMPORTANT_FILES\n| File Path | Description |\n|-----------|-------------|\n| /etc/passwd | Critical system file to monitor |\n| /etc/shadow | Critical system file to monitor |\n| /etc/sudoers | Critical system file to monitor |\n| /etc/ssh/sshd_config | Critical system file to monitor |\n| /bin, /sbin, /usr/bin, /usr/sbin | Critical system directories to monitor |\n| /etc/systemd/system/ | Critical system directory to monitor |\n| /boot/ | Critical system directory to monitor |\n| /var/spool/cron/ | Cron persistence location to monitor |\n| /root/.bashrc, /root/.ssh/ | Shell startup files to monitor |\n\n# TABLES\n\n## Key Topics Table\n| Topic | Description |\n|-------|-------------|\n| CRITICAL SYSTEM FILES | (Listed in Important Files section) |\n| UNEXPECTED FILE MODIFICATIONS | (Described in Detecting Unauthorized Changes) |\n| FILE HASHES | Using SHA256SUM for verification |\n| SHA256SUM | Command-line tool for hashing |\n| FILE INTEGRITY MONITORING | Regularly hash critical files and compare |\n| CRON PERSISTENCE | Check for malicious cron jobs |\n| SYSTEMD PERSISTENCE | Check for unknown systemd services |\n| SHELL STARTUP FILES | Check for suspicious commands in startup scripts |\n| SUSPICIOUS BINARIES | Track new or modified binaries |\n| DETECTING UNAUTHORIZED CHANGES | Monitor and alert on unexpected changes |\n\n## Persistence Locations Table\n| Type | Location | Commands to Check |\n|------|----------|-------------------|\n| **CRON PERSISTENCE** | Check for malicious or unexpected cron jobs. | `crontab -l`<br>`ls -la /etc/cron.*`<br>`ls -la /var/spool/cron/` |\n| **SYSTEMD PERSISTENCE** | Malicious or unknown systemd services. | `systemctl list-unit-files --type=service`<br>`ls -la /etc/systemd/system/` |\n| **SHELL STARTUP FILES** | Check for suspicious commands in startup scripts. | `cat ~/.bashrc`<br>`cat ~/.bash_profile`<br>`ls -la /etc/profile.d/` |\n\n## File Integrity Monitoring Table\n| Action | Details |\n|--------|---------|\n| Regularly hash critical files. | Use sha256sum on important files |\n| Store hashes securely. | Keep hash lists in safe location |\n| Compare hashes to detect changes. | Use `-c` flag with sha256sum |\n| Use tools like AIDE, Tripwire, or OSSEC. | Advanced monitoring solutions |\n\n## Detecting Unauthorized Changes Table\n| Action | Details |\n|--------|---------|\n| Monitor critical files and directories. | Focus on system binaries and configs |\n| Track new or modified binaries. | Watch /bin, /sbin, /usr/bin, /usr/sbin |\n| Review file ownership and permissions. | Check for unauthorized permission changes |\n| Alert on unexpected changes. | Set up automated notifications |\n| Investigate immediately. | Respond promptly to alerts |\n\n# COMMANDS\n| Command | Description | Example |\n|---------|-------------|---------|\n| `sha256sum` | Generate SHA256 hash for a file | `sha256sum /etc/passwd` |\n| `sha256sum -r` | Generate SHA256 hash for a directory (recursive) | `sha256sum -r /etc > etc.sha256` |\n| `sha256sum -c` | Verify against known good hash list | `sha256sum -c etc.sha256` |\n| `crontab -l` | List current user's crontab | `crontab -l` |\n| `ls -la /etc/cron.*` | List cron configuration files | `ls -la /etc/cron.*` |\n| `ls -la /var/spool/cron/` | List system-wide cron jobs | `ls -la /var/spool/cron/` |\n| `systemctl list-unit-files --type=service` | List all systemd service units | `systemctl list-unit-files --type=service` |\n| `ls -la /etc/systemd/system/` | List custom systemd unit files | `ls -la /etc/systemd/system/` |\n| `cat ~/.bashrc` | Display current user's bashrc | `cat ~/.bashrc` |\n| `cat ~/.bash_profile` | Display current user's bash profile | `cat ~/.bash_profile` |\n| `ls -la /etc/profile.d/` | List system-wide profile scripts | `ls -la /etc/profile.d/` |\n\n# TIPS_NOTES_WARNINGS\n**TIP BOX:**\nPROTECT. MONITOR. VERIFY.\nINTEGRITY TODAY, SECURITY FOREVER.\n\n**WARNING ICON (Detecting Unauthorized Changes section):**\n⚠️ Monitor critical files and directories.\nTrack new or modified binaries.\nReview file ownership and permissions.\nAlert on unexpected changes.\nInvestigate immediately.\n\n# PRACTICAL_EXERCISES\n(No explicit numbered practical exercise steps shown on this page)\n\n# FOOTER_TEXT\nVERIQTA\n\nYouTube @veriqta | GitHub @veriqta | LinkedIn @veriqta | X @veriqta | Instagram @veriqta | Telegram @veriqta\n\n# PAGE_NUMBER\n16 OF 20\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853588,
+  "id": "2026090815455126acc7700599481d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090815455126acc7700599481d",
+  "usage": {
+    "completion_tokens": 1245,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 193
+    },
+    "total_tokens": 4770
+  }
+}

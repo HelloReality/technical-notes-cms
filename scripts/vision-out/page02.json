@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\nLINUX SECURITY HANDBOOK\n\n# SUBTITLE\n1. LINUX SECURITY FOUNDATIONS\n\n# BADGES\nPAGE 1 OF 20\n\n# SECTION_HEADINGS\n- LINUX SECURITY LAYERS\n- USERS, PROCESSES, FILES, SERVICES, AND NETWORK BOUNDARIES\n- AUTHENTICATION VS AUTHORIZATION\n- LEAST PRIVILEGE\n- ATTACK SURFACE\n- DEFENSE IN DEPTH\n- SECURITY BASELINE VS ONGOING MONITORING\n\n# BODY_PARAGRAPHS\nSTRONG LINUX SECURITY STARTS WITH UNDERSTANDING THE FUNDAMENTALS OF HOW SYSTEMS, USERS, PROCESSES, AND NETWORKS INTERACT.\n\nLinux security is built in multiple layers including the kernel, system services, filesystem, users, and network.\n\nEvery component interacts. Securing each layer reduces risk across the entire system.\n\nAuthentication verifies who you are.\nAuthorization determines what you are allowed to do.\nBoth must be configured correctly.\n\nUsers, services, and processes should have only the minimum permissions required to perform their tasks.\nLimit access. Reduce risk.\n\nAny point that can be used to attack your system.\nReduce exposed services, open ports, and unnecessary access to shrink the attack surface.\n\nNo single control is perfect. Use multiple layers of security so that if one layer fails, other layers continue to protect the system.\n\nA strong baseline sets the foundation.\nContinuous monitoring detects changes, threats, and abnormal behavior early.\n\n# IMPORTANT_FILES\n*(None listed on this page)*\n\n# TABLES\n| Topic | Description |\n| :--- | :--- |\n| **LINUX SECURITY LAYERS** | Linux security is built in multiple layers including the kernel, system services, filesystem, users, and network. |\n| **USERS, PROCESSES, FILES, SERVICES, AND NETWORK BOUNDARIES** | Every component interacts. Securing each layer reduces risk across the entire system. |\n| **AUTHENTICATION VS AUTHORIZATION** | Authentication verifies who you are.<br>Authorization determines what you are allowed to do.<br>Both must be configured correctly. |\n| **LEAST PRIVILEGE** | Users, services, and processes should have only the minimum permissions required to perform their tasks.<br>Limit access. Reduce risk. |\n| **ATTACK SURFACE** | Any point that can be used to attack your system.<br>Reduce exposed services, open ports, and unnecessary access to shrink the attack surface. |\n| **DEFENSE IN DEPTH** | No single control is perfect. Use multiple layers of security so that if one layer fails, other layers continue to protect the system. |\n| **SECURITY BASELINE VS ONGOING MONITORING** | A strong baseline sets the foundation.<br>Continuous monitoring detects changes, threats, and abnormal behavior early. |\n\n# COMMANDS\n*(None listed on this page)*\n\n# TIPS_NOTES_WARNINGS\n*(None explicitly labeled as tip/note/warning on this page)*\n\n# PRACTICAL_EXERCISES\n*(None listed on this page)*\n\n# FOOTER_TEXT\nVERIQTA\n\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\n\n# PAGE_NUMBER\nPAGE 1 OF 20",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853049,
+  "id": "20260908153704ec106c8929674f99",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908153704ec106c8929674f99",
+  "usage": {
+    "completion_tokens": 681,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4206
+  }
+}

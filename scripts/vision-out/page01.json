@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\nLINUX SECURITY HANDBOOK\n\nFrom Linux Hardening to Production Security\n\n# BADGES\nVERIQTA\n\nACCESS CONTROL\nAUTHENTICATION\nFIREWALL\nSYSTEM HARDENING\nFILE PERMISSIONS\nCOMPLIANCE\nAUDITING & LOGGING\nMONITORING\n\nSECURE TODAY\nPROTECT TOMORROW\n\nHARDEN\nSecure Systems\n\nDETECT\nFind Threats\n\nPROTECT\nStop Attacks\n\nRESPOND\nRecover Fast\n\n# BODY_SECTIONS\nDate:\nPage No:\n\n# TABLES\n| Platform | Handle |\n| :--- | :--- |\n| YouTube | @veriqta |\n| GitHub | @veriqta |\n| LinkedIn | @veriqta |\n| X | @veriqta |\n| Instagram | @veriqta |\n| Telegram | @veriqta |\n\n# COMMANDS\nNone present on this page.\n\n# TIPS\nNone present on this page.\n\n# PRACTICAL_EXERCISES\nNone present on this page.\n\n# FOOTER\nVERIQTA",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788852994,
+  "id": "202609081536266380ec1e14464b21",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609081536266380ec1e14464b21",
+  "usage": {
+    "completion_tokens": 217,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3440,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3657
+  }
+}

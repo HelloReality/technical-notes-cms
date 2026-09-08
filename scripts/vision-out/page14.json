@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\n13. LINUX AUDITING WITH AUDITD\n\n# SUBTITLE\nLINUX SECURITY HANDBOOK\n\n# BADGES\nPAGE 13 OF 20\n\n# SECTION_HEADINGS\n- LINUX AUDIT FRAMEWORK\n- AUDITD\n- AUDIT RULES\n- WATCHING SENSITIVE FILES\n- MONITORING PRIVILEGED COMMANDS\n- AUSEARCH\n- AUREPORT\n- TRACKING CONFIGURATION CHANGES\n- AUDIT-LOG PROTECTION\n- PRACTICAL INVESTIGATION EXAMPLES\n\n# BODY_PARAGRAPHS\n**LINUX AUDIT FRAMEWORK**\nThe Linux Audit Framework provides a comprehensive system for monitoring, recording, and reviewing security-relevant events. It operates at the kernel level for high integrity and reliability.\n\n**AUDITD**\nauditd is the user-space service that collects audit events from the kernel and writes them to the audit log. It is highly configurable and essential for security monitoring.\n\n**AUDIT RULES**\nAudit rules define what events to monitor. Rules can be file watches, syscalls, users, commands, or system calls. Use auditctl to load and manage rules.\n\n**WATCHING SENSITIVE FILES**\nMonitor critical files and directories for reads, writes, attribute changes, and deletions.\nExample: /etc/passwd, /etc/shadow, /etc/sudoers.\n\n**MONITORING PRIVILEGED COMMANDS**\nTrack the use of privileged commands such as sudo, su, useradd, chmod, chown, setuid, and more. Helps detect privilege escalation and misuse.\n\n**AUSEARCH**\nausearch is used to search the audit log. Filter by time, user, event type, file, PID, or command. Essential for incident investigations.\n\n**AUREPORT**\naureport generates summarized reports from audit logs. Use it for quick insights on logins, commands, files, and SELinux events.\n\n**TRACKING CONFIGURATION CHANGES**\nMonitor changes to critical configuration files. Detect unauthorized modifications to system settings, services, and security policies.\n\n**AUDIT-LOG PROTECTION**\nProtect audit logs from tampering. Set proper permissions, enable log rotation, and forward logs to a secure, centralized location.\n\n**PRACTICAL INVESTIGATION EXAMPLES**\nReal-world scenarios: detecting unauthorized access, tracking file modifications, identifying privilege escalation, and investigating suspicious activity step-by-step.\n\n# TABLES\n| Topic | Description |\n| :--- | :--- |\n| **LINUX AUDIT FRAMEWORK** | The Linux Audit Framework provides a comprehensive system for monitoring, recording, and reviewing security-relevant events. It operates at the kernel level for high integrity and reliability. |\n| **AUDITD** | auditd is the user-space service that collects audit events from the kernel and writes them to the audit log. It is highly configurable and essential for security monitoring. |\n| **AUDIT RULES** | Audit rules define what events to monitor. Rules can be file watches, syscalls, users, commands, or system calls. Use auditctl to load and manage rules. |\n| **WATCHING SENSITIVE FILES** | Monitor critical files and directories for reads, writes, attribute changes, and deletions. Example: /etc/passwd, /etc/shadow, /etc/sudoers. |\n| **MONITORING PRIVILEGED COMMANDS** | Track the use of privileged commands such as sudo, su, useradd, chmod, chown, setuid, and more. Helps detect privilege escalation and misuse. |\n| **AUSEARCH** | ausearch is used to search the audit log. Filter by time, user, event type, file, PID, or command. Essential for incident investigations. |\n| **AUREPORT** | aureport generates summarized reports from audit logs. Use it for quick insights on logins, commands, files, and SELinux events. |\n| **TRACKING CONFIGURATION CHANGES** | Monitor changes to critical configuration files. Detect unauthorized modifications to system settings, services, and security policies. |\n| **AUDIT-LOG PROTECTION** | Protect audit logs from tampering. Set proper permissions, enable log rotation, and forward logs to a secure, centralized location. |\n| **PRACTICAL INVESTIGATION EXAMPLES** | Real-world scenarios: detecting unauthorized access, tracking file modifications, identifying privilege escalation, and investigating suspicious activity step-by-step. |\n\n# COMMANDS\n- **auditctl**: Used to load and manage audit rules.\n- **ausearch**: Used to search the audit log.\n- **aureport**: Generates summarized reports from audit logs.\n\n# IMPORTANT_FILES\n- `/etc/passwd`: Critical file example for monitoring reads/writes.\n- `/etc/shadow`: Critical file example for monitoring reads/writes.\n- `/etc/sudoers`: Critical file example for monitoring reads/writes.\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\n\n# PAGE_NUMBER\n13",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853512,
+  "id": "20260908154325ba53e98bbfbd4d99",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908154325ba53e98bbfbd4d99",
+  "usage": {
+    "completion_tokens": 1042,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4567
+  }
+}

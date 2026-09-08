@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\nLINUX SECURITY HANDBOOK\n\n# SUBTITLE\n5. SUID, SGID, STICKY BIT, AND ACLs\n\n# BADGES\nPAGE 5 OF 20\n\n# SECTION_HEADINGS\n- SUID EXECUTABLES\n- SPECIAL PERMISSION TYPES\n- SGID FILES AND DIRECTORIES\n- STICKY BIT\n- ACCESS CONTROL LISTS (ACLs)\n- GETFACL AND SETFACL\n- SEARCHING FOR SUID AND SGID BINARIES\n- FIND SUID/SGID FILES\n- ACL COMMANDS EXAMPLES\n- UNEXPECTED PRIVILEGE PATHS\n- AUDITING SPECIAL PERMISSIONS\n- AUDIT CHECKLIST\n\n# BODY_PARAGRAPHS\n**SUID EXECUTABLES**\nWhen a file has the SUID bit set, it runs with the permissions of the file owner (usually root).\nRisk: Can be abused to gain elevated privileges.\nCheck SUID files regularly.\n\n**SGID FILES AND DIRECTORIES**\nSGID on files: Runs with the group owner's privileges.\nSGID on directories: New files inherit the directory's group ownership.\nHelps in controlled group collaboration.\n\n**STICKY BIT**\nOn directories, only the file owner, directory owner, or root can delete or rename files.\nCommon on /tmp to prevent users from deleting each other's files.\n\n**ACCESS CONTROL LISTS (ACLs)**\nProvide fine-grained permissions beyond the traditional user/group/other model.\nUseful for granting access to specific users without changing ownership.\n\n**GETFACL AND SETFACL**\ngetfacl : View ACLs on files and directories\nsetfacl : Modify ACLs for fine-grained access\nACLs override standard permissions.\n\n**SEARCHING FOR SUID AND SGID BINARIES**\nRegularly search for SUID/SGID files to detect unexpected privilege escalation paths.\nNew or unknown files can be a security risk.\n\n**UNEXPECTED PRIVILEGE PATHS**\nAttackers exploit misconfigured SUID/SGID files or writable paths to escalate privileges.\nAlways verify owner, permissions, and purpose.\n\n**AUDITING SPECIAL PERMISSIONS**\nMaintain an inventory of all special permission files.\nReview regularly and document approved exceptions.\nRemove unnecessary permissions immediately.\n\n# IMPORTANT_FILES\n*(No specific file paths listed as storing data, only commands referencing paths like /path/to/file, /bin, /sbin, etc.)*\n\n# TABLES\n| **SPECIAL PERMISSION TYPES** | |\n| :--- | :--- |\n| **S** | **SUID (4xxx)**<br>Run as file owner |\n| **S** | **SGID (2xxx)**<br>Run as group owner |\n| **T** | **STICKY (1xxx)**<br>Restricted deletion |\n| **A** | **ACLs**<br>Extended permissions |\n\n| **AUDIT CHECKLIST** | |\n| :--- | :--- |\n| ✅ | Review all SUID, SGID, and Sticky files |\n| ✅ | Verify file purpose and ownership |\n| ✅ | Ensure directories with SGID are required |\n| ✅ | Check ACLs for unnecessary access |\n| ✅ | Document approved exceptions |\n| ✅ | Remove or fix unnecessary entries |\n\n# COMMANDS\n**Find all SUID files:**\n`find / -type f \\( -perm -4000 \\) -exec ls -l {} \\; 2>/dev/null`\n\n**Find all SGID files:**\n`find / -type f \\( -perm -2000 \\) -exec ls -l {} \\; 2>/dev/null`\n\n**Find SUID and SGID in common paths:**\n`find /bin /sbin /usr/bin /usr/sbin /usr/local/bin -type f \\( -perm -4000 -o -perm -2000 \\) -ls 2>/dev/null`\n\n**View ACLs:**\n`getfacl /path/to/file`\n\n**Add ACL entry:**\n`setfacl -m u:user:rw /path/to/file`\n\n**Remove ACL entry:**\n`setfacl -x u:user /path/to/file`\n\n**Remove all ACLs:**\n`setfacl -b /path/to/file`\n\n# TIPS_NOTES_WARNINGS\n*(No explicit \"Tip\", \"Note\", or \"Warning\" boxes present; content is integrated into body paragraphs and checklists)*\n\n# PRACTICAL_EXERCISES\n*(No specific numbered practical exercise steps provided)*\n\n# FOOTER_TEXT\nVERIQTA\n\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\n\nVERIQTA\n\n# PAGE_NUMBER\n5 OF 20",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853199,
+  "id": "202609081539354ffa7f8aa5d743b0",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202609081539354ffa7f8aa5d743b0",
+  "usage": {
+    "completion_tokens": 987,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 193
+    },
+    "total_tokens": 4512
+  }
+}

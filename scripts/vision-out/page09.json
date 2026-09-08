@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# TITLE\n8. LINUX SERVICES AND SYSTEMD SECURITY\n\n# SUBTITLE\nLINUX SECURITY HANDBOOK\n\n# BADGES\nPAGE 8 OF 20\n\n# SECTION_HEADINGS\n- IDENTIFYING UNNECESSARY SERVICES\n- SYSTEMCTL\n- ENABLED VERSUS RUNNING SERVICES\n- DISABLING UNUSED SERVICES\n- SERVICE USERS\n- SYSTEMD UNIT PERMISSIONS\n- SERVICE ISOLATION\n- RESTART POLICIES\n- INSPECTING FAILED OR SUSPICIOUS SERVICES\n- REDUCING SERVICE ATTACK SURFACE\n- COMMON SYSTEMCTL COMMANDS\n- CHECK ENABLED VS RUNNING SERVICES\n- VIEW SERVICE DETAILS\n- BEST PRACTICES\n\n# BODY_PARAGRAPHS\n**IDENTIFYING UNNECESSARY SERVICES**\nMany services start automatically by default. Remove or disable services you do not need. Every unnecessary service increases your attack surface.\n\n**SYSTEMCTL**\nThe primary tool for managing systemd services. Used to start, stop, enable, disable, and inspect services.\n\n**ENABLED VERSUS RUNNING SERVICES**\nEnabled: Starts automatically at boot.\nRunning: Currently active in memory.\nA service can be enabled, running, both, or neither.\n\n**DISABLING UNUSED SERVICES**\nDisable services to prevent them from starting at boot.\nStop services that are not needed now.\nExample: `systemctl disable --now <service>`\n\n**SERVICE USERS**\nServices should run as an unprivileged user.\nAvoid running services as root.\nCheck the \"User=\" and \"Group=\" settings in unit files.\n\n**SYSTEMD UNIT PERMISSIONS**\nUnit files control how services run.\nProtect unit files from unauthorized changes.\nTypical path: `/etc/systemd/system/`\nUse proper file permissions.\n\n**SERVICE ISOLATION**\nUse systemd sandboxing to limit damage.\nOptions: ProtectSystem, ProtectHome, PrivateTmp, NoNewPrivileges, RestrictAddressFamilies, and more.\nStronger isolation = better security.\n\n**RESTART POLICIES**\nConfigure how services behave when they fail.\nCommon policies: no, on-failure, on-abnormal, on-watchdog, always.\nUse RestartSec= to set delay between restarts.\n\n**INSPECTING FAILED OR SUSPICIOUS SERVICES**\nCheck failed services and view recent logs.\nLook for crash loops, repeated failures, or unexpected behavior.\nUse: `systemctl status <service>` and `journalctl -u <service>`\n\n**REDUCING SERVICE ATTACK SURFACE**\nRun only what you need.\nDisable, mask, or remove unneeded services.\nKeep services updated and properly configured.\nMinimize privileges and isolate workloads.\nFewer services = fewer risks.\n\n**CHECK ENABLED VS RUNNING SERVICES**\nList enabled services:\nList running services:\nCompare both to find unused services.\n\n**VIEW SERVICE DETAILS**\nShow full unit file\nShow all properties\n\n**BEST PRACTICES**\n- Disable services you do not use.\n- Run services as non-root users.\n- Harden services with isolation options.\n- Limit network and filesystem access.\n- Monitor service logs and failures.\n- Keep services updated.\n- Review services regularly.\n- Follow least-privilege principles.\n\n# IMPORTANT_FILES\n| File Path | Description |\n| :--- | :--- |\n| `/etc/systemd/system/` | Typical path for unit files that control how services run |\n\n# TABLES\n### ENABLED VERSUS RUNNING SERVICES (Legend)\n| Status | Definition |\n| :--- | :--- |\n| ENABLED | Starts automatically at boot. |\n| RUNNING | Currently active in memory. |\n\n### COMMON SYSTEMCTL COMMANDS\n| Command | Description |\n| :--- | :--- |\n| `systemctl list-units --type=service` | List all services |\n| `systemctl list-unit-files --type=service` | Show enabled/disabled services |\n| `systemctl status <service>` | Show service status and logs |\n| `systemctl start <service>` | Start a service |\n| `systemctl stop <service>` | Stop a service |\n| `systemctl restart <service>` | Restart a service |\n| `systemctl enable <service>` | Enable at boot |\n| `systemctl disable <service>` | Disable from boot |\n| `systemctl mask <service>` | Prevent service from starting |\n| `systemctl unmask <service>` | Unmask a service |\n\n# COMMANDS\n| Command | Description | Example |\n| :--- | :--- | :--- |\n| `systemctl disable --now <service>` | Disable and stop a service immediately | `systemctl disable --now <service>` |\n| `systemctl list-unit-files --type=service --state=enabled` | List all enabled services | `systemctl list-unit-files --type=service --state=enabled` |\n| `systemctl list-units --type=service --state=running` | List all currently running services | `systemctl list-units --type=service --state=running` |\n| `systemctl cat <service>` | Show full unit file content | `systemctl cat <service>` |\n| `systemctl show <service>` | Show all properties of a service | `systemctl show <service>` |\n| `systemctl status <service>` | Check service status and view logs | `systemctl status <service>` |\n| `journalctl -u <service>` | View recent logs for a specific service | `journalctl -u <service>` |\n\n# TIPS_NOTES_WARNINGS\nNone explicitly labeled as Tip, Note, or Warning boxes.\n\n# PRACTICAL_EXERCISES\nNone explicitly listed as practical exercise steps.\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\n\n# PAGE_NUMBER\nPAGE 8 OF 20",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853294,
+  "id": "2026090815410858ba139afcd54bf6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026090815410858ba139afcd54bf6",
+  "usage": {
+    "completion_tokens": 1199,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4724
+  }
+}

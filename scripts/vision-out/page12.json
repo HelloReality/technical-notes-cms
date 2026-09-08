@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```markdown\n# TITLE\n11. PROCESS AND RUNTIME SECURITY\n\n# SUBTITLE\nVERIQTA\n\n# BADGES\nLINUX SECURITY HANDBOOK\nPAGE 11 OF 20\n\n# SECTION_HEADINGS\n- PROCESS OWNERSHIP\n- PARENT AND CHILD PROCESSES\n- PRIVILEGED PROCESSES\n- PS, TOP, PSTREE\n- /PROC\n- SUSPICIOUS COMMAND LINES\n- UNEXPECTED BINARIES\n- LONG-RUNNING PROCESSES\n- PROCESSES LISTENING ON THE NETWORK\n- INVESTIGATING ABNORMAL RUNTIME ACTIVITY\n\n# BODY_PARAGRAPHS\n\n**PROCESS OWNERSHIP**\nEvery process runs as a specific user and group.\nReview process ownership to ensure least privilege and detect suspicious activity.\n\n**PARENT AND CHILD PROCESSES**\nProcesses are created by other processes.\nUnderstanding parent-child relationships helps trace the origin of a process.\n\n**PRIVILEGED PROCESSES**\nProcesses running as root or with elevated capabilities pose higher risk. Review and restrict privileged processes.\n\n**PS, TOP, PSTREE**\nUse ps to view processes, top for live monitoring, and pstree to visualize process trees.\nEssential tools for runtime visibility.\n\n**SUSPICIOUS COMMAND LINES**\nReview process command lines.\nLook for obfuscated, encoded, or unusual commands that may indicate malicious activity.\n\n**UNEXPECTED BINARIES**\nProcesses running from unusual locations (e.g., /tmp, /dev/shm) or unknown binaries may indicate compromise.\n\n**LONG-RUNNING PROCESSES**\nProcesses running longer than expected can indicate stuck services or persistence mechanisms.\nReview and validate regularly.\n\n**PROCESSES LISTENING ON THE NETWORK**\nIdentify processes that have open sockets.\nEnsure only required services are listening on expected ports and interfaces.\n\n**INVESTIGATING ABNORMAL RUNTIME ACTIVITY**\nCorrelate process behavior, network activity, and logs to detect anomalies.\nInvestigate immediately and contain threats.\n\n# IMPORTANT_FILES\n| File Path | Description |\n| :--- | :--- |\n| **/proc** | The /proc filesystem provides real-time information about processes, memory, mounts, network, and more. Powerful for investigation. |\n\n# TABLES\n*(No standard data tables present on this page; content is presented in a structured list format)*\n\n# COMMANDS\n| Command | Description |\n| :--- | :--- |\n| **ps** | Use to view processes |\n| **top** | Use for live monitoring |\n| **pstree** | Use to visualize process trees |\n\n# TIPS_NOTES_WARNINGS\n*(No specific tip boxes, notes, or warning callouts are explicitly boxed on this page, though the \"UNEXPECTED BINARIES\" and \"PRIVILEGED PROCESSES\" sections imply warnings about risk and compromise)*\n\n# PRACTICAL_EXERCISES\n*(No specific practical exercise steps are listed on this page)*\n\n# FOOTER_TEXT\nVERIQTA\nYouTube @veriqta\nGitHub @veriqta\nLinkedIn @veriqta\nX @veriqta\nInstagram @veriqta\nTelegram @veriqta\nVERIQTA\n\n# PAGE_NUMBER\nPAGE 11 OF 20\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1788853379,
+  "id": "20260908154241d8687d2970394f0a",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260908154241d8687d2970394f0a",
+  "usage": {
+    "completion_tokens": 663,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3525,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 4188
+  }
+}
