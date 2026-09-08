@@ -198,6 +198,8 @@ export function NoteViewer() {
   const [downloadOpen, setDownloadOpen] = React.useState(false);
   const [zoomPresetsOpen, setZoomPresetsOpen] = React.useState(false);
   const [pageViewMode, setPageViewMode] = React.useState<SidebarMode>("tiles");
+  // Page titles/overviews extracted from the note's HTML for the pages drawer.
+  const [pageTitles, setPageTitles] = React.useState<string[]>([]);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const [zoom, setZoom] = React.useState(1);
@@ -296,10 +298,32 @@ export function NoteViewer() {
       wrappers.forEach((el, i) => {
         (el as HTMLElement).style.display = i === 0 ? "" : "none";
       });
+      // Extract the title (h1) and subtitle/overview for each page
+      // so the pages drawer can show meaningful labels instead of just
+      // "Page 1 of 20".
+      const titles: string[] = [];
+      wrappers.forEach((el) => {
+        const h1 = el.querySelector("h1, h2, .title");
+        const subtitle = el.querySelector(".subtitle, .page-subtitle, .sub-text");
+        let label = "";
+        if (h1) {
+          label = (h1.textContent || "").replace(/\s+/g, " ").trim();
+        }
+        if (!label && subtitle) {
+          label = (subtitle.textContent || "").replace(/\s+/g, " ").trim();
+        }
+        if (!label) label = "Cover Page";
+        titles.push(label);
+      });
+      // If the note has no .page-wrapper (single page), use the note title.
+      if (titles.length === 0 && note) {
+        titles.push(note.title);
+      }
+      setPageTitles(titles);
     } catch {
       /* cross-origin — ignore */
     }
-  }, []);
+  }, [note]);
 
   // Reset to page 0 + detect pages when the active note changes.
   React.useEffect(() => {
@@ -1205,7 +1229,7 @@ export function NoteViewer() {
                           {String(idx + 1).padStart(2, "0")}
                         </span>
                         <span className={cn("truncate text-sm", idx === currentIndex ? "font-medium text-rose-900" : "text-slate-700")}>
-                          Page {idx + 1} of {totalPages}
+                          {pageTitles[idx] || `Page ${idx + 1}`}
                         </span>
                       </button>
                     ))}
@@ -1222,14 +1246,17 @@ export function NoteViewer() {
                         <div className="border-b border-slate-100 bg-slate-50 px-2 py-1 text-center text-[10px] font-semibold">
                           {String(idx + 1).padStart(2, "0")}
                         </div>
-                        {/* Page number preview */}
-                        <div className="relative aspect-[3/4] overflow-hidden bg-white">
-                          <div className="flex h-full items-center justify-center text-slate-300">
-                            <span className="text-3xl font-bold">{idx + 1}</span>
-                          </div>
+                        {/* Page title/overview preview */}
+                        <div className="relative flex aspect-[3/4] flex-col overflow-hidden bg-white p-2">
+                          <span className="line-clamp-3 text-[10px] font-bold leading-tight text-slate-700">
+                            {pageTitles[idx] || `Page ${idx + 1}`}
+                          </span>
+                          <span className="mt-auto text-[9px] text-slate-400">
+                            Page {idx + 1} of {totalPages}
+                          </span>
                         </div>
                         <div className="truncate border-t border-slate-100 bg-slate-50 px-2 py-1 text-[10px] text-slate-600">
-                          Page {idx + 1}
+                          {pageTitles[idx] ? pageTitles[idx].slice(0, 30) + (pageTitles[idx].length > 30 ? "…" : "") : `Page ${idx + 1}`}
                         </div>
                       </button>
                     ))}
