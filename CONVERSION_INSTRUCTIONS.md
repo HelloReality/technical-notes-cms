@@ -128,13 +128,47 @@ After recreating the page, **remove all branding**:
 
 1. Receive reference image(s) / PDF.
 2. Create `/home/z/my-project/scripts/build-<name>-note.ts` — a bun script that generates the HTML.
-3. Use the notebook aesthetic from `VERIQTA_Linux_Security_Handbook_Page2.html` as the page template.
-4. Recreate the inner content following the 12 rules above.
-5. Remove all VERIQTA branding + social footer.
-6. Output to `public/uploads/<note-name>.html`.
-7. Place any image assets in `public/uploads/<note-name>/`.
-8. Add the note to the database (via a bun script using `db.note.create`).
-9. Verify in the browser with agent-browser + VLM.
+3. **Use the notebook template** at `public/uploads/notebook-template/notebook-template.css` — link it externally. Do NOT inline the template CSS.
+4. The HTML file should have this structure:
+   ```html
+   <head>
+     <link rel="stylesheet" href="/uploads/notebook-template/notebook-template.css">
+     <style>
+       /* Note-specific CSS ONLY (cover page, special components) */
+       /* Do NOT override body padding, .page-wrapper, .spiral, .holes, etc. */
+     </style>
+   </head>
+   <body class="multi-page">
+     <!-- .page-wrapper blocks (one per page) -->
+   </body>
+   ```
+5. Recreate the inner content following the 12 rules above.
+6. Remove all VERIQTA branding + social footer.
+7. Output to `public/uploads/<note-name>.html`.
+8. Place any image assets in `public/uploads/<note-name>/`.
+9. Add the note to the database (via a bun script using `db.note.create`).
+10. Verify in the browser with agent-browser + VLM.
+
+### Template CSS includes (do NOT override these):
+- `:root` color variables (paper, navy, blue, green, purple, red, gold, etc.)
+- `body` padding (`24px 48px`) — needed for spiral ring visibility (rings at `left:-30px`)
+- `body.multi-page` — column stacking with `gap:24px` for multi-page notes
+- `.page-wrapper`, `.page`, `.page::before` (graph grid)
+- `.spiral`, `.holes`, `.page-bend` (CSS background-image SVG binding)
+- `.page-top-edge`, `.page-bottom-edge` (3D page-stack)
+- `.top-strip`, `.badges`, `.badge`
+- `.title-block`, `.title`, `.divider`
+- `.body` (2-column grid: `1.85fr 1fr`)
+- `.rows`, `.row`, `.row .icon` (58×58 pastel boxes), `.row h3`, `.row p`
+- `.bg-blue`, `.bg-green`, `.bg-purple`, `.bg-red`, `.bg-gold`
+- `.sidebar`, `.card`, `.card .head`, `.card .body-pad`
+- `.file-row`, `.ficon`, `.fpath`, `.fdesc`, `.dashed`, `.warn`
+- `.cmd-head-row`, `.term-pill`, `.cmd-list`
+- `.cmd-row` (vertical: code on line 1, description on line 2 below — tight spacing)
+- `.cmd-row code` (`white-space:pre`, `align-self:flex-start`, `font-size:12.5px`)
+- `.cmd-row span` (`display:block`, `margin-top:1px`, `line-height:1.4`)
+- `.page-wrapper { overflow:visible }` — so rings outside the page are visible
+- Print/PDF rules (`@page`, `@media print`, `page-break-after:always`)
 
 ---
 
