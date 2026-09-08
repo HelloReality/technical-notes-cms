@@ -66,3 +66,6 @@ prompt
 server.log
 # Skills directory
 /skills/tool-results/
+
+# Agent private credentials (PAT etc.)
+.agent-ctx/
