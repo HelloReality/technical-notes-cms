@@ -7,9 +7,9 @@
 <style>
 /* ====== CANONICAL NOTEBOOK TEMPLATE CSS ====== */
 /* ============================================================
-   NOTEBOOK TEMPLATE CSS — Canonical template (matches VERIQTA reference)
+   NOTEBOOK TEMPLATE CSS — Canonical template (matches  reference)
    ============================================================
-   This CSS is copied EXACTLY from VERIQTA_Linux_Security_Handbook_Page2.html
+   This CSS is copied EXACTLY from _Linux_Security_Handbook_Page2.html
    so that all notes share the same ring, holes, page-bend, and edge design.
 
    All fixes from the chat history are baked in:
@@ -21,7 +21,7 @@
    6. @media print — page breaks for PDF export
 
    Usage: Add class="multi-page" to <body> and link this CSS.
-   Future notes get the exact VERIQTA ring/hole design automatically.
+   Future notes get the exact  ring/hole design automatically.
    ============================================================ */
 
 :root{
@@ -106,7 +106,7 @@ body.multi-page{
 
 /* ============================================================
    PAGE BEND — left edge shadow (3D page lift)
-   EXACT copy from VERIQTA reference
+   EXACT copy from  reference
    ============================================================ */
 .page-bend{
   position:absolute;
@@ -128,7 +128,7 @@ body.multi-page{
 
 /* ============================================================
    SPIRAL BINDING — inline SVG ring wire (extends outside page left edge)
-   EXACT copy from VERIQTA reference
+   EXACT copy from  reference
    ============================================================ */
 .spiral{
   position:absolute;
@@ -146,7 +146,7 @@ body.multi-page{
 
 /* ============================================================
    PUNCHED HOLES — 3D SVG with radial+linear gradients
-   EXACT copy from VERIQTA reference (not a simple radial-gradient)
+   EXACT copy from  reference (not a simple radial-gradient)
    ============================================================ */
 .holes{
   position:absolute;
@@ -163,7 +163,7 @@ body.multi-page{
 
 /* ============================================================
    PAGE TOP/BOTTOM EDGES — 3D page-stack thickness
-   EXACT copy from VERIQTA reference
+   EXACT copy from  reference
    ============================================================ */
 .page-top-edge{
   position:absolute;
@@ -491,28 +491,28 @@ code.inl{
   <div class="col">
 <div class="card "><div class="head"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#15264d"/><rect x="4" y="8" width="40" height="7" rx="4" fill="#1e3160"/><circle cx="9" cy="11.5" r="1.5" fill="#ff5f56"/><circle cx="14" cy="11.5" r="1.5" fill="#ffbd2e"/><circle cx="19" cy="11.5" r="1.5" fill="#27c93f"/><path d="M10 20 L16 24 L10 28" fill="none" stroke="#7ee787" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="28" x2="32" y2="28" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round"/></svg> Shell vs Terminal vs Bash</div><div class="pad">
   <div class="compare-row">
-    <div class="ico-box navy">{icon('terminal', 34)}</div>
+    <div class="ico-box navy"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#15264d"/><rect x="4" y="8" width="40" height="7" rx="4" fill="#1e3160"/><circle cx="9" cy="11.5" r="1.5" fill="#ff5f56"/><circle cx="14" cy="11.5" r="1.5" fill="#ffbd2e"/><circle cx="19" cy="11.5" r="1.5" fill="#27c93f"/><path d="M10 20 L16 24 L10 28" fill="none" stroke="#7ee787" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="28" x2="32" y2="28" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round"/></svg></div>
     <div class="txt"><h4>Terminal</h4><p>The application window that lets you type commands and see output. It's the UI, not the brain.</p></div>
   </div>
   <div class="compare-row">
-    <div class="ico-box">{icon('shell', 34)}</div>
+    <div class="ico-box"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="36" height="36" rx="5" fill="#1B5E3F"/><rect x="6" y="6" width="36" height="8" rx="5" fill="#164a32"/><circle cx="12" cy="10" r="1.2" fill="#ff5f56"/><circle cx="16" cy="10" r="1.2" fill="#ffbd2e"/><circle cx="20" cy="10" r="1.2" fill="#27c93f"/><text x="12" y="30" fill="#7ee787" font-family="monospace" font-size="14" font-weight="bold">$_</text></svg></div>
     <div class="txt"><h4>Shell</h4><p>The interpreter that parses your commands and asks the kernel to run them (bash, zsh, sh, fish…).</p></div>
   </div>
   <div class="compare-row">
-    <div class="ico-box navy">{icon('cube', 34)}</div>
+    <div class="ico-box navy"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L42 12 V36 L24 44 L6 36 V12 Z" fill="#2563eb"/><path d="M24 4 L42 12 L24 20 L6 12 Z" fill="#1e40af"/><path d="M24 20 L42 12 V36 L24 44 Z" fill="#1e3160"/><text x="24" y="30" fill="#7ee787" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">$_</text></svg></div>
     <div class="txt"><h4>Bash</h4><p>One specific shell (Bourne-Again SHell). Default on most Linux distros &amp; the one this handbook uses.</p></div>
   </div>
 </div></div>
 
 <div class="card "><div class="head"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Why DevOps Engineers Automate with Scripts</div><div class="pad">
   <div class="checks">
-    <div class="check">{icon('check-circle', 18)}<div>Eliminate repetitive toil — run one command, not fifty.</div></div>
-    <div class="check">{icon('check-circle', 18)}<div>Make deployments repeatable, auditable &amp; reversible.</div></div>
-    <div class="check">{icon('check-circle', 18)}<div>Codify institutional knowledge instead of sticky-notes.</div></div>
-    <div class="check">{icon('check-circle', 18)}<div>Reduce human error in fragile production changes.</div></div>
-    <div class="check">{icon('check-circle', 18)}<div>Enable CI/CD pipelines to run unattended at 3&nbsp;AM.</div></div>
-    <div class="check">{icon('check-circle', 18)}<div>Ship a self-contained script instead of a 12-step runbook.</div></div>
-    <div class="check">{icon('check-circle', 18)}<div>Version control your operations the same way you version code.</div></div>
+    <div class="check"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Eliminate repetitive toil — run one command, not fifty.</div></div>
+    <div class="check"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Make deployments repeatable, auditable &amp; reversible.</div></div>
+    <div class="check"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Codify institutional knowledge instead of sticky-notes.</div></div>
+    <div class="check"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Reduce human error in fragile production changes.</div></div>
+    <div class="check"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Enable CI/CD pipelines to run unattended at 3&nbsp;AM.</div></div>
+    <div class="check"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Ship a self-contained script instead of a 12-step runbook.</div></div>
+    <div class="check"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div>Version control your operations the same way you version code.</div></div>
   </div>
 </div></div>
 
