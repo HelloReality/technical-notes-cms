@@ -383,6 +383,7 @@ body { background:#cfc9bb; }
 .term-pill .arrow { color:#7ee787; }
 .cmd-list { padding:6px 14px 12px 14px;display:flex;flex-direction:column;gap:6px; }
 </style>
+</style>
 </head>
 <body class="multi-page">
 
@@ -1166,19 +1167,23 @@ body { background:#cfc9bb; }
 <!-- 7 + 8 SIDE BY SIDE -->
 <div class="p3-bottom">
   <!-- 7. DEBUGGING TABLE -->
-  {card('7. Debugging a Script That Will Not Execute', 'bug',
-    table(["Problem","Why It Happens","How to Fix"],[
-      ["Permission denied","File is not executable or wrong permissions.","<code class='inline'>chmod +x myscript.sh</code><br><code class='inline'>ls -l myscript.sh</code>"],
-      ["Command not found","Shebang missing or wrong, or command doesn't exist.","Check first line: <code class='inline'>#!/bin/bash</code><br>Use full path to command if needed."],
-      ["No such file or directory","Wrong path or filename.","Check spelling and path:<br><code class='inline'>ls -l</code> <code class='inline'>pwd</code>"],
-      ["^M: bad interpreter","Windows line endings (CRLF) in the script.","Fix line endings:<br><code class='inline'>sed -i 's/\r$//' myscript.sh</code>"],
-      ["Script runs but nothing happens","No execute commands or logic errors.","Add set -x at top for debug.<br><code class='inline'>bash -x myscript.sh</code>"],
-    ])
-  )}
+  <div class="card">
+  <div class="head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M9 6a3 3 0 0 1 6 0"/><line x1="8" y1="10" x2="4" y2="8"/><line x1="16" y1="10" x2="20" y2="8"/><line x1="8" y1="14" x2="4" y2="14"/><line x1="16" y1="14" x2="20" y2="14"/><line x1="8" y1="18" x2="5" y2="20"/><line x1="16" y1="18" x2="19" y2="20"/></svg><span>7. Debugging a Script That Will Not Execute</span></div>
+  <div class="body-pad">
+    <table class="tbl"><thead><tr><th>Problem</th><th>Why It Happens</th><th>How to Fix</th></tr></thead><tbody>
+      <tr><td>Permission denied</td><td>File is not executable or wrong permissions.</td><td><code class="inline">chmod +x myscript.sh</code><br><code class="inline">ls -l myscript.sh</code></td></tr>
+      <tr><td>Command not found</td><td>Shebang missing or wrong, or command doesn't exist.</td><td>Check first line: <code class="inline">#!/bin/bash</code><br>Use full path to command if needed.</td></tr>
+      <tr><td>No such file or directory</td><td>Wrong path or filename.</td><td>Check spelling and path:<br><code class="inline">ls -l</code> <code class="inline">pwd</code></td></tr>
+      <tr><td>^M: bad interpreter</td><td>Windows line endings (CRLF) in the script.</td><td>Fix line endings:<br><code class="inline">sed -i 's/
+$//' myscript.sh</code></td></tr>
+      <tr><td>Script runs but nothing happens</td><td>No execute commands or logic errors.</td><td>Add set -x at top for debug.<br><code class="inline">bash -x myscript.sh</code></td></tr>
+    </tbody></table>
+  </div>
+</div>
 
   <!-- 8. BEST PRACTICES -->
   <div class="p3-best">
-    <div class="h">{icon('check-square')}8. Best Practices</div>
+    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12 L11 15 L16 9" stroke-width="2.5"/></svg>8. Best Practices</div>
     <div class="b">
       <ul>
         <li>Always start with <code class="inline">#!/bin/bash</code></li>
