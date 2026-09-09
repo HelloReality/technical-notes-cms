@@ -9,7 +9,7 @@ const images = Array.from({ length: PAGES }, (_, i) => {
   const n = String(i + 1).padStart(2, "0");
   return {
     num: n,
-    src: `${ASSETS}/page-${n}.jpg`,
+    src: `${ASSETS}/page-${n}.webp`,
     alt: `Instagram carousel page ${i + 1} of ${PAGES}`,
   };
 });
