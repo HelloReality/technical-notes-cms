@@ -121,12 +121,11 @@ body.multi-page{
   background-repeat:repeat-y;
 }
 
-/* ============================================================
-   COMMAND ROWS — stacked vertically (command line 1, desc line 2)
+/* Command rows — stacked vertically (command line 1, description line 2)
    ============================================================ */
 .cmd-row{
   display:flex;
-  flex-direction:column;  /* Stack vertically */
+  flex-direction:column;
   gap:2px;
   padding:5px 0;
   border-bottom:1px dashed rgba(22,38,77,0.10);
@@ -142,18 +141,29 @@ body.multi-page{
   border-radius:4px;
   padding:2px 6px;
   display:inline-block;
-  white-space:pre;           /* Full command on one line, no wrapping */
-  align-self:flex-start;    /* Don't stretch to full width */
+  white-space:pre;
+  align-self:flex-start;
   line-height:1.4;
   margin-bottom:0;
 }
 
 .cmd-row span{
-  display:block;             /* Description on its own line below */
+  display:block;
   font-size:11.5px;
   color:var(--ink-2);
   line-height:1.4;
-  margin-top:1px;            /* Tight spacing below command */
+  margin-top:1px;
+}
+
+/* ============================================================
+   DATA TABLES — consistent vertical alignment
+   The .mono and code elements inside cells must use
+   display:inline-block + vertical-align:top so they align
+   with the cell's top padding (not the text baseline).
+   ============================================================ */
+.data-table code,.data-table .mono{
+  display:inline-block;
+  vertical-align:top;
 }
 
 /* ============================================================

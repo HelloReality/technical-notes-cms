@@ -576,6 +576,7 @@ body{
   font-size:11px;font-weight:600;
   color:var(--linux-green);
   background:#eef5ef;border-radius:3px;padding:1px 5px;
+  display:inline-block;vertical-align:top;
 }
 .data-table .center{text-align:center;}
 
