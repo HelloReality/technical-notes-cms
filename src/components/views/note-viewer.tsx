@@ -521,17 +521,13 @@ export function NoteViewer() {
       const doc = iframe.contentDocument;
       if (!doc || !doc.body) return;
 
-      // Inject left padding into the note's body so the spiral binding
-      // rings (positioned at left:-30px on .page-wrapper, extending
-      // ~40px beyond the page edge) have room to render fully. The
-      // note's own body padding (24px 12px) is only 12px on the left,
-      // which clips the rings. We add padding-left so the ring overflow
-      // fits inside the iframe's content area.
-      const RING_LEFT_SPACE = 80;  // px — covers 30px ring offset + 50px safety
-      doc.body.style.paddingLeft = `${RING_LEFT_SPACE}px`;
-      doc.body.style.paddingTop = "24px";
-      doc.body.style.paddingBottom = "24px";
-      doc.body.style.paddingRight = "24px";
+      // The note's body padding (24px 48px) is now built into the template
+      // CSS and the handbook HTML itself. The 48px left/right padding gives
+      // the spiral binding rings (at left:-30px on .page-wrapper) enough
+      // space to render fully visible. We no longer need to inject padding.
+      // (Previously this injected paddingLeft:80px which worked but was a
+      // workaround. The canonical fix is in the template CSS — see
+      // public/uploads/notebook-template/notebook-template.css.)
 
       // Preserve the body's padding so the spiral binding rings
       // (positioned at left:-30px on .page-wrapper) have enough
@@ -566,11 +562,7 @@ export function NoteViewer() {
       // page; the box-shadow spreads ~60px on all sides.
       const RING_OVERFLOW = 40;
       const SHADOW = 60;
-      // The injected left padding (RING_LEFT_SPACE above) gives the rings
-      // room to render inside the body. Subtract it from the ring overflow
-      // so we don't double-count the space.
-      const extraLeft = Math.max(0, RING_LEFT_SPACE - RING_OVERFLOW);
-      const objectW = pageWNum + RING_OVERFLOW + extraLeft + SHADOW * 2;
+      const objectW = pageWNum + RING_OVERFLOW + SHADOW * 2;
 
       // Body height includes the page; add shadow for the bottom.
       const bodyH = Math.max(

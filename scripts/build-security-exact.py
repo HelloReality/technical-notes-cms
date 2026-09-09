@@ -64,13 +64,21 @@ CSS = """  /* ============================================================
     display:flex;justify-content:center;align-items:flex-start;
     flex-direction:column;
     gap:24px;
-    padding:24px 12px;
+    padding:24px 48px;  /* 48px left/right so spiral rings (at left:-30px) are fully visible */
+  }
+
+  /* Multi-page stacking: pages stack vertically with 24px gaps */
+  body.multi-page{
+    flex-direction:column;
+    gap:24px;
+    overflow:visible;
   }
 
   /* Wrapper holds page + binding, allows ring to extend outside page */
   .page-wrapper{
     position:relative;
     width:1080px;
+    overflow:visible;  /* Rings extend outside — must not clip */
   }
 
   /* ============================================================
@@ -376,8 +384,16 @@ CSS = """  /* ============================================================
     background:#eef1f8;
     border-radius:4px;padding:2px 6px;
     display:inline-block;
+    white-space:pre;           /* Full command on one line, no wrapping */
+    align-self:flex-start;    /* Don't stretch to full width */
+    line-height:1.4;
+    margin-bottom:0;
   }
-  .cmd-row span{font-size:11.5px;color:var(--ink-2);line-height:1.35;}
+  .cmd-row span{
+    display:block;             /* Description on its own line below */
+    font-size:11.5px;color:var(--ink-2);line-height:1.4;
+    margin-top:1px;            /* Tight spacing below command */
+  }
 
   /* ============================================================
      COVER PAGE — special layout
@@ -2692,7 +2708,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 {css}
 </style>
 </head>
-<body>
+<body class="multi-page">
 
 {pages}
 

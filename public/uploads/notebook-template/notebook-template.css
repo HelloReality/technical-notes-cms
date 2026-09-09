@@ -1,0 +1,173 @@
+/* ============================================================
+   NOTEBOOK TEMPLATE CSS — Canonical template with all fixes baked in
+   ============================================================
+   This file contains ALL the manual fixes we made to ensure:
+   1. Spiral binding rings are fully visible (48px body padding)
+   2. Multi-page notes stack vertically with proper gaps
+   3. Command rows stack vertically (command line 1, description line 2)
+   4. Page wrapper doesn't clip rings (overflow:visible)
+   5. Print/PDF page breaks work correctly
+
+   Usage: Add class="multi-page" to <body> and link this CSS.
+   Future notes get all fixes automatically — no manual CSS adjustments needed.
+   ============================================================ */
+
+:root{
+  --paper:#f5f1e8;
+  --paper-2:#efe9dd;
+  --grid-line:#bcc8d6;
+  --navy:#15264d;
+  --navy-2:#1e3160;
+  --ink:#1c1c1c;
+  --ink-2:#3a3f47;
+  --blue:#2563eb;
+  --blue-soft:#cfe0ff;
+  --green:#16a34a;
+  --green-soft:#cdf3da;
+  --purple:#7c3aed;
+  --purple-soft:#e2d4ff;
+  --red:#dc2626;
+  --red-soft:#ffd4d4;
+  --gold:#d4a017;
+  --gold-soft:#fce9b6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#cfc9bb;}
+
+/* ============================================================
+   BODY — 48px padding so spiral rings (at left:-30px) are visible
+   The multi-page class enables vertical stacking with gaps.
+   ============================================================ */
+body{
+  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;
+  padding:24px 48px;  /* 48px left/right so rings are fully visible */
+}
+
+/* Multi-page stacking: pages stack vertically with 24px gaps */
+body.multi-page{
+  flex-direction:column;
+  gap:24px;
+  overflow:visible;
+}
+
+/* ============================================================
+   PAGE WRAPPER — overflow:visible so rings outside the page aren't clipped
+   ============================================================ */
+.page-wrapper{
+  position:relative;
+  width:1080px;
+  overflow:visible;  /* Rings extend outside — must not clip */
+}
+
+/* ============================================================
+   PAGE / NOTEBOOK SHEET
+   ============================================================ */
+.page{
+  position:relative;
+  width:1080px;
+  background:var(--paper);
+  border-radius:14px;
+  box-shadow:0 22px 60px rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.06) inset;
+  overflow:hidden;
+  padding:42px 50px 26px 78px;  /* extra left padding for spiral binding */
+}
+
+/* Graph paper grid */
+.page::before{
+  content:"";
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size:26px 26px;
+  opacity:.5;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* Page edge shadows (3D thickness) */
+.page-top-edge,.page-bottom-edge{
+  position:absolute;left:0;right:0;height:6px;z-index:1;pointer-events:none;
+}
+.page-top-edge{top:0;background:linear-gradient(to bottom,rgba(0,0,0,.08),transparent);}
+.page-bottom-edge{bottom:0;background:linear-gradient(to top,rgba(0,0,0,.08),transparent);}
+
+/* Page bend shadow */
+.page-bend{
+  position:absolute;z-index:1;top:0;left:0;width:18px;height:100%;pointer-events:none;
+  background:linear-gradient(to right,rgba(0,0,0,.15),transparent);
+}
+
+/* ============================================================
+   SPIRAL BINDING (left edge, extends OUTSIDE page)
+   ============================================================ */
+.spiral{
+  position:absolute;z-index:7;top:0;left:-30px;width:120px;height:100%;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:repeat-y;
+  background-position:2.5px 0;
+  background-size:76.5px 59.5px;
+}
+
+/* Punch holes */
+.holes{
+  position:absolute;z-index:4;top:0;left:-30px;width:120px;height:100%;pointer-events:none;
+  background-image:radial-gradient(circle, #c9bfa8 3px, transparent 4px);
+  background-size:24px 80px;
+  background-position:center 40px;
+  background-repeat:repeat-y;
+}
+
+/* ============================================================
+   COMMAND ROWS — stacked vertically (command line 1, desc line 2)
+   ============================================================ */
+.cmd-row{
+  display:flex;
+  flex-direction:column;  /* Stack vertically */
+  gap:2px;
+  padding:5px 0;
+  border-bottom:1px dashed rgba(22,38,77,0.10);
+}
+.cmd-row:last-child{border-bottom:none;}
+
+.cmd-row code{
+  font-family:"JetBrains Mono","Consolas",monospace;
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--navy);
+  background:#eef1f8;
+  border-radius:4px;
+  padding:2px 6px;
+  display:inline-block;
+  white-space:pre;           /* Full command on one line, no wrapping */
+  align-self:flex-start;    /* Don't stretch to full width */
+  line-height:1.4;
+  margin-bottom:0;
+}
+
+.cmd-row span{
+  display:block;             /* Description on its own line below */
+  font-size:11.5px;
+  color:var(--ink-2);
+  line-height:1.4;
+  margin-top:1px;            /* Tight spacing below command */
+}
+
+/* ============================================================
+   PRINT / PDF — each page breaks to a new PDF page
+   ============================================================ */
+@page{
+  size:1080px 1353px;
+  margin:0;
+}
+@media print{
+  html,body{background:#fff;padding:0;gap:0;}
+  .page-wrapper{page-break-after:always;}
+  .page-wrapper:last-child{page-break-after:auto;}
+  .page{box-shadow:none;border-radius:0;}
+  .page{page-break-after:always;}
+  .page:last-child{page-break-after:auto;}
+}

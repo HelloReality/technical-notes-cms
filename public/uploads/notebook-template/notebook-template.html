@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notebook Template — Multi-Page Note</title>
+<link rel="stylesheet" href="notebook-template.css">
+</head>
+<body class="multi-page">
+
+  <!-- SVG punch holes (outside page so ring extends left) -->
+  <div class="page-wrapper">
+    <div class="holes" aria-hidden="true"></div>
+
+    <!-- SVG spiral ring wire (extends outside page's left edge) -->
+    <div class="spiral" aria-hidden="true"></div>
+
+    <!-- Page bend shadow at the very left edge -->
+    <div class="page-bend" aria-hidden="true"></div>
+
+    <div class="page">
+      <!-- Page-stack thickness: top edge (3D block effect) -->
+      <div class="page-top-edge" aria-hidden="true"></div>
+      <!-- Page-stack thickness: bottom edge (3D block effect) -->
+      <div class="page-bottom-edge" aria-hidden="true"></div>
+
+      <div class="content">
+        <!-- Page content goes here -->
+        <h1>Page 1 Title</h1>
+        <p>Content...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional pages follow the same structure -->
+  <!-- <div class="page-wrapper"> ... </div> -->
+
+</body>
+</html>
