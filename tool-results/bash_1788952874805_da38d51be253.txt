@@ -1,0 +1,550 @@
+=========== PAGE 06 ===========
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS
+
+**A. Header Icons**
+*   **Icon 1 (Terminal/Code):**
+    *   (a) Depicts: A terminal window or command prompt interface with a `>_` prompt.
+    *   (b) Style: Filled/Solid.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green).
+    *   (d) Location: Top left, to the left of the main title "4. VARIABLES...".
+    *   (e) Size: Approx. 60px x 50px.
+
+*   **Icon 2 (Box/Dollar Sign):**
+    *   (a) Depicts: A 3D box or package with a dollar sign (`$`) on the front face.
+    *   (b) Style: Filled/Solid.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green).
+    *   (d) Location: Top right, to the right of the main title.
+    *   (e) Size: Approx. 60px x 60px.
+
+*   **Logo (Veriqta):**
+    *   (a) Depicts: Stylized "VQ" monogram logo.
+    *   (b) Style: Outline/Stroke.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green).
+    *   (d) Location: Top center, above the main title.
+    *   (e) Size: Approx. 40px width.
+
+**B. Section 7 Icons (Common Environment Variables)**
+
+*   **Icon 3 (Home):**
+    *   (a) Depicts: A simple house silhouette.
+    *   (b) Style: Filled/Solid.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green).
+    *   (d) Location: Inside Card 7, left side of the "HOME" sub-section.
+    *   (e) Size: Approx. 40px x 40px.
+
+*   **Icon 4 (User):**
+    *   (a) Depicts: A person's head and shoulders silhouette.
+    *   (b) Style: Filled/Solid.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green).
+    *   (d) Location: Inside Card 7, left side of the "USER" sub-section.
+    *   (e) Size: Approx. 35px x 45px.
+
+*   **Icon 5 (Terminal/Prompt):**
+    *   (a) Depicts: A command line prompt symbol `>_`.
+    *   (b) Style: Filled/Solid.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green).
+    *   (d) Location: Inside Card 7, left side of the "PATH" sub-section.
+    *   (e) Size: Approx. 40px x 35px.
+
+**C. Content & UI Icons**
+
+*   **Icon 6 (Arrow Right):**
+    *   (a) Depicts: A right-pointing arrow `→`.
+    *   (b) Style: Solid/Standard character or icon.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green).
+    *   (d) Location: Used in Cards 2, 4, 5, and 7 to indicate "Output".
+    *   (e) Size: Text-sized (approx. 16-18px).
+
+*   **Icon 7 (Checkmark Circle):**
+    *   (a) Depicts: A solid circle with a white checkmark inside.
+    *   (b) Style: Filled/Solid.
+    *   (c) Color: `#1B4D3E` (Dark Forest Green) fill, White checkmark.
+    *   (d) Location: Inside Card 9 (Best Practices), bullet points on the left.
+    *   (e) Size: Approx. 20px x 20px.
+
+**D. Footer Social Icons**
+*   **YouTube:** Play button shape (Filled). Color: `#1B4D3E`.
+*   **GitHub:** Octocat silhouette (Filled). Color: `#1B4D3E`.
+*   **LinkedIn:** "in" text in rounded square (Filled). Color: `#1B4D3E`.
+*   **X (Twitter):** "X" letter shape (Filled). Color: `#1B4D3E`.
+*   **Instagram:** Camera outline/square (Outline/Filled hybrid). Color: `#1B4D3E`.
+*   **Telegram:** Paper plane shape (Filled). Color: `#1B4D3E`.
+
+---
+
+### 2. LAYOUT
+
+*   **Grid System:** **3-Column Layout**.
+    *   The main content area (Cards 1 through 6) uses a strict 3-column grid.
+    *   Card 7 spans the full width but is internally divided into **3 equal columns**.
+    *   The bottom row (Cards 8 & 9) splits the space, likely **2-column** (with Card 9 taking up slightly more visual weight or being balanced).
+
+*   **Sidebar:** **No Sidebar**. The layout is a single main container centered on the page (simulating a notebook page).
+
+*   **Top-to-Bottom Structure:**
+    1.  **Header Area:**
+        *   Top Bar: Logo (Center), Page Number tag (Right).
+        *   Main Title Block: Icon (Left), Large H1 Text ("4. VARIABLES..."), Subtitle ("STORE DATA..."), Icon (Right).
+    2.  **Grid Row 1 (Cards 1-3):**
+        *   Three equal-width cards: "Creating Variables", "Reading Variables", "Quoting Variables".
+    3.  **Grid Row 2 (Cards 4-6):**
+        *   Three equal-width cards: "Command Substitution", "Export Variables", "Environment Variables". Note: Card 6 has a dark green background for its code block.
+    4.  **Full-Width Section (Card 7):**
+        *   "Common Environment Variables": A single card containing a flex/grid row of 3 items (Home, User, Path), each with an icon, title, description, and code block.
+    5.  **Grid Row 3 (Cards 8-9):**
+        *   Left: "Using Variables in Scripts" (Code block focus).
+        *   Right: "Best Practices" (List focus with checkmarks).
+    6.  **Footer:**
+        *   Centered Logo.
+        *   Social Media Icon Row (6 icons with labels).
+
+*   **Visual Style Notes:**
+    *   **Background:** White with a subtle spiral notebook binding graphic on the far left edge.
+    *   **Card Headers:** Dark Green (`#1B4D3E`) background with white text, rounded top corners.
+    *   **Card Bodies:** White background with a light grey border (`#cccccc` approx).
+    *   **Code Blocks:** Light grey background (`#f0f0f0`) inside the cards.
+    *   **Typography:** Sans-serif (likely Montserrat or similar geometric sans). Headings are bold and uppercase. Code uses a monospace font.
+
+=========== PAGE 07 ===========
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS
+
+Here is the complete list of every icon, its properties, and location:
+
+**Header & Navigation Icons**
+*   **(a) Terminal/CLI Window:** (b) Filled/Solid. (c) Dark Green (`#1B4D3E` approx). (d) Top Left, next to main title. (e) Large (~60px).
+*   **(a) Checkmark in Circle:** (b) Filled/Solid. (c) Dark Green (`#1B4D3E`). (d) Top Right, next to "PAGE 6". (e) Large (~60px).
+
+**Section 1: What Exit Codes Mean**
+*   **(a) Question Mark (?):** (b) Filled/Solid. (c) Dark Green. (d) Inside a circle on the left of the text block. (e) Medium (~40px).
+
+**Section 2: Basic Exit Code Rules**
+*   **(a) Number "0":** (b) Filled/Solid. (c) White text on Dark Green background circle. (d) Left side of row 1. (e) Medium.
+*   **(a) Number "1+":** (b) Filled/Solid. (c) White text on Red (`#CC0000`) background circle. (d) Left side of row 2. (e) Medium.
+
+**Section 3: Examples**
+*   **(a) Right Arrow:** (b) Filled/Solid. (c) Dark Green. (d) Between command input and output (x3 instances). (e) Small/Medium.
+
+**Section 4: The Exit Command**
+*   **(a) Running Person / Exit Icon:** (b) Filled/Solid. (c) Dark Green. (d) Right side of card, large graphic. (e) Large (~80px).
+
+**Section 5: Testing Command Success**
+*   **(a) Checkmark:** (b) Filled/Solid. (c) White on Green circle. (d) Next to "$? -eq 0 Success". (e) Small (~30px).
+*   **(a) Cross (X):** (b) Filled/Solid. (c) White on Red circle. (d) Next to "$? -ne 0 Failure". (e) Small (~30px).
+
+**Section 6: CI/CD Pipelines**
+*   **(a) Play Button:** (b) Filled/Solid. (c) Dark Green. (d) Top of vertical icon stack. (e) Medium.
+*   **(a) Gear/Cog:** (b) Filled/Solid. (c) Dark Green. (d) Middle of vertical icon stack. (e) Medium.
+*   **(a) Checkmark:** (b) Filled/Solid. (c) Dark Green. (d) Bottom of vertical icon stack. (e) Medium.
+
+**Section 7: Preventing Failures (Horizontal Row of 5)**
+*   **(a) Shield with Check:** (b) Filled/Solid. (c) Dark Green. (d) Column 1 header. (e) Medium.
+*   **(a) Magnifying Glass:** (b) Outline or Filled (looks solid). (c) Dark Green. (d) Column 2 header. (e) Medium.
+*   **(a) Document/File with lines:** (b) Filled/Solid. (c) Dark Green. (d) Column 3 header. (e) Medium.
+*   **(a) Warning Triangle (!):** (b) Filled/Solid. (c) Dark Green. (d) Column 4 header. (e) Medium.
+*   **(a) Settings/Gear:** (b) Filled/Solid. (c) Dark Green. (d) Column 5 header. (e) Medium.
+
+**Footer & Tips**
+*   **(a) Star inside Circle:** (b) Filled/Solid. (c) Dark Green. (d) Bottom Tip box, left side. (e) Medium/Large.
+*   **(a) Code Brackets `</>`:** (b) Filled/Solid. (c) Dark Green. (d) Bottom Tip box, right side. (e) Medium.
+*   **(a) YouTube Logo:** (b) Filled/Solid. (c) Dark Green. (d) Footer social bar, item 1. (e) Small.
+*   **(a) GitHub Logo (Octocat):** (b) Outline. (c) Dark Green. (d) Footer social bar, item 2. (e) Small.
+*   **(a) LinkedIn Logo ("in"):** (b) Filled/Solid (box) + Text. (c) Dark Green. (d) Footer social bar, item 3. (e) Small.
+*   **(a) X / Twitter Logo:** (b) Outline or Filled. (c) Dark Green. (d) Footer social bar, item 4. (e) Small.
+*   **(a) Instagram Logo (Camera):** (b) Outline. (c) Dark Green. (d) Footer social bar, item 5. (e) Small.
+*   **(a) Telegram Logo (Paper Plane):** (b) Filled/Solid. (c) Dark Green. (d) Footer social bar, item 6. (e) Small.
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+**Grid Structure:**
+*   **Primary Layout:** **2-Column Grid**.
+    *   The page is dominated by a grid where cards are arranged in pairs (Left Card | Right Card).
+    *   Sections 1 through 6 follow this strict 2-column pattern.
+    *   Section 7 breaks this pattern (see below).
+
+**Sidebar:**
+*   **No Sidebar.** The layout is a single main content container centered on the page (simulating a notebook page).
+
+**Top-to-Bottom Structure:**
+
+1.  **Header Area:**
+    *   Centered Logo (Veriqta).
+    *   Main Title: "6. EXIT CODES AND COMMAND SUCCESS" (Large, Bold).
+    *   Subtitle: "EVERY COMMAND RETURNS A STATUS."
+    *   Page Indicator: "PAGE 6" (Top Right).
+
+2.  **Content Grid (The Cards):**
+    *   **Row 1:**
+        *   **Left (Card 1):** "WHAT EXIT CODES MEAN" - Contains definition text and a code snippet box (`echo $?`).
+        *   **Right (Card 2):** "BASIC EXIT CODE RULES" - Contains a list/table defining Code 0 (Success) vs Non-Zero (Failure).
+    *   **Row 2:**
+        *   **Left (Card 3):** "EXAMPLES" - Shows 3 rows of input -> output examples using arrows.
+        *   **Right (Card 4):** "THE exit COMMAND" - Split layout: Left has code block/text, Right has the large "Running Man" exit icon.
+    *   **Row 3:**
+        *   **Left (Card 5):** "TESTING COMMAND SUCCESS" - Shows an `if/then/else` script example with visual success/failure indicators.
+        *   **Right (Card 6):** "WHY CI/CD..." - Vertical list layout with icons on the left and bullet points on the right.
+    *   **Row 4 (Full Width):**
+        *   **Card 7:** "PREVENTING SILENT AUTOMATION FAILURES" - This spans the **full width** of the container. It is internally divided into **5 equal columns**, each with an icon, title, and description.
+
+3.  **Footer Area:**
+    *   **Tip Box:** Full-width banner with a star icon, tip text, and code icon.
+    *   **Brand Footer:** Centered Veriqta logo.
+    *   **Social Bar:** Horizontal row of 6 social media links/icons centered at the bottom.
+
+=========== PAGE 08 ===========
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS
+
+Here is the complete inventory of every icon visible on the page:
+
+**A. Header & Branding Icons**
+1.  **Terminal/Code Icon**
+    *   **Depicts:** A terminal window with a command prompt (`>_`).
+    *   **Style:** Filled/Solid.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Top left, next to the main title.
+    *   **Size:** Approx. 48x48px.
+
+2.  **VeriQta Logo**
+    *   **Depicts:** Stylized "VQ" monogram.
+    *   **Style:** Outline/Stroke.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Top center, above the title.
+    *   **Size:** Approx. 50x40px.
+
+3.  **Scales of Justice Icon**
+    *   **Depicts:** Balance scale.
+    *   **Style:** Outline/Stroke.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Top right, next to the page number.
+    *   **Size:** Approx. 48x48px.
+
+**B. Section-Specific Icons**
+
+4.  **Lightbulb Icon**
+    *   **Depicts:** Lightbulb with rays (idea/tip).
+    *   **Style:** Outline/Stroke.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Inside "3. STRING COMPARONS" card, bottom left area.
+    *   **Size:** Approx. 36x36px.
+
+5.  **File Document Icon**
+    *   **Depicts:** A sheet of paper with lines (document).
+    *   **Style:** Outline/Stroke.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Inside "5. CHECKING SERVICES..." card, left column header.
+    *   **Size:** Approx. 32x32px.
+
+6.  **Folder Icon**
+    *   **Depicts:** File folder.
+    *   **Style:** Outline/Stroke.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Inside "5. CHECKING SERVICES..." card, middle column header.
+    *   **Size:** Approx. 32x32px.
+
+7.  **Gear/Cog Icon**
+    *   **Depicts:** Mechanical gear (settings/service).
+    *   **Style:** Filled/Solid.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Inside "5. CHECKING SERVICES..." card, right column header.
+    *   **Size:** Approx. 32x32px.
+
+8.  **Star Icon (Filled)**
+    *   **Depicts:** Five-pointed star.
+    *   **Style:** Filled/Solid.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Bottom "TIP" banner, left side.
+    *   **Size:** Approx. 36x36px.
+
+9.  **Code Bracket Icon (`</>`)**
+    *   **Depicts:** Closing code tags.
+    *   **Style:** Filled/Solid.
+    *   **Color:** `#1B4D3E` (Dark Green).
+    *   **Location:** Bottom "TIP" banner, right side.
+    *   **Size:** Approx. 36x36px.
+
+**C. Quick Reference List Icons (Section 7)**
+*These are small circular badges containing text or checkmarks.*
+
+10. **Circle Badge: `if`**
+    *   **Depicts:** Circle with text "if".
+    *   **Style:** Filled circle, white text.
+    *   **Color:** Background `#1B4D3E`, Text `#FFFFFF`.
+    *   **Location:** Section 7, Row 1 Left.
+    *   **Size:** Approx. 28x28px.
+
+11. **Circle Badge: Checkmark**
+    *   **Depicts:** Circle with a checkmark.
+    *   **Style:** Filled circle, white icon.
+    *   **Color:** Background `#1B4D3E`, Icon `#FFFFFF`.
+    *   **Location:** Section 7, Row 1 Right.
+    *   **Size:** Approx. 28x28px.
+
+12. **Circle Badge: `then`**
+    *   **Depicts:** Circle with text "then".
+    *   **Style:** Filled circle, white text.
+    *   **Color:** Background `#1B4D3E`, Text `#FFFFFF`.
+    *   **Location:** Section 7, Row 2 Left.
+    *   **Size:** Approx. 28x28px.
+
+13. **Circle Badge: Checkmark**
+    *   *(Same as #11)*
+    *   **Location:** Section 7, Row 2 Right.
+
+14. **Circle Badge: `elif`**
+    *   **Depicts:** Circle with text "elif".
+    *   **Style:** Filled circle, white text.
+    *   **Color:** Background `#1B4D3E`, Text `#FFFFFF`.
+    *   **Location:** Section 7, Row 3 Left.
+    *   **Size:** Approx. 28x28px.
+
+15. **Circle Badge: Checkmark**
+    *   *(Same as #11)*
+    *   **Location:** Section 7, Row 3 Right.
+
+16. **Circle Badge: `else`**
+    *   **Depicts:** Circle with text "else".
+    *   **Style:** Filled circle, white text.
+    *   **Color:** Background `#1B4D3E`, Text `#FFFFFF`.
+    *   **Location:** Section 7, Row 4 Left.
+    *   **Size:** Approx. 28x28px.
+
+17. **Circle Badge: Checkmark**
+    *   *(Same as #11)*
+    *   **Location:** Section 7, Row 4 Right.
+
+18. **Circle Badge: `fi`**
+    *   **Depicts:** Circle with text "fi".
+    *   **Style:** Filled circle, white text.
+    *   **Color:** Background `#1B4D3E`, Text `#FFFFFF`.
+    *   **Location:** Section 7, Row 5 Left.
+    *   **Size:** Approx. 28x28px.
+
+19. **Circle Badge: Checkmark**
+    *   *(Same as #11)*
+    *   **Location:** Section 7, Row 5 Right.
+
+**D. Footer Social Icons**
+
+20. **YouTube Icon**
+    *   **Depicts:** Play button rectangle with rounded corners.
+    *   **Style:** Filled/Solid.
+    *   **Color:** `#1B4D3E` (Dark Green) or Black (looks dark green in theme).
+    *   **Location:** Footer, far left.
+    *   **Size:** Approx. 24x24px.
+
+21. **GitHub Icon**
+    *   **Depicts:** Octocat silhouette / GitHub logo.
+    *   **Style:** Filled/Solid.
+    *   **Color:** `#1B4D3E`.
+    *   **Location:** Footer, second from left.
+    *   **Size:** Approx. 24x24px.
+
+22. **LinkedIn Icon**
+    *   **Depicts:** "in" text in a box.
+    *   **Style:** Filled/Solid (rectangular background).
+    *   **Color:** Background `#1B4D3E`, Text White.
+    *   **Location:** Footer, center-left.
+    *   **Size:** Approx. 24x24px.
+
+23. **X (Twitter) Icon**
+    *   **Depicts:** Letter "X".
+    *   **Style:** Filled/Solid (inside a square box).
+    *   **Color:** Background `#1B4D3E`, Icon White.
+    *   **Location:** Footer, center-right.
+    *   **Size:** Approx. 24x24px.
+
+24. **Instagram Icon**
+    *   **Depicts:** Camera outline/rounded square.
+    *   **Style:** Outline/Stroke (or rounded square solid).
+    *   **Color:** `#1B4D3E`.
+    *   **Location:** Footer, second from right.
+    *   **Size:** Approx. 24x24px.
+
+25. **Telegram Icon**
+    *   **Depicts:** Paper airplane.
+    *   **Style:** Filled/Solid (circular background).
+    *   **Color:** Background `#1B4D3E`, Icon White.
+    *   **Location:** Footer, far right.
+    *   **Size:** Approx. 24x24px.
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+*   **Grid Structure:** **2-Column Layout**.
+    *   The content area is split into two main vertical columns for the majority of the page (Sections 1-4 and 6-7).
+    *   **Exception:** Section 5 ("Checking Services...") uses a **3-Column internal layout** within its card container to display the three examples (File, Directory, Service) side-by-side.
+
+*   **Sidebar:** **No Sidebar**. The layout is a single main content container centered on the page, simulating a notebook page.
+
+*   **Top-to-Bottom Structure:**
+    1.  **Header Area:**
+        *   Left: Terminal Icon.
+        *   Center: Logo + Main Title ("7. CONDITIONAL STATEMENTS") + Subtitle.
+        *   Right: Scales Icon + Page Number Badge ("PAGE 7").
+    2.  **Row 1 (The Basics):**
+        *   **Left Card (50% width):** "1. BASIC SYNTAX". Contains a code block (left) and definition list (right).
+        *   **Right Card (50% width):** "2. NUMERIC COMPARISONS". Contains a data table (Operator | Meaning | Example).
+    3.  **Row 2 (Strings & Files):**
+        *   **Left Card (50% width):** "3. STRING COMPARISONS". Contains a table + a "Tip" alert box with a lightbulb icon.
+        *   **Right Card (50% width):** "4. FILE TESTS". Contains a table listing flags (-f, -d, etc.) and examples.
+    4.  **Row 3 (Practical Checks - Full Width Card):**
+        *   **Full Width Card:** "5. CHECKING SERVICES, FILES, OR DIRECTORIES".
+        *   **Internal Layout:** This card is divided into **3 equal columns**. Each column has an icon header and a code block example.
+    5.  **Row 4 (Example & Reference):**
+        *   **Left Card (50% width):** "6. PRACTICAL EXAMPLE". Contains a description followed by a multi-line code block.
+        *   **Right Card (50% width):** "7. QUICK REFERENCE". Contains a two-column list of keywords (left) and best practices/checkmarks (right).
+    6.  **Footer Banner:**
+        *   Full-width styled box containing the Star Icon, Tip text, and Code Icon.
+    7.  **Bottom Bar:**
+        *   Centered Logo.
+        *   Social Media Icon Row (YouTube, GitHub, LinkedIn, X, Instagram, Telegram).
+
+=========== PAGE 09 ===========
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS INVENTORY
+
+| Icon ID | Depiction | Style | Color (Hex) | Location / Context | Size (Approx) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | Terminal/Console Window | Solid/Filled | `#1B4D3E` (Dark Green) | Top Left, next to main title | Large (~60px) |
+| **2** | Flowchart/Diagram Nodes | Outline | `#1B4D3E` (Dark Green) | Top Right, next to "PAGE 8" | Medium-Large (~50px) |
+| **3** | Ampersand (`&&`) | Solid/Filled | `#FFFFFF` (White) on Dark Green Circle | Section 2, Item 1 | Small (~24px circle) |
+| **4** | Double Pipe (`||`) | Solid/Filled | `#FFFFFF` (White) on Dark Green Circle | Section 2, Item 2 | Small (~24px circle) |
+| **5** | Exclamation Mark (`!`) | Solid/Filled | `#FFFFFF` (White) on Dark Green Circle | Section 2, Item 3 | Small (~24px circle) |
+| **6** | Light Bulb (Idea/Efficiency) | Outline | `#1B4D3E` (Dark Green) | Section 2, Item 4 | Small (~28px) |
+| **7** | Checkmark in Circle | Solid/Filled | `#1B4D3E` (Dark Green) | Section 3 (AND Conditions), bottom left of card | Small (~20px) |
+| **8** | Checkmark in Circle | Solid/Filled | `#1B4D3E` (Dark Green) | Section 4 (OR Conditions), bottom left of card | Small (~20px) |
+| **9** | Checkmark in Circle | Solid/Filled | `#1B4D3E` (Dark Green) | Section 5 (NOT Condition), bottom left of card | Small (~20px) |
+| **10** | Checkmark in Circle | Solid/Filled | `#1B4D3E` (Dark Green) | Section 6, Example 1, bottom left | Small (~20px) |
+| **11** | Checkmark in Circle | Solid/Filled | `#1B4D3E` (Dark Green) | Section 6, Example 2, bottom left | Small (~20px) |
+| **12** | Checkmark in Circle | Solid/Filled | `#1B4D3E` (Dark Green) | Section 6, Example 3, bottom left | Small (~20px) |
+| **13** | Shield with Checkmark (Security/Safe) | Solid/Filled | `#1B4D3E` (Dark Green) | Section 7, Right side (Large graphic) | Large (~70px) |
+| **14** | Checkmark in Circle | Solid/Filled | `#1B4D3E` (Dark Green) | Section 7, Checklist items (x4) | Extra Small (~16px) |
+| **15** | Star (Tip/Pro-tip) | Solid/Filled | `#1B4D3E` (Dark Green) | Bottom Tip Banner, Left side | Medium (~36px) |
+| **16** | Code Brackets (`</>`) | Solid/Filled | `#1B4D3E` (Dark Green) | Bottom Tip Banner, Right side | Medium (~36px) |
+| **17** | YouTube Logo | Solid/Filled | `#1B4D3E` (Dark Green) | Footer, Social Link 1 | Small (~20px) |
+| **18** | GitHub Logo (Octocat) | Outline | `#1B4D3E` (Dark Green) | Footer, Social Link 2 | Small (~20px) |
+| **19** | LinkedIn Logo (`in`) | Solid/Filled | `#1B4D3E` (Dark Green) | Footer, Social Link 3 | Small (~20px) |
+| **20** | X / Twitter Logo (`X`) | Solid/Filled | `#1B4D3E` (Dark Green) | Footer, Social Link 4 | Small (~20px) |
+| **21** | Instagram Logo (Camera) | Outline | `#1B4D3E` (Dark Green) | Footer, Social Link 5 | Small (~20px) |
+| **22** | Telegram Logo (Paper Plane) | Solid/Filled | `#1B4D3E` (Dark Green) | Footer, Social Link 6 | Small (~20px) |
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+*   **Overall Structure:** **Single Column, Centered Layout**. The content is constrained to a max-width (likely ~1000px-1200px) centered on the page, resembling a document or infographic style.
+*   **Sidebar:** **No Sidebar**. The layout is a linear vertical flow.
+*   **Top-to-Bottom Structure:**
+    1.  **Header:** Logo (Center), Title (Large, Centered), Subtitle (Centered), Decorative Icons (Left/Right).
+    2.  **Top Row (Split 55% / 45%):**
+        *   **Left:** **Section 1 (Logical Operators)** - A data table with 4 columns (Operator, Meaning, Example, Description).
+        *   **Right:** **Section 2 (Short-Circuit Execution)** - A list of definitions with circular icons/bullets.
+    3.  **Middle Row (3-Column Grid):**
+        *   **Section 3 (AND Conditions):** Code block + Tip.
+        *   **Section 4 (OR Conditions):** Code block + Tip.
+        *   **Section 5 (NOT Condition):** Code block + Tip.
+    4.  **Lower Middle Row (3-Column Grid):**
+        *   **Section 6 Header:** Spans full width ("Combining Multiple Tests").
+        *   **Three Cards (Examples 1, 2, & 3):** Each contains a code snippet and a checkmark tip at the bottom.
+    5.  **Bottom Feature Section (Split 60% / 40%):**
+        *   **Left:** **Section 7 (Building Safer Checks)** - A large code block example.
+        *   **Right:** Visual checklist + Large Shield Icon + "Safe Deployment" text.
+    6.  **Tip Banner:** Full-width bar with Star icon, Text, and Code icon.
+    7.  **Footer:** Logo centered, followed by a row of 6 social media icons.
+
+**Summary for CSS Grid/Flexbox:**
+*   Use a **main container** with `max-width: 1100px; margin: 0 auto;`.
+*   **Row 1:** Flexbox or Grid (`1fr 1fr` with gap). The left cell is a `<table>`, the right cell is a list.
+*   **Row 2 & 3:** CSS Grid (`repeat(3, 1fr)`).
+*   **Row 4:** Flexbox (`2fr 1fr` or similar ratio) to accommodate the large code block vs. the shield graphic.
+*   **Colors:** Primary Dark Green (`#1B4D3E`), Background Off-white/Cream (`#F9F9F9` or `#FFFDF5`), Code Red (`#D32F2F`).
+
+=========== PAGE 10 ===========
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS
+
+Here is the complete inventory of every icon, its properties, and location:
+
+| # | Depiction | Style | Color (Hex) | Location / Context | Approx. Size |
+|---|-----------|-------|-------------|-------------------|--------------|
+| **1** | **Refresh/Loop Arrow** (Circular arrow) | **Outline** | `#0F4C2E` (Dark Green) | Top Left Header (next to "9. LOOPS...") | Large (~48px) |
+| **2** | **Gear/Settings Cog** | **Solid/Filled** | `#0F4C2E` (Dark Green) | Top Right Header | Large (~48px) |
+| **3** | **"for" Loop Symbol** (Curved arrow over text) | **Outline** | `#0F4C2E` (Dark Green) | Card 1 (For Loops) - Right side of code block | Medium (~60px height) |
+| **4** | **"while" Loop Symbol** (Circular arrow with text inside) | **Outline** | `#0F4C2E` (Dark Green) | Card 2 (While Loops) - Right side of code block | Medium (~60px diameter) |
+| **5** | **Document/File Icon** (Page with lines) | **Outline** | `#0F4C2E` (Dark Green) | Card 3 (Looping Through Files) - Right side | Medium (~50px) |
+| **6** | **Server Rack Icon** (Stacked rectangles with dots) | **Solid/Filled** | `#0F4C2E` (Dark Green) | Card 4 (Looping Through Servers) - Right side | Medium (~50px) |
+| **7** | **Stop Sign Octagon** (with "STOP" text inside) | **Outline** | `#0F4C2E` (Dark Green) | Card 5 (Break) - Right side | Medium-Large (~60px) |
+| **8** | **Skip/Continue Arrow** (Curved arrow pointing right/down) | **Solid/Filled** | `#0F4C2E` (Dark Green) | Card 6 (Continue) - Right side | Medium (~50px) |
+| **9** | **Warning Triangle with Exclamation Mark** | **Solid/Filled** | `#FFD700` or `#F4B400` (Yellow/Gold) | Card 7 (Avoiding Infinite Loops) - Left margin, repeated **4 times** next to bullet points | Small (~20px) |
+| **10** | **Exclamation Circle** (! inside circle) | **Outline** | `#0F4C2E` (Dark Green) | Card 7 (Avoiding Infinite Loops) - Bottom right area | Medium (~50px) |
+| **11** | **Checkmark in Circle** | **Solid/Filled** | `#0F4C2E` (Dark Green) | Card 8 (Automating Repetitive Tasks) - Left margin, repeated **6 times** next to list items | Small (~18px) |
+| **12** | **Robot Icon** (Android-like figure holding gear) | **Solid/Filled** | `#0F4C2E` (Dark Green) | Card 8 (Automating Repetitive Tasks) - Right side | Large (~70px) |
+| **13** | **Lightbulb Icon** | **Solid/Filled** | `#0F4C2E` (Dark Green) | Bottom Banner ("KEY TAKEAWAY") - Far left | Small-Medium (~30px) |
+| **14** | **Repeat/Cycle Arrows** (Two circular arrows forming a cycle) | **Outline** | `#0F4C2E` (Dark Green) | Bottom Banner - Center left ("REPEAT SMARTER") | Small-Medium (~35px) |
+| **15** | **Clock Icon** | **Outline** | `#0F4C2E` (Dark Green) | Bottom Banner - Center right ("SAVE TIME EVERY DAY") | Small-Medium (~35px) |
+| **16** | **YouTube Play Button** (Rounded rectangle with triangle) | **Solid/Filled** | `#0F4C2E` (Dark Green) | Footer Social Bar - YouTube | Small (~24px) |
+| **17** | **GitHub Logo** (Octocat silhouette) | **Solid/Filled** | `#0F4C2E` (Dark Green) | Footer Social Bar - GitHub | Small (~24px) |
+| **18** | **LinkedIn Logo** ("in" in rounded square) | **Solid/Filled** | `#0F4C2E` (Dark Green) | Footer Social Bar - LinkedIn | Small (~24px) |
+| **19** | **X / Twitter Logo** (Letter X) | **Solid/Filled** | `#0F4C2E` (Dark Green) | Footer Social Bar - X | Small (~24px) |
+| **20** | **Instagram Camera Logo** | **Outline** | `#0F4C2E` (Dark Green) | Footer Social Bar - Instagram | Small (~24px) |
+| **21** | **Telegram Paper Plane** | **Solid/Filled** | `#0F4C2E` (Dark Green) | Footer Social Bar - Telegram | Small (~24px) |
+
+---
+
+### 2. LAYOUT STRUCTURE
+
+#### **Grid System**
+*   **Primary Layout:** **2-Column Grid** (Two equal-width columns).
+*   **Card Arrangement:** The content consists of **8 main section cards** arranged in a **2x4 grid** (4 rows, 2 columns).
+*   **Responsive Behavior:** On mobile (<768px), this should stack to a single column.
+
+#### **Top-to-Bottom Structure**
+
+1.  **Header Section (Full Width)**
+    *   **Top Bar:** Logo (VERIQTA) centered, "PAGE 9" badge top-right.
+    *   **Main Title:** Large bold heading "9. LOOPS FOR AUTOMATION" flanked by two large icons (Refresh left, Gear right).
+    *   **Subtitle:** Tagline "REPEAT TASKS. SAVE TIME. ELIMINATE MANUAL WORK."
+
+2.  **Content Grid (2-Column Layout)**
+    *   **Row 1:**
+        *   **Card 1:** FOR LOOPS (Code block + Output + Icon)
+        *   **Card 2:** WHILE LOOPS (Code block + Output + Icon)
+    *   **Row 2:**
+        *   **Card 3:** LOOPING THROUGH FILES (Code block + Example text + File icon)
+        *   **Card 4:** LOOPING THROUGH SERVERS (Code block + Example text + Server rack icon)
+    *   **Row 3:**
+        *   **Card 5:** BREAK (Code block + Output + Stop sign icon)
+        *   **Card 6:** CONTINUE (Code block + Output + Skip arrow icon)
+    *   **Row 4:**
+        *   **Card 7:** AVOIDING INFINITE LOOPS (Text list with warning icons + Exclamation circle)
+        *   **Card 8:** AUTOMATING REPETITIVE TASKS (Checklist with checkmarks + Robot icon)
+
+3.  **Key Takeaway Banner (Full Width)**
+    *   A distinct horizontal bar at the bottom of the grid containing:
+    *   Lightbulb icon + "KEY TAKEAWAY" label
+    *   Summary text
+    *   Two feature callouts with icons: "REPEAT SMARTER" and "SAVE TIME EVERY DAY"
+
+4.  **Footer (Full Width)**
+    *   Centered VERIQTA logo with horizontal rule.
+    *   **Social Media Row:** 6 evenly spaced social media icons with labels (YouTube, GitHub, LinkedIn, X, Instagram, Telegram).
+
+#### **Sidebar?**
+*   **No sidebar.** This is a clean, centered 2-column card layout with full-width header/footer bands.
+
+#### **Visual Design Notes for CSS**
+*   **Card Headers:** Dark green background (`#0F4C2E`) with white, uppercase, bold text.
+*   **Card Bodies:** White background with subtle border radius (approx 8-12px).
+*   **Code Blocks:** Light beige/cream background (`#F5F5DC` or similar), monospace font, with syntax highlighting (green for commands, red for strings).
+*   **Typography:** Sans-serif (likely Montserrat or similar geometric sans) for headers, Monospace (Courier/Fira Code) for code snippets.
+*   **Background:** Off-white/cream page color to simulate paper/notebook aesthetic (visible spiral binding on left edge in original).

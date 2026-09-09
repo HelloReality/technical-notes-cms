@@ -1,0 +1,705 @@
+==== PAGE 01 ====
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS INVENTORY
+
+**A. Branding & Header Icons**
+*   **Veriqta Logo (Top Center)**
+    *   (a) Depicts: Abstract "VQ" monogram or stylized checkmark/loop.
+    *   (b) Shape: Outline/Stroke.
+    *   (c) Color: `#1B5E3F` (Deep Forest Green).
+    *   (d) Location: Header, centered above the main title.
+    *   (e) Size: Medium (~40-50px width).
+
+**B. Main Illustration Icons (Center Stage)**
+*   **Lightbulb Icon (Left of Terminal)**
+    *   (a) Depicts: Incandescent lightbulb with radiating lines (idea/learning).
+    *   (b) Shape: Outline.
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Main visual area, left side.
+    *   (e) Size: Large (~60-70px).
+*   **Gear/Cog Icon (Below Lightbulb)**
+    *   (a) Depicts: Mechanical gear with teeth (settings/automation).
+    *   (b) Shape: Outline.
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Main visual area, bottom-left.
+    *   (e) Size: Medium-Large (~50px).
+*   **Terminal Window Icon (Center)**
+    *   (a) Depicts: Browser or terminal window frame containing a command prompt symbol (`>_`).
+    *   (b) Shape: Outline (thick stroke).
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Main visual area, center.
+    *   (e) Size: Extra Large (~150-180px width).
+*   **Code Cloud Icon (Right of Terminal)**
+    *   (a) Depicts: Cloud shape containing code brackets (`</>`).
+    *   (b) Shape: Outline.
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Main visual area, upper-right.
+    *   (e) Size: Large (~60-70px).
+*   **Globe/World Icon (Far Right Bottom)**
+    *   (a) Depicts: Wireframe globe with latitude/longitude lines (deployment/web).
+    *   (b) Shape: Outline.
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Main visual area, bottom-right.
+    *   (e) Size: Medium (~50px).
+
+**C. Feature List Icons**
+*   **Checkmark in Circle (x4 instances)**
+    *   (a) Depicts: Circle containing a checkmark.
+    *   (b) Shape: Outline.
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Below the main illustration, preceding each feature text ("STEP-BY-STEP...", "PRACTICAL EXAMPLES", etc.).
+    *   (e) Size: Small (~24px).
+
+**D. Social Media Footer Icons (Inside bottom container)**
+*   **YouTube Icon**
+    *   (a) Depicts: Rounded rectangle with a play triangle inside.
+    *   (b) Shape: Filled/Solid.
+    *   (c) Color: `#1B5E3F` (or black/dark gray if adhering strictly to brand colors).
+    *   (d) Location: Footer bar, first item.
+    *   (e) Size: Small (~24px).
+*   **GitHub Icon**
+    *   (a) Depicts: Octocat silhouette (cat inside a circle/octagon).
+    *   (b) Shape: Filled/Solid.
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Footer bar, second item.
+    *   (e) Size: Small (~24px).
+*   **LinkedIn Icon**
+    *   (a) Depicts: "in" lowercase letters inside a rounded square.
+    *   (b) Shape: Filled/Solid.
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Footer bar, third item.
+    *   (e) Size: Small (~24px).
+*   **X (Twitter) Icon**
+    *   (a) Depicts: Stylized "X" letterform.
+    *   (b) Shape: Filled/Solid (or outline depending on version, appears solid here).
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Footer bar, fourth item.
+    *   (e) Size: Small (~24px).
+*   **Instagram Icon**
+    *   (a) Depicts: Camera outline with a circle in the center and a dot in the corner.
+    *   (b) Shape: Outline (or rounded square with camera glyph inside).
+    *   (c) Color: `#1B5E3F`.
+    *   (d) Location: Footer bar, fifth item.
+    *   (e) Size: Small (~24px).
+*   **Telegram Icon**
+    *   (a) Depicts: Paper airplane icon inside a circle.
+    *   (b) Shape: Filled/Solid circle with white plane (or solid plane icon).
+    *   (c) Color: `#1B5E3F` (background) with white foreground, or solid green.
+    *   (d) Location: Footer bar, sixth item.
+    *   (e) Size: Small (~24px).
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+**Overall Structure:** This is a **Single-Column, Centered Layout** designed to look like a book cover or a landing page hero section.
+
+*   **Grid System:** There are **no multi-column grids** for content cards. The layout is strictly **vertical (stacked)** and **center-aligned**.
+*   **Sidebar:** **No sidebar** is present. The design uses full-width (with padding) centered containers.
+
+**Top-to-Bottom Breakdown:**
+
+1.  **Header Zone:**
+    *   Contains the Veriqta Logo (centered).
+    *   Background: White/Lined paper texture.
+
+2.  **Title Block (Hero Text):**
+    *   **"SHELL SCRIPTING"**: Very large, bold, sans-serif, dark green.
+    *   **"FOR"**: Smaller, flanked by horizontal lines on left and right.
+    *   **"DEVOPS"**: Same large size as the first line.
+    *   **"HANDBOOK"**: Contained within a **ribbon/banner shape** (dark green background, white text, notched ends).
+
+3.  **Subtitle Badge:**
+    *   **"FOR COMPLETE BEGINNERS"**: Enclosed in a **rounded rectangle (pill shape)** with a thick green border and green text. Centered below the ribbon.
+
+4.  **Main Visual Illustration (The "Card" Area):**
+    *   Although not a traditional grid card, this section acts as the primary visual container.
+    *   It contains the **Terminal Window** (center), flanked by the **Lightbulb** (left), **Gear** (bottom-left), **Code Cloud** (top-right), and **Globe** (bottom-right).
+    *   To the right of the terminal window is a vertical checklist:
+        *   ✓ LEARN
+        *   ✓ PRACTICE
+        *   ✓ AUTOMATE
+        *   ✓ DEPLOY
+        *   (With an underline beneath "DEPLOY").
+
+5.  **Features Row (4-Column Inline List):**
+    *   Located below the illustration.
+    *   **Layout:** A single horizontal row divided into **4 equal columns** (or flex items with separators).
+    *   **Content:** Each column contains the Checkmark Icon + Uppercase Label ("STEP-BY-STEP EXPLANATIONS", "PRACTICAL EXAMPLES", "DEVOPS USE CASES", "BEGINNER FRIENDLY").
+    *   **Separators:** Vertical lines (`|`) divide the four items.
+
+6.  **Footer Container:**
+    *   A full-width (within margins) **rounded rectangle border**.
+    *   **Internal Layout:** A **6-column flex/grid row** containing social media icons + text labels (YOUTUBE, GITHUB, LINKEDIN, X, INSTAGRAM, TELEGRAM). Evenly spaced.
+
+**Background Detail:** The entire page has a subtle "notebook paper" texture with faint horizontal lines and the word "VERIQTA" repeated as a watermark in the background.
+
+==== PAGE 02 ====
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS INVENTORY
+
+Here is a detailed list of every icon visible on the page, categorized by location:
+
+**A. Header & Branding**
+*   **VeriQta Logo (Top Center):**
+    *   **Depicts:** A stylized "VQ" monogram.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Dark Green (`#1B5E20` or similar).
+    *   **Location:** Top center header.
+    *   **Size:** Medium (approx. 40-50px width).
+*   **VeriQta Logo (Bottom Footer):**
+    *   **Depicts:** Same "VQ" monogram.
+    *   **Shape/Color/Size:** Same as header logo.
+
+**B. Section: Shell vs Terminal vs Bash (Left Column)**
+*   **Terminal Icon:**
+    *   **Depicts:** A computer monitor with a command prompt `>_` inside.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Dark Blue (`#0D47A1`).
+    *   **Location:** Inside the first row of the comparison table.
+    *   **Size:** Small/Medium (approx. 40x40px).
+*   **Shell Icon:**
+    *   **Depicts:** A terminal window with a `$` prompt and three dots (menu) at the top.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Dark Green (`#1B5E20`).
+    *   **Location:** Inside the second row of the comparison table.
+    *   **Size:** Small/Medium.
+*   **Bash Icon:**
+    *   **Depicts:** A 3D cube/box with a `$` symbol on the front face.
+    *   **Shape:** Filled/Solid, 3D effect (shaded sides).
+    *   **Color:** Dark Blue (`#0D47A1`).
+    *   **Location:** Inside the third row of the comparison table.
+    *   **Size:** Small/Medium.
+
+**C. Section: What a Shell Actually Does (Right Column - Top)**
+*   **Numbered Circles (1-6):**
+    *   **Depicts:** Numbers 1 through 6 inside circles.
+    *   **Shape:** Circle outline with filled text/number.
+    *   **Color:** Dark Green fill (`#1B5E20`), White text.
+    *   **Location:** Bullet points for the list.
+    *   **Size:** Small (approx. 20-24px diameter).
+*   **User Icon (Flow Diagram):**
+    *   **Depicts:** A silhouette of a person (head and shoulders).
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Black/Dark Grey (`#212121`).
+    *   **Location:** First node in the horizontal flow diagram.
+    *   **Size:** Medium (approx. 45px height).
+*   **Shell Window Icon (Flow Diagram):**
+    *   **Depicts:** A window/frame containing a `>_` prompt.
+    *   **Shape:** Outline (thick border), internal prompt is solid.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Second node in flow diagram.
+    *   **Size:** Medium.
+*   **Gear/Cog Icon (Flow Diagram):**
+    *   **Depicts:** A mechanical gear with teeth.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Dark Blue (`#1565C0`).
+    *   **Location:** Third node in flow diagram (labeled KERNEL).
+    *   **Size:** Medium.
+*   **Monitor/Output Icon (Flow Diagram):**
+    *   **Depicts:** A computer monitor screen.
+    *   **Shape:** Outline (thick border).
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Fourth node in flow diagram (labeled OUTPUT).
+    *   **Size:** Medium.
+
+**D. Section: Command Execution Flow (Right Column - Middle)**
+*   **Keyboard Icon:**
+    *   **Depicts:** A standard keyboard layout.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** First box ("YOU TYPE A COMMAND").
+    *   **Size:** Medium (inside rounded square container).
+*   **Terminal Prompt Icon:**
+    *   **Depicts:** A terminal window with `>_`.
+    *   **Shape:** Filled/Solid (inverted colors: white prompt on black bg).
+    *   **Color:** Black background, White prompt.
+    *   **Location:** Second box ("SHELL INTERPRETS IT").
+    *   **Size:** Medium.
+*   **Gear Icon (Execution):**
+    *   **Depicts:** A gear/cog.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Third box ("KERNEL EXECUTES IT").
+    *   **Size:** Medium.
+*   **Monitor Icon (Status):**
+    *   **Depicts:** A computer monitor.
+    *   **Shape:** Outline.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Fourth box ("OUTPUT + EXIT STATUS").
+    *   **Size:** Medium.
+
+**E. Section: Why DevOps Engineers Automate (Left Column - Bottom)**
+*   **Checkmark Circles:**
+    *   **Depicts:** A white checkmark inside a circle.
+    *   **Shape:** Circle filled, checkmark solid.
+    *   **Color:** Dark Green circle (`#2E7D32`), White checkmark.
+    *   **Location:** Bullet points for the list (7 items).
+    *   **Size:** Small (approx. 20px).
+
+**F. Section: Your First Bash Script (Bottom Left)**
+*   **Lightbulb Icon (Important Note):**
+    *   **Depicts:** A lightbulb with rays emanating from it.
+    *   **Shape:** Filled/Solid (yellow bulb, orange rays).
+    *   **Color:** Yellow (`#FFC107`) and Orange (`#FF9800`).
+    *   **Location:** Inside the yellow "IMPORTANT NOTE" alert box.
+    *   **Size:** Medium-Large (approx. 50px).
+
+**G. Section: Running a Script Safely (Bottom Right)**
+*   **Numbered Circles (1-5):**
+    *   **Depicts:** Numbers 1-5 in circles (same style as section C).
+    *   **Shape/Color:** Dark Green filled circles, White text.
+    *   **Location:** Step indicators for the process list.
+    *   **Size:** Small.
+*   **Document/File Icon (Step 1):**
+    *   **Depicts:** A document/page with lines representing text.
+    *   **Shape:** Outline.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Next to "CREATE THE FILE".
+    *   **Size:** Small-Medium (approx. 30x40px).
+*   **Floppy Disk/Save Icon (Step 2):**
+    *   **Depicts:** A 3.5-inch floppy disk.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Next to "SAVE AND EXIT".
+    *   **Size:** Small-Medium.
+*   **Lock Icon (Step 3):**
+    *   **Depicts:** A padlock.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Next to "MAKE IT EXECUTABLE".
+    *   **Size:** Small-Medium.
+*   **Play Button/Triangle Icon (Step 4):**
+    *   **Depicts:** A right-pointing triangle (play symbol).
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Next to "RUN THE SCRIPT".
+    *   **Size:** Small-Medium.
+*   **Shield with Checkmark Icon (Step 5):**
+    *   **Depicts:** A shield shape with a checkmark inside.
+    *   **Shape:** Filled/Solid shield, solid checkmark.
+    *   **Color:** Dark Green (`#1B5E20`).
+    *   **Location:** Next to "BEST PRACTICES".
+    *   **Size:** Small-Medium.
+
+**H. Footer Social Icons**
+*   **YouTube Icon:**
+    *   **Depicts:** A rounded rectangle with a play triangle inside.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Dark Green (`#1B5E20`).
+    *   **Location:** Bottom left footer.
+    *   **Size:** Small (approx. 24px).
+*   **GitHub Icon:**
+    *   **Depicts:** The GitHub octocat silhouette (or simplified GH mark).
+    *   **Shape:** Outline or Filled (appears as dark circle with white cat or solid dark icon).
+    *   **Color:** Dark Green.
+    *   **Location:** Footer, next to YouTube.
+    *   **Size:** Small.
+*   **LinkedIn Icon:**
+    *   **Depicts:** The "in" letters inside a square/rounded square.
+    *   **Shape:** Filled/Solid (square with rounded corners).
+    *   **Color:** Dark Green.
+    *   **Location:** Footer.
+    *   **Size:** Small.
+*   **X (Twitter) Icon:**
+    *   **Depicts:** The letter "X".
+    *   **Shape:** Filled/Solid (inside a square container).
+    *   **Color:** Dark Green.
+    *   **Location:** Footer.
+    *   **Size:** Small.
+*   **Instagram Icon:**
+    *   **Depicts:** A camera outline with a dot (or rounded square with circle).
+    *   **Shape:** Outline.
+    *   **Color:** Dark Green.
+    *   **Location:** Footer.
+    *   **Size:** Small.
+*   **Telegram Icon:**
+    *   **Depicts:** A paper airplane.
+    *   **Shape:** Filled/Solid (inside a circle).
+    *   **Color:** Dark Green.
+    *   **Location:** Footer (far right).
+    *   **Size:** Small.
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+**Overall Structure:**
+The page uses a **2-Column Grid Layout** with a full-width header and footer. It resembles an infographic or educational poster designed for digital viewing (carousel format).
+
+**Grid System Details:**
+*   **Columns:** **2-column layout** (approximately 50%/50% split or 45%/55%).
+*   **Rows:** Content is stacked vertically within each column using a masonry-like or flex-wrap approach where cards have varying heights.
+*   **Gutter:** Moderate spacing between columns (approx. 20-30px) and between section cards (approx. 15-20px).
+
+**Top-to-Bottom Breakdown:**
+
+1.  **Header (Full Width):**
+    *   Contains the VeriQta logo (centered).
+    *   "PAGE 1" badge (top right corner).
+    *   Main H1 Title: "1. WHAT IS SHELL SCRIPTING?" (Full width, centered or left-aligned with underline).
+
+2.  **Upper Content Area (Two Columns):**
+    *   **Left Column:**
+        *   **Card 1:** "SHELL VS TERMINAL VS BASH" — A 3-row table/card comparing the three concepts with icons on the left and text on the right.
+    *   **Right Column:**
+        *   **Card 2:** "WHAT A SHELL ACTUALLY DOES" — Contains a numbered list (1-6) and a horizontal flow diagram (User → Shell → Kernel → Output) with icons.
+        *   **Card 3:** "COMMAND EXECUTION FLOW" — Positioned below Card 2. Contains a horizontal step-by-step visual with 4 icon boxes connected by arrows.
+
+3.  **Middle Content Area (Two Columns):**
+    *   **Left Column:**
+        *   **Card 4:** "WHY DEVOPS ENGINEERS AUTOMATE WITH SCRIPTS" — A vertical list with green checkmark icons.
+    *   **Right Column:**
+        *   **Card 5:** "INTERACTIVE COMMANDS VS SCRIPTS" — A **2-column comparison table** (split 50/50) with blue/green headers comparing the two concepts.
+
+4.  **Lower Content Area (Two Columns):**
+    *   **Left Column:**
+        *   **Card 6:** "YOUR FIRST BASH SCRIPT" — A code block (monospace font, line numbers) showing bash syntax with explanatory arrows pointing to the right.
+        *   **Card 7:** "IMPORTANT NOTE" — An alert/warning box (yellow/beige background) with a lightbulb icon and cautionary text.
+    *   **Right Column:**
+        *   **Card 8:** "RUNNING A SCRIPT SAFELY" — A numbered list (1-5) where each number has an associated icon (file, save, lock, play, shield) and descriptive text with code snippets (e.g., `nano myscript.sh`, `chmod +x`).
+
+5.  **Footer (Full Width):**
+    *   VeriQta logo (centered or left).
+    *   Social media icons row (YouTube, GitHub, LinkedIn, X, Instagram, Telegram) — evenly spaced or justified across the width.
+
+**Visual Style Notes:**
+*   **Background:** White with subtle "VERIQTA" watermark text repeating diagonally.
+*   **Borders:** Most cards have thin, rounded borders (light grey or green-tinted).
+*   **Typography:** Sans-serif (likely Montserrat, Roboto, or similar). Headers are bold and dark green. Body text is dark grey/black.
+*   **Accent Colors:** Dark Green (primary), Dark Blue (secondary for Terminal/Bash), Yellow (for alerts/notes).
+
+==== PAGE 03 ====
+Based on the image provided (a technical cheat sheet for Shell Scripts by VeriQta), here is the exhaustive analysis for HTML recreation.
+
+### 1. ICONS INVENTORY
+
+Here is the complete list of icons, their properties, and locations:
+
+| # | Icon Depiction | Shape | Color (Approx Hex) | Location | Size |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | **Document/File** (with lines inside) | **Outline** (Stroke) | `#0F4D2A` (Dark Green) | **Header**: Left of "SHELL SCRIPTS" title. | **Large** (~48px) |
+| **2** | **Terminal/Console** (Window with `>_` prompt) | **Solid/Filled** | `#0F4D2A` (Dark Green) | **Header**: Right of "SHELL SCRIPTS" title. | **Large** (~48px) |
+| **3** | **Lightbulb** (Idea/Tip) | **Outline** (Stroke) | `#0F4D2A` (Dark Green) | **Card 4** (Run Script): Inside the blue tip box. | **Small** (~24px) |
+| **4** | **Stop Sign / Hand** (Warning/Error) | **Solid/Filled** | `#D32F2F` (Red) | **Card 6** Header: Left of "COMMON ERRORS". | **Medium** (~32px) |
+| **5** | **Wrench & Screwdriver** (Fix/Tools) | **Outline** (Stroke) | `#0F4D2A` (Dark Green) | **Card 6** Body: Next to "Fix:" label. | **Small** (~24px) |
+| **6** | **Warning Triangle** (!) | **Solid/Filled** | `#F9A825` (Yellow/Orange) | **Card 7** Row 1: Problem column. | **Small** (~24px) |
+| **7** | **File with Text** (Script file) | **Outline** (Stroke) | `#0F4D2A` (Dark Green) | **Card 7** Row 2: Problem column. | **Small** (~24px) |
+| **8** | **Terminal Prompt** (`>_`) | **Solid/Filled** | `#0F4D2A` (Dark Green) | **Card 7** Row 3: Problem column. | **Small** (~24px) |
+| **9** | **File with Code** (Interpreter error) | **Outline** (Stroke) | `#0F4D2A` (Dark Green) | **Card 7** Row 4: Problem column. | **Small** (~24px) |
+| **10** | **Question Mark** (?) in Circle | **Solid/Filled** | `#0F4D2A` (Dark Green) | **Card 7** Row 5: Problem column. | **Small** (~24px) |
+| **11** | **Checkmark** (✓) in Circle | **Solid/Filled** | `#0F4D2A` (Dark Green) | **Card 8** Body: Bullet points for best practices. | **Tiny** (~18px) x8 |
+| **12** | **Star** (★) in Circle | **Solid/Filled** | `#1565C0` (Blue) | **Card 8** Footer: "Remember" box. | **Small** (~24px) |
+| **13** | **YouTube Logo** (Play button) | **Solid/Filled** | `#FFFFFF` on `#0F4D2A` bg | **Footer**: Social link. | **Small** (~24px) |
+| **14** | **GitHub Logo** (Octocat/Silhouette) | **Solid/Filled** | `#FFFFFF` on `#0F4D2A` bg | **Footer**: Social link. | **Small** (~24px) |
+| **15** | **LinkedIn Logo** ("in") | **Solid/Filled** | `#FFFFFF` on `#0F4D2A` bg | **Footer**: Social link. | **Small** (~24px) |
+| **16** | **X / Twitter Logo** ("X") | **Solid/Filled** | `#FFFFFF` on `#0F4D2A` bg | **Footer**: Social link. | **Small** (~24px) |
+| **17** | **Instagram Logo** (Camera) | **Outline** (Stroke) | `#0F4D2A` (Dark Green) | **Footer**: Social link. | **Small** (~24px) |
+| **18** | **Telegram Logo** (Paper Plane) | **Solid/Filled** | `#0F4D2A` (Dark Green) | **Footer**: Social link. | **Small** (~24px) |
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+#### **Overall Structure**
+The page follows a **single-column, centered container** layout (resembling a notebook page or A4 document). There is **no sidebar**. The content is structured vertically from top to bottom.
+
+#### **Grid System (Section Cards)**
+The main content area uses a **3-Column Grid Layout** for its cards.
+*   **Row 1:** Contains Cards 1, 2, and 3 side-by-side.
+*   **Row 2:** Contains Cards 4, 5, and 6 side-by-side.
+*   **Row 3:** Contains Card 7 (which spans **2 columns**) and Card 8 (which spans **1 column**).
+
+#### **Detailed Breakdown (Top-to-Bottom)**
+
+1.  **Header Area:**
+    *   **Logo:** Centered at top (VeriQta logo).
+    *   **Page Indicator:** Top right corner ("PAGE 3" in a rounded pill).
+    *   **Main Title:** Large, bold, centered text ("3. CREATING AND RUNNING SHELL SCRIPTS").
+    *   **Subtitle:** Centered text below title ("TURN COMMANDS INTO AUTOMATION").
+    *   **Decorative Icons:** Flanking the main title (Document icon left, Terminal icon right).
+
+2.  **Content Grid (The Cards):**
+    *   **Card Style:** White background, dark green header bar with white text, rounded corners, subtle border/shadow.
+    *   **Card 1 (Col 1):** "CREATING .SH FILES" - Text list + Code block.
+    *   **Card 2 (Col 2):** "THE SHEBANG" - Text + Code block.
+    *   **Card 3 (Col 3):** "MAKE IT EXECUTABLE" - Text + Code block.
+    *   **Card 4 (Col 1):** "RUN YOUR SCRIPT" - Two methods with code blocks + Tip box (light blue bg).
+    *   **Card 5 (Col 2):** "FILE PERMISSIONS" - Data table (Permission, Symbol, Number, Meaning) + visual breakdown of `-rwxr-xr--`.
+    *   **Card 6 (Col 3):** "COMMON ERRORS" - Red accent header icon, bullet list of errors, and a pink/light-red "Fix" box.
+    *   **Card 7 (Span Col 1-2):** "DEBUGGING..." - A complex table with 3 columns (Problem, Why, How to Fix). Uses icons in the first column.
+    *   **Card 8 (Span Col 3):** "BEST PRACTICES" - Checklist style with green checkmarks + Blue "Remember" callout box at bottom.
+
+3.  **Footer Area:**
+    *   **Brand Bar:** Centered logo with horizontal lines on either side.
+    *   **Social Links:** A flex row of 6 items (YouTube, GitHub, LinkedIn, X, Instagram, Telegram), each with an icon and label, evenly spaced or centered.
+
+#### **Key Styling Notes for Recreation:**
+*   **Font:** Sans-serif (likely Inter, Roboto, or similar clean geometric font).
+*   **Colors:**
+    *   Primary Dark Green: `#0B4022` (Headers, icons, main text).
+    *   Accent Red: `#C62828` (Errors).
+    *   Accent Blue: `#E3F2FD` bg / `#1565C0` text (Tips/Remember).
+    *   Background: Off-white/Paper texture (`#F5F5F5` or image).
+*   **Code Blocks:** Light gray background (`#F0F0F0`), monospace font, green text for commands.
+
+==== PAGE 04 ====
+Based on the image provided, here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS INVENTORY
+
+Here is a detailed list of every icon visible on the page, categorized by location.
+
+#### **A. Header & Branding Icons**
+1.  **Veriqta Logo (Top Center)**
+    *   **Depicts:** A stylized "VQ" monogram.
+    *   **Shape:** Outline/Geometric.
+    *   **Color:** Dark Green (`#1B5E20` or similar).
+    *   **Location:** Top center, above the main title.
+    *   **Size:** Medium (approx 40-50px width).
+
+2.  **Veriqta Logo (Footer)**
+    *   **Depicts:** Same "VQ" monogram.
+    *   **Shape:** Outline.
+    *   **Color:** Dark Green.
+    *   **Location:** Bottom center footer.
+    *   **Size:** Small (approx 24px).
+
+#### **B. Section 4: Absolute vs Relative Paths (Internal Icons)**
+*These are small icons used inside the content of the card to illustrate file paths.*
+
+3.  **Folder Icon (Absolute Path)**
+    *   **Depicts:** A standard file folder.
+    *   **Shape:** Filled/Solid with outline details.
+    *   **Color:** Yellow/Gold fill (`#FDD835`), Dark Green outline/stroke.
+    *   **Location:** Inside Card 4, under "ABSOLUTE PATH".
+    *   **Size:** Very Small (approx 16x16px). Used 4 times in the tree diagram.
+
+4.  **Folder Icon (Relative Path)**
+    *   **Depicts:** A standard file folder.
+    *   **Shape:** Filled/Solid.
+    *   **Color:** Yellow/Gold fill (`#FDD835`).
+    *   **Location:** Inside Card 4, under "RELATIVE PATH".
+    *   **Size:** Very Small (approx 20x20px). Used once next to "/home/user".
+
+5.  **Checkmark Icon (Green Circle)**
+    *   **Depicts:** A white checkmark inside a solid circle.
+    *   **Shape:** Filled circle with white stroke/check.
+    *   **Color:** Dark Green background (`#1B5E20`), White foreground.
+    *   **Location:** Inside Card 4, bullet points.
+    *   **Size:** Tiny (approx 12-14px). Used 4 times.
+
+#### **C. Section 6: Reading Command Output (Lead Icons)**
+*These icons appear to the left of the command text.*
+
+6.  **List/File List Icon**
+    *   **Depicts:** A document with lines representing text/list items.
+    *   **Shape:** Outline.
+    *   **Color:** Dark Grey/Black (`#333`).
+    *   **Location:** Card 6, Row 1 (`ls -l`).
+    *   **Size:** Small (approx 24x24px).
+
+7.  **Document/Page Icon**
+    *   **Depicts:** A single sheet of paper (portrait).
+    *   **Shape:** Outline.
+    *   **Color:** Dark Grey/Black.
+    *   **Location:** Card 6, Row 2 (`ls -l | less`).
+    *   **Size:** Small (approx 24x24px).
+
+8.  **Terminal/Code Lines Icon**
+    *   **Depicts:** Horizontal lines representing code or terminal output.
+    *   **Shape:** Outline (3 horizontal lines).
+    *   **Color:** Dark Grey/Black.
+    *   **Location:** Card 6, Row 3 (`cat file.txt...`).
+    *   **Size:** Small (approx 24x24px).
+
+9.  **Search/Magnifying Glass Icon**
+    *   **Depicts:** A magnifying glass.
+    *   **Shape:** Outline.
+    *   **Color:** Dark Grey/Black.
+    *   **Location:** Card 6, Row 4 (`grep "error"...`).
+    *   **Size:** Small (approx 24x24px).
+
+#### **D. Section 7: Practice Exercise (Numbered Badges)**
+*These are circular numbered badges acting as step indicators.*
+
+10. **Numbered Circles (1 through 12)**
+    *   **Depicts:** Numbers 1-12 inside circles.
+    *   **Shape:** Filled Circle.
+    *   **Color:** Dark Green background (`#1B5E20`), White text.
+    *   **Location:** Card 7, preceding each step title.
+    *   **Size:** Small (approx 24-28px diameter).
+
+11. **Arrow Icons (Right)**
+    *   **Depicts:** A simple right-pointing arrow.
+    *   **Shape:** Outline or thin solid line.
+    *   **Color:** Black/Dark Grey.
+    *   **Location:** Card 7, between steps (e.g., between step 1 and 2).
+    *   **Size:** Small (approx 16-20px wide).
+
+#### **E. Footer Social Media Icons**
+
+12. **YouTube Icon**
+    *   **Depicts:** YouTube play button rectangle.
+    *   **Shape:** Rounded Rectangle with triangle.
+    *   **Color:** Dark Green Fill (`#1B5E20`), White Play symbol.
+    *   **Location:** Footer, far left.
+    *   **Size:** Small (approx 24px).
+
+13. **GitHub Icon**
+    *   **Depicts:** GitHub Octocat silhouette.
+    *   **Shape:** Outline.
+    *   **Color:** Dark Green.
+    *   **Location:** Footer, second from left.
+    *   **Size:** Small (approx 24px).
+
+14. **LinkedIn Icon**
+    *   **Depicts:** "in" text inside a square/rounded rect.
+    *   **Shape:** Filled Square/Rounded Rect.
+    *   **Color:** Dark Green Fill, White Text.
+    *   **Location:** Footer, center-left.
+    *   **Size:** Small (approx 24px).
+
+15. **X (Twitter) Icon**
+    *   **Depicts:** The letter "X".
+    *   **Shape:** Outline or distinct X shape inside box.
+    *   **Color:** Dark Green.
+    *   **Location:** Footer, center-right.
+    *   **Size:** Small (approx 24px).
+
+16. **Instagram Icon**
+    *   **Depicts:** Camera outline with dot.
+    *   **Shape:** Outline (Rounded Square).
+    *   **Color:** Dark Green.
+    *   **Location:** Footer, second from right.
+    *   **Size:** Small (approx 24px).
+
+17. **Telegram Icon**
+    *   **Depicts:** Paper airplane.
+    *   **Shape:** Filled Circle with white plane.
+    *   **Color:** Dark Green Fill, White Plane.
+    *   **Location:** Footer, far right.
+    *   **Size:** Small (approx 24px).
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+**Overall Structure:**
+The page mimics a **spiral notebook** or **cheatsheet** layout. It has a clean, structured grid system designed for readability and printing.
+
+**Grid System:**
+*   **Primary Layout:** **2-Column Grid**.
+*   The main content area is divided into two equal vertical columns.
+*   Cards are placed in these columns. Some cards span the full width of one column, while the bottom card spans both columns.
+
+**Section Breakdown (Top-to-Bottom):**
+
+1.  **Header Area (Full Width):**
+    *   Contains the Logo, Main Title ("2. SHELL COMMANDS"), Subtitle ("YOU MUST KNOW FIRST"), and a "PAGE 2" badge in the top right corner.
+
+2.  **Row 1 (2 Columns):**
+    *   **Left Column:** **Card 1: NAVIGATE YOUR FILE SYSTEM** (Green Header). Contains a table-like list of commands (`pwd`, `ls`, `cd`, etc.) with descriptions and code examples.
+    *   **Right Column:** **Card 2: CREATE, COPY, MOVE, DELETE** (Green Header). Similar table structure for file manipulation commands (`mkdir`, `touch`, `cp`, `mv`, `rm`).
+
+3.  **Row 2 (2 Columns):**
+    *   **Left Column:** **Card 3: VIEW FILE CONTENT** (Green Header). Table structure for viewing commands (`cat`, `less`, `head`, `tail`).
+    *   **Right Column:** **Card 4: ABSOLUTE VS RELATIVE PATHS** (Blue/Dark Header). This card differs in style; it uses text explanations mixed with visual tree diagrams (using folder icons) and checkmarks.
+
+4.  **Row 3 (2 Columns):**
+    *   **Left Column:** **Card 5: COMBINING COMMANDS** (Green Header). Lists operators (`;`, `&&`, `||`, `|`, `>`, `>>`) with examples.
+    *   **Right Column:** **Card 6: READING COMMAND OUTPUT** (Blue/Dark Header). A list format where each row has an **Icon** on the left, a command in the middle, and a description on the right.
+
+5.  **Row 4 (Full Width Span):**
+    *   **Card 7: BEGINNER PRACTICE EXERCISE** (Blue/Dark Header).
+    *   This card breaks the 2-column grid and spans the **entire width** of the container.
+    *   It contains a **horizontal flowchart** or step-by-step process (Steps 1-12) arranged in two rows of 6 steps each, connected by arrows.
+
+6.  **Footer (Full Width):**
+    *   Contains the Veriqta Logo centered.
+    *   Below the logo is a row of **Social Media Icons** (YouTube, GitHub, LinkedIn, X, Instagram, Telegram) evenly spaced.
+
+**Sidebar:**
+*   There is **no functional sidebar**. However, there is a graphical element on the **far left edge** depicting the rings of a spiral notebook binding. This is likely a background image or border decoration, not an interactive sidebar.
+
+**Visual Style Notes:**
+*   **Headers:** Cards alternate between Dark Green (`#1B5E20`) and Dark Blue/Navy (`#1A237E`) backgrounds with white text.
+*   **Code Blocks:** Inline code examples appear in light grey rectangular boxes with monospace fonts.
+*   **Typography:** Uses a mix of bold sans-serif for headers and monospace for commands.
+
+==== PAGE 05 ====
+Based on the image provided (a technical cheat sheet for Bash scripting), here is the exhaustive analysis for HTML recreation:
+
+### 1. ICONS INVENTORY
+
+Here is every icon visible on the page, detailed for SVG recreation:
+
+| # | Icon Description | Shape | Color | Location | Size |
+|---|------------------|-------|-------|----------|------|
+| **1** | **Terminal / CLI Prompt**<br>(Rectangle with `>_` inside) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Header** (Left of Title) | Large (~60px) |
+| **2** | **User & Question Mark**<br>(Silhouette of person + speech bubble with `?`) | **Outline** | Dark Green (`#0d3b22`) | **Header** (Right of Title) | Medium-Large (~50px) |
+| **3** | **Light Bulb**<br>(Idea/Tip indicator) | **Outline** | Black/Dark Grey (`#222`) | **Section 1 Card** (Left of text) | Medium (~40px) |
+| **4** | **Rocket Ship**<br>(Launch/Execution metaphor) | **Solid/Filled** | Green/Red/Yellow (Multi-color) | **Section 3 Card** (Right of code block) | Medium (~45px) |
+| **5** | **Warning Triangle**<br>(Exclamation mark inside triangle) | **Solid/Filled** | Yellow (`#f1c40f`) with Black border/text | **Section 4 Card** (Below code) | Small-Medium (~35px) |
+| **6** | **Checkmark in Circle**<br>(Validation/Best Practice marker) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Section 5 Card** (Bullet points, x5) | Small (~20px) |
+| **7** | **Terminal Prompt (Small)**<br>(Square with `>_` ) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Section 6 - Run Example** (Left of title) | Small (~30px) |
+| **8** | **Gear / Cogwheel**<br>(Settings/Mechanism) | **Outline** | Dark Green (`#0d3b22`) | **Section 6 - What it Does** (Bottom right) | Medium-Large (~50px) |
+| **9** | **Star in Circle**<br>(Tip/Highlight badge) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Bottom Tip Bar** (Far left) | Medium (~35px) |
+| **10** | **Clipboard / Document**<br>(Paper with lines and checkmark) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Bottom Tip Bar** (Far right) | Medium (~35px) |
+| **11** | **YouTube Logo**<br>(Play button rectangle) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Footer** (Social link 1) | Small (~24px) |
+| **12** | **GitHub Logo**<br>(Octocat silhouette) | **Outline** | Dark Green (`#0d3b22`) | **Footer** (Social link 2) | Small (~24px) |
+| **13** | **LinkedIn Logo**<br>(`in` text in box) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Footer** (Social link 3) | Small (~24px) |
+| **14** | **X / Twitter Logo**<br>(Stylized X) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Footer** (Social link 4) | Small (~24px) |
+| **15** | **Instagram Logo**<br>(Camera outline) | **Outline** | Dark Green (`#0d3b22`) | **Footer** (Social link 5) | Small (~24px) |
+| **16** | **Telegram Logo**<br>(Paper airplane) | **Solid/Filled** | Dark Green (`#0d3b22`) | **Footer** (Social link 6) | Small (~24px) |
+| **17** | **Brand Logo (VERIQA)**<br>(Stylized VQ monogram) | **Outline** | Dark Green (`#0d3b22`) | **Top Center Header** & **Footer Center** | Medium (~40px header, ~25px footer) |
+
+---
+
+### 2. LAYOUT ANALYSIS
+
+#### Overall Structure (Top-to-Bottom)
+The page follows a **notebook/paper aesthetic** with a spiral binding visible on the left edge. The content is centered with generous padding.
+
+1.  **Header Section:**
+    *   **Top:** Brand Logo (VERIQA) + "PAGE 5" badge (top-right corner).
+    *   **Main Title Row:** Large Terminal Icon (left) + **"5. READING USER INPUT..."** (center, bold, dark green) + User/Help Icon (right).
+    *   **Subtitle:** "GET INPUT. USE ARGUMENTS. BUILD SMARTER SCRIPTS." flanked by horizontal lines.
+
+2.  **Primary Content Grid (Cards):**
+    *   **Row 1:** **2-Column Layout**
+        *   Left (50%): **Card 1 - READ: GET USER INPUT** (Contains code block + lightbulb icon)
+        *   Right (50%): **Card 2 - SCRIPT ARGUMENTS** (Contains data table with 3 columns: Symbol, Meaning, Example)
+    *   **Row 2:** **3-Column Layout**
+        *   Left (33%): **Card 3 - PASSING ARGUMENTS** (Code block + Rocket icon)
+        *   Center (33%): **Card 4 - VALIDATING ARGUMENTS** (Code block + Warning icon)
+        *   Right (33%): **Card 5 - COMMON PRACTICES** (Checklist with checkmark icons)
+    *   **Row 3:** **Split Layout (Complex)**
+        *   **Left Side (60%):** **Card 6 - EXAMPLE: SIMPLE REUSABLE DEVOPS SCRIPT** (Large code block with syntax highlighting)
+        *   **Right Side (40%):** Stacked vertically:
+            *   **Sub-card A:** "RUN EXAMPLE" (Terminal output simulation)
+            *   **Sub-card B:** "WHAT THIS SCRIPT DOES" (Numbered list 1-4 + Gear icon)
+
+3.  **Tip Banner:**
+    *   Full-width (or near full-width) rounded bar at the bottom.
+    *   Contains: Star Icon (left) + **TIP:** text (bold) + Description text + Clipboard Icon (right).
+    *   Background: Light green tint.
+
+4.  **Footer:**
+    *   Centered Brand Logo (VERIQA) with horizontal rule.
+    *   **6-Column Social Grid:** YouTube | GitHub | LinkedIn | X | Instagram | Telegram (evenly spaced icons with labels).
+
+#### Key Layout Specifications
+*   **Grid System:** CSS Grid or Flexbox with responsive wrapping. The primary pattern is `grid-template-columns: 1fr 1fr` for row 1 and `repeat(3, 1fr)` for row 2.
+*   **Card Style:** White background, **dark green header bars** (`#0d3b22`) with white bold text, rounded corners (~8-12px), subtle drop shadow or border.
+*   **Typography:** Monospace font (Courier/Consolas) for all code blocks; Sans-serif (Inter/Helvetica) for body text; Bold Sans-serif for headers.
+*   **Color Palette:**
+    *   Primary Dark Green: `#0d3b22` (Headers, icons, titles)
+    *   Accent Red: `#c0392b` (Strings in code like `"Hello"`)
+    *   Accent Blue: `#2980b9` (Comments/commands like `#!/bin/bash`)
+    *   Background: Off-white/Paper texture (`#fdfbf7` or similar)
+    *   Code Background: Light gray (`#f4f4f4`)
+
+This structure creates a dense, educational "cheat sheet" layout optimized for technical reference.

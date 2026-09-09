@@ -1,0 +1,768 @@
+     1→#!/usr/bin/env python3
+     2→"""
+     3→Recreate carousel pages 6-10 as self-contained HTML files.
+     4→
+     5→Reads:
+     6→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/page-06.webp
+     7→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/page-07.webp
+     8→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/page-08.webp
+     9→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/page-09.webp
+    10→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/page-10.webp
+    11→
+    12→Writes:
+    13→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/recreated-page-06.html
+    14→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/recreated-page-07.html
+    15→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/recreated-page-08.html
+    16→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/recreated-page-09.html
+    17→  /home/z/my-project/downloads/instagram-DcaW1UljsVk/recreated-page-10.html
+    18→
+    19→The shared template (`build_shell_scripting_template.py`) provides:
+    20→  NOTEBOOK_CSS, ICONS, icon(name), page_wrapper(page_num, total, title, subtitle, body_html)
+    21→
+    22→Note on file/badge numbering:
+    23→  - The downloaded files are named page-NN.webp where NN is the carousel image order.
+    24→  - The page badge shown ON each image is sometimes off-by-one or off-by-two
+    25→    because the Instagram carousel's cover counts as a slide but the badges
+    26→    start at "PAGE 1" for the first content slide.
+    27→  - We use the actual page badge number from each image (verified via VLM) so
+    28→    the recreated HTML matches the original carousel page exactly.
+    29→  - File numbering is preserved for the output file names (page-06.html, etc.).
+    30→"""
+    31→
+    32→import os
+    33→import sys
+    34→
+    35→# Make sibling template importable
+    36→sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    37→from build_shell_scripting_template import icon, page_wrapper  # noqa: E402
+    38→
+    39→
+    40→# ============================================================
+    41→# Extra inline SVGs for icons not in the shared ICONS dict
+    42→# ============================================================
+    43→def svg(name: str) -> str:
+    44→    """Return an inline SVG by name (extra icons + fallback to template dict)."""
+    45→    extras = {
+    46→        "tag": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>',
+    47→        "refresh": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15A9 9 0 0 1 5.64 18.36L1 14"/></svg>',
+    48→        "branch": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>',
+    49→        "code-braces": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+    50→        "power": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>',
+    51→        "chevron-right": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+    52→        "stop": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>',
+    53→        "skip": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>',
+    54→        "intersect": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>',
+    55→        "exit": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
+    56→        "dollar": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+    57→        "box": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>',
+    58→        "swap": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+    59→        "alert-triangle": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>',
+    60→    }
+    61→    if name in extras:
+    62→        return extras[name]
+    63→    return icon(name)
+    64→
+    65→
+    66→# ============================================================
+    67→# Helper HTML builders
+    68→# ============================================================
+    69→def row(icon_name: str, bg: str, ic_color: str, heading: str, body_html: str) -> str:
+    70→    """Build a `.row` block with icon + heading + body text."""
+    71→    return (
+    72→        f'<div class="row">'
+    73→        f'<div class="icon {bg} {ic_color}">{svg(icon_name)}</div>'
+    74→        f'<div class="text"><h3>{heading}</h3>{body_html}</div>'
+    75→        f'</div>'
+    76→    )
+    77→
+    78→
+    79→def terminal(title: str, body_html: str) -> str:
+    80→    """Build a `.terminal` block with macOS-style title bar."""
+    81→    return (
+    82→        f'<div class="terminal">'
+    83→        f'<div class="term-bar">'
+    84→        f'<span class="term-dot dot-red"></span>'
+    85→        f'<span class="term-dot dot-amber"></span>'
+    86→        f'<span class="term-dot dot-green"></span>'
+    87→        f'<span class="term-title">{title}</span>'
+    88→        f'</div>'
+    89→        f'<div class="term-body">{body_html}</div>'
+    90→        f'</div>'
+    91→    )
+    92→
+    93→
+    94→def card(head_icon: str, head_text: str, body_html: str) -> str:
+    95→    """Build a `.card` sidebar item."""
+    96→    return (
+    97→        f'<div class="card">'
+    98→        f'<div class="head">{svg(head_icon)}<span>{head_text}</span></div>'
+    99→        f'<div class="body-pad">{body_html}</div>'
+   100→        f'</div>'
+   101→    )
+   102→
+   103→
+   104→def callout(kind: str, ico: str, text_html: str) -> str:
+   105→    """Build a `.callout` (warn/tip) box."""
+   106→    return (
+   107→        f'<div class="callout {kind}">'
+   108→        f'<span class="ico {("ic-orange" if kind == "warn" else "ic-green")}">{svg(ico)}</span>'
+   109→        f'<div>{text_html}</div>'
+   110→        f'</div>'
+   111→    )
+   112→
+   113→
+   114→# ============================================================
+   115→# PAGE 6  (file: page-06.webp → badge: PAGE 4 OF 20)
+   116→# Title: 4. VARIABLES AND ENVIRONMENT VARIABLES
+   117→# Subtitle: STORE DATA. REUSE. AUTOMATE.
+   118→# ============================================================
+   119→def body_page_06() -> str:
+   120→    # Left column rows (sections 1-6)
+   121→    left_rows = "".join([
+   122→        row("tag", "bg-green", "ic-green", "1. Creating Variables",
+   123→            '<p>No spaces around <code>=</code> sign.</p>'
+   124→            '<div style="margin-top:6px;">' +
+   125→            terminal("variables.sh",
+   126→                '<span class="cmd">NAME</span>=<span class="str">DevOps</span><br>'
+   127→                '<span class="cmd">COUNT</span>=<span class="str">5</span>'
+   128→            ) + '</div>'),
+   129→
+   130→        row("chevron-right", "bg-blue", "ic-blue", "2. Reading Variables",
+   131→            '<p>Use <code>$</code> to read a variable.</p>'
+   132→            '<div style="margin-top:6px;">' +
+   133→            terminal("read.sh",
+   134→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$NAME</span><br>'
+   135→                '<span class="out">DevOps</span>'
+   136→            ) + '</div>'),
+   137→
+   138→        row("info", "bg-purple", "ic-purple", "3. Quoting Variables",
+   139→            '<ul style="list-style:none;padding:0;margin:0 0 4px 0;font-size:12px;color:var(--ink-2);line-height:1.45;">'
+   140→            '<li style="padding-left:12px;position:relative;margin-bottom:2px;"><span style="position:absolute;left:0;">•</span>Use quotes to handle spaces.</li>'
+   141→            '<li style="padding-left:12px;position:relative;margin-bottom:2px;"><span style="position:absolute;left:0;">•</span>Prevents word splitting.</li>'
+   142→            '<li style="padding-left:12px;position:relative;"><span style="position:absolute;left:0;">•</span>Prevents filename expansion.</li>'
+   143→            '</ul>'
+   144→            '<div style="margin-top:4px;">' +
+   145→            terminal("quote.sh",
+   146→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">"$NAME"</span><br>'
+   147→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">\'$NAME\'</span>'
+   148→            ) + '</div>'),
+   149→
+   150→        row("swap", "bg-gold", "ic-gold", "4. Command Substitution",
+   151→            '<p>Store the output of a command.</p>'
+   152→            '<div style="margin-top:6px;">' +
+   153→            terminal("substitution.sh",
+   154→                '<span class="prompt">$</span> <span class="cmd">DATE</span>=$(<span class="cmd">date</span> +%Y-%m-%d)<br>'
+   155→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$DATE</span><br>'
+   156→                '<span class="out">2025-05-18</span>'
+   157→            ) + '</div>'),
+   158→
+   159→        row("arrow-right", "bg-teal", "ic-teal", "5. Export Variables",
+   160→            '<ul style="list-style:none;padding:0;margin:0 0 4px 0;font-size:12px;color:var(--ink-2);line-height:1.45;">'
+   161→            '<li style="padding-left:12px;position:relative;"><span style="position:absolute;left:0;">•</span>Makes a variable available to child processes.</li>'
+   162→            '<li style="padding-left:12px;position:relative;"><span style="position:absolute;left:0;">•</span>Use <code>export</code>.</li>'
+   163→            '</ul>'
+   164→            '<div style="margin-top:4px;">' +
+   165→            terminal("export.sh",
+   166→                '<span class="prompt">$</span> <span class="cmd">export</span> PROJECT=<span class="str">MyApp</span><br>'
+   167→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$PROJECT</span><br>'
+   168→                '<span class="out">MyApp</span>'
+   169→            ) + '</div>'),
+   170→
+   171→        row("server", "bg-green", "ic-green", "6. Environment Variables",
+   172→            '<p>Set by the system. Available in every shell.</p>'
+   173→            '<div style="margin-top:6px;">' +
+   174→            terminal("env.sh",
+   175→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$HOME</span><br>'
+   176→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$USER</span><br>'
+   177→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$SHELL</span><br>'
+   178→                '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$LANG</span>'
+   179→            ) + '</div>'),
+   180→    ])
+   181→
+   182→    # Right sidebar cards
+   183→    env_table = (
+   184→        '<table class="tbl">'
+   185→        '<thead><tr><th>Var</th><th>Meaning</th><th>Example</th></tr></thead>'
+   186→        '<tbody>'
+   187→        '<tr><td><code>$HOME</code></td><td>Your home directory</td><td>/home/user</td></tr>'
+   188→        '<tr><td><code>$USER</code></td><td>Current logged-in user</td><td>user</td></tr>'
+   189→        '<tr><td><code>$PATH</code></td><td>Command search dirs</td><td>/usr/bin:/bin:/usr/local/bin</td></tr>'
+   190→        '</tbody>'
+   191→        '</table>'
+   192→    )
+   193→    full_script = (
+   194→        '<span class="comment">#!/bin/bash</span><br>'
+   195→        '<span class="cmd">APP_NAME</span>=<span class="str">"MyApp"</span><br>'
+   196→        '<span class="cmd">LOG_DIR</span>=<span class="str">"$HOME/logs"</span><br>'
+   197→        '<span class="cmd">mkdir</span> -p <span class="str">"$LOG_DIR"</span><br>'
+   198→        '<span class="cmd">echo</span> <span class="str">"Starting $APP_NAME...."</span><br>'
+   199→        '<span class="cmd">echo</span> <span class="str">"Logs will be saved in $LOG_DIR"</span>'
+   200→    )
+   201→    best_practices = (
+   202→        '<ul style="list-style:none;padding:0;margin:0;font-size:11px;color:var(--ink-2);line-height:1.55;">'
+   203→        '<li style="padding-left:16px;position:relative;margin-bottom:2px;"><span style="position:absolute;left:0;color:var(--green);font-weight:700;">✓</span>Always use quotes when in doubt.</li>'
+   204→        '<li style="padding-left:16px;position:relative;margin-bottom:2px;"><span style="position:absolute;left:0;color:var(--green);font-weight:700;">✓</span>Use meaningful variable names.</li>'
+   205→        '<li style="padding-left:16px;position:relative;margin-bottom:2px;"><span style="position:absolute;left:0;color:var(--green);font-weight:700;">✓</span>Export only what you need.</li>'
+   206→        '<li style="padding-left:16px;position:relative;margin-bottom:2px;"><span style="position:absolute;left:0;color:var(--green);font-weight:700;">✓</span>Keep variables uppercase for constants.</li>'
+   207→        '<li style="padding-left:16px;position:relative;margin-bottom:2px;"><span style="position:absolute;left:0;color:var(--green);font-weight:700;">✓</span>Use command substitution <code>$( )</code> often.</li>'
+   208→        '<li style="padding-left:16px;position:relative;"><span style="position:absolute;left:0;color:var(--green);font-weight:700;">✓</span>Test your scripts with different values.</li>'
+   209→        '</ul>'
+   210→    )
+   211→    sidebar_cards = "".join([
+   212→        card("list", "Common Env Variables", env_table),
+   213→        card("terminal", "8. Using Variables in Scripts",
+   214→             terminal("app.sh", full_script)),
+   215→        callout("tip", "lightbulb",
+   216→                '<strong>9. Best Practices</strong><br>' + best_practices),
+   217→    ])
+   218→
+   219→    body = (
+   220→        '<div class="body">'
+   221→        f'<div class="rows">{left_rows}</div>'
+   222→        f'<div class="sidebar">{sidebar_cards}</div>'
+   223→        f'</div>'
+   224→    )
+   225→    return body
+   226→
+   227→
+   228→# ============================================================
+   229→# PAGE 7  (file: page-07.webp → badge: PAGE 6 OF 20)
+   230→# Title: 6. EXIT CODES AND COMMAND SUCCESS
+   231→# Subtitle: EVERY COMMAND RETURNS A STATUS.
+   232→# ============================================================
+   233→def body_page_07() -> str:
+   234→    exit_rules_tbl = (
+   235→        '<table class="tbl">'
+   236→        '<thead><tr><th>Code</th><th>Type</th><th>Meaning</th></tr></thead>'
+   237→        '<tbody>'
+   238→        '<tr><td><code>0</code></td><td>Success</td><td>Command completed successfully.</td></tr>'
+   239→        '<tr><td><code>1+</code></td><td>Non-zero</td><td>Failure — something went wrong. Check the error.</td></tr>'
+   240→        '</tbody>'
+   241→        '</table>'
+   242→    )
+   243→    examples_term = (
+   244→        '<span class="prompt">$</span> <span class="cmd">ls</span> /home; <span class="cmd">echo</span> <span class="str">$?</span><br>'
+   245→        '<span class="out">0</span><br><br>'
+   246→        '<span class="prompt">$</span> <span class="cmd">ls</span> /notfoundfolder; <span class="cmd">echo</span> <span class="str">$?</span><br>'
+   247→        '<span class="out">2</span><br><br>'
+   248→        '<span class="prompt">$</span> <span class="cmd">cat</span> file.txt; <span class="cmd">echo</span> <span class="str">$?</span><br>'
+   249→        '<span class="out">0 or 1+</span>'
+   250→    )
+   251→    exit_cmd_term = (
+   252→        '<span class="keyword" style="color:#ff7b72;">if</span> [ ! -f file.txt ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   253→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"File not found!"</span><br>'
+   254→        '&nbsp;&nbsp;<span class="cmd">exit</span> 1<br>'
+   255→        '<span class="keyword" style="color:#ff7b72;">fi</span><br><br>'
+   256→        '<span class="comment"># exit 0 = success</span><br>'
+   257→        '<span class="comment"># exit 1 = failure</span><br>'
+   258→        '<span class="comment"># Ends the script with a status.</span>'
+   259→    )
+   260→    test_success_term = (
+   261→        '<span class="cmd">ls</span> /home<br>'
+   262→        '<span class="keyword" style="color:#ff7b72;">if</span> [ <span class="str">$?</span> -eq 0 ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   263→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Success"</span><br>'
+   264→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   265→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Failed"</span><br>'
+   266→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   267→    )
+   268→
+   269→    left_rows = "".join([
+   270→        row("info", "bg-blue", "ic-blue", "1. What Exit Codes Mean",
+   271→            '<p>After any command runs, the system returns a number called an <strong>exit code</strong>. It tells you if the command succeeded or failed.</p>'
+   272→            '<p style="margin-top:4px;"><code>echo $?</code> &mdash; Shows the exit code of the last command.</p>'),
+   273→
+   274→        row("list", "bg-green", "ic-green", "2. Basic Exit Code Rules",
+   275→            '<p>Codes follow a simple convention:</p>'
+   276→            f'<div style="margin-top:6px;">{exit_rules_tbl}</div>'),
+   277→
+   278→        row("terminal", "bg-purple", "ic-purple", "3. Examples",
+   279→            '<p>See exit codes in action for common commands.</p>'
+   280→            f'<div style="margin-top:6px;">{terminal("examples.sh", examples_term)}</div>'),
+   281→
+   282→        row("power", "bg-gold", "ic-gold", "4. The exit Command",
+   283→            '<p>Use <code>exit</code> to end a script and return a code. <code>exit 0</code> = success, <code>exit 1</code> = failure.</p>'
+   284→            f'<div style="margin-top:6px;">{terminal("exit-cmd.sh", exit_cmd_term)}</div>'),
+   285→
+   286→        row("check-square", "bg-teal", "ic-teal", "5. Testing Command Success",
+   287→            '<p>Use exit codes in conditions. <code>$? -eq 0</code> = success, <code>$? -ne 0</code> = failure.</p>'
+   288→            f'<div style="margin-top:6px;">{terminal("test-success.sh", test_success_term)}</div>'),
+   289→    ])
+   290→
+   291→    cicd_card = card("rocket", "6. Why CI/CD Pipelines Depend on Exit Codes",
+   292→        '<ul style="list-style:none;padding:0;margin:0;font-size:11px;color:var(--ink-2);line-height:1.55;">'
+   293→        '<li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">●</span>Each step returns an exit code.</li>'
+   294→        '<li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">●</span>CI/CD tools stop the pipeline on failure.</li>'
+   295→        '<li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">●</span>Exit code 0 = pipeline continues.</li>'
+   296→        '<li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">●</span>Exit code 1+ = pipeline fails.</li>'
+   297→        '<li style="padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--green);">●</span>Ensures reliable and consistent deployments.</li>'
+   298→        '</ul>')
+   299→
+   300→    prevent_card = card("shield", "7. Preventing Silent Automation Failures",
+   301→        '<ul style="list-style:none;padding:0;margin:0;font-size:11px;color:var(--ink-2);line-height:1.5;">'
+   302→        '<li style="padding-left:14px;position:relative;margin-bottom:5px;"><span style="position:absolute;left:0;color:var(--green);">✓</span><strong>Always check exit codes.</strong> Don\'t ignore command results.</li>'
+   303→        '<li style="padding-left:14px;position:relative;margin-bottom:5px;"><span style="position:absolute;left:0;color:var(--green);">✓</span><strong>Use <code>set -e</code> to exit on error.</strong> Stops the script on first failure.</li>'
+   304→        '<li style="padding-left:14px;position:relative;margin-bottom:5px;"><span style="position:absolute;left:0;color:var(--green);">✓</span><strong>Log errors clearly.</strong> Makes debugging much easier.</li>'
+   305→        '<li style="padding-left:14px;position:relative;margin-bottom:5px;"><span style="position:absolute;left:0;color:var(--green);">✓</span><strong>Validate inputs before running.</strong> Bad inputs cause unexpected failures.</li>'
+   306→        '<li style="padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span><strong>Test your scripts regularly.</strong> Catches issues early.</li>'
+   307→        '</ul>')
+   308→
+   309→    sidebar_cards = "".join([
+   310→        cicd_card,
+   311→        prevent_card,
+   312→        callout("tip", "lightbulb",
+   313→                '<strong>TIP:</strong> Never ignore exit codes. Check them, handle them, and your scripts will be reliable and safe.'),
+   314→    ])
+   315→
+   316→    body = (
+   317→        '<div class="body">'
+   318→        f'<div class="rows">{left_rows}</div>'
+   319→        f'<div class="sidebar">{sidebar_cards}</div>'
+   320→        '</div>'
+   321→    )
+   322→    return body
+   323→
+   324→
+   325→# ============================================================
+   326→# PAGE 8  (file: page-08.webp → badge: PAGE 7 OF 20)
+   327→# Title: 7. CONDITIONAL STATEMENTS
+   328→# Subtitle: MAKE SMART DECISIONS IN YOUR SCRIPTS.
+   329→# ============================================================
+   330→def body_page_08() -> str:
+   331→    syntax_term = (
+   332→        '<span class="keyword" style="color:#ff7b72;">if</span> [ condition ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   333→        '&nbsp;&nbsp;commands<br>'
+   334→        '<span class="keyword" style="color:#ff7b72;">elif</span> [ condition ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   335→        '&nbsp;&nbsp;commands<br>'
+   336→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   337→        '&nbsp;&nbsp;commands<br>'
+   338→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   339→    )
+   340→    keyword_tbl = (
+   341→        '<table class="tbl">'
+   342→        '<thead><tr><th>Keyword</th><th>Purpose</th></tr></thead>'
+   343→        '<tbody>'
+   344→        '<tr><td><code>if</code></td><td>Start condition</td></tr>'
+   345→        '<tr><td><code>then</code></td><td>Run if true</td></tr>'
+   346→        '<tr><td><code>elif</code></td><td>Else if another condition</td></tr>'
+   347→        '<tr><td><code>else</code></td><td>Run if all false</td></tr>'
+   348→        '<tr><td><code>fi</code></td><td>End condition</td></tr>'
+   349→        '</tbody>'
+   350→        '</table>'
+   351→    )
+   352→    numeric_tbl = (
+   353→        '<table class="tbl">'
+   354→        '<thead><tr><th>Op</th><th>Meaning</th><th>Example</th></tr></thead>'
+   355→        '<tbody>'
+   356→        '<tr><td><code>-eq</code></td><td>Equal</td><td><code>[ $a -eq $b ]</code></td></tr>'
+   357→        '<tr><td><code>-ne</code></td><td>Not equal</td><td><code>[ $a -ne $b ]</code></td></tr>'
+   358→        '<tr><td><code>-gt</code></td><td>Greater than</td><td><code>[ $a -gt $b ]</code></td></tr>'
+   359→        '<tr><td><code>-lt</code></td><td>Less than</td><td><code>[ $a -lt $b ]</code></td></tr>'
+   360→        '<tr><td><code>-ge</code></td><td>Greater or equal</td><td><code>[ $a -ge $b ]</code></td></tr>'
+   361→        '<tr><td><code>-le</code></td><td>Less or equal</td><td><code>[ $a -le $b ]</code></td></tr>'
+   362→        '</tbody>'
+   363→        '</table>'
+   364→    )
+   365→    string_tbl = (
+   366→        '<table class="tbl">'
+   367→        '<thead><tr><th>Op</th><th>Meaning</th><th>Example</th></tr></thead>'
+   368→        '<tbody>'
+   369→        '<tr><td><code>=</code></td><td>Equal</td><td><code>[ "$a" = "$b" ]</code></td></tr>'
+   370→        '<tr><td><code>!=</code></td><td>Not equal</td><td><code>[ "$a" != "$b" ]</code></td></tr>'
+   371→        '<tr><td><code>-z</code></td><td>String is empty</td><td><code>[ -z "$a" ]</code></td></tr>'
+   372→        '<tr><td><code>-n</code></td><td>String not empty</td><td><code>[ -n "$a" ]</code></td></tr>'
+   373→        '</tbody>'
+   374→        '</table>'
+   375→    )
+   376→    file_tbl = (
+   377→        '<table class="tbl">'
+   378→        '<thead><tr><th>Op</th><th>Meaning</th><th>Example</th></tr></thead>'
+   379→        '<tbody>'
+   380→        '<tr><td><code>-f</code></td><td>File exists</td><td><code>[ -f file.txt ]</code></td></tr>'
+   381→        '<tr><td><code>-d</code></td><td>Directory exists</td><td><code>[ -d /home/user ]</code></td></tr>'
+   382→        '<tr><td><code>-e</code></td><td>File or directory exists</td><td><code>[ -e /tmp/log ]</code></td></tr>'
+   383→        '<tr><td><code>-r</code></td><td>Readable</td><td><code>[ -r file.txt ]</code></td></tr>'
+   384→        '<tr><td><code>-w</code></td><td>Writable</td><td><code>[ -w file.txt ]</code></td></tr>'
+   385→        '<tr><td><code>-x</code></td><td>Executable</td><td><code>[ -x script.sh ]</code></td></tr>'
+   386→        '<tr><td><code>-s</code></td><td>File is not empty</td><td><code>[ -s file.txt ]</code></td></tr>'
+   387→        '</tbody>'
+   388→        '</table>'
+   389→    )
+   390→    checks_term = (
+   391→        '<span class="comment"># Check if a file exists</span><br>'
+   392→        '<span class="keyword" style="color:#ff7b72;">if</span> [ -f /etc/passwd ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   393→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"File exists"</span><br>'
+   394→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   395→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"File not found"</span><br>'
+   396→        '<span class="keyword" style="color:#ff7b72;">fi</span><br><br>'
+   397→        '<span class="comment"># Check if a directory exists</span><br>'
+   398→        '<span class="keyword" style="color:#ff7b72;">if</span> [ -d /var/log ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   399→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Directory exists"</span><br>'
+   400→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   401→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Directory not found"</span><br>'
+   402→        '<span class="keyword" style="color:#ff7b72;">fi</span><br><br>'
+   403→        '<span class="comment"># Check if a service is running</span><br>'
+   404→        '<span class="keyword" style="color:#ff7b72;">if</span> <span class="cmd">systemctl</span> is-active --quiet nginx; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   405→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Nginx is running"</span><br>'
+   406→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   407→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Nginx is not running"</span><br>'
+   408→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   409→    )
+   410→    practical_term = (
+   411→        '<span class="comment"># Check disk space and act based on the result.</span><br>'
+   412→        '<span class="cmd">USAGE</span>=$(<span class="cmd">df</span> / | <span class="cmd">awk</span> <span class="str">\'NR==2 {print $5}\'</span> | <span class="cmd">tr</span> -d <span class="str">\'%\'</span>)<br>'
+   413→        '<span class="keyword" style="color:#ff7b72;">if</span> [ <span class="str">"$USAGE"</span> -gt 80 ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   414→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Disk usage is high: ${USAGE}%"</span><br>'
+   415→        '<span class="keyword" style="color:#ff7b72;">elif</span> [ <span class="str">"$USAGE"</span> -gt 60 ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   416→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Disk usage is moderate: ${USAGE}%"</span><br>'
+   417→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   418→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Disk usage is normal: ${USAGE}%"</span><br>'
+   419→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   420→    )
+   421→
+   422→    left_rows = "".join([
+   423→        row("code-braces", "bg-green", "ic-green", "1. Basic Syntax",
+   424→            '<p>The shell uses <code>if</code>, <code>then</code>, <code>elif</code>, <code>else</code>, and <code>fi</code> to build conditional blocks.</p>'
+   425→            f'<div style="margin-top:6px;">{terminal("conditional.sh", syntax_term)}</div>'),
+   426→
+   427→        row("list", "bg-blue", "ic-blue", "2. Numeric Comparisons",
+   428→            '<p>Use these operators inside <code>[ ]</code> to compare numbers:</p>'
+   429→            f'<div style="margin-top:6px;">{numeric_tbl}</div>'),
+   430→
+   431→        row("info", "bg-purple", "ic-purple", "3. String Comparisons",
+   432→            '<p>Compare strings with these operators. <strong>Always quote strings!</strong> Prevents errors with spaces.</p>'
+   433→            f'<div style="margin-top:6px;">{string_tbl}</div>'),
+   434→
+   435→        row("file", "bg-gold", "ic-gold", "4. File Tests",
+   436→            '<p>Test files and directories before acting on them:</p>'
+   437→            f'<div style="margin-top:6px;">{file_tbl}</div>'),
+   438→    ])
+   439→
+   440→    sidebar_cards = "".join([
+   441→        card("list", "Quick Reference (Keywords)",
+   442→             keyword_tbl),
+   443→        card("check-square", "5. Checking Services, Files, or Directories",
+   444→             terminal("checks.sh", checks_term)),
+   445→        card("gear", "6. Practical Example",
+   446→             '<p style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">Check disk space and act based on the result.</p>'
+   447→             + terminal("disk-check.sh", practical_term)),
+   448→        callout("tip", "lightbulb",
+   449→                '<strong>TIP:</strong> Conditions make your scripts intelligent. Always test, validate, and handle every situation.'),
+   450→    ])
+   451→
+   452→    body = (
+   453→        '<div class="body">'
+   454→        f'<div class="rows">{left_rows}</div>'
+   455→        f'<div class="sidebar">{sidebar_cards}</div>'
+   456→        '</div>'
+   457→    )
+   458→    return body
+   459→
+   460→
+   461→# ============================================================
+   462→# PAGE 9  (file: page-09.webp → badge: PAGE 8 OF 20)
+   463→# Title: 8. LOGICAL OPERATORS AND MULTIPLE CONDITIONS
+   464→# Subtitle: COMBINE TESTS. MAKE SMARTER DECISIONS.
+   465→# ============================================================
+   466→def body_page_09() -> str:
+   467→    operators_tbl = (
+   468→        '<table class="tbl">'
+   469→        '<thead><tr><th>Op</th><th>Meaning</th><th>Example</th></tr></thead>'
+   470→        '<tbody>'
+   471→        '<tr><td><code>&amp;&amp;</code></td><td>AND &mdash; both must be true</td><td><code>if [ $a -gt 5 ] &amp;&amp; [ $b -lt 10 ]</code></td></tr>'
+   472→        '<tr><td><code>||</code></td><td>OR &mdash; at least one true</td><td><code>if [ $a -gt 5 ] || [ $b -lt 10 ]</code></td></tr>'
+   473→        '<tr><td><code>!</code></td><td>NOT &mdash; reverses the result</td><td><code>if ! [ -f file.txt ]</code></td></tr>'
+   474→        '</tbody>'
+   475→        '</table>'
+   476→    )
+   477→    short_circuit = (
+   478→        '<ul style="list-style:none;padding:0;margin:0;font-size:11px;color:var(--ink-2);line-height:1.5;">'
+   479→        '<li style="padding-left:14px;position:relative;margin-bottom:3px;"><code style="position:absolute;left:0;background:transparent;color:var(--green);">&amp;&amp;</code>If the first condition is false, the second is NOT executed.</li>'
+   480→        '<li style="padding-left:14px;position:relative;margin-bottom:3px;"><code style="position:absolute;left:0;background:transparent;color:var(--green);">||</code>If the first condition is true, the second is NOT executed.</li>'
+   481→        '<li style="padding-left:14px;position:relative;"><code style="position:absolute;left:0;background:transparent;color:var(--green);">!</code>Flips true to false, and false to true.</li>'
+   482→        '</ul>'
+   483→    )
+   484→    and_term = (
+   485→        '<span class="comment"># Both conditions must be true.</span><br>'
+   486→        '<span class="keyword" style="color:#ff7b72;">if</span> [ -f app.sh ] &amp;&amp; [ -x app.sh ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   487→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"File exists and is executable"</span><br>'
+   488→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   489→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Check failed"</span><br>'
+   490→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   491→    )
+   492→    or_term = (
+   493→        '<span class="comment"># At least one condition must be true.</span><br>'
+   494→        '<span class="keyword" style="color:#ff7b72;">if</span> [ -f app.sh ] || [ -f app.py ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   495→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Script found"</span><br>'
+   496→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   497→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"No script found"</span><br>'
+   498→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   499→    )
+   500→    not_term = (
+   501→        '<span class="comment"># Reverse a condition.</span><br>'
+   502→        '<span class="keyword" style="color:#ff7b72;">if</span> [ ! -f config.env ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   503→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Config file missing"</span><br>'
+   504→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   505→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Config file exists"</span><br>'
+   506→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   507→    )
+   508→    combo_term = (
+   509→        '<span class="comment"># EXAMPLE 1: MIX &amp; OR</span><br>'
+   510→        '<span class="keyword" style="color:#ff7b72;">if</span> [ -f deploy.sh ] &amp;&amp; [ -x deploy.sh ] ||<br>'
+   511→        '&nbsp;&nbsp;&nbsp;[ -f deploy.py ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   512→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Ready to deploy"</span><br>'
+   513→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   514→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Deployment script missing"</span><br>'
+   515→        '<span class="keyword" style="color:#ff7b72;">fi</span><br>'
+   516→        '<span class="comment" style="color:#7ee787;">✓ Executable deploy.sh OR deploy.py exists.</span>'
+   517→    )
+   518→    combo_term_2 = (
+   519→        '<span class="comment"># EXAMPLE 2: NEGATION WITH AND</span><br>'
+   520→        '<span class="keyword" style="color:#ff7b72;">if</span> [ ! -f .lock ] &amp;&amp; [ -d /var/log ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   521→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Safe to proceed"</span><br>'
+   522→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   523→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Lock file exists or log directory missing"</span><br>'
+   524→        '<span class="keyword" style="color:#ff7b72;">fi</span><br>'
+   525→        '<span class="comment" style="color:#7ee787;">✓ No lock file AND directory exists.</span>'
+   526→    )
+   527→    combo_term_3 = (
+   528→        '<span class="comment"># EXAMPLE 3: COMPLEX COMBINATION</span><br>'
+   529→        '<span class="keyword" style="color:#ff7b72;">if</span> [ -f app.conf ] &amp;&amp; [ -r app.conf ] &amp;&amp;<br>'
+   530→        '&nbsp;&nbsp;&nbsp;! [ -z <span class="str">"$1"</span> ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   531→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"All checks passed"</span><br>'
+   532→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   533→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Validation failed"</span><br>'
+   534→        '<span class="keyword" style="color:#ff7b72;">fi</span><br>'
+   535→        '<span class="comment" style="color:#7ee787;">✓ File exists, readable AND first argument is not empty.</span>'
+   536→    )
+   537→    deploy_term = (
+   538→        '<span class="comment"># Before deploying, validate everything.</span><br>'
+   539→        '<span class="keyword" style="color:#ff7b72;">if</span> [ -f app.tar.gz ] &amp;&amp; [ -s app.tar.gz ] &amp;&amp; [ -x /usr/bin/docker ] &amp;&amp;<br>'
+   540→        '&nbsp;&nbsp;&nbsp;! <span class="cmd">systemctl</span> is-active --quiet app; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   541→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"All checks passed. Starting deployment..."</span><br>'
+   542→        '&nbsp;&nbsp;<span class="comment"># Your deployment commands here</span><br>'
+   543→        '<span class="keyword" style="color:#ff7b72;">else</span><br>'
+   544→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Deployment aborted. Check requirements."</span><br>'
+   545→        '&nbsp;&nbsp;<span class="cmd">exit</span> 1<br>'
+   546→        '<span class="keyword" style="color:#ff7b72;">fi</span>'
+   547→    )
+   548→
+   549→    left_rows = "".join([
+   550→        row("intersect", "bg-green", "ic-green", "1. Logical Operators",
+   551→            '<p>Combine multiple tests with these three operators:</p>'
+   552→            f'<div style="margin-top:6px;">{operators_tbl}</div>'),
+   553→
+   554→        row("lightbulb", "bg-gold", "ic-gold", "2. Short-Circuit Execution",
+   555→            short_circuit +
+   556→            '<p style="margin-top:6px;font-size:11px;color:var(--green);"><strong>💡 Saves time and prevents unnecessary checks.</strong></p>'),
+   557→
+   558→        row("check-square", "bg-blue", "ic-blue", "3. AND Conditions ( &amp;&amp; )",
+   559→            '<p>Both conditions must be true.</p>'
+   560→            f'<div style="margin-top:6px;">{terminal("and.sh", and_term)}</div>'
+   561→            '<p style="margin-top:4px;font-size:11px;color:var(--green);">✅ Use for strict requirements.</p>'),
+   562→
+   563→        row("check-square", "bg-purple", "ic-purple", "4. OR Conditions ( || )",
+   564→            '<p>At least one condition must be true.</p>'
+   565→            f'<div style="margin-top:6px;">{terminal("or.sh", or_term)}</div>'
+   566→            '<p style="margin-top:4px;font-size:11px;color:var(--green);">✅ Use for alternatives.</p>'),
+   567→
+   568→        row("alert-triangle", "bg-gold", "ic-gold", "5. NOT Condition ( ! )",
+   569→            '<p>Reverse a condition.</p>'
+   570→            f'<div style="margin-top:6px;">{terminal("not.sh", not_term)}</div>'
+   571→            '<p style="margin-top:4px;font-size:11px;color:var(--green);">✅ Use to detect missing items.</p>'),
+   572→    ])
+   573→
+   574→    sidebar_cards = "".join([
+   575→        card("puzzle", "6. Combining Multiple Tests",
+   576→             '<p style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">Mix <code>&amp;&amp;</code>, <code>||</code>, and <code>!</code> for powerful checks.</p>'
+   577→             + terminal("combo.sh", combo_term)
+   578→             + '<div style="height:8px;"></div>'
+   579→             + terminal("negation.sh", combo_term_2)
+   580→             + '<div style="height:8px;"></div>'
+   581→             + terminal("complex.sh", combo_term_3)),
+   582→        card("rocket", "7. Safer Deployment Checks",
+   583→             '<p style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">Before deploying, validate everything.</p>'
+   584→             + terminal("deploy-check.sh", deploy_term)
+   585→             + '<ul style="list-style:none;padding:0;margin:6px 0 0 0;font-size:10.5px;color:var(--green);line-height:1.5;">'
+   586→             '<li style="padding-left:14px;position:relative;">✓ File exists AND not empty</li>'
+   587→             '<li style="padding-left:14px;position:relative;">✓ Docker is installed</li>'
+   588→             '<li style="padding-left:14px;position:relative;">✓ App service is not running</li>'
+   589→             '<li style="padding-left:14px;position:relative;">✓ Proceed only when everything is correct</li>'
+   590→             '<li style="padding-left:14px;position:relative;">✓ Prevents failed or risky deployments</li>'
+   591→             '</ul>'),
+   592→        callout("tip", "lightbulb",
+   593→                '<strong>TIP:</strong> Combine checks, validate early, and fail fast. Smart conditions = reliable automation.'),
+   594→    ])
+   595→
+   596→    body = (
+   597→        '<div class="body">'
+   598→        f'<div class="rows">{left_rows}</div>'
+   599→        f'<div class="sidebar">{sidebar_cards}</div>'
+   600→        '</div>'
+   601→    )
+   602→    return body
+   603→
+   604→
+   605→# ============================================================
+   606→# PAGE 10  (file: page-10.webp → badge: PAGE 9 OF 20)
+   607→# Title: 9. LOOPS FOR AUTOMATION
+   608→# Subtitle: REPEAT TASKS. SAVE TIME. ELIMINATE MANUAL WORK.
+   609→# ============================================================
+   610→def body_page_10() -> str:
+   611→    for_term = (
+   612→        '<span class="keyword" style="color:#ff7b72;">for</span> item <span class="keyword" style="color:#ff7b72;">in</span> a b c; <span class="keyword" style="color:#ff7b72;">do</span><br>'
+   613→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Item: $item"</span><br>'
+   614→        '<span class="keyword" style="color:#ff7b72;">done</span><br><br>'
+   615→        '<span class="comment"># Output:</span><br>'
+   616→        '<span class="out">Item: a</span>&nbsp;&nbsp;<span class="out">Item: b</span>&nbsp;&nbsp;<span class="out">Item: c</span>'
+   617→    )
+   618→    while_term = (
+   619→        '<span class="cmd">count</span>=1<br>'
+   620→        '<span class="keyword" style="color:#ff7b72;">while</span> [ <span class="str">$count</span> -le 5 ]; <span class="keyword" style="color:#ff7b72;">do</span><br>'
+   621→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Count: $count"</span><br>'
+   622→        '&nbsp;&nbsp;<span class="cmd">count</span>=$((count + 1))<br>'
+   623→        '<span class="keyword" style="color:#ff7b72;">done</span><br><br>'
+   624→        '<span class="comment"># Output:</span> <span class="out">Count: 1 2 3 4 5</span>'
+   625→    )
+   626→    files_term = (
+   627→        '<span class="keyword" style="color:#ff7b72;">for</span> file <span class="keyword" style="color:#ff7b72;">in</span> *.txt; <span class="keyword" style="color:#ff7b72;">do</span><br>'
+   628→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"File: $file"</span><br>'
+   629→        '<span class="keyword" style="color:#ff7b72;">done</span><br><br>'
+   630→        '<span class="comment"># Prints all .txt files in the current directory.</span>'
+   631→    )
+   632→    servers_term = (
+   633→        '<span class="keyword" style="color:#ff7b72;">for</span> server <span class="keyword" style="color:#ff7b72;">in</span> server1 server2 server3; <span class="keyword" style="color:#ff7b72;">do</span><br>'
+   634→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Checking $server..."</span><br>'
+   635→        '&nbsp;&nbsp;<span class="cmd">ssh</span> <span class="str">$server</span> <span class="cmd">uptime</span><br>'
+   636→        '<span class="keyword" style="color:#ff7b72;">done</span><br><br>'
+   637→        '<span class="comment"># Check uptime on many servers.</span>'
+   638→    )
+   639→    break_term = (
+   640→        '<span class="keyword" style="color:#ff7b72;">for</span> i <span class="keyword" style="color:#ff7b72;">in</span> {1..5}; <span class="keyword" style="color:#ff7b72;">do</span><br>'
+   641→        '&nbsp;&nbsp;<span class="keyword" style="color:#ff7b72;">if</span> [ <span class="str">$i</span> -eq 3 ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   642→        '&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword" style="color:#ff7b72;">break</span><br>'
+   643→        '&nbsp;&nbsp;<span class="keyword" style="color:#ff7b72;">fi</span><br>'
+   644→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Number: $i"</span><br>'
+   645→        '<span class="keyword" style="color:#ff7b72;">done</span><br><br>'
+   646→        '<span class="comment"># Output:</span> <span class="out">Number: 1 2</span><br>'
+   647→        '<span class="comment"># STOP THE LOOP</span>'
+   648→    )
+   649→    continue_term = (
+   650→        '<span class="keyword" style="color:#ff7b72;">for</span> i <span class="keyword" style="color:#ff7b72;">in</span> {1..5}; <span class="keyword" style="color:#ff7b72;">do</span><br>'
+   651→        '&nbsp;&nbsp;<span class="keyword" style="color:#ff7b72;">if</span> [ <span class="str">$i</span> -eq 3 ]; <span class="keyword" style="color:#ff7b72;">then</span><br>'
+   652→        '&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword" style="color:#ff7b72;">continue</span><br>'
+   653→        '&nbsp;&nbsp;<span class="keyword" style="color:#ff7b72;">fi</span><br>'
+   654→        '&nbsp;&nbsp;<span class="cmd">echo</span> <span class="str">"Number: $i"</span><br>'
+   655→        '<span class="keyword" style="color:#ff7b72;">done</span><br><br>'
+   656→        '<span class="comment"># Output:</span> <span class="out">Number: 1 2 4 5</span><br>'
+   657→        '<span class="comment"># SKIP AND CONTINUE</span>'
+   658→    )
+   659→
+   660→    left_rows = "".join([
+   661→        row("refresh", "bg-green", "ic-green", "1. For Loops",
+   662→            '<p>Loop through a list of items.</p>'
+   663→            f'<div style="margin-top:6px;">{terminal("for.sh", for_term)}</div>'),
+   664→
+   665→        row("refresh", "bg-blue", "ic-blue", "2. While Loops",
+   666→            '<p>Repeat while a condition is true.</p>'
+   667→            f'<div style="margin-top:6px;">{terminal("while.sh", while_term)}</div>'),
+   668→
+   669→        row("file", "bg-gold", "ic-gold", "3. Looping Through Files",
+   670→            '<p>Process each file in a directory.</p>'
+   671→            f'<div style="margin-top:6px;">{terminal("files.sh", files_term)}</div>'),
+   672→
+   673→        row("server", "bg-purple", "ic-purple", "4. Looping Through Servers",
+   674→            '<p>Run commands on multiple servers.</p>'
+   675→            f'<div style="margin-top:6px;">{terminal("servers.sh", servers_term)}</div>'),
+   676→
+   677→        row("stop", "bg-red", "ic-red", "5. Break",
+   678→            '<p>Exit the loop immediately.</p>'
+   679→            f'<div style="margin-top:6px;">{terminal("break.sh", break_term)}</div>'),
+   680→
+   681→        row("skip", "bg-teal", "ic-teal", "6. Continue",
+   682→            '<p>Skip the rest of the loop and continue.</p>'
+   683→            f'<div style="margin-top:6px;">{terminal("continue.sh", continue_term)}</div>'),
+   684→    ])
+   685→
+   686→    infinite_warn = (
+   687→        '<p style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">Always update your condition. Always change the variable inside the loop. Use clear exit conditions. Test with small values first.</p>'
+   688→        '<ul style="list-style:none;padding:0;margin:0;font-size:11px;color:var(--ink-2);line-height:1.55;">'
+   689→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--orange);">⚠</span>Always change the variable inside the loop.</li>'
+   690→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--orange);">⚠</span>Use clear exit conditions.</li>'
+   691→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--orange);">⚠</span>Test your loops with small values first.</li>'
+   692→        '<li style="padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--orange);">⚠</span>Use <code>break</code> when needed.</li>'
+   693→        '</ul>'
+   694→    )
+   695→    auto_card = card("rocket", "8. Automating Repetitive Tasks",
+   696→        '<p style="font-size:11px;color:var(--ink-2);margin-bottom:6px;">Loops help you automate daily tasks:</p>'
+   697→        '<ul style="list-style:none;padding:0;margin:0;font-size:11px;color:var(--ink-2);line-height:1.55;">'
+   698→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">✅</span>File management</li>'
+   699→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">✅</span>Server monitoring</li>'
+   700→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">✅</span>User management</li>'
+   701→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">✅</span>Log analysis</li>'
+   702→        '<li style="padding-left:18px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;color:var(--green);">✅</span>Backups and cleanups</li>'
+   703→        '<li style="padding-left:18px;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✅</span>System updates</li>'
+   704→        '</ul>')
+   705→
+   706→    sidebar_cards = "".join([
+   707→        card("alert-triangle", "7. Avoiding Infinite Loops", infinite_warn),
+   708→        auto_card,
+   709→    ])
+   710→
+   711→    # Full-width KEY TAKEAWAY banner below the body grid
+   712→    takeaway_banner = (
+   713→        '<div style="margin-top:4px;">'
+   714→        '<div class="callout tip" style="background:var(--green);color:#fff;border-left:none;padding:14px 22px;align-items:center;text-align:center;">'
+   715→        '<span class="ico" style="color:#fff;width:28px;height:28px;">' + svg("lightbulb") + '</span>'
+   716→        '<div style="flex:1;">'
+   717→        '<strong style="font-size:14px;letter-spacing:1px;">💡 KEY TAKEAWAY</strong> '
+   718→        '<span style="font-size:13px;">Loops save time, reduce errors, and make your scripts powerful.</span><br>'
+   719→        '<strong style="color:#fff;font-size:13px;letter-spacing:1.5px;">REPEAT SMARTER &nbsp;|&nbsp; SAVE TIME EVERY DAY</strong>'
+   720→        '</div>'
+   721→        '</div>'
+   722→        '</div>'
+   723→    )
+   724→
+   725→    body = (
+   726→        '<div class="body">'
+   727→        f'<div class="rows">{left_rows}</div>'
+   728→        f'<div class="sidebar">{sidebar_cards}</div>'
+   729→        '</div>'
+   730→        f'{takeaway_banner}'
+   731→    )
+   732→    return body
+   733→
+   734→
+   735→# ============================================================
+   736→# MAIN
+   737→# ============================================================
+   738→PAGES = [
+   739→    # (out_filename, badge_page_num, title, subtitle, body_fn)
+   740→    ("recreated-page-06.html", 4, "4. VARIABLES AND ENVIRONMENT VARIABLES",
+   741→     "STORE DATA. REUSE. AUTOMATE.", body_page_06),
+   742→    ("recreated-page-07.html", 6, "6. EXIT CODES AND COMMAND SUCCESS",
+   743→     "EVERY COMMAND RETURNS A STATUS.", body_page_07),
+   744→    ("recreated-page-08.html", 7, "7. CONDITIONAL STATEMENTS",
+   745→     "MAKE SMART DECISIONS IN YOUR SCRIPTS.", body_page_08),
+   746→    ("recreated-page-09.html", 8, "8. LOGICAL OPERATORS AND MULTIPLE CONDITIONS",
+   747→     "COMBINE TESTS. MAKE SMARTER DECISIONS.", body_page_09),
+   748→    ("recreated-page-10.html", 9, "9. LOOPS FOR AUTOMATION",
+   749→     "REPEAT TASKS. SAVE TIME. ELIMINATE MANUAL WORK.", body_page_10),
+   750→]
+   751→
+   752→
+   753→def main() -> None:
+   754→    out_dir = "/home/z/my-project/downloads/instagram-DcaW1UljsVk"
+   755→    total = 20  # carousel total
+   756→    for fname, page_num, title, subtitle, body_fn in PAGES:
+   757→        body_html = body_fn()
+   758→        html = page_wrapper(page_num, total, title, subtitle, body_html)
+   759→        out_path = os.path.join(out_dir, fname)
+   760→        with open(out_path, "w", encoding="utf-8") as f:
+   761→            f.write(html)
+   762→        size = os.path.getsize(out_path)
+   763→        print(f"Wrote {out_path}  ({size:,} bytes / {size/1024:.1f} KB)")
+   764→
+   765→
+   766→if __name__ == "__main__":
+   767→    main()
+   768→

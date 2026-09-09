@@ -1,0 +1,589 @@
+     1→<!DOCTYPE html>
+     2→<html lang="en">
+     3→<head>
+     4→<meta charset="UTF-8">
+     5→<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→<title>5. READING USER INPUT AND SCRIPT ARGUMENTS — Shell Scripting for DevOps</title>
+     7→<style>
+     8→
+     9→  /* ============================================================
+    10→     RESET & ROOT VARIABLES
+    11→     ============================================================ */
+    12→  :root{
+    13→    --paper:#f5f1e8;
+    14→    --paper-2:#efe9dd;
+    15→    --grid-line:#bcc8d6;
+    16→    --navy:#15264d;
+    17→    --navy-2:#1e3160;
+    18→    --ink:#1c1c1c;
+    19→    --ink-2:#3a3f47;
+    20→    --ink-3:#6b7280;
+    21→    --green:#1B5E3F;
+    22→    --green-2:#164a32;
+    23→    --green-light:#e8f5ee;
+    24→    --green-soft:#cdf3da;
+    25→    --blue:#2563eb;
+    26→    --blue-soft:#cfe0ff;
+    27→    --purple:#7c3aed;
+    28→    --purple-soft:#e2d4ff;
+    29→    --red:#dc2626;
+    30→    --red-soft:#ffd4d4;
+    31→    --gold:#d4a017;
+    32→    --gold-soft:#fce9b6;
+    33→    --orange:#e65100;
+    34→    --orange-soft:#fff3e0;
+    35→    --teal:#0d7377;
+    36→    --teal-soft:#d0f0f0;
+    37→    --terminal-bg:#0d1117;
+    38→    --terminal-fg:#e6edf3;
+    39→    --terminal-green:#7ee787;
+    40→    --terminal-amber:#f2cc60;
+    41→    --terminal-blue:#79c0ff;
+    42→    --terminal-dim:#8b949e;
+    43→  }
+    44→  *{box-sizing:border-box;margin:0;padding:0}
+    45→  html,body{background:#cfc9bb;}
+    46→  body{
+    47→    font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    48→    -webkit-font-smoothing:antialiased;
+    49→    color:var(--ink);
+    50→    display:flex;flex-direction:column;align-items:center;
+    51→    padding:24px 12px;
+    52→  }
+    53→
+    54→  /* Wrapper holds page + binding */
+    55→  .page-wrapper{
+    56→    position:relative;
+    57→    width:1080px;
+    58→  }
+    59→
+    60→  /* ============================================================
+    61→     PAGE / NOTEBOOK SHEET
+    62→     ============================================================ */
+    63→  .page{
+    64→    position:relative;
+    65→    width:1080px;
+    66→    background:var(--paper);
+    67→    border-radius:14px;
+    68→    box-shadow:0 22px 60px rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.06) inset;
+    69→    overflow:hidden;
+    70→    padding:42px 50px 26px 78px;
+    71→  }
+    72→
+    73→  /* Graph paper grid */
+    74→  .page::before{
+    75→    content:"";
+    76→    position:absolute;inset:0;
+    77→    background-image:
+    78→      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    79→      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    80→    background-size:26px 26px;
+    81→    opacity:.5;
+    82→    pointer-events:none;
+    83→    z-index:0;
+    84→  }
+    85→
+    86→  /* Page edge shadows (3D thickness) */
+    87→  .page-top-edge,.page-bottom-edge{
+    88→    position:absolute;left:0;right:0;height:6px;z-index:1;pointer-events:none;
+    89→  }
+    90→  .page-top-edge{top:0;background:linear-gradient(to bottom,rgba(0,0,0,.08),transparent);}
+    91→  .page-bottom-edge{bottom:0;background:linear-gradient(to top,rgba(0,0,0,.08),transparent);}
+    92→
+    93→  /* ============================================================
+    94→     SPIRAL BINDING + HOLES
+    95→     ============================================================ */
+    96→  .spiral{
+    97→    position:absolute;z-index:7;top:0;left:-30px;width:120px;height:100%;pointer-events:none;
+    98→    background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+    99→    background-repeat:repeat-y;
+   100→  }
+   101→  .holes{
+   102→    position:absolute;z-index:6;top:0;left:18px;width:24px;height:100%;pointer-events:none;
+   103→    background-image:radial-gradient(circle, #c9bfa8 3px, transparent 4px);
+   104→    background-size:24px 80px;
+   105→    background-position:center 40px;
+   106→    background-repeat:repeat-y;
+   107→  }
+   108→
+   109→  /* ============================================================
+   110→     CONTENT WRAPPER
+   111→     ============================================================ */
+   112→  .content{position:relative;z-index:2;}
+   113→
+   114→  /* Brand bar (top) */
+   115→  .brand-bar{
+   116→    display:flex;align-items:center;justify-content:space-between;
+   117→    margin-bottom:20px;
+   118→  }
+   119→  .brand-logo{
+   120→    display:flex;align-items:center;gap:8px;
+   121→    font-size:14px;font-weight:800;letter-spacing:1px;
+   122→    color:var(--green);
+   123→  }
+   124→  .brand-logo .vq-icon{width:24px;height:24px;}
+   125→  .brand-badge{
+   126→    background:var(--green);color:#fff;
+   127→    padding:6px 16px;border-radius:999px;
+   128→    font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   129→  }
+   130→
+   131→  /* Page title */
+   132→  .page-title{
+   133→    font-size:38px;font-weight:800;color:var(--green);
+   134→    text-transform:uppercase;letter-spacing:-.5px;line-height:1.1;
+   135→    margin-bottom:6px;
+   136→  }
+   137→  .page-title .num{color:var(--green-2);}
+   138→  .page-subtitle{
+   139→    font-size:14px;font-weight:600;color:var(--ink-2);
+   140→    text-transform:uppercase;letter-spacing:1px;
+   141→    margin-bottom:20px;
+   142→    padding-bottom:14px;
+   143→    border-bottom:2px solid var(--green);
+   144→    position:relative;
+   145→  }
+   146→  .page-subtitle::after{
+   147→    content:"";position:absolute;left:50%;bottom:-6px;
+   148→    width:10px;height:10px;background:var(--green);
+   149→    border-radius:50%;transform:translateX(-50%);
+   150→  }
+   151→
+   152→  /* Body grid: rows + sidebar */
+   153→  .body{
+   154→    display:grid;
+   155→    grid-template-columns:1.85fr 1fr;
+   156→    gap:20px;
+   157→    margin-bottom:20px;
+   158→  }
+   159→  .body.single{grid-template-columns:1fr;}
+   160→
+   161→  /* Section rows (left column) */
+   162→  .rows{display:flex;flex-direction:column;gap:12px;}
+   163→  .row{
+   164→    display:flex;gap:12px;align-items:flex-start;
+   165→    background:rgba(255,255,255,.5);
+   166→    border-radius:10px;padding:10px 12px;
+   167→    border-left:3px solid var(--green);
+   168→  }
+   169→  .row .icon{
+   170→    flex-shrink:0;width:42px;height:42px;
+   171→    border-radius:10px;
+   172→    display:flex;align-items:center;justify-content:center;
+   173→    background:var(--green-light);
+   174→  }
+   175→  .row .icon svg{width:24px;height:24px;}
+   176→  .row .text{flex:1;min-width:0;}
+   177→  .row .text h3{
+   178→    font-size:13px;font-weight:700;color:var(--green);
+   179→    text-transform:uppercase;letter-spacing:.3px;
+   180→    margin-bottom:3px;
+   181→  }
+   182→  .row .text p{
+   183→    font-size:12px;color:var(--ink-2);line-height:1.45;
+   184→  }
+   185→  .row .text code{
+   186→    font-family:"JetBrains Mono","Fira Code",monospace;
+   187→    font-size:11px;
+   188→    background:#e8e4d4;padding:1px 5px;border-radius:3px;
+   189→    color:var(--green-2);
+   190→  }
+   191→
+   192→  /* Sidebar cards (right column) */
+   193→  .sidebar{display:flex;flex-direction:column;gap:12px;}
+   194→  .card{
+   195→    background:#fff;border-radius:10px;overflow:hidden;
+   196→    box-shadow:0 2px 8px rgba(0,0,0,.06);
+   197→    border:1px solid rgba(0,0,0,.05);
+   198→  }
+   199→  .card .head{
+   200→    background:var(--green);color:#fff;
+   201→    padding:8px 14px;
+   202→    font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   203→    display:flex;align-items:center;gap:6px;
+   204→  }
+   205→  .card .head svg{width:14px;height:14px;}
+   206→  .card .body-pad{padding:12px 14px;}
+   207→
+   208→  /* Terminal / code block */
+   209→  .terminal{
+   210→    background:var(--terminal-bg);border-radius:8px;overflow:hidden;
+   211→    box-shadow:0 4px 14px rgba(0,0,0,.2);
+   212→  }
+   213→  .terminal .term-bar{
+   214→    background:#1c2230;padding:6px 12px;
+   215→    display:flex;align-items:center;gap:6px;
+   216→  }
+   217→  .terminal .term-dot{width:10px;height:10px;border-radius:50%;}
+   218→  .terminal .dot-red{background:#ff5f56;}
+   219→  .terminal .dot-amber{background:#ffbd2e;}
+   220→  .terminal .dot-green{background:#27c93f;}
+   221→  .terminal .term-title{
+   222→    margin-left:auto;color:var(--terminal-dim);
+   223→    font-size:10px;font-family:monospace;
+   224→  }
+   225→  .terminal .term-body{
+   226→    padding:12px 14px;
+   227→    font-family:"JetBrains Mono","Fira Code",monospace;
+   228→    font-size:12px;line-height:1.6;
+   229→    color:var(--terminal-fg);
+   230→  }
+   231→  .terminal .term-body .prompt{color:var(--terminal-green);}
+   232→  .terminal .term-body .comment{color:var(--terminal-dim);}
+   233→  .terminal .term-body .cmd{color:var(--terminal-blue);}
+   234→  .terminal .term-body .str{color:var(--terminal-amber);}
+   235→  .terminal .term-body .out{color:var(--terminal-fg);}
+   236→
+   237→  /* Inline code */
+   238→  code.inline{
+   239→    font-family:"JetBrains Mono","Fira Code",monospace;
+   240→    font-size:11px;
+   241→    background:#e8e4d4;padding:1px 5px;border-radius:3px;
+   242→    color:var(--green-2);
+   243→  }
+   244→
+   245→  /* Tables */
+   246→  .tbl{width:100%;border-collapse:collapse;font-size:11px;}
+   247→  .tbl th{
+   248→    background:var(--green);color:#fff;
+   249→    padding:6px 10px;text-align:left;
+   250→    font-weight:700;font-size:10px;letter-spacing:.3px;text-transform:uppercase;
+   251→  }
+   252→  .tbl td{
+   253→    padding:6px 10px;
+   254→    border-bottom:1px solid #e0d8c8;
+   255→    color:var(--ink-2);
+   256→  }
+   257→  .tbl td code{
+   258→    font-family:"JetBrains Mono",monospace;font-size:10px;
+   259→    background:#e8e4d4;padding:1px 4px;border-radius:3px;
+   260→    color:var(--green-2);
+   261→  }
+   262→  .tbl tr:last-child td{border-bottom:none;}
+   263→
+   264→  /* Warning / tip callout */
+   265→  .callout{
+   266→    display:flex;gap:10px;align-items:flex-start;
+   267→    border-radius:10px;padding:10px 14px;
+   268→    font-size:12px;line-height:1.45;
+   269→  }
+   270→  .callout.warn{
+   271→    background:#fff4e0;border-left:3px solid var(--orange);
+   272→    color:var(--ink-2);
+   273→  }
+   274→  .callout.tip{
+   275→    background:var(--green-light);border-left:3px solid var(--green);
+   276→    color:var(--ink-2);
+   277→  }
+   278→  .callout .ico{flex-shrink:0;width:18px;height:18px;margin-top:1px;}
+   279→
+   280→  /* Numbered step list */
+   281→  .steps{display:flex;flex-direction:column;gap:8px;}
+   282→  .step{
+   283→    display:flex;gap:10px;align-items:flex-start;
+   284→    font-size:12px;color:var(--ink-2);line-height:1.45;
+   285→  }
+   286→  .step .n{
+   287→    flex-shrink:0;width:20px;height:20px;border-radius:50%;
+   288→    background:var(--green);color:#fff;
+   289→    display:flex;align-items:center;justify-content:center;
+   290→    font-size:10px;font-weight:800;font-family:monospace;
+   291→  }
+   292→
+   293→  /* Two-column comparison */
+   294→  .compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+   295→  .compare .col{
+   296→    border-radius:8px;padding:10px 12px;
+   297→    font-size:11px;line-height:1.5;
+   298→  }
+   299→  .compare .col h4{
+   300→    font-size:11px;font-weight:700;text-transform:uppercase;
+   301→    margin-bottom:6px;letter-spacing:.3px;
+   302→  }
+   303→  .compare .col.left{background:#fce9b6;color:var(--ink);}
+   304→  .compare .col.left h4{color:var(--orange);}
+   305→  .compare .col.right{background:var(--green-light);color:var(--ink);}
+   306→  .compare .col.right h4{color:var(--green);}
+   307→  .compare .col ul{list-style:none;padding:0;}
+   308→  .compare .col li{margin-bottom:3px;padding-left:12px;position:relative;}
+   309→  .compare .col li::before{content:"•";position:absolute;left:0;}
+   310→
+   311→  /* Icon-colored backgrounds */
+   312→  .bg-green{background:var(--green-light)!important;}
+   313→  .bg-blue{background:var(--blue-soft)!important;}
+   314→  .bg-purple{background:var(--purple-soft)!important;}
+   315→  .bg-red{background:var(--red-soft)!important;}
+   316→  .bg-gold{background:var(--gold-soft)!important;}
+   317→  .bg-teal{background:var(--teal-soft)!important;}
+   318→  .bg-orange{background:var(--orange-soft)!important;}
+   319→
+   320→  /* Icon colors */
+   321→  .ic-green{color:var(--green);}
+   322→  .ic-blue{color:var(--blue);}
+   323→  .ic-purple{color:var(--purple);}
+   324→  .ic-red{color:var(--red);}
+   325→  .ic-gold{color:var(--gold);}
+   326→  .ic-teal{color:var(--teal);}
+   327→  .ic-orange{color:var(--orange);}
+   328→
+   329→  /* Social footer */
+   330→  .social-footer{
+   331→    display:flex;align-items:center;justify-content:space-around;
+   332→    border:2px solid var(--green);border-radius:12px;
+   333→    padding:10px 16px;margin-top:16px;
+   334→  }
+   335→  .social-footer .social{
+   336→    display:flex;flex-direction:column;align-items:center;gap:3px;
+   337→    font-size:9px;font-weight:700;letter-spacing:.5px;
+   338→    color:var(--green);text-transform:uppercase;
+   339→  }
+   340→  .social-footer .social svg{width:18px;height:18px;}
+   341→
+   342→  /* Watermark pattern */
+   343→  .watermark{
+   344→    position:absolute;inset:0;z-index:0;pointer-events:none;
+   345→    opacity:.04;overflow:hidden;
+   346→  }
+   347→  .watermark span{
+   348→    position:absolute;
+   349→    font-size:60px;font-weight:800;letter-spacing:4px;
+   350→    color:var(--green);white-space:nowrap;
+   351→    transform:rotate(-30deg);
+   352→  }
+   353→
+   354→  /* ============================================================
+   355→     PRINT / PDF
+   356→     ============================================================ */
+   357→  @page{size:1080px 1353px;margin:0;}
+   358→  @media print{
+   359→    html,body{background:#fff;padding:0;}
+   360→    .page-wrapper{page-break-after:always;}
+   361→    .page-wrapper:last-child{page-break-after:auto;}
+   362→    .page{box-shadow:none;border-radius:0;}
+   363→  }
+   364→
+   365→</style>
+   366→</head>
+   367→<body>
+   368→
+   369→<div class="page-wrapper">
+   370→  <div class="holes" aria-hidden="true"></div>
+   371→  <div class="spiral" aria-hidden="true"></div>
+   372→  <div class="page">
+   373→    <div class="page-top-edge" aria-hidden="true"></div>
+   374→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   375→    <div class="watermark" aria-hidden="true"><span style="top:5%;left:-5%;">VERIQTA</span><span style="top:5%;left:30%;">VERIQTA</span><span style="top:5%;left:65%;">VERIQTA</span><span style="top:25%;left:-5%;">VERIQTA</span><span style="top:25%;left:30%;">VERIQTA</span><span style="top:25%;left:65%;">VERIQTA</span></div>
+   376→    <div class="content">
+   377→
+   378→      <!-- Brand bar -->
+   379→      <div class="brand-bar">
+   380→        <div class="brand-logo">
+   381→          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5 L9 19 L12 11 L15 19 L21 5"/><circle cx="12" cy="5" r="1.5" fill="currentColor"/></svg>
+   382→          <span>VERIQTA</span>
+   383→        </div>
+   384→        <div class="brand-badge">Page 5 of 20</div>
+   385→      </div>
+   386→
+   387→      <!-- Title -->
+   388→      <h1 class="page-title">5. READING USER INPUT AND SCRIPT ARGUMENTS</h1>
+   389→      <div class="page-subtitle">GET INPUT. USE ARGUMENTS. BUILD SMARTER SCRIPTS.</div>
+   390→
+   391→      <!-- Body -->
+   392→      
+   393→<style>
+   394→  .p5-top{display:grid; grid-template-columns:1fr 1.2fr; gap:12px; margin-bottom:12px;}
+   395→  .p5-mid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:12px;}
+   396→  .p5-bot{display:grid; grid-template-columns:1.5fr 1fr; gap:12px;}
+   397→  .p5-card{background:#fff; border:1px solid rgba(0,0,0,.05); border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.06);}
+   398→  .p5-card .h{background:var(--green); color:#fff; padding:7px 12px; font-size:11px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+   399→  .p5-card .h svg{width:14px;height:14px;}
+   400→  .p5-card .b{padding:10px 12px; font-size:11.5px; color:var(--ink-2); line-height:1.5;}
+   401→  .p5-card .b ul{list-style:none; padding:0; margin:0;}
+   402→  .p5-card .b li{padding-left:14px; position:relative; margin-bottom:4px;}
+   403→  .p5-card .b li::before{content:"•"; position:absolute; left:0; color:var(--green); font-weight:800;}
+   404→  .p5-best li::before{content:"✓"; color:var(--green); font-weight:800;}
+   405→  .p5-arg-list{margin-top:6px;}
+   406→  .p5-arg-list li{padding-left:18px; position:relative;}
+   407→  .p5-arg-list li::before{content:"✓"; position:absolute; left:0; color:var(--green); font-weight:800;}
+   408→  .p5-bot .p5-card.right-col{display:flex; flex-direction:column;}
+   409→  .p5-bot .p5-card.right-col .stack{display:flex; flex-direction:column; gap:10px; padding:10px 12px;}
+   410→  .p5-run-box{background:var(--terminal-bg); border-radius:8px; overflow:hidden;}
+   411→  .p5-run-box .rb-h{background:#1c2230; padding:5px 10px; display:flex; align-items:center; gap:6px;}
+   412→  .p5-run-box .rb-h i{width:8px; height:8px; border-radius:50%; display:inline-block;}
+   413→  .p5-run-box .rb-h .rt{margin-left:auto; color:var(--terminal-dim); font-size:9px; font-family:monospace;}
+   414→  .p5-run-box .rb-b{padding:8px 10px; font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--terminal-fg); line-height:1.6;}
+   415→  .p5-run-box .rb-b .p{color:var(--terminal-green);}
+   416→  .p5-run-box .rb-b .o{color:var(--terminal-fg);}
+   417→  .p5-does-box{background:var(--green-light); border-radius:8px; padding:8px 10px;}
+   418→  .p5-does-box h4{font-size:11px; font-weight:700; color:var(--green); text-transform:uppercase; margin-bottom:4px; letter-spacing:.3px;}
+   419→  .p5-does-box ul{list-style:none; padding:0; margin:0;}
+   420→  .p5-does-box li{padding-left:14px; position:relative; margin-bottom:3px; font-size:10.5px; color:var(--ink-2);}
+   421→  .p5-does-box li::before{content:"✓"; position:absolute; left:0; color:var(--green); font-weight:800;}
+   422→  .p5-tip{
+   423→    background:var(--green-light); border:2px solid var(--green); border-radius:10px;
+   424→    padding:10px 14px; margin-top:12px; display:flex; gap:10px; align-items:center;
+   425→    font-size:12px; color:var(--ink-2);
+   426→  }
+   427→  .p5-tip .ti{width:30px; height:30px; border-radius:50%; background:var(--green); color:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+   428→  .p5-tip .ti svg{width:18px; height:18px;}
+   429→  .p5-tip b{color:var(--green);}
+   430→</style>
+   431→
+   432→<div class="p5-top">
+   433→  <!-- 1. READ: GET USER INPUT -->
+   434→  <div class="p5-card">
+   435→    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3v1h6v-1c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>1. Read: Get User Input</div>
+   436→    <div class="b">
+   437→      <ul>
+   438→        <li>Use <code class="inline">read</code> to get input from the user.</li>
+   439→        <li><code class="inline">-p</code> shows a prompt.</li>
+   440→        <li>The value is stored in the variable.</li>
+   441→      </ul>
+   442→      <div class="terminal">
+   443→  <div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">terminal</span></div>
+   444→  <div class="term-body"><div class="cmd">read -p "Enter your name: " NAME</div>
+   445→<div class="cmd">echo "Hello, $NAME"</div></div>
+   446→</div>
+   447→    </div>
+   448→  </div>
+   449→
+   450→  <!-- 2. SCRIPT ARGUMENTS -->
+   451→  <div class="p5-card">
+   452→    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>2. Script Arguments</div>
+   453→    <div class="b">
+   454→      <div style="margin-bottom:6px;">Pass values to a script when you run it.</div>
+   455→      <table class="tbl"><thead><tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr></thead><tbody><tr><td>$0</td><td>Script name</td><td>./deploy.sh</td></tr><tr><td>$1</td><td>First argument</td><td>dev</td></tr><tr><td>$2</td><td>Second argument</td><td>us-east-1</td></tr><tr><td>$3</td><td>Third argument</td><td>app1</td></tr><tr><td>$#</td><td>Number of arguments</td><td>3</td></tr><tr><td>$@</td><td>All arguments</td><td>"$@"</td></tr></tbody></table>
+   456→    </div>
+   457→  </div>
+   458→</div>
+   459→
+   460→<div class="p5-mid">
+   461→  <!-- 3. PASSING ARGUMENTS -->
+   462→  <div class="p5-card">
+   463→    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.7.7-1.8 0-2.5s-1.8-.7-2.5 0z"/><path d="M12 15l-3-3a14 14 0 0 1 7-7c3 0 5 2 5 5a14 14 0 0 1-7 7z"/><path d="M9 12L4.5 16.5"/><circle cx="14.5" cy="9.5" r="1.5"/></svg>3. Passing Arguments</div>
+   464→    <div class="b">
+   465→      <div>Run your script with values:</div>
+   466→      <div class="terminal">
+   467→  <div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">terminal</span></div>
+   468→  <div class="term-body"><div class="cmd">./deploy.sh dev us-east-1 app1</div></div>
+   469→</div>
+   470→      <div style="margin-top:6px;">Inside the script:</div>
+   471→      <div class="terminal">
+   472→  <div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">terminal</span></div>
+   473→  <div class="term-body"><div class="cmd">$1 = dev</div>
+   474→<div class="cmd">$2 = us-east-1</div>
+   475→<div class="cmd">$3 = app1</div></div>
+   476→</div>
+   477→    </div>
+   478→  </div>
+   479→
+   480→  <!-- 4. VALIDATING ARGUMENTS -->
+   481→  <div class="p5-card">
+   482→    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L22 20 H2 Z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg>4. Validating Arguments</div>
+   483→    <div class="b">
+   484→      <ul>
+   485→        <li>Always check if arguments are provided.</li>
+   486→        <li>Prevents errors and confusion.</li>
+   487→      </ul>
+   488→      <div class="terminal">
+   489→  <div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">terminal</span></div>
+   490→  <div class="term-body"><div class="cmd">if [ $# -lt 3 ]; then</div>
+   491→<div class="cmd">  echo "Usage: $0 <env> <region> <app>"</div>
+   492→<div class="cmd">  exit 1</div>
+   493→<div class="cmd">fi</div></div>
+   494→</div>
+   495→    </div>
+   496→  </div>
+   497→
+   498→  <!-- 5. COMMON PRACTICES -->
+   499→  <div class="p5-card">
+   500→    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12 L11 15 L16 9" stroke-width="2.5"/></svg>5. Common Practices</div>
+   501→    <div class="b">
+   502→      <ul class="p5-arg-list p5-best">
+   503→        <li>Always validate arguments.</li>
+   504→        <li>Use meaningful names.</li>
+   505→        <li>Quote <code class="inline">"$@"</code> when using all args.</li>
+   506→        <li>Give helpful usage messages.</li>
+   507→        <li>Exit with code 1 on error.</li>
+   508→      </ul>
+   509→    </div>
+   510→  </div>
+   511→</div>
+   512→
+   513→<div class="p5-bot">
+   514→  <!-- 6. EXAMPLE: SIMPLE REUSABLE DEVOPS SCRIPT -->
+   515→  <div class="p5-card">
+   516→    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M6 9 L9 11.5 L6 14"/><line x1="11" y1="14" x2="17" y2="14"/></svg>6. Example: Simple Reusable DevOps Script</div>
+   517→    <div class="b">
+   518→      <div class="terminal">
+   519→  <div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">deploy.sh</span></div>
+   520→  <div class="term-body"><div class="comment">#!/bin/bash</div>
+   521→<div class="comment"># Check arguments</div>
+   522→<div class="cmd">if [ $# -lt 3 ]; then</div>
+   523→<div class="cmd">  echo "Usage: $0 <env> <region> <app>"</div>
+   524→<div class="cmd">  exit 1</div>
+   525→<div class="cmd">fi</div>
+   526→<div></div>
+   527→<div class="comment"># Assign arguments to variables</div>
+   528→<div class="cmd">ENV=$1</div>
+   529→<div class="cmd">REGION=$2</div>
+   530→<div class="cmd">APP=$3</div>
+   531→<div></div>
+   532→<div class="comment"># Use variables</div>
+   533→<div class="cmd">echo "Environment: $ENV"</div>
+   534→<div class="cmd">echo "Region: $REGION"</div>
+   535→<div class="cmd">echo "Application: $APP"</div>
+   536→<div class="cmd">echo "Deploying $APP to $ENV in $REGION..."</div></div>
+   537→</div>
+   538→    </div>
+   539→  </div>
+   540→
+   541→  <!-- RIGHT STACK: RUN EXAMPLE + WHAT THIS SCRIPT DOES -->
+   542→  <div class="p5-card right-col">
+   543→    <div class="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M10 9 L15 12 L10 15 Z" fill="currentColor"/></svg>Run Example</div>
+   544→    <div class="stack">
+   545→      <div class="p5-run-box">
+   546→        <div class="rb-h"><i style="background:#ff5f56;"></i><i style="background:#ffbd2e;"></i><i style="background:#27c93f;"></i><span class="rt">bash</span></div>
+   547→        <div class="rb-b">
+   548→          <div><span class="p">$</span> ./deploy.sh dev us-east-1 app1</div>
+   549→          <div class="o">Environment: dev</div>
+   550→          <div class="o">Region: us-east-1</div>
+   551→          <div class="o">Application: app1</div>
+   552→          <div class="o">Deploying app1 to dev in us-east-1...</div>
+   553→        </div>
+   554→      </div>
+   555→      <div class="p5-does-box">
+   556→        <h4>What This Script Does</h4>
+   557→        <ul>
+   558→          <li>Checks if 3 arguments are provided.</li>
+   559→          <li>Assigns values to variables.</li>
+   560→          <li>Prints the values.</li>
+   561→          <li>Ready to add real DevOps tasks.</li>
+   562→        </ul>
+   563→      </div>
+   564→    </div>
+   565→  </div>
+   566→</div>
+   567→
+   568→<div class="p5-tip">
+   569→  <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3v1h6v-1c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg></span>
+   570→  <div><b>TIP:</b> Good scripts take input, validate it, and do useful work. That's the foundation of automation!</div>
+   571→</div>
+   572→
+   573→
+   574→      <!-- Social footer -->
+   575→      <div class="social-footer">
+   576→        <div class="social"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M10 9 L15 12 L10 15 Z" fill="currentColor"/></svg><span>YouTube</span></div>
+   577→        <div class="social"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 8.5v7"/><path d="M18 11.5c0 3-4 3-6 3"/></svg><span>GitHub</span></div>
+   578→        <div class="social"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="2.5"/><line x1="7" y1="10" x2="7" y2="17"/><circle cx="7" cy="6.5" r="0.5" fill="currentColor"/><path d="M11 17v-4a2.5 2.5 0 0 1 5 0v4"/><line x1="11" y1="10" x2="11" y2="17"/></svg><span>LinkedIn</span></div>
+   579→        <div class="social"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg><span>X</span></div>
+   580→        <div class="social"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg><span>Instagram</span></div>
+   581→        <div class="social"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4 L3 11 L9 13 L11 20 L13.5 16 L18 20 z"/><path d="M9 13 L18 7"/></svg><span>Telegram</span></div>
+   582→      </div>
+   583→
+   584→    </div>
+   585→  </div>
+   586→</div>
+   587→
+   588→</body>
+   589→</html>
