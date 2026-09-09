@@ -1307,7 +1307,7 @@ def build_cover() -> str:
         '          <span class="pill">PROTECT</span>\n'
         '          <span class="pill">RECOVER FAST</span>\n'
         '        </div>\n'
-        '        <p class="sub">Secure systems &middot; Find threats &middot; Stop attacks &middot; Recover fast</p>\n'
+        '        <p class="sub">Secure systems · Find threats · Stop attacks · Recover fast</p>\n'
         '      </div>\n'
         '    </div>'
     )
@@ -1475,7 +1475,7 @@ def build_reference_page_3() -> str:
         '          <div class="head">KEY COMMANDS</div>\n'
         '          <div class="cmd-head-row">\n'
         '            <span class="term-pill"><span class="arrow">&gt;_</span></span>\n'
-        '            <span class="lbl">user &middot; group &middot; identity</span>\n'
+        '            <span class="lbl">user · group · identity</span>\n'
         '          </div>\n'
         '          <div class="cmd-list">\n'
         '            <div class="cmd-row">\n'
@@ -1563,7 +1563,7 @@ PAGE2_SIDEBAR = [
         "Combine multiple controls so a failure in one layer does not compromise the system.",
         "Set a strong baseline, then monitor continuously for change.",
     ]),
-    card_commands("FOUNDATION COMMANDS", "system &middot; identity &middot; audit", [
+    card_commands("FOUNDATION COMMANDS", "system · identity · audit", [
         {"cmd": "uname -a", "desc": "Show kernel and system information"},
         {"cmd": "hostnamectl", "desc": "Show host identity and OS facts"},
         {"cmd": "whoami", "desc": "Show the current effective user"},
@@ -1605,7 +1605,7 @@ PAGE4_ROWS = [
      "p": "Use strong, long passwords or keys for service accounts. Restrict permissions and avoid interactive logins."},
 ]
 PAGE4_SIDEBAR = [
-    card_commands("ACCOUNT & PASSWORD COMMANDS", "chage &middot; passwd &middot; usermod", [
+    card_commands("ACCOUNT & PASSWORD COMMANDS", "chage · passwd · usermod", [
         {"cmd": "chage -l <user>", "desc": "Display password aging information"},
         {"cmd": "chage -M 90 <user>", "desc": "Set password expiration (days)"},
         {"cmd": "chage -E 2025-12-31 <user>", "desc": "Set account expiration date"},
@@ -1658,7 +1658,7 @@ PAGE5_SIDEBAR = [
         {"icon": icon_folder(GOLD), "path": "DIR: /var/www", "desc": "drwxr-xr-x (755)"},
         {"icon": icon_folder(GOLD), "path": "DIR: /data", "desc": "drwx------ (700)"},
     ], warn_text="Wrong permissions on config files lead to credential leaks. Always audit before deploy."),
-    card_commands("QUICK CHECK COMMANDS", "ls &middot; stat &middot; find", [
+    card_commands("QUICK CHECK COMMANDS", "ls · stat · find", [
         {"cmd": "ls -l", "desc": "List files with permissions"},
         {"cmd": "namei -l /path/to/file", "desc": "Show full path permissions"},
         {"cmd": "stat file.txt", "desc": "Detailed file information"},
@@ -1702,7 +1702,7 @@ PAGE6_SIDEBAR = [
         "STICKY (1xxx) — restricted deletion in directories.",
         "ACLs — extended permissions for specific users/groups.",
     ]),
-    card_commands("FIND & ACL COMMANDS", "find &middot; getfacl &middot; setfacl", [
+    card_commands("FIND & ACL COMMANDS", "find · getfacl · setfacl", [
         {"cmd": "find / -type f -perm -4000 -exec ls -l {} \\;", "desc": "Find all SUID files"},
         {"cmd": "find / -type f -perm -2000 -exec ls -l {} \\;", "desc": "Find all SGID files"},
         {"cmd": "find /bin /sbin /usr/bin /usr/sbin -perm -4000 -o -perm -2000 -ls", "desc": "Find SUID/SGID in common paths"},
@@ -1753,7 +1753,7 @@ PAGE7_ROWS = [
      "p": "Grant only the minimum access required. Remove elevated access when not needed. Use groups, command restrictions, and logging to enforce least-privilege principles."},
 ]
 PAGE7_SIDEBAR = [
-    card_commands("SUDO COMMAND EXAMPLES", "sudo &middot; visudo", [
+    card_commands("SUDO COMMAND EXAMPLES", "sudo · visudo", [
         {"cmd": "sudo -l", "desc": "List allowed sudo commands for current user"},
         {"cmd": "sudo -ll", "desc": "List all privileges in detail"},
         {"cmd": "sudo -u <user> <command>", "desc": "Run command as another user"},
@@ -1825,7 +1825,7 @@ PAGE8_SIDEBAR = [
         ("ClientAliveInterval", "300", ""),
         ("ClientAliveCountMax", "2", ""),
     ]),
-    card_commands("SSH KEY & VALIDATION", "ssh-keygen &middot; sshd &middot; systemctl", [
+    card_commands("SSH KEY & VALIDATION", "ssh-keygen · sshd · systemctl", [
         {"cmd": "ssh-keygen -t ed25519 -C \"you@domain.com\" -f ~/.ssh/id_ed25519", "desc": "Generate ED25519 key pair"},
         {"cmd": "cat ~/.ssh/id_ed25519.pub | ssh user@srv \"mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys\"", "desc": "Copy public key to server"},
         {"cmd": "sshd -t", "desc": "Validate configuration (silent = OK)"},
@@ -1871,7 +1871,7 @@ PAGE9_ROWS = [
      "p": "Run only what you need. Disable, mask, or remove unneeded services. Keep services updated and properly configured. Minimize privileges and isolate workloads."},
 ]
 PAGE9_SIDEBAR = [
-    card_commands("COMMON SYSTEMCTL COMMANDS", "systemctl &middot; journalctl", [
+    card_commands("COMMON SYSTEMCTL COMMANDS", "systemctl · journalctl", [
         {"cmd": "systemctl list-units --type=service", "desc": "List all services"},
         {"cmd": "systemctl list-unit-files --type=service", "desc": "Show enabled/disabled services"},
         {"cmd": "systemctl status <service>", "desc": "Show service status and logs"},
@@ -1895,7 +1895,7 @@ PAGE9_SIDEBAR = [
         "Review services regularly.",
         "Follow least-privilege principles.",
     ]),
-    card_commands("ENABLED VS RUNNING", "list-unit-files &middot; list-units", [
+    card_commands("ENABLED VS RUNNING", "list-unit-files · list-units", [
         {"cmd": "systemctl list-unit-files --type=service --state=enabled", "desc": "List enabled services"},
         {"cmd": "systemctl list-units --type=service --state=running", "desc": "List running services"},
     ]),
@@ -1937,7 +1937,7 @@ PAGE10_SIDEBAR = [
         "Compare enabled vs running services.",
         "Investigate any unexpected listener immediately.",
     ]),
-    card_commands("LISTENING-PORT COMMANDS", "ss &middot; lsof &middot; netstat", [
+    card_commands("LISTENING-PORT COMMANDS", "ss · lsof · netstat", [
         {"cmd": "ss -tulpen", "desc": "List all TCP/UDP listening sockets with process"},
         {"cmd": "ss -antp", "desc": "List all TCP connections with process"},
         {"cmd": "lsof -i -P -n", "desc": "List network sockets and owning processes"},
@@ -1982,7 +1982,7 @@ PAGE11_ROWS = [
      "p": "Always test firewall changes carefully. Use a second SSH session or console access. Apply changes gradually and verify before closing your session."},
 ]
 PAGE11_SIDEBAR = [
-    card_commands("FIREWALL COMMANDS", "nft &middot; iptables &middot; ufw &middot; firewall-cmd", [
+    card_commands("FIREWALL COMMANDS", "nft · iptables · ufw · firewall-cmd", [
         {"cmd": "nft list ruleset", "desc": "Show current nftables ruleset"},
         {"cmd": "nft add rule inet filter input tcp dport 22 accept", "desc": "Allow SSH in nftables"},
         {"cmd": "iptables -L -n -v", "desc": "List iptables rules with counters"},
@@ -2038,7 +2038,7 @@ PAGE12_ROWS = [
      "p": "Correlate process behavior, network activity, and logs to detect anomalies. Investigate immediately and contain threats."},
 ]
 PAGE12_SIDEBAR = [
-    card_commands("RUNTIME INSPECTION", "ps &middot; top &middot; pstree &middot; /proc", [
+    card_commands("RUNTIME INSPECTION", "ps · top · pstree · /proc", [
         {"cmd": "ps aux", "desc": "List all processes with user and command"},
         {"cmd": "ps -ef --forest", "desc": "Show process tree"},
         {"cmd": "top", "desc": "Live process monitor (CPU, memory)"},
@@ -2093,7 +2093,7 @@ PAGE13_ROWS = [
      "p": "Correlate events from multiple logs to understand what happened. Establish sequence: initial access, actions, and impact. A clear timeline is critical for response and reporting."},
 ]
 PAGE13_SIDEBAR = [
-    card_commands("LOG INSPECTION COMMANDS", "journalctl &middot; grep &middot; last", [
+    card_commands("LOG INSPECTION COMMANDS", "journalctl · grep · last", [
         {"cmd": "journalctl -u ssh --since \"1 hour ago\"", "desc": "SSH logs from last hour"},
         {"cmd": "journalctl -p err -b", "desc": "Errors since boot"},
         {"cmd": "journalctl -k", "desc": "Kernel messages"},
@@ -2146,7 +2146,7 @@ PAGE14_ROWS = [
      "p": "Protect audit logs from tampering. Set proper permissions, enable log rotation, and forward logs to a secure, centralized location."},
 ]
 PAGE14_SIDEBAR = [
-    card_commands("AUDITD COMMANDS", "auditctl &middot; ausearch &middot; aureport", [
+    card_commands("AUDITD COMMANDS", "auditctl · ausearch · aureport", [
         {"cmd": "auditctl -w /etc/passwd -p wa -k identity", "desc": "Watch /etc/passwd for writes/attr changes"},
         {"cmd": "auditctl -w /etc/shadow -p wa -k identity", "desc": "Watch /etc/shadow"},
         {"cmd": "auditctl -w /etc/sudoers -p wa -k sudoers", "desc": "Watch /etc/sudoers"},
@@ -2202,7 +2202,7 @@ PAGE15_ROWS = [
      "p": "Review AVC logs (ausearch -m avc -ts recent). Identify the blocked action and target. Adjust the policy or profile. Use permissive or complain mode during troubleshooting, then return to Enforcing."},
 ]
 PAGE15_SIDEBAR = [
-    card_commands("SELINUX & APPARMOR COMMANDS", "getenforce &middot; sestatus &middot; aa-*", [
+    card_commands("SELINUX & APPARMOR COMMANDS", "getenforce · sestatus · aa-*", [
         {"cmd": "getenforce", "desc": "Show current SELinux mode"},
         {"cmd": "sestatus", "desc": "Detailed SELinux status"},
         {"cmd": "setenforce 0", "desc": "Set SELinux to Permissive (temp)"},
@@ -2258,7 +2258,7 @@ PAGE16_ROWS = [
      "p": "Define patch windows and maintenance schedules. Prioritize critical and high-risk vulnerabilities. Test, deploy, verify, and monitor after patching. Maintain documentation and audit patch compliance."},
 ]
 PAGE16_SIDEBAR = [
-    card_commands("PACKAGE & PATCH COMMANDS", "apt &middot; dnf &middot; unattended-upgrades", [
+    card_commands("PACKAGE & PATCH COMMANDS", "apt · dnf · unattended-upgrades", [
         {"cmd": "apt update", "desc": "Refresh package index"},
         {"cmd": "apt list --upgradable", "desc": "List upgradable packages"},
         {"cmd": "apt upgrade", "desc": "Install all upgrades"},
@@ -2320,7 +2320,7 @@ PAGE17_SIDEBAR = [
         {"icon": icon_folder(GOLD), "path": "/var/spool/cron/", "desc": "User cron jobs"},
         {"icon": icon_folder(GOLD), "path": "/root/.bashrc, /root/.ssh/", "desc": "Root shell & SSH"},
     ], warn_text="Hash these files regularly. Any change = investigate immediately."),
-    card_commands("INTEGRITY & PERSISTENCE COMMANDS", "sha256sum &middot; crontab &middot; systemctl", [
+    card_commands("INTEGRITY & PERSISTENCE COMMANDS", "sha256sum · crontab · systemctl", [
         {"cmd": "sha256sum /etc/passwd", "desc": "Hash a file"},
         {"cmd": "sha256sum -r /etc > etc.sha256", "desc": "Hash /etc recursively"},
         {"cmd": "sha256sum -c etc.sha256", "desc": "Verify against known good list"},
@@ -2368,7 +2368,7 @@ PAGE18_ROWS = [
      "p": "Search for common patterns: grep -rni \"password|passwd|api_key|secret|token\" /. Use tools: ripgrep (rg), trufflehog, git-secrets, gitleaks."},
 ]
 PAGE18_SIDEBAR = [
-    card_commands("SECRET-SCANNING COMMANDS", "grep &middot; rg &middot; trufflehog", [
+    card_commands("SECRET-SCANNING COMMANDS", "grep · rg · trufflehog", [
         {"cmd": "grep -rni \"password\" /", "desc": "Search for 'password'"},
         {"cmd": "grep -rni \"passwd\" /", "desc": "Search for 'passwd'"},
         {"cmd": "grep -rni \"api_key\" /", "desc": "Search for 'api_key'"},
@@ -2439,7 +2439,7 @@ PAGE19_SIDEBAR = [
         "Filesystem permissions audited.",
         "Exceptions documented with business justification.",
     ]),
-    card_commands("HARDENING COMMANDS", "systemctl &middot; ufw &middot; apt &middot; visudo", [
+    card_commands("HARDENING COMMANDS", "systemctl · ufw · apt · visudo", [
         {"cmd": "systemctl disable --now <service>", "desc": "Disable a service"},
         {"cmd": "ufw default deny incoming", "desc": "Default-deny inbound"},
         {"cmd": "ufw allow 22/tcp", "desc": "Allow SSH"},
@@ -2516,7 +2516,7 @@ def build_page_20() -> str:
         '          <div class="head">INVESTIGATION STEPS</div>\n'
         '          <div class="cmd-head-row">\n'
         '            <span class="term-pill"><span class="arrow">&gt;_</span></span>\n'
-        '            <span class="lbl">13 steps &middot; live forensics</span>\n'
+        '            <span class="lbl">13 steps · live forensics</span>\n'
         '          </div>\n'
         f'          <div style="padding:12px 14px;">\n            <div class="steps-grid">\n        {steps_grid}\n            </div>\n          </div>\n'
         '        </div>\n'
