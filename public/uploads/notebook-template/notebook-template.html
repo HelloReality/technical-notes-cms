@@ -3,13 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notebook Template — Multi-Page Note</title>
+<title>Blank Notebook Page Template</title>
+<!--
+  ============================================================
+  BLANK NOTEBOOK PAGE TEMPLATE
+  ============================================================
+  This is the canonical blank page layout for future notes.
+  It uses the EXACT ring, holes, page-bend, and edge design from
+  VERIQTA_Linux_Security_Handbook_Page2.html.
+
+  Usage:
+    1. Link notebook-template.css (or copy the <style> block inline)
+    2. Add class="multi-page" to <body> for multi-page notes
+    3. Copy the .page-wrapper block for each page
+    4. Put your content inside <div class="content">
+
+  The ring/hole/bend/edge elements are aria-hidden decorative
+  elements — they render automatically via CSS background images.
+  ============================================================
+-->
 <link rel="stylesheet" href="notebook-template.css">
 </head>
 <body class="multi-page">
 
-  <!-- SVG punch holes (outside page so ring extends left) -->
+  <!-- ═══════════════════════════════════════════════════════════
+       PAGE WRAPPER — copy this block for each page
+       ═══════════════════════════════════════════════════════════ -->
   <div class="page-wrapper">
+
+    <!-- SVG punch holes (outside page so ring extends left) -->
     <div class="holes" aria-hidden="true"></div>
 
     <!-- SVG spiral ring wire (extends outside page's left edge) -->
@@ -19,21 +41,25 @@
     <div class="page-bend" aria-hidden="true"></div>
 
     <div class="page">
+
       <!-- Page-stack thickness: top edge (3D block effect) -->
       <div class="page-top-edge" aria-hidden="true"></div>
       <!-- Page-stack thickness: bottom edge (3D block effect) -->
       <div class="page-bottom-edge" aria-hidden="true"></div>
 
+      <!-- ═══════════════════════════════════════════════════════
+           CONTENT — put your page content here
+           ═══════════════════════════════════════════════════════ -->
       <div class="content">
-        <!-- Page content goes here -->
-        <h1>Page 1 Title</h1>
-        <p>Content...</p>
+        <h1>Page Title</h1>
+        <p>Your content goes here.</p>
       </div>
+
     </div>
   </div>
-
-  <!-- Additional pages follow the same structure -->
-  <!-- <div class="page-wrapper"> ... </div> -->
+  <!-- ═══════════════════════════════════════════════════════════
+       END PAGE WRAPPER — copy for additional pages
+       ═══════════════════════════════════════════════════════════ -->
 
 </body>
 </html>

@@ -1,22 +1,26 @@
 /* ============================================================
-   NOTEBOOK TEMPLATE CSS — Canonical template with all fixes baked in
+   NOTEBOOK TEMPLATE CSS — Canonical template (matches VERIQTA reference)
    ============================================================
-   This file contains ALL the manual fixes we made to ensure:
-   1. Spiral binding rings are fully visible (48px body padding)
-   2. Multi-page notes stack vertically with proper gaps
-   3. Command rows stack vertically (command line 1, description line 2)
-   4. Page wrapper doesn't clip rings (overflow:visible)
-   5. Print/PDF page breaks work correctly
+   This CSS is copied EXACTLY from VERIQTA_Linux_Security_Handbook_Page2.html
+   so that all notes share the same ring, holes, page-bend, and edge design.
+
+   All fixes from the chat history are baked in:
+   1. body{padding:24px 48px} — 48px so spiral rings are fully visible
+   2. body.multi-page — vertical stacking with 24px gaps
+   3. .page-wrapper{overflow:visible} — rings outside the page not clipped
+   4. .cmd-row stacking — command line 1, description line 2
+   5. .data-table vertical alignment — inline-block + vertical-align:top
+   6. @media print — page breaks for PDF export
 
    Usage: Add class="multi-page" to <body> and link this CSS.
-   Future notes get all fixes automatically — no manual CSS adjustments needed.
+   Future notes get the exact VERIQTA ring/hole design automatically.
    ============================================================ */
 
 :root{
-  --paper:#f5f1e8;
+  --paper:#f5f1e8;          /* warm cream paper */
   --paper-2:#efe9dd;
-  --grid-line:#bcc8d6;
-  --navy:#15264d;
+  --grid-line:#bcc8d6;      /* faint graph paper grid */
+  --navy:#15264d;           /* primary dark navy */
   --navy-2:#1e3160;
   --ink:#1c1c1c;
   --ink-2:#3a3f47;
@@ -30,20 +34,24 @@
   --red-soft:#ffd4d4;
   --gold:#d4a017;
   --gold-soft:#fce9b6;
+  --orange:#ef6c00;
+  --term-bg:#0d1117;
+  --term-fg:#e6edf3;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#cfc9bb;}
 
 /* ============================================================
    BODY — 48px padding so spiral rings (at left:-30px) are visible
-   The multi-page class enables vertical stacking with gaps.
    ============================================================ */
 body{
   font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   -webkit-font-smoothing:antialiased;
   color:var(--ink);
-  display:flex;flex-direction:column;align-items:center;
-  padding:24px 48px;  /* 48px left/right so rings are fully visible */
+  display:flex;justify-content:center;align-items:flex-start;
+  flex-direction:column;
+  gap:24px;
+  padding:24px 48px;  /* 48px left/right so spiral rings are fully visible */
 }
 
 /* Multi-page stacking: pages stack vertically with 24px gaps */
@@ -59,7 +67,7 @@ body.multi-page{
 .page-wrapper{
   position:relative;
   width:1080px;
-  overflow:visible;  /* Rings extend outside — must not clip */
+  overflow:visible;
 }
 
 /* ============================================================
@@ -88,40 +96,117 @@ body.multi-page{
   z-index:0;
 }
 
-/* Page edge shadows (3D thickness) */
-.page-top-edge,.page-bottom-edge{
-  position:absolute;left:0;right:0;height:6px;z-index:1;pointer-events:none;
-}
-.page-top-edge{top:0;background:linear-gradient(to bottom,rgba(0,0,0,.08),transparent);}
-.page-bottom-edge{bottom:0;background:linear-gradient(to top,rgba(0,0,0,.08),transparent);}
-
-/* Page bend shadow */
+/* ============================================================
+   PAGE BEND — left edge shadow (3D page lift)
+   EXACT copy from VERIQTA reference
+   ============================================================ */
 .page-bend{
-  position:absolute;z-index:1;top:0;left:0;width:18px;height:100%;pointer-events:none;
-  background:linear-gradient(to right,rgba(0,0,0,.15),transparent);
+  position:absolute;
+  z-index:1;
+  top:0;left:0;
+  width:18px;height:100%;
+  pointer-events:none;
+  background:linear-gradient(
+    90deg,
+    rgba(0,0,0,0.45) 0%,
+    rgba(0,0,0,0.30) 3px,
+    rgba(0,0,0,0.18) 7px,
+    rgba(0,0,0,0.08) 12px,
+    rgba(0,0,0,0.03) 16px,
+    transparent 18px
+  );
+  border-radius:14px 0 0 14px;
 }
 
 /* ============================================================
-   SPIRAL BINDING (left edge, extends OUTSIDE page)
+   SPIRAL BINDING — inline SVG ring wire (extends outside page left edge)
+   EXACT copy from VERIQTA reference
    ============================================================ */
 .spiral{
-  position:absolute;z-index:7;top:0;left:-30px;width:120px;height:100%;pointer-events:none;
-  background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:repeat-y;
-  background-position:2.5px 0;
-  background-size:76.5px 59.5px;
+  position:absolute;
+  z-index:7;
+  top:0;
+  left:-30px;
+  width:120px;
+  height:100%;
+  pointer-events:none;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+  background-position: 2.5px 0;
+  background-size: 76.5px 59.5px;
 }
 
-/* Punch holes */
+/* ============================================================
+   PUNCHED HOLES — 3D SVG with radial+linear gradients
+   EXACT copy from VERIQTA reference (not a simple radial-gradient)
+   ============================================================ */
 .holes{
-  position:absolute;z-index:4;top:0;left:-30px;width:120px;height:100%;pointer-events:none;
-  background-image:radial-gradient(circle, #c9bfa8 3px, transparent 4px);
-  background-size:24px 80px;
-  background-position:center 40px;
+  position:absolute;
+  z-index:4;
+  top:0; left:-30px;
+  width:120px;
+  height:100%;
+  pointer-events:none;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='76.5'%20height='59.5'%20viewBox='0%200%2076.5%2059.5'%3E%3Cdefs%3E%3CradialGradient%20id='h'%20cx='0%25'%20cy='45%25'%20r='105%25'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='12%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='28%25'%20stop-color='%23111'%20stop-opacity='.25'/%3E%3Cstop%20offset='42%25'%20stop-color='%23000'%20stop-opacity='.7'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.95'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/radialGradient%3E%3ClinearGradient%20id='r'%20x1='0'%20y1='0'%20x2='1'%20y2='0'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='25%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='40%25'%20stop-color='%23000'%20stop-opacity='.5'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.9'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/linearGradient%3E%3CclipPath%20id='c1'%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23h)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23r)'%20clip-path='url(%23c1)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='7'%20fill='%23000'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='none'%20stroke='%23000'%20stroke-width='0.5'%20opacity='.3'/%3E%3C/svg%3E");
+  background-size:76.5px 59.5px;
   background-repeat:repeat-y;
+  background-position:-0.5px 0;
 }
 
-/* Command rows — stacked vertically (command line 1, description line 2)
+/* ============================================================
+   PAGE TOP/BOTTOM EDGES — 3D page-stack thickness
+   EXACT copy from VERIQTA reference
+   ============================================================ */
+.page-top-edge{
+  position:absolute;
+  z-index:8;
+  top:0; left:0; right:0;
+  height:11px;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(140,120,80,0.12) 2px,
+      rgba(140,120,80,0.12) 2.4px
+    ),
+    linear-gradient(
+      to bottom,
+      #fbf8ef 0%,
+      #f7f3e8 55%,
+      var(--paper) 100%
+    );
+  border-bottom:1px solid rgba(100,80,40,0.22);
+  box-shadow:0 1px 2px rgba(0,0,0,0.10);
+}
+
+.page-bottom-edge{
+  position:absolute;
+  z-index:8;
+  bottom:0; left:0; right:0;
+  height:11px;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(140,120,80,0.12) 2px,
+      rgba(140,120,80,0.12) 2.4px
+    ),
+    linear-gradient(
+      to top,
+      #fbf8ef 0%,
+      #f7f3e8 55%,
+      var(--paper) 100%
+    );
+  border-top:1px solid rgba(100,80,40,0.22);
+  box-shadow:0 -1px 2px rgba(0,0,0,0.10);
+}
+
+/* ============================================================
+   COMMAND ROWS — stacked vertically (command line 1, desc line 2)
    ============================================================ */
 .cmd-row{
   display:flex;
@@ -157,9 +242,6 @@ body.multi-page{
 
 /* ============================================================
    DATA TABLES — consistent vertical alignment
-   The .mono and code elements inside cells must use
-   display:inline-block + vertical-align:top so they align
-   with the cell's top padding (not the text baseline).
    ============================================================ */
 .data-table code,.data-table .mono{
   display:inline-block;
