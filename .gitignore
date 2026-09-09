@@ -33,12 +33,16 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# database
-db/*.db
+# database — TRACKED (essential for sandbox recovery)
+# The SQLite DB contains all notes, users, categories, and tags.
+# Without it, a sandbox reset wipes the entire application state.
+# Keep db/*.db-journal ignored (transient WAL files).
 db/*.db-journal
 
-# uploads (user-generated content)
-public/uploads/
+# uploads — TRACKED (generated note HTML + carousel images)
+# These are the actual note content. Build scripts can regenerate them,
+# but committing them ensures instant recovery without re-running builds.
+# (Previously gitignored — caused total content loss on sandbox reset.)
 
 # agent context (internal work logs)
 agent-ctx/
