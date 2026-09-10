@@ -130,7 +130,7 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     top_svg = TOP_EDGE_SVG
     bottom_svg = BOTTOM_EDGE_SVG
 
-    bottom_edge_y = PAPER_Y + paper_height - 0.5  # slightly overlap paper bottom
+    bottom_edge_y = PAPER_Y + paper_height - BOTTOM_EDGE_H  # edge bottom = paper bottom
 
     return f"""<div class="page-wrapper" style="position:relative;width:{PAGE_WIDTH}px;height:{page_height}px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
