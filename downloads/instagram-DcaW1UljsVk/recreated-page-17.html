@@ -3,297 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>16. ERROR HANDLING &amp; SAFER SCRIPTS — Shell Scripting for DevOps</title>
+<title>15. NETWORKING WITH SHELL SCRIPTS — Shell Scripting for DevOps</title>
 <style>
-/* ===== CANONICAL NOTEBOOK TEMPLATE CSS (inlined for portability) ===== */
+
 /* ============================================================
-   NOTEBOOK TEMPLATE CSS — Canonical template (matches  reference)
-   ============================================================
-   This CSS is copied EXACTLY from _Linux_Security_Handbook_Page2.html
-   so that all notes share the same ring, holes, page-bend, and edge design.
-
-   All fixes from the chat history are baked in:
-   1. body{padding:24px 48px} — 48px so spiral rings are fully visible
-   2. body.multi-page — vertical stacking with 24px gaps
-   3. .page-wrapper{overflow:visible} — rings outside the page not clipped
-   4. .cmd-row stacking — command line 1, description line 2
-   5. .data-table vertical alignment — inline-block + vertical-align:top
-   6. @media print — page breaks for PDF export
-
-   Usage: Add class="multi-page" to <body> and link this CSS.
-   Future notes get the exact  ring/hole design automatically.
+   COLOR TOKENS
    ============================================================ */
-
 :root{
-  --paper:#f5f1e8;          /* warm cream paper */
+  --paper:#f5f1e8;
   --paper-2:#efe9dd;
-  --grid-line:#bcc8d6;      /* faint graph paper grid */
-  --navy:#15264d;           /* primary dark navy */
+  --grid-line:#bcc8d6;
+  --green:#1B5E3F;
+  --green-2:#164a32;
+  --green-light:#e8f5ee;
+  --green-soft:#cdf3da;
+  --navy:#15264d;
   --navy-2:#1e3160;
   --ink:#1c1c1c;
   --ink-2:#3a3f47;
+  --ink-3:#6b7280;
   --blue:#2563eb;
   --blue-soft:#cfe0ff;
-  --green:#16a34a;
-  --green-soft:#cdf3da;
   --purple:#7c3aed;
   --purple-soft:#e2d4ff;
   --red:#dc2626;
   --red-soft:#ffd4d4;
   --gold:#d4a017;
   --gold-soft:#fce9b6;
-  --orange:#ef6c00;
+  --orange:#e65100;
+  --teal:#0d7377;
   --term-bg:#0d1117;
   --term-fg:#e6edf3;
+  --terminal-green:#7ee787;
+  --terminal-dim:#8b949e;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{background:#cfc9bb;}
 
-/* ============================================================
-   BODY — 48px padding so spiral rings (at left:-30px) are visible
-   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#cfc9bb;}
 body{
   font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   -webkit-font-smoothing:antialiased;
   color:var(--ink);
-  display:flex;justify-content:center;align-items:flex-start;
-  flex-direction:column;
+  display:flex;flex-direction:column;align-items:center;
   gap:24px;
-  padding:24px 48px;  /* 48px left/right so spiral rings are fully visible */
+  padding:24px 48px;
 }
-
-/* Multi-page stacking: pages stack vertically with 24px gaps */
-body.multi-page{
-  flex-direction:column;
-  gap:24px;
-  overflow:visible;
-}
-
-/* ============================================================
-   PAGE WRAPPER — overflow:visible so rings outside the page aren't clipped
-   ============================================================ */
-.page-wrapper{
-  position:relative;
-  width:1080px;
-  overflow:visible;
-}
-
-/* ============================================================
-   PAGE / NOTEBOOK SHEET
-   ============================================================ */
-.page{
-  position:relative;
-  width:1080px;
-  background:var(--paper);
-  border-radius:14px;
-  box-shadow:0 22px 60px rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.06) inset;
-  overflow:hidden;
-  padding:42px 50px 26px 78px;  /* extra left padding for spiral binding */
-}
-
-/* Graph paper grid */
-.page::before{
-  content:"";
-  position:absolute;inset:0;
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size:26px 26px;
-  opacity:.5;
-  pointer-events:none;
-  z-index:0;
-}
-
-/* ============================================================
-   PAGE BEND — left edge shadow (3D page lift)
-   EXACT copy from  reference
-   ============================================================ */
-.page-bend{
-  position:absolute;
-  z-index:1;
-  top:0;left:0;
-  width:18px;height:100%;
-  pointer-events:none;
-  background:linear-gradient(
-    90deg,
-    rgba(0,0,0,0.45) 0%,
-    rgba(0,0,0,0.30) 3px,
-    rgba(0,0,0,0.18) 7px,
-    rgba(0,0,0,0.08) 12px,
-    rgba(0,0,0,0.03) 16px,
-    transparent 18px
-  );
-  border-radius:14px 0 0 14px;
-}
-
-/* ============================================================
-   SPIRAL BINDING — inline SVG ring wire (extends outside page left edge)
-   EXACT copy from  reference
-   ============================================================ */
-.spiral{
-  position:absolute;
-  z-index:7;
-  top:0;
-  left:-30px;
-  width:120px;
-  height:100%;
-  pointer-events:none;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: repeat-y;
-  background-position: 2.5px 0;
-  background-size: 76.5px 59.5px;
-}
-
-/* ============================================================
-   PUNCHED HOLES — 3D SVG with radial+linear gradients
-   EXACT copy from  reference (not a simple radial-gradient)
-   ============================================================ */
-.holes{
-  position:absolute;
-  z-index:4;
-  top:0; left:-30px;
-  width:120px;
-  height:100%;
-  pointer-events:none;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='76.5'%20height='59.5'%20viewBox='0%200%2076.5%2059.5'%3E%3Cdefs%3E%3CradialGradient%20id='h'%20cx='0%25'%20cy='45%25'%20r='105%25'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='12%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='28%25'%20stop-color='%23111'%20stop-opacity='.25'/%3E%3Cstop%20offset='42%25'%20stop-color='%23000'%20stop-opacity='.7'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.95'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/radialGradient%3E%3ClinearGradient%20id='r'%20x1='0'%20y1='0'%20x2='1'%20y2='0'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='25%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='40%25'%20stop-color='%23000'%20stop-opacity='.5'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.9'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/linearGradient%3E%3CclipPath%20id='c1'%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23h)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23r)'%20clip-path='url(%23c1)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='7'%20fill='%23000'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='none'%20stroke='%23000'%20stroke-width='0.5'%20opacity='.3'/%3E%3C/svg%3E");
-  background-size:76.5px 59.5px;
-  background-repeat:repeat-y;
-  background-position:-0.5px 0;
-}
-
-/* ============================================================
-   PAGE TOP/BOTTOM EDGES — 3D page-stack thickness
-   EXACT copy from  reference
-   ============================================================ */
-.page-top-edge{
-  position:absolute;
-  z-index:8;
-  top:0; left:0; right:0;
-  height:11px;
-  pointer-events:none;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0px,
-      transparent 2px,
-      rgba(140,120,80,0.12) 2px,
-      rgba(140,120,80,0.12) 2.4px
-    ),
-    linear-gradient(
-      to bottom,
-      #fbf8ef 0%,
-      #f7f3e8 55%,
-      var(--paper) 100%
-    );
-  border-bottom:1px solid rgba(100,80,40,0.22);
-  box-shadow:0 1px 2px rgba(0,0,0,0.10);
-}
-
-.page-bottom-edge{
-  position:absolute;
-  z-index:8;
-  bottom:0; left:0; right:0;
-  height:11px;
-  pointer-events:none;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0px,
-      transparent 2px,
-      rgba(140,120,80,0.12) 2px,
-      rgba(140,120,80,0.12) 2.4px
-    ),
-    linear-gradient(
-      to top,
-      #fbf8ef 0%,
-      #f7f3e8 55%,
-      var(--paper) 100%
-    );
-  border-top:1px solid rgba(100,80,40,0.22);
-  box-shadow:0 -1px 2px rgba(0,0,0,0.10);
-}
-
-/* ============================================================
-   COMMAND ROWS — stacked vertically (command line 1, desc line 2)
-   ============================================================ */
-.cmd-row{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  padding:5px 0;
-  border-bottom:1px dashed rgba(22,38,77,0.10);
-}
-.cmd-row:last-child{border-bottom:none;}
-
-.cmd-row code{
-  font-family:"JetBrains Mono","Consolas",monospace;
-  font-size:12.5px;
-  font-weight:700;
-  color:var(--navy);
-  background:#eef1f8;
-  border-radius:4px;
-  padding:2px 6px;
-  display:inline-block;
-  white-space:pre;
-  align-self:flex-start;
-  line-height:1.4;
-  margin-bottom:0;
-}
-
-.cmd-row span{
-  display:block;
-  font-size:11.5px;
-  color:var(--ink-2);
-  line-height:1.4;
-  margin-top:1px;
-}
-
-/* ============================================================
-   DATA TABLES — consistent vertical alignment
-   ============================================================ */
-.data-table code,.data-table .mono{
-  display:inline-block;
-  vertical-align:top;
-}
-
-/* ============================================================
-   PRINT / PDF — each page breaks to a new PDF page
-   ============================================================ */
-@page{
-  size:1080px 1353px;
-  margin:0;
-}
+body.multi-page{flex-direction:column;gap:24px;overflow:visible;}
+.page-wrapper{position:relative;overflow:visible;}
 @media print{
   html,body{background:#fff;padding:0;gap:0;}
   .page-wrapper{page-break-after:always;}
   .page-wrapper:last-child{page-break-after:auto;}
-  .page{box-shadow:none;border-radius:0;}
-  .page{page-break-after:always;}
-  .page:last-child{page-break-after:auto;}
 }
 
-
-/* ===== SUPPLEMENTAL CSS (page-specific layouts) ===== */
+/* content sits above graph-paper grid.
+   IMPORTANT FIX: polotno_template's paper <svg> is a regular block element
+   (no position:absolute), which means it occupies vertical flow space
+   equal to paper_height and pushes .content down BELOW the paper (where it
+   gets clipped by overflow:hidden). We force the SVG to be position:absolute
+   so it overlays the paper as a background, letting .content flow naturally
+   from the top of the paper (with the inline padding). */
+.content{position:relative;z-index:2;}
+.page-wrapper > div:first-child > svg:first-child{
+  position:absolute !important;
+  top:0; left:0;
+  width:100% !important;
+  height:100% !important;
+  z-index:0;
+  pointer-events:none;
+}
 
 /* ============================================================
-   CONTENT WRAPPER + Z-INDEX
+   PAGE HEADER (title + subtitle)
    ============================================================ */
-.content{position:relative;z-index:2;}
-
-/* Page title */
 .page-title{
-  font-size:36px;font-weight:800;color:var(--navy);
-  text-transform:uppercase;letter-spacing:-.5px;line-height:1.1;
-  margin-bottom:6px;
-  display:flex;align-items:center;gap:14px;
+  font-size:32px;font-weight:800;color:var(--green);
+  text-transform:uppercase;letter-spacing:-.4px;line-height:1.1;
+  margin-bottom:4px;
+  display:flex;align-items:center;gap:12px;
 }
-.page-title .num{color:var(--green);}
-.page-title .title-ico{display:inline-flex;width:42px;height:42px;}
+.page-title .num{color:var(--green-2);}
+.page-title .title-ico{display:inline-flex;width:42px;height:42px;flex-shrink:0;}
+.page-title .title-ico svg{display:block;}
 .page-subtitle{
-  font-size:13px;font-weight:700;color:var(--ink-2);
-  text-transform:uppercase;letter-spacing:1.5px;
-  margin-bottom:18px;
-  padding-bottom:12px;
+  font-size:12.5px;font-weight:700;color:var(--ink-2);
+  text-transform:uppercase;letter-spacing:1.4px;
+  padding-bottom:10px;margin-bottom:14px;
   border-bottom:2px solid var(--green);
   position:relative;
 }
@@ -303,40 +98,40 @@ body.multi-page{
   border-radius:50%;transform:translateX(-50%);
 }
 
-/* Page badge (top right) */
+/* Page badge (top-right) */
 .page-badge{
-  position:absolute;top:32px;right:50px;z-index:3;
+  position:absolute;top:18px;right:24px;z-index:9;
   background:var(--green);color:#fff;
-  padding:6px 16px;border-radius:999px;
-  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  padding:5px 14px;border-radius:999px;
+  font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
   box-shadow:0 4px 12px rgba(27,94,63,.35);
 }
 
 /* ============================================================
-   BODY GRID LAYOUTS
+   BODY LAYOUTS
    ============================================================ */
 .body{
   display:grid;
   grid-template-columns:1.85fr 1fr;
-  gap:18px;
-  margin-bottom:16px;
+  gap:16px;
+  margin-bottom:14px;
 }
 .body.single{grid-template-columns:1fr;}
 .body.three-col{grid-template-columns:1fr 1fr 1fr;}
 
 /* ============================================================
-   ROWS (left column - sections)
+   ROWS (left column sections)
    ============================================================ */
-.rows{display:flex;flex-direction:column;gap:10px;}
+.rows{display:flex;flex-direction:column;gap:8px;}
 .row{
-  display:flex;gap:12px;align-items:flex-start;
+  display:flex;gap:11px;align-items:flex-start;
   background:rgba(255,255,255,.55);
-  border-radius:10px;padding:10px 12px;
+  border-radius:9px;padding:8px 11px;
   border-left:3px solid var(--green);
 }
 .row .ico{
-  flex-shrink:0;width:44px;height:44px;
-  border-radius:10px;
+  flex-shrink:0;width:42px;height:42px;
+  border-radius:9px;
   display:flex;align-items:center;justify-content:center;
   background:var(--paper-2);
 }
@@ -344,29 +139,29 @@ body.multi-page{
 .row .text{flex:1;min-width:0;}
 .row .text h3{
   font-size:12.5px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.4px;
+  text-transform:uppercase;letter-spacing:.3px;
   margin-bottom:3px;
 }
 .row .text p{
-  font-size:12px;color:var(--ink-2);line-height:1.45;
+  font-size:11.5px;color:var(--ink-2);line-height:1.45;
   margin-bottom:4px;
 }
 .row .text ul{
   list-style:none;padding:0;margin:4px 0 0 0;
-  font-size:11.5px;color:var(--ink-2);line-height:1.55;
+  font-size:11px;color:var(--ink-2);line-height:1.5;
 }
 .row .text ul li{
-  padding-left:18px;position:relative;margin-bottom:3px;
+  padding-left:16px;position:relative;margin-bottom:3px;
 }
 .row .text ul li::before{
   content:"";position:absolute;left:2px;top:6px;
-  width:8px;height:8px;border-radius:50%;
+  width:7px;height:7px;border-radius:50%;
   background:var(--green);
 }
 .row .text code.inline,
 code.inline{
   font-family:"JetBrains Mono","Fira Code",monospace;
-  font-size:11px;
+  font-size:10.5px;
   background:#e8e4d4;padding:1px 5px;border-radius:3px;
   color:var(--navy);
 }
@@ -375,31 +170,31 @@ code.inline{
    TERMINAL / CODE BLOCK
    ============================================================ */
 .terminal{
-  background:var(--term-bg);border-radius:8px;overflow:hidden;
-  box-shadow:0 4px 14px rgba(0,0,0,.2);
+  background:var(--term-bg);border-radius:7px;overflow:hidden;
+  box-shadow:0 3px 12px rgba(0,0,0,.18);
   margin-top:6px;
 }
 .terminal .term-bar{
-  background:#1c2230;padding:6px 12px;
+  background:#1c2230;padding:5px 11px;
   display:flex;align-items:center;gap:6px;
 }
-.terminal .term-dot{width:10px;height:10px;border-radius:50%;}
+.terminal .term-dot{width:9px;height:9px;border-radius:50%;}
 .terminal .dot-red{background:#ff5f56;}
 .terminal .dot-amber{background:#ffbd2e;}
 .terminal .dot-green{background:#27c93f;}
 .terminal .term-title{
   margin-left:auto;color:#8b949e;
-  font-size:10px;font-family:monospace;
+  font-size:9.5px;font-family:monospace;
 }
 .terminal .term-body{
-  padding:10px 14px;
+  padding:8px 12px;
   font-family:"JetBrains Mono","Fira Code",monospace;
-  font-size:11.5px;line-height:1.55;
+  font-size:10.5px;line-height:1.5;
   color:var(--term-fg);
   white-space:pre-wrap;
 }
-.terminal .term-body .prompt{color:var(--terminal-green,#7ee787);}
-.terminal .term-body .comment{color:var(--terminal-dim,#8b949e);font-style:italic;}
+.terminal .term-body .prompt{color:var(--terminal-green);}
+.terminal .term-body .comment{color:var(--terminal-dim);font-style:italic;}
 .terminal .term-body .cmd{color:#79c0ff;}
 .terminal .term-body .str{color:#f2cc60;}
 .terminal .term-body .out{color:var(--term-fg);}
@@ -408,56 +203,56 @@ code.inline{
 /* ============================================================
    SIDEBAR CARDS (right column)
    ============================================================ */
-.sidebar{display:flex;flex-direction:column;gap:10px;}
+.sidebar{display:flex;flex-direction:column;gap:8px;}
 .card{
-  background:#fff;border-radius:10px;overflow:hidden;
+  background:#fff;border-radius:9px;overflow:hidden;
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   border:1px solid rgba(0,0,0,.05);
 }
 .card .head{
   background:var(--green);color:#fff;
-  padding:8px 14px;
-  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  padding:7px 12px;
+  font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
   display:flex;align-items:center;gap:8px;
 }
 .card .head .head-ico{
-  width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;
 }
 .card .head .head-ico svg{display:block;}
-.card .body-pad{padding:12px 14px;}
+.card .body-pad{padding:10px 12px;}
 .card .body-pad p{
-  font-size:11.5px;color:var(--ink-2);line-height:1.5;
-  margin-bottom:6px;
+  font-size:11px;color:var(--ink-2);line-height:1.45;
+  margin-bottom:5px;
 }
 .card .body-pad ul{
   list-style:none;padding:0;margin:0;
-  font-size:11.5px;color:var(--ink-2);line-height:1.55;
+  font-size:11px;color:var(--ink-2);line-height:1.5;
 }
 .card .body-pad ul li{
-  padding-left:20px;position:relative;margin-bottom:5px;
+  padding-left:18px;position:relative;margin-bottom:4px;
 }
 .card .body-pad ul li::before{
   content:"";position:absolute;left:2px;top:6px;
-  width:8px;height:8px;border-radius:50%;background:var(--green);
+  width:7px;height:7px;border-radius:50%;background:var(--green);
 }
 
 /* ============================================================
    TABLES
    ============================================================ */
-.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px;}
+.tbl{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:4px;}
 .tbl th{
   background:var(--green);color:#fff;
-  padding:6px 10px;text-align:left;
-  font-weight:700;font-size:10px;letter-spacing:.3px;text-transform:uppercase;
+  padding:5px 8px;text-align:left;
+  font-weight:700;font-size:9.5px;letter-spacing:.3px;text-transform:uppercase;
 }
 .tbl td{
-  padding:6px 10px;
+  padding:5px 8px;
   border-bottom:1px solid #e0d8c8;
   color:var(--ink-2);
 }
 .tbl td code,
 .tbl td .mono{
-  font-family:"JetBrains Mono",monospace;font-size:10px;
+  font-family:"JetBrains Mono",monospace;font-size:9.5px;
   background:#e8e4d4;padding:1px 4px;border-radius:3px;
   color:var(--navy);
   display:inline-block;vertical-align:top;
@@ -465,13 +260,13 @@ code.inline{
 .tbl tr:last-child td{border-bottom:none;}
 
 /* ============================================================
-   CALLOUTS (warn / tip)
+   CALLOUTS (warn / tip / danger)
    ============================================================ */
 .callout{
-  display:flex;gap:10px;align-items:flex-start;
-  border-radius:8px;padding:8px 12px;
-  font-size:11.5px;line-height:1.45;
-  margin-top:6px;
+  display:flex;gap:9px;align-items:flex-start;
+  border-radius:7px;padding:7px 11px;
+  font-size:11px;line-height:1.45;
+  margin-top:5px;
 }
 .callout.warn{
   background:#fff4e0;border-left:3px solid var(--orange);
@@ -485,56 +280,57 @@ code.inline{
   background:#ffe5e5;border-left:3px solid var(--red);
   color:var(--ink-2);
 }
-.callout .ico{flex-shrink:0;width:20px;height:20px;margin-top:1px;display:inline-flex;}
+.callout .ico{flex-shrink:0;width:18px;height:18px;margin-top:1px;display:inline-flex;}
 .callout .ico svg{display:block;}
 
 /* ============================================================
-   3-COLUMN CARD GRID (page 16)
+   3-COLUMN GRID CARDS (page 16 — error handling)
    ============================================================ */
 .card-grid-3{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
-  gap:10px;
-  margin-bottom:14px;
+  gap:9px;
+  margin-bottom:11px;
 }
 .grid-card{
-  background:#fff;border-radius:10px;overflow:hidden;
+  background:#fff;border-radius:9px;overflow:hidden;
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   border:1px solid rgba(0,0,0,.05);
   display:flex;flex-direction:column;
 }
 .grid-card .gc-head{
-  padding:8px 12px;
-  font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
+  padding:7px 11px;
+  font-size:10.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;
   color:#fff;
 }
 .grid-card .gc-head .gc-ico{
-  width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
 .grid-card .gc-head .gc-ico svg{display:block;}
 .grid-card .gc-body{
-  padding:10px 12px;
-  flex:1;display:flex;flex-direction:column;gap:6px;
+  padding:8px 11px;
+  flex:1;display:flex;flex-direction:column;gap:5px;
 }
 .grid-card .gc-body p{
-  font-size:11px;color:var(--ink-2);line-height:1.4;
+  font-size:10.5px;color:var(--ink-2);line-height:1.4;
 }
 .grid-card .gc-body ul{
   list-style:none;padding:0;margin:0;
-  font-size:10.5px;color:var(--ink-2);line-height:1.5;
+  font-size:10px;color:var(--ink-2);line-height:1.5;
 }
 .grid-card .gc-body ul li{
-  padding-left:16px;position:relative;margin-bottom:3px;
+  padding-left:14px;position:relative;margin-bottom:3px;
 }
 .grid-card .gc-body ul li::before{
   content:"";position:absolute;left:0;top:6px;
-  width:7px;height:7px;border-radius:50%;background:var(--green);
+  width:6px;height:6px;border-radius:50%;background:var(--green);
 }
 .grid-card .gc-body .terminal{margin-top:4px;}
-.grid-card .gc-body .terminal .term-body{font-size:10.5px;padding:8px 12px;}
+.grid-card .gc-body .terminal .term-body{font-size:10px;padding:6px 10px;}
 
-/* Color variants for grid-card heads */
+/* color variants */
 .gc-green{background:var(--green);}
 .gc-blue{background:var(--blue);}
 .gc-purple{background:var(--purple);}
@@ -548,40 +344,40 @@ code.inline{
    KEY TAKEAWAY BOX
    ============================================================ */
 .key-takeaway{
-  display:flex;align-items:center;gap:14px;
+  display:flex;align-items:center;gap:13px;
   background:var(--green);color:#fff;
-  border-radius:10px;padding:14px 20px;
-  margin-top:12px;
+  border-radius:9px;padding:11px 18px;
+  margin-top:11px;
 }
 .key-takeaway .kt-ico{
-  flex-shrink:0;width:36px;height:36px;
+  flex-shrink:0;width:34px;height:34px;
   display:inline-flex;align-items:center;justify-content:center;
 }
 .key-takeaway .kt-ico svg{display:block;}
 .key-takeaway .kt-text{
-  flex:1;font-size:12.5px;line-height:1.5;
+  flex:1;font-size:12px;line-height:1.5;
 }
 .key-takeaway .kt-text strong{
-  display:block;font-size:13px;letter-spacing:1.5px;
-  margin-bottom:2px;
+  display:block;font-size:12.5px;letter-spacing:1.4px;
+  margin-bottom:2px;text-transform:uppercase;
 }
 
 /* ============================================================
    STEPS (numbered)
    ============================================================ */
-.steps{display:flex;flex-direction:column;gap:6px;}
+.steps{display:flex;flex-direction:column;gap:5px;}
 .step{
-  display:flex;gap:10px;align-items:flex-start;
-  font-size:12px;color:var(--ink-2);line-height:1.45;
+  display:flex;gap:9px;align-items:flex-start;
+  font-size:11.5px;color:var(--ink-2);line-height:1.4;
 }
 .step .n{
-  flex-shrink:0;width:22px;height:22px;border-radius:50%;
+  flex-shrink:0;width:20px;height:20px;border-radius:50%;
   background:var(--green);color:#fff;
   display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:800;font-family:monospace;
+  font-size:10.5px;font-weight:800;font-family:monospace;
 }
 .step .step-ico{
-  flex-shrink:0;width:22px;height:22px;
+  flex-shrink:0;width:20px;height:20px;
   display:inline-flex;align-items:center;justify-content:center;
 }
 .step .step-ico svg{display:block;}
@@ -589,63 +385,63 @@ code.inline{
 /* ============================================================
    COMPARE (debugging page - 2-col comparison)
    ============================================================ */
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .compare .col{
-  border-radius:8px;padding:8px 10px;
-  font-size:10.5px;line-height:1.45;
+  border-radius:7px;padding:7px 9px;
+  font-size:10px;line-height:1.4;
   background:#fff;
   border:1px solid #e0d8c8;
 }
 .compare .col h4{
-  font-size:10.5px;font-weight:800;text-transform:uppercase;
-  margin-bottom:4px;letter-spacing:.3px;
+  font-size:10px;font-weight:800;text-transform:uppercase;
+  margin-bottom:3px;letter-spacing:.3px;
   display:flex;align-items:center;gap:6px;
 }
-.compare .col h4 .h-ico{width:16px;height:16px;display:inline-flex;}
+.compare .col h4 .h-ico{width:15px;height:15px;display:inline-flex;}
 .compare .col h4 .h-ico svg{display:block;}
-.compare .col p{margin-bottom:4px;color:var(--ink-2);}
+.compare .col p{margin-bottom:3px;color:var(--ink-2);}
 .compare .col .fix{
-  font-size:10px;color:var(--green);font-weight:700;
+  font-size:9.5px;color:var(--green);font-weight:700;
 }
 .compare .col .mini-code{
-  font-family:"JetBrains Mono",monospace;font-size:9.5px;
+  font-family:"JetBrains Mono",monospace;font-size:9px;
   background:var(--term-bg);color:var(--term-fg);
-  padding:5px 7px;border-radius:4px;margin-top:4px;
+  padding:4px 6px;border-radius:4px;margin-top:4px;
   white-space:pre-wrap;
 }
-.compare-grid-2{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;
+.compare-grid-3{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:6px;
 }
-.compare-grid-2 .compare{grid-template-columns:1fr;}
+.compare-grid-3 .compare{grid-template-columns:1fr;}
 
 /* ============================================================
    WORKFLOW STRIP (page 20)
    ============================================================ */
 .workflow{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
-  background:#fff;border:2px solid var(--green);border-radius:12px;
-  padding:12px 16px;margin-top:12px;
+  background:#fff;border:2px solid var(--green);border-radius:11px;
+  padding:11px 15px;margin-top:11px;
 }
 .workflow .wf-step{
   display:flex;flex-direction:column;align-items:center;gap:4px;
   font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;
   flex:1;
 }
-.workflow .wf-step .wf-ico{width:32px;height:32px;display:inline-flex;}
+.workflow .wf-step .wf-ico{width:30px;height:30px;display:inline-flex;}
 .workflow .wf-step .wf-ico svg{display:block;}
-.workflow .wf-arrow{color:var(--green);font-weight:800;font-size:16px;}
+.workflow .wf-arrow{color:var(--green);font-weight:800;font-size:15px;}
 .workflow .wf-final{
-  display:flex;align-items:center;gap:8px;padding-left:14px;
+  display:flex;align-items:center;gap:8px;padding-left:12px;
   border-left:2px solid #cde4d4;
 }
 .workflow .wf-final .wf-check{
-  width:32px;height:32px;border-radius:50%;
+  width:30px;height:30px;border-radius:50%;
   background:var(--green);color:#fff;
   display:flex;align-items:center;justify-content:center;
 }
 .workflow .wf-final .wf-check svg{display:block;}
 .workflow .wf-final .wf-text{
-  font-size:11px;font-weight:800;color:var(--green);
+  font-size:10.5px;font-weight:800;color:var(--green);
   text-transform:uppercase;line-height:1.3;
 }
 
@@ -653,12 +449,12 @@ code.inline{
    STATUS BADGES (HTTP codes)
    ============================================================ */
 .status-badges{
-  display:flex;flex-direction:column;gap:5px;align-items:flex-start;
+  display:flex;flex-direction:column;gap:4px;align-items:flex-start;
 }
 .status-badge{
   display:inline-flex;align-items:center;gap:6px;
-  padding:3px 10px;border-radius:6px;
-  font-size:11px;font-weight:800;color:#fff;
+  padding:3px 9px;border-radius:5px;
+  font-size:10.5px;font-weight:800;color:#fff;
   font-family:monospace;
 }
 .status-2xx{background:var(--green);}
@@ -667,104 +463,183 @@ code.inline{
 .status-5xx{background:#7c2d12;}
 
 /* ============================================================
-   FOOTER NOTE
+   SAFE-SCRIPT TEMPLATE (page 16 full-width section)
    ============================================================ */
-.page-foot-note{
-  font-size:10.5px;color:var(--ink-2);text-align:center;
-  font-style:italic;margin-top:8px;opacity:.8;
+.template-section{
+  background:#fff;border:1px solid #e0d8c8;border-radius:9px;
+  padding:11px 14px;margin-bottom:11px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.template-section h3{
+  font-size:13px;font-weight:800;color:var(--green);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.template-section h3 .h-ico{width:22px;height:22px;display:inline-flex;}
+.template-section h3 .h-ico svg{display:block;}
+.template-section .ts-grid{
+  display:grid;grid-template-columns:1.4fr 1fr;gap:12px;
+}
+.template-section .ts-explain{
+  display:flex;flex-direction:column;gap:5px;
+}
+.template-section .ts-explain .ex-row{
+  display:flex;gap:8px;align-items:flex-start;
+  font-size:11px;color:var(--ink-2);line-height:1.4;
+}
+.template-section .ts-explain .ex-row .ex-ico{
+  flex-shrink:0;width:18px;height:18px;display:inline-flex;
+}
+.template-section .ts-explain .ex-row .ex-ico svg{display:block;}
+.template-section .ts-explain .ex-row .ex-text strong{
+  color:var(--green);font-weight:800;
 }
 
 </style>
 </head>
 <body class="multi-page">
 
-<div class="page-wrapper">
-  <div class="spiral" aria-hidden="true"></div>
-  <div class="holes" aria-hidden="true"></div>
-  <div class="page-bend" aria-hidden="true"></div>
-  <div class="page">
-    <div class="page-top-edge" aria-hidden="true"></div>
-    <div class="page-bottom-edge" aria-hidden="true"></div>
-    <div class="page-badge">Page 17 of 20</div>
-    <div class="content">
+  <div class="page-wrapper" style="position:relative;width:1220px;height:1568px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
-      <h1 class="page-title"><span class="title-ico"><svg viewBox="0 0 48 48" width="38" height="38" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="36" height="36" rx="5" fill="#1B5E3F"/><rect x="6" y="6" width="36" height="8" rx="5" fill="#164a32"/><circle cx="12" cy="10" r="1.2" fill="#ff5f56"/><circle cx="16" cy="10" r="1.2" fill="#ffbd2e"/><circle cx="20" cy="10" r="1.2" fill="#27c93f"/><text x="12" y="30" fill="#7ee787" font-family="monospace" font-size="14" font-weight="bold">$_</text></svg></span><span class="num">16.</span> ERROR HANDLING &amp; SAFER SCRIPTS</h1>
-      <div class="page-subtitle">FAIL FAST. VALIDATE. CLEAN UP. STAY PREDICTABLE.</div>
-
-
+    <!-- Paper sheet with grid + left bend + 3D edges + content (all inside paper) -->
+    <div style="position:absolute;left:62.975306px;top:24px;width:1080px;height:1520px;border-radius:14px;overflow:hidden;">
+      <svg xmlns='http://www.w3.org/2000/svg' width='1080' height='1520' viewBox='0 0 1080 1520' preserveAspectRatio='none'><defs><clipPath id='pc'><rect width='1080' height='1520' rx='14' ry='14'/></clipPath><pattern id='grid' width='26' height='26' patternUnits='userSpaceOnUse'><rect width='26' height='1' fill='#bcc8d6'/><rect width='1' height='26' fill='#bcc8d6'/></pattern><linearGradient id='bend' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0.45'/><stop offset='0.1667' stop-color='#000000' stop-opacity='0.30'/><stop offset='0.3889' stop-color='#000000' stop-opacity='0.18'/><stop offset='0.6667' stop-color='#000000' stop-opacity='0.08'/><stop offset='0.8889' stop-color='#000000' stop-opacity='0.03'/><stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient></defs><g clip-path='url(#pc)'><rect width='1080' height='1520' fill='#f5f1e8'/><rect width='1080' height='1520' fill='url(#grid)' opacity='0.5'/><rect width='18' height='1520' fill='url(#bend)'/></g></svg>
+      <!-- 3D page-stack top edge (from Linux Security Handbook) -->
+      <div style="position:absolute;z-index:8;top:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to bottom,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-bottom:1px solid rgba(100,80,40,0.22);box-shadow:0 1px 2px rgba(0,0,0,0.10);"></div>
+      <!-- 3D page-stack bottom edge (from Linux Security Handbook) -->
+      <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
+      <!-- Content (inside paper so padding is measured from paper edges) -->
+      <div class="content" style="position:relative;z-index:2;padding:42px 50px 26px 78px;">
+        <h1 class="page-title"><span class="title-ico"><svg viewBox="0 0 48 48" width="40" height="40" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#2563eb"/><ellipse cx="24" cy="24" rx="8" ry="20" fill="none" stroke="#ffffff" stroke-width="1.5"/><line x1="4" y1="24" x2="44" y2="24" stroke="#ffffff" stroke-width="1.5"/><line x1="8" y1="14" x2="40" y2="14" stroke="#ffffff" stroke-width="1"/><line x1="8" y1="34" x2="40" y2="34" stroke="#ffffff" stroke-width="1"/><circle cx="24" cy="24" r="20" fill="none" stroke="#1e40af" stroke-width="1"/></svg></span><span class="num">15.</span> NETWORKING WITH SHELL SCRIPTS</h1><div class="page-subtitle">TEST. MONITOR. ENSURE AVAILABILITY.</div><div class="page-badge">Page 17 of 20</div>
       <div class="body">
         <div class="rows">
           
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg></div><div class="text"><h3>1. WHY SCRIPTS FAIL SILENTLY</h3><p>By default, bash ignores errors and keeps going — hiding real issues.</p><div class="callout danger"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><ellipse cx="24" cy="26" rx="9" ry="14" fill="#7c3aed"/><circle cx="24" cy="12" r="5" fill="#7c3aed"/><line x1="20" y1="8" x2="16" y2="4" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="8" x2="32" y2="4" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="18" x2="8" y2="14" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="33" y1="18" x2="40" y2="14" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="26" x2="8" y2="26" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="33" y1="26" x2="40" y2="26" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="34" x2="10" y2="38" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="32" y1="34" x2="38" y2="38" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/></svg></span><div><strong>Problem:</strong> A failed command does not stop the script. The next line runs anyway, often producing wrong results.</div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#2563eb"/><ellipse cx="24" cy="24" rx="8" ry="20" fill="none" stroke="#ffffff" stroke-width="1.5"/><line x1="4" y1="24" x2="44" y2="24" stroke="#ffffff" stroke-width="1.5"/><line x1="8" y1="14" x2="40" y2="14" stroke="#ffffff" stroke-width="1"/><line x1="8" y1="34" x2="40" y2="34" stroke="#ffffff" stroke-width="1"/><circle cx="24" cy="24" r="20" fill="none" stroke="#1e40af" stroke-width="1"/></svg></div><div class="text"><h3>1. CURL — SEND HTTP REQUESTS</h3><p>Send HTTP requests to endpoints.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">curl</span></div><div class="term-body"><span class="prompt">$</span> <span class="cmd">curl</span> <span class="str">https://example.com</span>\n<span class="prompt">$</span> <span class="cmd">curl</span> -I <span class="str">https://example.com</span>\n<span class="prompt">$</span> <span class="cmd">curl</span> -s -o /dev/null -w <span class="str">"%{{http_code}}"</span> URL</div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg></span><div><strong>Flags:</strong> <code class="inline">-I</code> headers only · <code class="inline">-s</code> silent · <code class="inline">-o /dev/null</code> discard body</div></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L40 10 V22 C40 32 33 40 24 44 C15 40 8 32 8 22 V10 Z" fill="#1B5E3F"/><path d="M16 22 L21 27 L32 16" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="text"><h3>2. SET -E: EXIT ON ERROR</h3><p>Stop the script as soon as any command fails.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="cmd">set</span> -e\n<span class="comment"># script exits if any command returns non-zero</span></div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Benefit:</strong> Catches the first failure immediately.</div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="28" rx="3" fill="#15264d"/><rect x="8" y="10" width="32" height="20" rx="1" fill="#0d1117"/><path d="M16 18 L20 20 L16 22" fill="none" stroke="#7ee787" stroke-width="1.5" stroke-linecap="round"/><line x1="22" y1="22" x2="30" y2="22" stroke="#e6edf3" stroke-width="1.5"/><path d="M18 34 H30 V40 H18 Z" fill="#15264d"/><rect x="14" y="40" width="20" height="3" rx="1" fill="#1e3160"/></svg></div><div class="text"><h3>2. PING — TEST CONNECTIVITY</h3><p>Test whether a host is reachable.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">ping</span></div><div class="term-body"><span class="prompt">$</span> <span class="cmd">ping</span> -c 4 google.com\n<span class="prompt">$</span> <span class="cmd">ping</span> -c 4 8.8.8.8</div></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="14" r="8" fill="#1B5E3F"/><path d="M8 42 C8 32 16 28 24 28 C32 28 40 32 40 42" fill="#1B5E3F"/></svg></div><div class="text"><h3>3. SET -U: ERROR ON UNSET VARS</h3><p>Fail when an undefined variable is used.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="cmd">set</span> -u\n<span class="cmd">echo</span> <span class="str">"$UNDEFINED"</span>  <span class="comment"># fails fast</span></div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Benefit:</strong> Catches typos and missing inputs.</div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="8" r="4" fill="#1B5E3F"/><circle cx="8" cy="24" r="4" fill="#2563eb"/><circle cx="40" cy="24" r="4" fill="#2563eb"/><circle cx="24" cy="40" r="4" fill="#1B5E3F"/><line x1="24" y1="12" x2="10" y2="22" stroke="#1c1c1c" stroke-width="2"/><line x1="24" y1="12" x2="38" y2="22" stroke="#1c1c1c" stroke-width="2"/><line x1="10" y1="26" x2="22" y2="38" stroke="#1c1c1c" stroke-width="2"/><line x1="38" y1="26" x2="26" y2="38" stroke="#1c1c1c" stroke-width="2"/></svg></div><div class="text"><h3>3. SS — CHECK CONNECTIONS</h3><p>Show network sockets and connections.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">ss</span></div><div class="term-body"><span class="prompt">$</span> <span class="cmd">ss</span> -tlnp   <span class="comment"># listening ports</span>\n<span class="prompt">$</span> <span class="cmd">ss</span> -tnp    <span class="comment"># all connections</span>\n<span class="prompt">$</span> <span class="cmd">ss</span> -ltnp   <span class="comment"># listening with PID</span></div></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><path d="M18 12 L8 24 L18 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12 L40 24 L30 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line x1="26" y1="10" x2="22" y2="38" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/></svg></div><div class="text"><h3>4. SET -O PIPEFAIL: CATCH PIPE ERRORS</h3><p>Detect failures inside pipelines.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="cmd">set</span> -o pipefail\n<span class="cmd">cat</span> file.txt <span class="kw">|</span> <span class="cmd">grep</span> <span class="str">"ERROR"</span> <span class="kw">|</span> <span class="cmd">wc</span> -l</div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Benefit:</strong> Without pipefail, only the last command's status is checked.</div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="8" width="36" height="12" rx="2" fill="#15264d"/><rect x="6" y="24" width="36" height="12" rx="2" fill="#1e3160"/><circle cx="12" cy="14" r="1.5" fill="#27c93f"/><circle cx="12" cy="30" r="1.5" fill="#27c93f"/><circle cx="18" cy="14" r="1.5" fill="#ffbd2e"/><circle cx="18" cy="30" r="1.5" fill="#ffbd2e"/><rect x="24" y="12" width="14" height="2" rx="1" fill="#e6edf3"/><rect x="24" y="28" width="14" height="2" rx="1" fill="#e6edf3"/></svg></div><div class="text"><h3>4. HOSTNAME — SYSTEM NAME</h3><p>Get or set the system hostname.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">hostname</span></div><div class="term-body"><span class="prompt">$</span> <span class="cmd">hostname</span>      <span class="comment"># name</span>\n<span class="prompt">$</span> <span class="cmd">hostname</span> -I    <span class="comment"># IPs</span>\n<span class="prompt">$</span> <span class="cmd">hostnamectl</span>   <span class="comment"># details</span></div></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L40 10 V22 C40 32 33 40 24 44 C15 40 8 32 8 22 V10 Z" fill="#1B5E3F"/><path d="M16 22 L21 27 L32 16" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="text"><h3>5. SET -EUO PIPEFAIL: STRONG &amp; SAFE MODE</h3><p>Best practice — combine all three flags.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="cmd">set</span> -euo pipefail</div></div><ul><li>Exit on any command error</li><li>Error on unset variables</li><li>Catch pipeline failures</li></ul></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#2563eb"/><ellipse cx="24" cy="24" rx="8" ry="20" fill="none" stroke="#ffffff" stroke-width="1.5"/><line x1="4" y1="24" x2="44" y2="24" stroke="#ffffff" stroke-width="1.5"/><line x1="8" y1="14" x2="40" y2="14" stroke="#ffffff" stroke-width="1"/><line x1="8" y1="34" x2="40" y2="34" stroke="#ffffff" stroke-width="1"/><circle cx="24" cy="24" r="20" fill="none" stroke="#1e40af" stroke-width="1"/></svg></div><div class="text"><h3>5. DNS CHECKS — RESOLVE NAMES</h3><p>Check DNS resolution.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">dns</span></div><div class="term-body"><span class="prompt">$</span> <span class="cmd">nslookup</span> example.com\n<span class="prompt">$</span> <span class="cmd">dig</span> example.com\n<span class="prompt">$</span> <span class="cmd">host</span> example.com</div></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="6" width="28" height="36" rx="3" fill="#1B5E3F"/><rect x="18" y="2" width="12" height="6" rx="2" fill="#164a32"/><line x1="15" y1="16" x2="33" y2="16" stroke="#ffffff" stroke-width="2"/><line x1="15" y1="22" x2="33" y2="22" stroke="#ffffff" stroke-width="2"/><line x1="15" y1="28" x2="29" y2="28" stroke="#ffffff" stroke-width="2"/><circle cx="16" cy="16" r="1.5" fill="#27c93f"/><circle cx="16" cy="22" r="1.5" fill="#27c93f"/><circle cx="16" cy="28" r="1.5" fill="#27c93f"/></svg></div><div class="text"><h3>6. VALIDATING INPUTS</h3><p>Always verify inputs before using them.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="kw">if</span> [ -z <span class="str">"$1"</span> ]; <span class="kw">then</span>\n  <span class="cmd">echo</span> <span class="str">"Usage: $0 &lt;url&gt;"</span>\n  <span class="cmd">exit</span> 1\n<span class="kw">fi</span></div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Benefit:</strong> Prevents errors and makes scripts user-friendly.</div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg></div><div class="text"><h3>6. HTTP STATUS CODES</h3><p>Check HTTP response codes — always check status codes, not just ping!</p><div class="status-badges"><span class="status-badge status-2xx">200 OK — Success</span><span class="status-badge status-3xx">301/302 Redirect</span><span class="status-badge status-4xx">404 Not Found</span><span class="status-badge status-5xx">500 Server Error</span></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><path d="M24 6 L26 12 L32 10 L33 16 L39 18 L37 24 L42 28 L37 32 L39 38 L33 40 L32 46 L26 44 L24 50 L22 44 L16 46 L15 40 L9 38 L11 32 L6 28 L11 24 L9 18 L15 16 L16 10 L22 12 Z" fill="#1B5E3F"/><circle cx="24" cy="28" r="7" fill="#f5f1e8"/><circle cx="24" cy="28" r="4" fill="#1B5E3F"/></svg></div><div class="text"><h3>7. CHECKING DEPENDENCIES</h3><p>Ensure required commands exist before running.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="kw">if</span> ! <span class="cmd">command</span> -v curl <span class="kw">&gt;/dev/null</span> 2&gt;&amp;1; <span class="kw">then</span>\n  <span class="cmd">echo</span> <span class="str">"curl not found!"</span>\n  <span class="cmd">exit</span> 1\n<span class="kw">fi</span></div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Benefit:</strong> Avoids failures due to missing tools.</div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="text"><h3>7. TEST ENDPOINT UP</h3><p>Quickly test if an endpoint is up.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">test</span></div><div class="term-body"><span class="prompt">$</span> <span class="cmd">curl</span> -s -o /dev/null -w <span class="str">"%{{http_code}}"</span> URL\n<span class="comment"># 200-399 = Available</span>\n<span class="comment"># 400-599 = Not Available</span>\n<span class="comment"># 000 = No Response</span></div></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><ellipse cx="24" cy="26" rx="9" ry="14" fill="#7c3aed"/><circle cx="24" cy="12" r="5" fill="#7c3aed"/><line x1="20" y1="8" x2="16" y2="4" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="28" y1="8" x2="32" y2="4" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="18" x2="8" y2="14" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="33" y1="18" x2="40" y2="14" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="26" x2="8" y2="26" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="33" y1="26" x2="40" y2="26" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="34" x2="10" y2="38" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><line x1="32" y1="34" x2="38" y2="38" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/></svg></div><div class="text"><h3>8. HANDLING FAILED COMMANDS</h3><p>Check command results and handle failures.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="kw">if</span> ! <span class="cmd">rm</span> file.txt; <span class="kw">then</span>\n  <span class="cmd">echo</span> <span class="str">"Failed to remove file.txt"</span>\n  <span class="cmd">exit</span> 1\n<span class="kw">fi</span></div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Benefit:</strong> React to failures and prevent bad outcomes.</div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C18 4 14 8 14 14 V24 L10 32 H38 L34 24 V14 C34 8 30 4 24 4 Z" fill="#f9a825"/><circle cx="24" cy="38" r="3" fill="#e65100"/></svg></div><div class="text"><h3>8. APP HEALTH CHECK</h3><p>Check if application health endpoint is OK.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">health</span></div><div class="term-body"><span class="prompt">$</span> <span class="cmd">curl</span> -s <span class="str">https://app/health</span>\n<span class="prompt">$</span> <span class="cmd">curl</span> -sf URL <span class="kw">&amp;&amp;</span> <span class="cmd">echo</span> Healthy <span class="kw">||</span> <span class="cmd">echo</span> Unhealthy</div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg></span><div><strong>Best practice:</strong> Expose a <code class="inline">/health</code> endpoint in apps.</div></div></div></div>
 
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><path d="M40 24 C40 32 33 40 24 40 C16 40 9 33 8 25" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><path d="M8 24 C8 16 15 8 24 8 C32 8 39 15 40 23" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><path d="M34 6 L40 23 L23 18" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 42 L8 25 L25 30" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="text"><h3>9. CLEANING UP AFTER FAILURES</h3><p>Use traps to clean up on exit or error.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">bash</span></div><div class="term-body"><span class="cmd">cleanup</span>() {{\n  <span class="cmd">echo</span> <span class="str">"Cleaning up..."</span>\n  <span class="cmd">rm</span> -f temp.log\n}}\n<span class="cmd">trap</span> cleanup EXIT</div></div><div class="callout tip"><span class="ico"><svg viewBox="0 0 48 48" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Benefit:</strong> Keeps systems clean even when scripts fail.</div></div></div></div>
-
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="none" stroke="#dc2626" stroke-width="2"/><circle cx="24" cy="24" r="14" fill="none" stroke="#dc2626" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="#dc2626"/><line x1="24" y1="0" x2="24" y2="8" stroke="#dc2626" stroke-width="2"/><line x1="24" y1="40" x2="24" y2="48" stroke="#dc2626" stroke-width="2"/><line x1="0" y1="24" x2="8" y2="24" stroke="#dc2626" stroke-width="2"/><line x1="40" y1="24" x2="48" y2="24" stroke="#dc2626" stroke-width="2"/></svg></div><div class="text"><h3>10. WRITING PREDICTABLE AUTOMATION</h3><p>Follow these rules for reliable scripts:</p><ul><li>Fail fast</li><li>Validate inputs</li><li>Check dependencies</li><li>Handle errors</li><li>Clean up properly</li><li>Log what happens</li><li>Exit with the right status code</li></ul></div></div>
-
-      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="36" height="36" xmlns="http://www.w3.org/2000/svg"><path d="M18 12 L8 24 L18 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12 L40 24 L30 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line x1="26" y1="10" x2="22" y2="38" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/></svg></div><div class="text"><h3>EXAMPLE: SAFE SCRIPT TEMPLATE</h3><p>A complete template combining all safety flags.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">safe.sh</span></div><div class="term-body"><span class="comment">#!/bin/bash</span>\n<span class="cmd">set</span> -euo pipefail\n\n<span class="comment"># Check input</span>\n<span class="kw">if</span> [ -z <span class="str">"$1"</span> ]; <span class="kw">then</span>\n  <span class="cmd">echo</span> <span class="str">"Usage: $0 &lt;url&gt;"</span>; <span class="cmd">exit</span> 1\n<span class="kw">fi</span>\n\n<span class="comment"># Check dependency</span>\n<span class="cmd">command</span> -v curl <span class="kw">&gt;/dev/null</span> 2&gt;&amp;1 <span class="kw">||</span> {{ <span class="cmd">echo</span> <span class="str">"curl not found"</span>; <span class="cmd">exit</span> 1; }}\n\n<span class="comment"># Cleanup trap</span>\n<span class="cmd">cleanup</span>() {{ <span class="cmd">rm</span> -f temp.log; }}\n<span class="cmd">trap</span> cleanup EXIT\n\n<span class="comment"># Main logic</span>\n<span class="cmd">URL</span>=<span class="str">"$1"</span>\n<span class="cmd">HTTP_CODE</span>=$(<span class="cmd">curl</span> -s -o /dev/null -w <span class="str">"%{{http_code}}"</span> <span class="str">"$URL"</span>)\n<span class="kw">if</span> [ <span class="str">"$HTTP_CODE"</span> -ge 200 ] <span class="kw">&amp;&amp;</span> [ <span class="str">"$HTTP_CODE"</span> -lt 400 ]; <span class="kw">then</span>\n  <span class="cmd">echo</span> <span class="str">"[$URL] UP (HTTP $HTTP_CODE)"</span>\n<span class="kw">else</span>\n  <span class="cmd">echo</span> <span class="str">"[$URL] DOWN (HTTP $HTTP_CODE)"</span>; <span class="cmd">exit</span> 1\n<span class="kw">fi</span></div></div></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 48 48" width="34" height="34" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L40 10 V22 C40 32 33 40 24 44 C15 40 8 32 8 22 V10 Z" fill="#1B5E3F"/><path d="M16 22 L21 27 L32 16" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="text"><h3>9. WEBSITE AVAILABILITY SCRIPT</h3><p>Example: Check website availability.</p><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">avail.sh</span></div><div class="term-body"><span class="comment">#!/bin/bash</span>\n<span class="cmd">URL</span>=<span class="str">"https://example.com"</span>\n<span class="cmd">STATUS</span>=$(<span class="cmd">curl</span> -so /dev/null -w "%{{http_code}}" "$URL")\n<span class="kw">if</span> [ "$STATUS" = "200" ]; <span class="kw">then</span>\n  <span class="cmd">echo</span> <span class="str">"[OK] $URL is UP (200)"</span>\n<span class="kw">else</span>\n  <span class="cmd">echo</span> <span class="str">"[DOWN] $URL is DOWN (Code: $STATUS)"</span>\n<span class="kw">fi</span></div></div></div></div>
     
         </div>
         <div class="sidebar">
           
-      <div class="card"><div class="head"><span class="head-ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg></span><span>WHY SCRIPTS FAIL</span></div><div class="body-pad">
-        <p>Without safety flags, scripts:</p>
-        <ul>
-          <li>Ignore command failures</li>
-          <li>Use unset variables as empty</li>
-          <li>Hide pipeline errors</li>
-          <li>Continue after critical issues</li>
-        </ul>
-      </div></div>
-
-      <div class="card"><div class="head"><span class="head-ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L40 10 V22 C40 32 33 40 24 44 C15 40 8 32 8 22 V10 Z" fill="#1B5E3F"/><path d="M16 22 L21 27 L32 16" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>SAFE-MODE FLAGS</span></div><div class="body-pad">
-        <p>The four essential <code class="inline">set</code> options:</p>
+      <div class="card"><div class="head"><span class="head-ico"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="12" x2="42" y2="12" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="24" x2="42" y2="24" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="36" x2="42" y2="36" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="12" r="3" fill="#1B5E3F"/><circle cx="8" cy="24" r="3" fill="#1B5E3F"/><circle cx="8" cy="36" r="3" fill="#1B5E3F"/></svg></span><span>NETWORKING QUICK REF</span></div><div class="body-pad">
         <table class="tbl">
-          <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
+          <thead><tr><th>Command</th><th>Use</th></tr></thead>
           <tbody>
-            <tr><td><code>-e</code></td><td>Exit on error</td></tr>
-            <tr><td><code>-u</code></td><td>Error on unset var</td></tr>
-            <tr><td><code>-o pipefail</code></td><td>Catch pipe errors</td></tr>
-            <tr><td><code>-euo pipefail</code></td><td>All combined</td></tr>
+            <tr><td><code>curl URL</code></td><td>HTTP request</td></tr>
+            <tr><td><code>ping HOST</code></td><td>Connectivity</td></tr>
+            <tr><td><code>ss -tuln</code></td><td>Listening ports</td></tr>
+            <tr><td><code>hostname</code></td><td>System name</td></tr>
+            <tr><td><code>nslookup DOM</code></td><td>DNS lookup (basic)</td></tr>
+            <tr><td><code>dig DOM</code></td><td>DNS lookup (advanced)</td></tr>
+            <tr><td><code>host DOM</code></td><td>DNS lookup (simple)</td></tr>
+            <tr><td><code>curl -I URL</code></td><td>Fetch headers</td></tr>
+            <tr><td><code>curl -w "%{http_code}"</code></td><td>HTTP status code</td></tr>
           </tbody>
         </table>
       </div></div>
 
-      <div class="card"><div class="head"><span class="head-ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>PREDICTABLE AUTOMATION</span></div><div class="body-pad">
-        <p>Rules for reliable scripts:</p>
+      <div class="card"><div class="head"><span class="head-ico"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>BEST PRACTICES</span></div><div class="body-pad">
         <ul>
-          <li>Fail fast</li>
-          <li>Validate inputs</li>
-          <li>Check dependencies</li>
-          <li>Handle errors</li>
-          <li>Clean up properly</li>
-          <li>Log what happens</li>
-          <li>Exit with right status</li>
+          <li>Always check HTTP status codes.</li>
+          <li>Use timeouts to avoid hanging scripts.</li>
+          <li>Check both connectivity and application health.</li>
+          <li>Log results for monitoring and alerting.</li>
+          <li>Use meaningful alerts when a service is down.</li>
+          <li>Test from the same network as users.</li>
+          <li>Keep scripts simple, clear, and maintainable.</li>
         </ul>
+      </div></div>
+
+      <div class="card"><div class="head"><span class="head-ico"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#2563eb"/><ellipse cx="24" cy="24" rx="8" ry="20" fill="none" stroke="#ffffff" stroke-width="1.5"/><line x1="4" y1="24" x2="44" y2="24" stroke="#ffffff" stroke-width="1.5"/><line x1="8" y1="14" x2="40" y2="14" stroke="#ffffff" stroke-width="1"/><line x1="8" y1="34" x2="40" y2="34" stroke="#ffffff" stroke-width="1"/><circle cx="24" cy="24" r="20" fill="none" stroke="#1e40af" stroke-width="1"/></svg></span><span>WORKFLOW</span></div><div class="body-pad">
+        <div class="steps">
+          <div class="step"><span class="step-ico">{icon('terminal', 18)}</span><div><strong>1. CHECK URL</strong> — Target the endpoint.</div></div>
+          <div class="step"><span class="step-ico">{icon('clipboard', 18)}</span><div><strong>2. GET STATUS</strong> — Capture HTTP code.</div></div>
+          <div class="step"><span class="step-ico">{icon('shield', 18)}</span><div><strong>3. REPORT RESULT</strong> — UP / DOWN message.</div></div>
+        </div>
       </div></div>
     
         </div>
       </div>
 
-      <div class="key-takeaway"><span class="kt-ico"><svg viewBox="0 0 48 48" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg></span><div class="kt-text"><strong>KEY TAKEAWAY</strong>Safe scripts = less downtime, fewer bugs, and happier users. Always handle errors. Always clean up. Always be predictable.</div></div>
+      <div class="key-takeaway"><span class="kt-ico"><svg viewBox="0 0 48 48" width="30" height="30" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg></span><div class="kt-text"><strong>KEY TAKEAWAY</strong>Automate your network checks. Detect issues early. Keep your systems and services reliable.</div></div>
     
-
+      </div>
     </div>
+
+    <!-- Spiral binding rings -->
+    <div style="position:absolute;left:0;top:0;width:1220px;height:1568px;pointer-events:none;">
+    <div style="position:absolute;left:35.475306px;top:45.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:105.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:164.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:224.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:283.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:343.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:402.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:462.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:521.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:581.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:640.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:700.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:759.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:819.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:878.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:938.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:997.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1057.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1116.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1176.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1235.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1295.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1354.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1414.175px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    <div style="position:absolute;left:35.475306px;top:1473.675px;width:76px;height:23.2px;"><svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg></div>
+    </div>
+
+    <!-- Binding holes -->
+    <div style="position:absolute;left:0;top:0;width:1220px;height:1568px;pointer-events:none;">
+    <div style="position:absolute;left:89.925306px;top:50.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp170' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp170' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp170'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp170)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp170)' clip-path='url(#cp170)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:109.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp171' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp171' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp171'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp171)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp171)' clip-path='url(#cp171)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:169.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp172' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp172' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp172'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp172)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp172)' clip-path='url(#cp172)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:228.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp173' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp173' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp173'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp173)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp173)' clip-path='url(#cp173)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:288.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp174' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp174' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp174'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp174)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp174)' clip-path='url(#cp174)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:347.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp175' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp175' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp175'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp175)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp175)' clip-path='url(#cp175)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:407.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp176' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp176' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp176'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp176)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp176)' clip-path='url(#cp176)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:466.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp177' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp177' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp177'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp177)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp177)' clip-path='url(#cp177)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:526.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp178' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp178' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp178'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp178)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp178)' clip-path='url(#cp178)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:585.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp179' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp179' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp179'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp179)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp179)' clip-path='url(#cp179)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:645.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1710' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1710' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1710'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1710)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1710)' clip-path='url(#cp1710)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:704.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1711' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1711' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1711'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1711)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1711)' clip-path='url(#cp1711)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:764.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1712' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1712' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1712'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1712)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1712)' clip-path='url(#cp1712)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:823.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1713' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1713' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1713'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1713)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1713)' clip-path='url(#cp1713)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:883.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1714' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1714' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1714'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1714)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1714)' clip-path='url(#cp1714)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:942.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1715' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1715' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1715'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1715)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1715)' clip-path='url(#cp1715)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1002.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1716' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1716' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1716'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1716)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1716)' clip-path='url(#cp1716)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1061.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1717' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1717' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1717'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1717)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1717)' clip-path='url(#cp1717)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1121.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1718' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1718' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1718'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1718)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1718)' clip-path='url(#cp1718)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1180.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1719' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1719' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1719'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1719)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1719)' clip-path='url(#cp1719)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1240.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1720' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1720' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1720'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1720)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1720)' clip-path='url(#cp1720)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1299.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1721' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1721' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1721'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1721)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1721)' clip-path='url(#cp1721)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1359.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1722' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1722' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1722'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1722)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1722)' clip-path='url(#cp1722)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1418.525px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1723' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1723' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1723'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1723)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1723)' clip-path='url(#cp1723)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    <div style="position:absolute;left:89.925306px;top:1478.025px;width:18.5px;height:18.5px;"><svg xmlns='http://www.w3.org/2000/svg' width='18.5' height='18.5' viewBox='0 0 18.5 18.5'><defs><radialGradient id='hp1724' cx='0%' cy='45%' r='105%'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.12' stop-color='#000000' stop-opacity='0'/><stop offset='0.28' stop-color='#111111' stop-opacity='0.25'/><stop offset='0.42' stop-color='#000000' stop-opacity='0.7'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.95'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></radialGradient><linearGradient id='rp1724' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0'/><stop offset='0.25' stop-color='#000000' stop-opacity='0'/><stop offset='0.4' stop-color='#000000' stop-opacity='0.5'/><stop offset='0.55' stop-color='#000000' stop-opacity='0.9'/><stop offset='0.7' stop-color='#000000' stop-opacity='1'/><stop offset='1' stop-color='#000000' stop-opacity='1'/></linearGradient><clipPath id='cp1724'><circle cx='9.25' cy='9.25' r='9'/></clipPath></defs><circle cx='9.25' cy='9.25' r='9' fill='url(#hp1724)'/><circle cx='9.25' cy='9.25' r='9' fill='url(#rp1724)' clip-path='url(#cp1724)'/><circle cx='9.25' cy='9.25' r='7' fill='#000000'/><circle cx='9.25' cy='9.25' r='9' fill='none' stroke='#000000' stroke-width='0.5' opacity='0.3'/></svg></div>
+    </div>
+
   </div>
-</div>
 
 </body>
 </html>
