@@ -31,10 +31,8 @@ HOLE_SVG_TEMPLATE = """<svg xmlns='http://www.w3.org/2000/svg' width='18.5' heig
 # Ring SVG — 76×23.2px with 2 separate path elements (exact from Polotno)
 RING_SVG = """<svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg>"""
 
-# Paper SVG — grid pattern + left bend shadow + 3D top/bottom edges MERGED IN
-# The top and bottom edge effects are drawn inside the paper SVG itself,
-# so they auto-scale with the paper height. No separate edge divs needed.
-PAPER_SVG_TEMPLATE = """<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='{paper_h}' viewBox='0 0 1080 {paper_h}' preserveAspectRatio='none'><defs><clipPath id='pc'><rect width='1080' height='{paper_h}' rx='14' ry='14'/></clipPath><pattern id='grid' width='26' height='26' patternUnits='userSpaceOnUse'><rect width='26' height='1' fill='#bcc8d6'/><rect width='1' height='26' fill='#bcc8d6'/></pattern><linearGradient id='bend' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0.45'/><stop offset='0.1667' stop-color='#000000' stop-opacity='0.30'/><stop offset='0.3889' stop-color='#000000' stop-opacity='0.18'/><stop offset='0.6667' stop-color='#000000' stop-opacity='0.08'/><stop offset='0.8889' stop-color='#000000' stop-opacity='0.03'/><stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient><pattern id='tlines' width='2.4' height='2.4' patternUnits='userSpaceOnUse'><rect width='2.4' height='0.4' fill='rgba(140,120,80,0.12)'/></pattern></defs><g clip-path='url(#pc)'><rect width='1080' height='{paper_h}' fill='#f5f1e8'/><rect width='1080' height='{paper_h}' fill='url(#grid)' opacity='0.5'/><rect width='18' height='{paper_h}' fill='url(#bend)'/><rect width='1080' height='13' fill='url(#tlines)'/><rect width='1080' height='7' fill='#fbf8ef'/><rect width='1080' height='4' y='7' fill='#f7f3e8'/><rect width='1080' height='2' y='11' fill='#f5f1e8'/><rect width='1080' height='0.5' y='12.5' fill='rgba(100,80,40,0.22)'/><rect width='1080' height='14' y='{paper_bottom}' fill='url(#tlines)'/><rect width='1080' height='7' y='{paper_bottom}' fill='#fbf8ef'/><rect width='1080' height='4' y='{paper_bottom_plus_4}' fill='#f7f3e8'/><rect width='1080' height='2' y='{paper_bottom_plus_7}' fill='#f5f1e8'/><rect width='1080' height='0.5' y='{paper_bottom_plus_7}' fill='rgba(100,80,40,0.22)'/></g></svg>"""
+# Paper SVG — grid pattern + left bend shadow ONLY (edges are CSS divs)
+PAPER_SVG_TEMPLATE = """<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='{paper_h}' viewBox='0 0 1080 {paper_h}' preserveAspectRatio='none'><defs><clipPath id='pc'><rect width='1080' height='{paper_h}' rx='14' ry='14'/></clipPath><pattern id='grid' width='26' height='26' patternUnits='userSpaceOnUse'><rect width='26' height='1' fill='#bcc8d6'/><rect width='1' height='26' fill='#bcc8d6'/></pattern><linearGradient id='bend' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0.45'/><stop offset='0.1667' stop-color='#000000' stop-opacity='0.30'/><stop offset='0.3889' stop-color='#000000' stop-opacity='0.18'/><stop offset='0.6667' stop-color='#000000' stop-opacity='0.08'/><stop offset='0.8889' stop-color='#000000' stop-opacity='0.03'/><stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient></defs><g clip-path='url(#pc)'><rect width='1080' height='{paper_h}' fill='#f5f1e8'/><rect width='1080' height='{paper_h}' fill='url(#grid)' opacity='0.5'/><rect width='18' height='{paper_h}' fill='url(#bend)'/></g></svg>"""
 
 # Top edge SVG — 3D page-stack thickness
 TOP_EDGE_SVG = """<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='13' viewBox='0 0 1080 13' preserveAspectRatio='none'><defs><clipPath id='tc'><rect x='0' y='0' width='1080' height='28' rx='14' ry='14'/></clipPath><pattern id='tlines' width='2.4' height='2.4' patternUnits='userSpaceOnUse'><rect width='2.4' height='0.4' fill='rgba(140,120,80,0.12)'/></pattern></defs><g clip-path='url(#tc)'><rect width='1080' height='13' fill='url(#tlines)'/><rect width='1080' height='7' fill='#fbf8ef'/><rect width='1080' height='4' y='7' fill='#f7f3e8'/><rect width='1080' height='2' y='11' fill='#f5f1e8'/><rect width='1080' height='0.5' y='12.5' fill='rgba(100,80,40,0.22)'/></g></svg>"""
@@ -70,21 +68,14 @@ BOTTOM_EDGE_H = 14.744878
 # Default paper height (matches Polotno original exactly)
 DEFAULT_PAPER_H = 1139.736947
 
-# Content margins (from the Linux Security Handbook page analysis)
-# These define where the content area sits inside the paper.
-# Measured from the uploaded Polotno content page (1110×1082px):
-#   Left margin:   108px from page left (accounts for spiral binding)
-#   Right margin:   80px from page right (increased for wider 1220px page)
-#   Top margin:     52px from page top (increased for breathing room below 3D edge)
-#   Bottom margin:  56px from page bottom (increased for breathing room above 3D edge)
-#
-# NOTE: The reference page was 1110px wide; our template is 1220px wide.
-# Margins are increased proportionally so content doesn't go outside the page
-# and has proper spacing from the rings (left) and 3D edges (top/bottom).
-CONTENT_PADDING_TOP = 60       # from page top
-CONTENT_PADDING_RIGHT = 100    # from page right
-CONTENT_PADDING_BOTTOM = 60    # from page bottom
-CONTENT_PADDING_LEFT = 150     # from page left (accounts for spiral binding)
+# Content padding — matches the Linux Security Handbook:
+# .page{padding:42px 50px 26px 78px} → top=42, right=50, bottom=26, left=78
+# The 3D edges are CSS divs at top:0/bottom:0 inside the paper (11px tall),
+# so content padding accounts for the edge height + breathing room.
+CONTENT_PADDING_TOP = 42       # from page top (11px edge + 31px gap)
+CONTENT_PADDING_RIGHT = 50     # from page right
+CONTENT_PADDING_BOTTOM = 26    # from page bottom (11px edge + 15px gap)
+CONTENT_PADDING_LEFT = 78      # from page left (spiral binding space)
 
 
 def calc_hole_count(paper_height: float) -> int:
@@ -143,18 +134,18 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     holes_html = generate_holes(hole_count, id_prefix=page_id)
     rings_html = generate_rings(hole_count)
 
-    # Paper SVG with correct height + merged 3D edges
-    paper_bottom = paper_height - 14  # bottom edge starts 14px from paper bottom
+    # Paper SVG with correct height
     paper_svg = PAPER_SVG_TEMPLATE.replace("{paper_h}", str(paper_height))
-    paper_svg = paper_svg.replace("{paper_bottom}", str(paper_bottom))
-    paper_svg = paper_svg.replace("{paper_bottom_plus_4}", str(paper_bottom + 4))
-    paper_svg = paper_svg.replace("{paper_bottom_plus_7}", str(paper_bottom + 7))
 
     return f"""<div class="page-wrapper" style="position:relative;width:{PAGE_WIDTH}px;height:{page_height}px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
     <!-- Paper sheet with grid + left bend -->
-    <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_W}px;height:{paper_height}px;">
+    <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_W}px;height:{paper_height}px;border-radius:14px;overflow:hidden;">
       {paper_svg}
+      <!-- 3D page-stack top edge (from Linux Security Handbook) -->
+      <div style="position:absolute;z-index:8;top:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to bottom,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-bottom:1px solid rgba(100,80,40,0.22);box-shadow:0 1px 2px rgba(0,0,0,0.10);"></div>
+      <!-- 3D page-stack bottom edge (from Linux Security Handbook) -->
+      <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
     </div>
 
     <!-- Spiral binding rings -->
