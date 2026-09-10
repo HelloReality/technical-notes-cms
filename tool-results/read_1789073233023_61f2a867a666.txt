@@ -1,0 +1,589 @@
+     1→<!DOCTYPE html>
+     2→<html lang="en">
+     3→<head>
+     4→<meta charset="UTF-8">
+     5→<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→<title>9. LOOPS FOR AUTOMATION</title>
+     7→<style>
+     8→/* ============================================================
+     9→   NOTEBOOK TEMPLATE CSS — Canonical template (matches  reference)
+    10→   ============================================================
+    11→   This CSS is copied EXACTLY from _Linux_Security_Handbook_Page2.html
+    12→   so that all notes share the same ring, holes, page-bend, and edge design.
+    13→
+    14→   All fixes from the chat history are baked in:
+    15→   1. body{padding:24px 48px} — 48px so spiral rings are fully visible
+    16→   2. body.multi-page — vertical stacking with 24px gaps
+    17→   3. .page-wrapper{overflow:visible} — rings outside the page not clipped
+    18→   4. .cmd-row stacking — command line 1, description line 2
+    19→   5. .data-table vertical alignment — inline-block + vertical-align:top
+    20→   6. @media print — page breaks for PDF export
+    21→
+    22→   Usage: Add class="multi-page" to <body> and link this CSS.
+    23→   Future notes get the exact  ring/hole design automatically.
+    24→   ============================================================ */
+    25→
+    26→:root{
+    27→  --paper:#f5f1e8;          /* warm cream paper */
+    28→  --paper-2:#efe9dd;
+    29→  --grid-line:#bcc8d6;      /* faint graph paper grid */
+    30→  --navy:#15264d;           /* primary dark navy */
+    31→  --navy-2:#1e3160;
+    32→  --ink:#1c1c1c;
+    33→  --ink-2:#3a3f47;
+    34→  --blue:#2563eb;
+    35→  --blue-soft:#cfe0ff;
+    36→  --green:#16a34a;
+    37→  --green-soft:#cdf3da;
+    38→  --purple:#7c3aed;
+    39→  --purple-soft:#e2d4ff;
+    40→  --red:#dc2626;
+    41→  --red-soft:#ffd4d4;
+    42→  --gold:#d4a017;
+    43→  --gold-soft:#fce9b6;
+    44→  --orange:#ef6c00;
+    45→  --term-bg:#0d1117;
+    46→  --term-fg:#e6edf3;
+    47→}
+    48→*{box-sizing:border-box;margin:0;padding:0}
+    49→html,body{background:#cfc9bb;}
+    50→
+    51→/* ============================================================
+    52→   BODY — 48px padding so spiral rings (at left:-30px) are visible
+    53→   ============================================================ */
+    54→body{
+    55→  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    56→  -webkit-font-smoothing:antialiased;
+    57→  color:var(--ink);
+    58→  display:flex;justify-content:center;align-items:flex-start;
+    59→  flex-direction:column;
+    60→  gap:24px;
+    61→  padding:24px 48px;  /* 48px left/right so spiral rings are fully visible */
+    62→}
+    63→
+    64→/* Multi-page stacking: pages stack vertically with 24px gaps */
+    65→body.multi-page{
+    66→  flex-direction:column;
+    67→  gap:24px;
+    68→  overflow:visible;
+    69→}
+    70→
+    71→/* ============================================================
+    72→   PAGE WRAPPER — overflow:visible so rings outside the page aren't clipped
+    73→   ============================================================ */
+    74→.page-wrapper{
+    75→  position:relative;
+    76→  width:1080px;
+    77→  overflow:visible;
+    78→}
+    79→
+    80→/* ============================================================
+    81→   PAGE / NOTEBOOK SHEET
+    82→   ============================================================ */
+    83→.page{
+    84→  position:relative;
+    85→  width:1080px;
+    86→  background:var(--paper);
+    87→  border-radius:14px;
+    88→  box-shadow:0 22px 60px rgba(0,0,0,0.28), 0 2px 0 rgba(0,0,0,0.06) inset;
+    89→  overflow:hidden;
+    90→  padding:42px 50px 26px 78px;  /* extra left padding for spiral binding */
+    91→}
+    92→
+    93→/* Graph paper grid */
+    94→.page::before{
+    95→  content:"";
+    96→  position:absolute;inset:0;
+    97→  background-image:
+    98→    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    99→    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+   100→  background-size:26px 26px;
+   101→  opacity:.5;
+   102→  pointer-events:none;
+   103→  z-index:0;
+   104→}
+   105→
+   106→/* ============================================================
+   107→   PAGE BEND — left edge shadow (3D page lift)
+   108→   EXACT copy from  reference
+   109→   ============================================================ */
+   110→.page-bend{
+   111→  position:absolute;
+   112→  z-index:1;
+   113→  top:0;left:0;
+   114→  width:18px;height:100%;
+   115→  pointer-events:none;
+   116→  background:linear-gradient(
+   117→    90deg,
+   118→    rgba(0,0,0,0.45) 0%,
+   119→    rgba(0,0,0,0.30) 3px,
+   120→    rgba(0,0,0,0.18) 7px,
+   121→    rgba(0,0,0,0.08) 12px,
+   122→    rgba(0,0,0,0.03) 16px,
+   123→    transparent 18px
+   124→  );
+   125→  border-radius:14px 0 0 14px;
+   126→}
+   127→
+   128→/* ============================================================
+   129→   SPIRAL BINDING — inline SVG ring wire (extends outside page left edge)
+   130→   EXACT copy from  reference
+   131→   ============================================================ */
+   132→.spiral{
+   133→  position:absolute;
+   134→  z-index:7;
+   135→  top:0;
+   136→  left:-30px;
+   137→  width:120px;
+   138→  height:100%;
+   139→  pointer-events:none;
+   140→  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='90'%20height='70'%20viewBox='0%200%2090%2070'%20fill='none'%3E%3Cpath%20d='M32%2027%20C20%2028%2010%2032%2010%2035%20C10%2040%2019%2043%2032%2044%20C52%2045%2070%2042%2082%2038'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M32%2034%20C20%2035%2010%2039%2010%2042%20C10%2047%2019%2050%2032%2051%20C52%2052%2070%2049%2082%2045'%20stroke='%23111'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+   141→  background-repeat: repeat-y;
+   142→  background-position: 2.5px 0;
+   143→  background-size: 76.5px 59.5px;
+   144→}
+   145→
+   146→/* ============================================================
+   147→   PUNCHED HOLES — 3D SVG with radial+linear gradients
+   148→   EXACT copy from  reference (not a simple radial-gradient)
+   149→   ============================================================ */
+   150→.holes{
+   151→  position:absolute;
+   152→  z-index:4;
+   153→  top:0; left:-30px;
+   154→  width:120px;
+   155→  height:100%;
+   156→  pointer-events:none;
+   157→  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='76.5'%20height='59.5'%20viewBox='0%200%2076.5%2059.5'%3E%3Cdefs%3E%3CradialGradient%20id='h'%20cx='0%25'%20cy='45%25'%20r='105%25'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='12%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='28%25'%20stop-color='%23111'%20stop-opacity='.25'/%3E%3Cstop%20offset='42%25'%20stop-color='%23000'%20stop-opacity='.7'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.95'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/radialGradient%3E%3ClinearGradient%20id='r'%20x1='0'%20y1='0'%20x2='1'%20y2='0'%3E%3Cstop%20offset='0%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='25%25'%20stop-color='%23000'%20stop-opacity='0'/%3E%3Cstop%20offset='40%25'%20stop-color='%23000'%20stop-opacity='.5'/%3E%3Cstop%20offset='55%25'%20stop-color='%23000'%20stop-opacity='.9'/%3E%3Cstop%20offset='70%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3Cstop%20offset='100%25'%20stop-color='%23000'%20stop-opacity='1'/%3E%3C/linearGradient%3E%3CclipPath%20id='c1'%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23h)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='url(%23r)'%20clip-path='url(%23c1)'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='7'%20fill='%23000'/%3E%3Ccircle%20cx='66.7'%20cy='35.275'%20r='9'%20fill='none'%20stroke='%23000'%20stroke-width='0.5'%20opacity='.3'/%3E%3C/svg%3E");
+   158→  background-size:76.5px 59.5px;
+   159→  background-repeat:repeat-y;
+   160→  background-position:-0.5px 0;
+   161→}
+   162→
+   163→/* ============================================================
+   164→   PAGE TOP/BOTTOM EDGES — 3D page-stack thickness
+   165→   EXACT copy from  reference
+   166→   ============================================================ */
+   167→.page-top-edge{
+   168→  position:absolute;
+   169→  z-index:8;
+   170→  top:0; left:0; right:0;
+   171→  height:11px;
+   172→  pointer-events:none;
+   173→  background:
+   174→    repeating-linear-gradient(
+   175→      to bottom,
+   176→      transparent 0px,
+   177→      transparent 2px,
+   178→      rgba(140,120,80,0.12) 2px,
+   179→      rgba(140,120,80,0.12) 2.4px
+   180→    ),
+   181→    linear-gradient(
+   182→      to bottom,
+   183→      #fbf8ef 0%,
+   184→      #f7f3e8 55%,
+   185→      var(--paper) 100%
+   186→    );
+   187→  border-bottom:1px solid rgba(100,80,40,0.22);
+   188→  box-shadow:0 1px 2px rgba(0,0,0,0.10);
+   189→}
+   190→
+   191→.page-bottom-edge{
+   192→  position:absolute;
+   193→  z-index:8;
+   194→  bottom:0; left:0; right:0;
+   195→  height:11px;
+   196→  pointer-events:none;
+   197→  background:
+   198→    repeating-linear-gradient(
+   199→      to bottom,
+   200→      transparent 0px,
+   201→      transparent 2px,
+   202→      rgba(140,120,80,0.12) 2px,
+   203→      rgba(140,120,80,0.12) 2.4px
+   204→    ),
+   205→    linear-gradient(
+   206→      to top,
+   207→      #fbf8ef 0%,
+   208→      #f7f3e8 55%,
+   209→      var(--paper) 100%
+   210→    );
+   211→  border-top:1px solid rgba(100,80,40,0.22);
+   212→  box-shadow:0 -1px 2px rgba(0,0,0,0.10);
+   213→}
+   214→
+   215→/* ============================================================
+   216→   COMMAND ROWS — stacked vertically (command line 1, desc line 2)
+   217→   ============================================================ */
+   218→.cmd-row{
+   219→  display:flex;
+   220→  flex-direction:column;
+   221→  gap:2px;
+   222→  padding:5px 0;
+   223→  border-bottom:1px dashed rgba(22,38,77,0.10);
+   224→}
+   225→.cmd-row:last-child{border-bottom:none;}
+   226→
+   227→.cmd-row code{
+   228→  font-family:"JetBrains Mono","Consolas",monospace;
+   229→  font-size:12.5px;
+   230→  font-weight:700;
+   231→  color:var(--navy);
+   232→  background:#eef1f8;
+   233→  border-radius:4px;
+   234→  padding:2px 6px;
+   235→  display:inline-block;
+   236→  white-space:pre;
+   237→  align-self:flex-start;
+   238→  line-height:1.4;
+   239→  margin-bottom:0;
+   240→}
+   241→
+   242→.cmd-row span{
+   243→  display:block;
+   244→  font-size:11.5px;
+   245→  color:var(--ink-2);
+   246→  line-height:1.4;
+   247→  margin-top:1px;
+   248→}
+   249→
+   250→/* ============================================================
+   251→   DATA TABLES — consistent vertical alignment
+   252→   ============================================================ */
+   253→.data-table code,.data-table .mono{
+   254→  display:inline-block;
+   255→  vertical-align:top;
+   256→}
+   257→
+   258→/* ============================================================
+   259→   PRINT / PDF — each page breaks to a new PDF page
+   260→   ============================================================ */
+   261→@page{
+   262→  size:1080px 1353px;
+   263→  margin:0;
+   264→}
+   265→@media print{
+   266→  html,body{background:#fff;padding:0;gap:0;}
+   267→  .page-wrapper{page-break-after:always;}
+   268→  .page-wrapper:last-child{page-break-after:auto;}
+   269→  .page{box-shadow:none;border-radius:0;}
+   270→  .page{page-break-after:always;}
+   271→  .page:last-child{page-break-after:auto;}
+   272→}
+   273→
+   274→
+   275→
+   276→/* ============================================================
+   277→   CONTENT STYLES for Shell Scripting carousel pages
+   278→   (extends canonical notebook-template.css)
+   279→   ============================================================ */
+   280→
+   281→/* ---- Brand bar ---- */
+   282→.brand-bar{
+   283→  display:flex;align-items:center;justify-content:space-between;
+   284→  margin-bottom:18px;
+   285→}
+   286→.brand-bar .badge{
+   287→  background:var(--navy);color:#fff;
+   288→  padding:6px 16px;border-radius:999px;
+   289→  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   290→}
+   291→.brand-bar .crumb{
+   292→  font-size:11px;font-weight:700;letter-spacing:1.5px;
+   293→  color:var(--navy);text-transform:uppercase;
+   294→  display:flex;align-items:center;gap:8px;
+   295→}
+   296→
+   297→/* ---- Page title ---- */
+   298→.page-title{
+   299→  display:flex;align-items:center;justify-content:center;gap:14px;
+   300→  margin-bottom:6px;
+   301→}
+   302→.page-title .ico{flex-shrink:0;}
+   303→.page-title .ico svg{width:46px;height:46px;display:block;}
+   304→.page-title h1{
+   305→  font-size:34px;font-weight:800;color:var(--navy);
+   306→  text-transform:uppercase;letter-spacing:-.5px;line-height:1.05;
+   307→  text-align:center;
+   308→}
+   309→.page-subtitle{
+   310→  font-size:13px;font-weight:700;color:var(--ink-2);
+   311→  text-transform:uppercase;letter-spacing:1.4px;text-align:center;
+   312→  margin-bottom:18px;
+   313→  padding-bottom:12px;
+   314→  border-bottom:2px solid var(--navy);
+   315→  position:relative;
+   316→}
+   317→.page-subtitle::after{
+   318→  content:"";position:absolute;left:50%;bottom:-6px;
+   319→  width:10px;height:10px;background:var(--navy);
+   320→  border-radius:50%;transform:translateX(-50%);
+   321→}
+   322→
+   323→/* ---- Body layout primitives ---- */
+   324→.body{margin-bottom:14px;}
+   325→.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+   326→.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+   327→.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+   328→.single{max-width:920px;margin:0 auto;}
+   329→
+   330→/* ---- Card ---- */
+   331→.card{
+   332→  background:#fff;
+   333→  border-radius:10px;
+   334→  overflow:hidden;
+   335→  box-shadow:0 2px 8px rgba(0,0,0,.06);
+   336→  border:1px solid rgba(0,0,0,.05);
+   337→  display:flex;flex-direction:column;
+   338→}
+   339→.card .head{
+   340→  background:var(--navy);color:#fff;
+   341→  padding:8px 12px;
+   342→  font-size:11.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   343→  display:flex;align-items:center;gap:8px;
+   344→  line-height:1.2;
+   345→}
+   346→.card .head .num{
+   347→  background:rgba(255,255,255,.18);
+   348→  border-radius:6px;
+   349→  padding:1px 6px;font-size:10px;
+   350→}
+   351→.card .head .ico{flex-shrink:0;display:inline-flex;}
+   352→.card .head .ico svg{width:18px;height:18px;display:block;}
+   353→.card .body-pad{padding:10px 12px;flex:1;}
+   354→
+   355→/* ---- Card heading variants (color-coded) ---- */
+   356→.card.head-green .head{background:#1B5E3F;}
+   357→.card.head-blue .head{background:#2563eb;}
+   358→.card.head-purple .head{background:#7c3aed;}
+   359→.card.head-red .head{background:#dc2626;}
+   360→.card.head-gold .head{background:#d4a017;}
+   361→.card.head-teal .head{background:#0d7377;}
+   362→.card.head-navy .head{background:#15264d;}
+   363→
+   364→/* ---- Terminal ---- */
+   365→.terminal{
+   366→  background:#0d1117;border-radius:8px;overflow:hidden;
+   367→  box-shadow:0 4px 14px rgba(0,0,0,.2);
+   368→}
+   369→.terminal .term-bar{
+   370→  background:#1c2230;padding:6px 12px;
+   371→  display:flex;align-items:center;gap:6px;
+   372→}
+   373→.terminal .term-dot{width:9px;height:9px;border-radius:50%;}
+   374→.terminal .dot-red{background:#ff5f56;}
+   375→.terminal .dot-amber{background:#ffbd2e;}
+   376→.terminal .dot-green{background:#27c93f;}
+   377→.terminal .term-title{
+   378→  margin-left:auto;color:#8b949e;
+   379→  font-size:10px;font-family:"JetBrains Mono","Fira Code",monospace;
+   380→}
+   381→.terminal .term-body{
+   382→  padding:10px 12px;
+   383→  font-family:"JetBrains Mono","Fira Code",monospace;
+   384→  font-size:11.5px;line-height:1.55;
+   385→  color:#e6edf3;
+   386→  white-space:pre;
+   387→  overflow-x:auto;
+   388→}
+   389→.terminal .term-body .prompt{color:#7ee787;}
+   390→.terminal .term-body .comment{color:#8b949e;}
+   391→.terminal .term-body .cmd{color:#79c0ff;}
+   392→.terminal .term-body .str{color:#f2cc60;}
+   393→.terminal .term-body .out{color:#e6edf3;}
+   394→.terminal .term-body .kw{color:#ff7b72;}
+   395→
+   396→/* ---- Inline code & text ---- */
+   397→.card p{font-size:11.5px;color:var(--ink-2);line-height:1.5;margin-bottom:4px;}
+   398→.card p:last-child{margin-bottom:0;}
+   399→.card code, code.inline{
+   400→  font-family:"JetBrains Mono","Fira Code",monospace;
+   401→  font-size:10.5px;
+   402→  background:#efe9dd;padding:1px 5px;border-radius:3px;
+   403→  color:var(--navy);
+   404→}
+   405→.bullets{
+   406→  list-style:none;padding:0;margin:0;
+   407→  font-size:11px;color:var(--ink-2);line-height:1.5;
+   408→}
+   409→.bullets li{
+   410→  padding-left:14px;position:relative;margin-bottom:2px;
+   411→}
+   412→.bullets li::before{
+   413→  content:"•";position:absolute;left:0;color:var(--navy);font-weight:700;
+   414→}
+   415→.bullets.tick li::before{content:"✓";color:#1B5E3F;font-weight:800;}
+   416→.bullets.warn li::before{content:"!";color:#d4a017;font-weight:800;}
+   417→
+   418→/* ---- Tables ---- */
+   419→.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+   420→.tbl th{
+   421→  background:var(--navy);color:#fff;
+   422→  padding:6px 9px;text-align:left;
+   423→  font-weight:700;font-size:10px;letter-spacing:.3px;text-transform:uppercase;
+   424→}
+   425→.tbl td{
+   426→  padding:5px 9px;
+   427→  border-bottom:1px solid #e0d8c8;
+   428→  color:var(--ink-2);
+   429→  vertical-align:top;
+   430→}
+   431→.tbl td code{
+   432→  font-family:"JetBrains Mono",monospace;font-size:10px;
+   433→  background:#efe9dd;padding:1px 4px;border-radius:3px;
+   434→  color:var(--navy);
+   435→}
+   436→.tbl tr:last-child td{border-bottom:none;}
+   437→
+   438→/* ---- Callout ---- */
+   439→.callout{
+   440→  display:flex;gap:10px;align-items:flex-start;
+   441→  border-radius:10px;padding:10px 12px;
+   442→  font-size:11.5px;line-height:1.5;
+   443→}
+   444→.callout.warn{background:#fff4e0;border-left:3px solid #ef6c00;color:var(--ink);}
+   445→.callout.tip{background:#e8f5ee;border-left:3px solid #1B5E3F;color:var(--ink);}
+   446→.callout.danger{background:#ffe5e5;border-left:3px solid #dc2626;color:var(--ink);}
+   447→.callout .ico{flex-shrink:0;width:22px;height:22px;margin-top:1px;}
+   448→.callout .ico svg{width:22px;height:22px;display:block;}
+   449→.callout strong{display:block;font-size:12px;color:var(--ink);margin-bottom:2px;}
+   450→
+   451→/* ---- Pill (small icon row inside full-width card) ---- */
+   452→.pill-row{
+   453→  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+   454→}
+   455→.pill{
+   456→  background:#f7f3e8;border:1px solid rgba(0,0,0,.06);
+   457→  border-radius:8px;padding:10px;
+   458→  display:flex;gap:10px;align-items:flex-start;
+   459→}
+   460→.pill .ico{flex-shrink:0;width:36px;height:36px;}
+   461→.pill .ico svg{width:36px;height:36px;display:block;}
+   462→.pill h4{font-size:12px;color:var(--navy);font-weight:800;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;}
+   463→.pill p{font-size:11px;color:var(--ink-2);line-height:1.45;margin:0 0 5px 0;}
+   464→.pill code{font-family:"JetBrains Mono",monospace;font-size:10px;background:#efe9dd;padding:1px 5px;border-radius:3px;color:var(--navy);}
+   465→
+   466→/* ---- Mini feature column inside full-width card ---- */
+   467→.feature-col{
+   468→  background:#f7f3e8;border-radius:8px;padding:10px 12px;
+   469→  text-align:center;
+   470→}
+   471→.feature-col .ico{margin:0 auto 6px;width:36px;height:36px;}
+   472→.feature-col .ico svg{width:36px;height:36px;display:block;}
+   473→.feature-col h4{font-size:11px;color:var(--navy);font-weight:800;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;}
+   474→.feature-col p{font-size:10.5px;color:var(--ink-2);line-height:1.45;margin:0;}
+   475→
+   476→/* ---- Bottom takeaway banner ---- */
+   477→.takeaway{
+   478→  display:flex;align-items:center;justify-content:space-around;
+   479→  gap:18px;
+   480→  background:#15264d;color:#fff;
+   481→  border-radius:10px;padding:12px 18px;
+   482→  margin-top:14px;
+   483→}
+   484→.takeaway .item{
+   485→  display:flex;align-items:center;gap:10px;
+   486→  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   487→}
+   488→.takeaway .item .ico{width:28px;height:28px;}
+   489→.takeaway .item .ico svg{width:28px;height:28px;display:block;}
+   490→.takeaway .item .label{display:block;font-size:9.5px;letter-spacing:.8px;color:#bcc8d6;font-weight:600;}
+   491→.takeaway .item .text{display:block;font-size:13px;color:#fff;font-weight:800;}
+   492→
+   493→/* ---- Quick reference keywords ---- */
+   494→.qref{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;}
+   495→.qref .row{
+   496→  display:flex;align-items:center;gap:8px;
+   497→  font-family:"JetBrains Mono","Fira Code",monospace;
+   498→  font-size:11px;color:var(--ink);
+   499→}
+   500→.qref .badge{
+   501→  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+   502→  background:#1B5E3F;color:#fff;
+   503→  display:flex;align-items:center;justify-content:center;
+   504→  font-size:10px;font-weight:800;
+   505→}
+   506→.qref .badge.check{
+   507→  background:#1B5E3F;
+   508→}
+   509→.qref .badge.check svg{width:14px;height:14px;display:block;}
+   510→
+   511→/* ---- Number badge ---- */
+   512→.nbadge{
+   513→  flex-shrink:0;width:30px;height:30px;border-radius:50%;
+   514→  display:inline-flex;align-items:center;justify-content:center;
+   515→  font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:800;
+   516→  color:#fff;
+   517→}
+   518→.nbadge.green{background:#1B5E3F;}
+   519→.nbadge.red{background:#dc2626;}
+   520→.nbadge.blue{background:#2563eb;}
+   521→.nbadge.gold{background:#d4a017;}
+   522→.nbadge.purple{background:#7c3aed;}
+   523→.nbadge.navy{background:#15264d;}
+   524→.nbadge.teal{background:#0d7377;}
+   525→
+   526→/* ---- Mobile: collapse grids to single column ---- */
+   527→@media (max-width: 900px){
+   528→  .grid-3,.grid-5,.pill-row,.qref{grid-template-columns:1fr;}
+   529→  .grid-2{grid-template-columns:1fr;}
+   530→  .takeaway{flex-direction:column;}
+   531→}
+   532→
+   533→</style>
+   534→</head>
+   535→<body class="multi-page">
+   536→
+   537→<div class="page-wrapper">
+   538→  <div class="holes" aria-hidden="true"></div>
+   539→  <div class="spiral" aria-hidden="true"></div>
+   540→  <div class="page-bend" aria-hidden="true"></div>
+   541→  <div class="page">
+   542→    <div class="page-top-edge" aria-hidden="true"></div>
+   543→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   544→    <div class="content">
+   545→
+   546→      <!-- Brand bar -->
+   547→      <div class="brand-bar">
+   548→        <div class="crumb"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 8 H20 C22 8 24 10 24 12 V42 C24 40 22 38 20 38 H6 Z" fill="#1B5E3F"/><path d="M42 8 H28 C26 8 24 10 24 12 V42 C24 40 26 38 28 38 H42 Z" fill="#164a32"/><line x1="10" y1="14" x2="20" y2="14" stroke="#ffffff" stroke-width="1.5"/><line x1="10" y1="20" x2="20" y2="20" stroke="#ffffff" stroke-width="1.5"/><line x1="28" y1="14" x2="38" y2="14" stroke="#ffffff" stroke-width="1.5"/><line x1="28" y1="20" x2="38" y2="20" stroke="#ffffff" stroke-width="1.5"/></svg> Shell Scripting for DevOps</div>
+   549→        <div class="badge">Page 10 of 20</div>
+   550→      </div>
+   551→
+   552→      <!-- Title -->
+   553→      <div class="page-title">
+   554→        <span class="ico"><svg viewBox="0 0 48 48" width="46" height="46" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C18 8 14 16 14 24 L14 32 L20 36 L28 36 L34 32 L34 24 C34 16 30 8 24 4 Z" fill="#dc2626"/><circle cx="24" cy="20" r="4" fill="#2563eb"/><path d="M14 32 L10 40 L14 38 Z" fill="#e65100"/><path d="M34 32 L38 40 L34 38 Z" fill="#e65100"/><path d="M20 36 L24 44 L28 36 Z" fill="#f9a825"/></svg></span>
+   555→        <h1>9. LOOPS FOR AUTOMATION</h1>
+   556→        <span class="ico"><svg viewBox="0 0 48 48" width="46" height="46" xmlns="http://www.w3.org/2000/svg"><path d="M24 6 L26 12 L32 10 L33 16 L39 18 L37 24 L42 28 L37 32 L39 38 L33 40 L32 46 L26 44 L24 50 L22 44 L16 46 L15 40 L9 38 L11 32 L6 28 L11 24 L9 18 L15 16 L16 10 L22 12 Z" fill="#1B5E3F"/><circle cx="24" cy="28" r="7" fill="#f5f1e8"/><circle cx="24" cy="28" r="4" fill="#1B5E3F"/></svg></span>
+   557→      </div>
+   558→      <div class="page-subtitle">REPEAT TASKS. SAVE TIME. ELIMINATE MANUAL WORK.</div>
+   559→
+   560→      <!-- Body -->
+   561→      <div class="body"><div class="grid-2"><div class="card head-green"><div class="head"><span class="num">1</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#dc2626"/><path d="M20 16 L20 32 L32 24 Z" fill="#ffffff"/></svg></span><span>For Loops</span></div><div class="body-pad"><p>Iterate over a list or range.</p><div style="margin-top:6px;"><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">for.sh</span></div><div class="term-body"><span class="kw">for</span> i <span class="kw">in</span> 1 2 3; <span class="kw">do</span>
+   562→  <span class="cmd">echo</span> <span class="str">"Item $i"</span>
+   563→<span class="kw">done</span></div></div></div></div></div><div class="card head-blue"><div class="head"><span class="num">2</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L42 12 V36 L24 44 L6 36 V12 Z" fill="#2563eb"/><path d="M24 4 L42 12 L24 20 L6 12 Z" fill="#1e40af"/><path d="M24 20 L42 12 V36 L24 44 Z" fill="#1e3160"/><text x="24" y="30" fill="#7ee787" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">$_</text></svg></span><span>While Loops</span></div><div class="body-pad"><p>Repeat while a condition is true.</p><div style="margin-top:6px;"><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">while.sh</span></div><div class="term-body"><span class="cmd">n=0</span>
+   564→<span class="kw">while</span> [ $n -lt 3 ]; <span class="kw">do</span>
+   565→  <span class="cmd">echo</span> <span class="str">"n=$n"</span>
+   566→  <span class="cmd">n=$((n+1))</span>
+   567→<span class="kw">done</span></div></div></div></div></div></div><div class="grid-2" style="margin-top:14px;"><div class="card head-teal"><div class="head"><span class="num">3</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 10 H18 L22 14 H42 V38 H6 Z" fill="#f9a825"/><path d="M6 10 H18 L22 14 H42 V18 H6 Z" fill="#d4a017"/></svg></span><span>Looping Through Files</span></div><div class="body-pad"><p>Process every file in a directory.</p><div style="margin-top:6px;"><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">files.sh</span></div><div class="term-body"><span class="kw">for</span> f <span class="kw">in</span> /etc/*.conf; <span class="kw">do</span>
+   568→  <span class="cmd">echo</span> <span class="str">"$f"</span>
+   569→<span class="kw">done</span></div></div></div></div></div><div class="card head-purple"><div class="head"><span class="num">4</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="8" width="36" height="12" rx="2" fill="#15264d"/><rect x="6" y="24" width="36" height="12" rx="2" fill="#1e3160"/><circle cx="12" cy="14" r="1.5" fill="#27c93f"/><circle cx="12" cy="30" r="1.5" fill="#27c93f"/><circle cx="18" cy="14" r="1.5" fill="#ffbd2e"/><circle cx="18" cy="30" r="1.5" fill="#ffbd2e"/><rect x="24" y="12" width="14" height="2" rx="1" fill="#e6edf3"/><rect x="24" y="28" width="14" height="2" rx="1" fill="#e6edf3"/></svg></span><span>Looping Through Servers</span></div><div class="body-pad"><p>Run a command on each host.</p><div style="margin-top:6px;"><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">hosts.sh</span></div><div class="term-body"><span class="kw">for</span> h <span class="kw">in</span> web1 web2 web3; <span class="kw">do</span>
+   570→  <span class="cmd">ssh</span> $h <span class="str">"uptime"</span>
+   571→<span class="kw">done</span></div></div></div></div></div></div><div class="grid-2" style="margin-top:14px;"><div class="card head-red"><div class="head"><span class="num">5</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#dc2626"/><rect x="14" y="14" width="20" height="20" rx="2" fill="#ffffff"/></svg></span><span>Break</span></div><div class="body-pad"><p>Exit the loop early when a condition is met.</p><div style="margin-top:6px;"><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">break.sh</span></div><div class="term-body"><span class="kw">for</span> i <span class="kw">in</span> 1 2 3 4 5; <span class="kw">do</span>
+   572→  <span class="kw">if</span> [ $i -eq 3 ]; <span class="kw">then</span> <span class="cmd">break</span>; <span class="kw">fi</span>
+   573→  <span class="cmd">echo</span> <span class="str">"$i"</span>
+   574→<span class="kw">done</span>
+   575→<span class="out">1
+   576→2</span></div></div></div></div></div><div class="card head-gold"><div class="head"><span class="num">6</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C18 8 14 16 14 24 L14 32 L20 36 L28 36 L34 32 L34 24 C34 16 30 8 24 4 Z" fill="#dc2626"/><circle cx="24" cy="20" r="4" fill="#2563eb"/><path d="M14 32 L10 40 L14 38 Z" fill="#e65100"/><path d="M34 32 L38 40 L34 38 Z" fill="#e65100"/><path d="M20 36 L24 44 L28 36 Z" fill="#f9a825"/></svg></span><span>Continue</span></div><div class="body-pad"><p>Skip the current iteration and continue with the next.</p><div style="margin-top:6px;"><div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">continue.sh</span></div><div class="term-body"><span class="kw">for</span> i <span class="kw">in</span> 1 2 3 4 5; <span class="kw">do</span>
+   577→  <span class="kw">if</span> [ $((i%2)) -eq 0 ]; <span class="kw">then</span> <span class="cmd">continue</span>; <span class="kw">fi</span>
+   578→  <span class="cmd">echo</span> <span class="str">"$i"</span>
+   579→<span class="kw">done</span>
+   580→<span class="out">1
+   581→3
+   582→5</span></div></div></div></div></div></div><div class="grid-2" style="margin-top:14px;"><div class="card head-red"><div class="head"><span class="num">7</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg></span><span>Avoiding Infinite Loops</span></div><div class="body-pad"><ul class="bullets warn"><li>Always increment or decrement the counter.</li><li>Use <code>break</code> for an explicit exit.</li><li>Set a maximum iteration cap.</li><li>Use <code>set -e</code> to abort on errors.</li></ul><div style="margin-top:6px;"><div class="callout danger"><span class="ico"><svg viewBox="0 0 48 48" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg></span><div><strong>Risk</strong><span style="font-size:11px;">A forgotten counter hangs the script forever.</span></div></div></div></div></div><div class="card head-green"><div class="head"><span class="num">8</span><span class="ico"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="36" height="36" rx="4" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Automating Repetitive Tasks</span></div><div class="body-pad"><ul class="bullets tick"><li>Back up logs nightly.</li><li>Rotate files older than 7 days.</li><li>Poll a service until ready.</li><li>Run health checks across hosts.</li><li>Process CSV rows one by one.</li><li>Apply config to multiple nodes.</li></ul></div></div></div><div class="takeaway"><div class="item"><span class="ico"><svg viewBox="0 0 48 48" width="28" height="28" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg></span><div><span class="label">Key Takeaway</span><span class="text">Automate, do not repeat</span></div></div><div class="item"><span class="ico"><svg viewBox="0 0 48 48" width="28" height="28" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="10" r="5" fill="#1B5E3F"/><circle cx="14" cy="38" r="5" fill="#1B5E3F"/><circle cx="34" cy="14" r="5" fill="#2563eb"/><line x1="14" y1="15" x2="14" y2="33" stroke="#1B5E3F" stroke-width="3"/><path d="M14 24 C14 18 24 14 29 14" fill="none" stroke="#2563eb" stroke-width="3"/></svg></span><div><span class="label">Repeat</span><span class="text">Smarter every day</span></div></div><div class="item"><span class="ico"><svg viewBox="0 0 48 48" width="28" height="28" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><circle cx="24" cy="24" r="16" fill="#ffffff"/><line x1="24" y1="24" x2="24" y2="12" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><line x1="24" y1="24" x2="32" y2="28" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="24" r="2" fill="#1B5E3F"/></svg></span><div><span class="label">Save Time</span><span class="text">Every single day</span></div></div></div></div>
+   583→
+   584→    </div>
+   585→  </div>
+   586→</div>
+   587→
+   588→</body>
+   589→</html>

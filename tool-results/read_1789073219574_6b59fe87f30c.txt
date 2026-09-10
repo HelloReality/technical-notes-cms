@@ -1,0 +1,985 @@
+     1→===== PAGE 06 =====
+     2→Based on the image provided, here is the exhaustive analysis for HTML recreation:
+     3→
+     4→### (1) Page Title
+     5→**4. VARIABLES AND ENVIRONMENT VARIABLES**
+     6→*Subtitle:* STORE DATA. REUSE. AUTOMATE.
+     7→
+     8→### (2) All Section Headings
+     9→1.  **1. CREATING VARIABLES**
+    10→2.  **2. READING VARIABLES**
+    11→3.  **3. QUOTING VARIABLES**
+    12→4.  **4. COMMAND SUBSTITUTION**
+    13→5.  **5. EXPORT VARIABLES**
+    14→6.  **6. ENVIRONMENT VARIABLES**
+    15→7.  **7. COMMON ENVIRONMENT VARIABLES** (Contains sub-headings: HOME, USER, PATH)
+    16→8.  **8. USING VARIABLES IN SCRIPTS**
+    17→9.  **9. BEST PRACTICES**
+    18→
+    19→### (3) ALL Text Content Word-for-Word
+    20→
+    21→**Header Area:**
+    22→*   VERIQTA
+    23→*   PAGE 4
+    24→*   4. VARIABLES AND ENVIRONMENT VARIABLES
+    25→*   STORE DATA. REUSE. AUTOMATE.
+    26→
+    27→**Section 1: CREATING VARIABLES**
+    28→*   No spaces around =
+    29→*   `NAME=DevOps`
+    30→*   `COUNT=5`
+    31→*   No spaces around = sign.
+    32→
+    33→**Section 2: READING VARIABLES**
+    34→*   Use $ to read a variable.
+    35→*   `echo $NAME`
+    36→*   ➔ Output: **DevOps**
+    37→
+    38→**Section 3: QUOTING VARIABLES**
+    39→*   • Use quotes to handle spaces.
+    40→*   • Prevents word splitting.
+    41→*   • Prevents filename expansion.
+    42→*   `echo "$NAME"`
+    43→*   `echo '$NAME'`
+    44→
+    45→**Section 4: COMMAND SUBSTITUTION**
+    46→*   Store the output of a command.
+    47→*   `DATE=$(date +%Y-%m-%d)`
+    48→*   `echo $DATE`
+    49→*   ➔ Output: **2025-05-18**
+    50→
+    51→**Section 5: EXPORT VARIABLES**
+    52→*   • Makes a variable available to child processes.
+    53→*   • Use export.
+    54→*   `export PROJECT=MyApp`
+    55→*   `echo $PROJECT`
+    56→*   ➔ Output: **MyApp**
+    57→
+    58→**Section 6: ENVIRONMENT VARIABLES**
+    59→*   Set by the system.
+    60→*   Available in every shell.
+    61→*   `echo $HOME`
+    62→*   `echo $USER`
+    63→*   `echo $SHELL`
+    64→*   `echo $LANG`
+    65→
+    66→**Section 7: COMMON ENVIRONMENT VARIABLES**
+    67→*   **HOME**: Your home directory.
+    68→    *   `echo $HOME`
+    69→    *   ➔ `/home/user`
+    70→*   **USER**: Current logged-in user.
+    71→    *   `echo $USER`
+    72→    *   ➔ `user`
+    73→*   **PATH**: Directories where commands are searched.
+    74→    *   `echo $PATH`
+    75→    *   ➔ `/usr/bin:/bin:/usr/local/bin`
+    76→
+    77→**Section 8: USING VARIABLES IN SCRIPTS**
+    78→*   Make your scripts flexible and powerful.
+    79→*   ```bash
+    80→    #!/bin/bash
+    81→    APP_NAME="MyApp"
+    82→    LOG_DIR="$HOME/logs"
+    83→    mkdir -p "$LOG_DIR"
+    84→    echo "Starting $APP_NAME...."
+    85→    echo "Logs will be saved in $LOG_DIR"
+    86→    ```
+    87→
+    88→**Section 9: BEST PRACTICES**
+    89→*   ✅ Always use quotes when in doubt.
+    90→*   ✅ Use meaningful variable names.
+    91→*   ✅ Export only what you need.
+    92→*   ✅ Keep variables uppercase for constants.
+    93→*   ✅ Use command substitution $( ) often.
+    94→*   ✅ Test your scripts with different values.
+    95→
+    96→**Footer:**
+    97→*   VERIQTA
+    98→*   YOUTUBE
+    99→*   GITHUB
+   100→*   LINKEDIN
+   101→*   X
+   102→*   INSTAGRAM
+   103→*   TELEGRAM
+   104→
+   105→---
+   106→
+   107→### (4) Code Blocks with Exact Code
+   108→
+   109→**Block 1 (Creating Variables):**
+   110→```bash
+   111→NAME=DevOps
+   112→COUNT=5
+   113→```
+   114→
+   115→**Block 2 (Reading Variables):**
+   116→```bash
+   117→echo $NAME
+   118→```
+   119→
+   120→**Block 3 (Quoting Variables):**
+   121→```bash
+   122→echo "$NAME"
+   123→echo '$NAME'
+   124→```
+   125→
+   126→**Block 4 (Command Substitution):**
+   127→```bash
+   128→DATE=$(date +%Y-%m-%d)
+   129→echo $DATE
+   130→```
+   131→
+   132→**Block 5 (Export Variables):**
+   133→```bash
+   134→export PROJECT=MyApp
+   135→echo $PROJECT
+   136→```
+   137→
+   138→**Block 6 (Environment Variables - Dark Background):**
+   139→```bash
+   140→echo $HOME
+   141→echo $USER
+   142→echo $SHELL
+   143→echo $LANG
+   144→```
+   145→
+   146→**Block 7 (Common Env Vars - Home):**
+   147→```bash
+   148→echo $HOME
+   149→```
+   150→
+   151→**Block 8 (Common Env Vars - User):**
+   152→```bash
+   153→echo $USER
+   154→```
+   155→
+   156→**Block 9 (Common Env Vars - Path):**
+   157→```bash
+   158→echo $PATH
+   159→```
+   160→
+   161→**Block 10 (Scripts):**
+   162→```bash
+   163→#!/bin/bash
+   164→APP_NAME="MyApp"
+   165→LOG_DIR="$HOME/logs"
+   166→mkdir -p "$LOG_DIR"
+   167→echo "Starting $APP_NAME...."
+   168→echo "Logs will be saved in $LOG_DIR"
+   169→```
+   170→
+   171→### (5) Tables with exact rows
+   172→There are no traditional data tables. The layout uses **Card Grids** to organize information (see Layout section).
+   173→
+   174→### (6) Every Icon — Description
+   175→
+   176→| Icon | Shape | Color (Hex/Desc) | Filled/Outline | Size | Position |
+   177→| :--- | :--- | :--- | :--- | :--- | :--- |
+   178→| **Terminal** | Rectangle with `>_` prompt inside | Dark Green (#1B4D3E approx) | Filled | Large | Top Left (Next to H1) |
+   179→| **Box/Cube** | Isometric box with `$` symbol | Dark Green (#1B4D3E approx) | Filled | Large | Top Right (Next to H1) |
+   180→| **Arrow Right** | Simple arrow `➔` | Dark Green | Outline/Solid | Small | Inside Sections 2, 4, 5, 7 (before Output text) |
+   181→| **Home** | House silhouette | Dark Green | Filled | Medium | Section 7, Card 1 Left |
+   182→| **User** | Person silhouette (head + shoulders) | Dark Green | Filled | Medium | Section 7, Card 2 Left |
+   183→| **Terminal Prompt** | Rectangle with `>_` | Dark Green | Filled | Medium | Section 7, Card 3 Left |
+   184→| **Checkmark Circle** | Circle with white checkmark | Dark Green | Filled | Small | Section 9, Bullet points (x6) |
+   185→| **YouTube** | Play button rectangle with rounded corners | Dark Green | Filled | Small | Footer |
+   186→| **GitHub** | Octocat / Cat silhouette in circle | Dark Green | Filled | Small | Footer |
+   187→| **LinkedIn** | "in" text in rounded square | Dark Green | Filled | Small | Footer |
+   188→| **X (Twitter)** | Letter "X" shape | Dark Green | Filled | Small | Footer |
+   189→| **Instagram** | Camera outline in rounded square | Dark Green | Filled | Small | Footer |
+   190→| **Telegram** | Paper airplane | Dark Green | Filled | Small | Footer |
+   191→| **Veriqta Logo** | Stylized "VQ" monogram | Dark Green | Outline/Filled | Medium | Header Center & Footer Center |
+   192→
+   193→### (7) Layout — How many columns of cards?
+   194→The layout is primarily a **3-Column Grid** for sections 1 through 6.
+   195→*   **Rows 1 & 2:** 3 columns each (Sections 1-3, then 4-6).
+   196→*   **Row 3 (Section 7):** 3 columns (Home, User, Path).
+   197→*   **Row 4 (Section 8 & 9):** 2 columns (Section 8 takes up ~55% width, Section 9 takes ~45% width).
+   198→
+   199→### (8) Color Scheme
+   200→*   **Primary Brand Color (Dark Green):** Approx `#1B4D3E` or `#0F5132`. Used for headers, icons, borders, and the dark code block background.
+   201→*   **Background Color:** White `#FFFFFF` (with a subtle paper texture/spiral binding visible on the left edge).
+   202→*   **Code Block Backgrounds:**
+   203→    *   Light Gray/Off-white: `#F8F9FA` or `#EFEFEF` (Used for most code blocks).
+   204→    *   Dark Green: `#1B4D3E` (Used specifically for Section 6 Environment Variables).
+   205→*   **Text Color:** Black/Dark Grey `#212529` for body text.
+   206→*   **Accent Text (Green):** Used for variable values in outputs (e.g., "DevOps", "2025-05-18"). Hex approx `#198754`.
+   207→*   **Code Syntax Highlighting:**
+   208→    *   Comments (`#...`): Blue/Purple.
+   209→    *   Strings (`"..."`): Red.
+   210→    *   Commands/Variables: Black/Dark Green.
+   211→
+   212→### (9) Any Badges/Labels
+   213→*   **Page Number Badge:** Located top right. Shape: Rounded rectangle (Pill). Border: Dark Green. Text: "PAGE 4". Background: White.
+   214→*   **Section Headers:** Act as labels within green bars at the top of each card.
+   215→*   **Output Labels:** Text "Output:" preceded by an arrow icon.
+   216→
+   217→### (10) Footer Text
+   218→*   **Center Logo:** VERIQTA (with logo icon).
+   219→*   **Social Links (Left to Right):**
+   220→    1.  YOUTUBE (Icon + Text)
+   221→    2.  GITHUB (Icon + Text)
+   222→    3.  LINKEDIN (Icon + Text)
+   223→    4.  X (Icon + Text)
+   224→    5.  INSTAGRAM (Icon + Text)
+   225→    6.  TELEGRAM (Icon + Text)
+   226→
+   227→===== PAGE 07 =====
+   228→Based on the image provided, here is the exhaustive analysis for HTML recreation:
+   229→
+   230→### (1) Page Title
+   231→**6. EXIT CODES AND COMMAND SUCCESS**
+   232→
+   233→### (2) All Section Headings
+   234→*   **1. WHAT EXIT CODES MEAN**
+   235→*   **2. BASIC EXIT CODE RULES**
+   236→*   **3. EXAMPLES**
+   237→*   **4. THE exit COMMAND**
+   238→*   **5. TESTING COMMAND SUCCESS**
+   239→*   **6. WHY CI/CD PIPELINES DEPEND ON EXIT CODES**
+   240→*   **7. PREVENTING SILENT AUTOMATION FAILURES**
+   241→
+   242→### (3) ALL Text Content (Word-for-Word)
+   243→
+   244→**Header Area:**
+   245→*   VERIQTA (Logo text)
+   246→*   PAGE 6 (Top right badge)
+   247→*   EVERY COMMAND RETURNS A STATUS.
+   248→
+   249→**Section 1:**
+   250→*   After any command runs, the system returns a number called an exit code.
+   251→*   It tells you if the command succeeded or failed.
+   252→*   `echo $?`
+   253→*   Shows the exit code of the last command.
+   254→
+   255→**Section 2:**
+   256→*   **EXIT CODE 0** | **Success** | Command completed successfully.
+   257→*   **NON-ZERO EXIT CODE** | **Failure** | Something went wrong. Check the error.
+   258→
+   259→**Section 3:**
+   260→*   `ls /home` → `echo $?` Output: **0**
+   261→*   `ls /notfoundfolder` → `echo $?` Output: **2**
+   262→*   `cat file.txt` → `echo $?` Output: **0 or 1+**
+   263→
+   264→**Section 4:**
+   265→*   Use exit to end a script and return a code.
+   266→*   ```bash
+   267→    if [ ! -f file.txt ]; then
+   268→      echo "File not found!"
+   269→      exit 1
+   270→    fi
+   271→    ```
+   272→*   `exit 0 = success`
+   273→*   `exit 1 = failure`
+   274→*   Ends the script with a status.
+   275→
+   276→**Section 5:**
+   277→*   Use exit codes in conditions.
+   278→*   ```bash
+   279→    ls /home
+   280→    if [ $? -eq 0 ]; then
+   281→      echo "Success"
+   282→    else
+   283→      echo "Failed"
+   284→    fi
+   285→    ```
+   286→*   `$? -eq 0` Success
+   287→*   `$? -ne 0` Failure
+   288→
+   289→**Section 6:**
+   290→*   Each step returns an exit code.
+   291→*   CI/CD tools stop the pipeline on failure.
+   292→*   Exit code 0 = pipeline continues.
+   293→*   Exit code 1+ = pipeline fails.
+   294→*   Ensures reliable and consistent deployments.
+   295→
+   296→**Section 7:**
+   297→*   Always check exit codes. / Don't ignore command results.
+   298→*   Use set -e to exit on error. / Stops the script on first failure.
+   299→*   Log errors clearly. / Makes debugging much easier.
+   300→*   Validate inputs before running. / Bad inputs cause unexpected failures.
+   301→*   Test your scripts regularly. / Catches issues early.
+   302→
+   303→**Footer Area:**
+   304→*   TIP: Never ignore exit codes. Check them, handle them, and your scripts will be reliable and safe.
+   305→*   VERIQTA (Logo text)
+   306→*   YOUTUBE
+   307→*   GITHUB
+   308→*   LINKEDIN
+   309→*   X
+   310→*   INSTAGRAM
+   311→*   TELEGRAM
+   312→
+   313→---
+   314→
+   315→### (4) Code Blocks with Exact Code
+   316→
+   317→**Block 1 (Section 4):**
+   318→```bash
+   319→if [ ! -f file.txt ]; then
+   320→  echo "File not found!"
+   321→  exit 1
+   322→fi
+   323→```
+   324→
+   325→**Block 2 (Section 5):**
+   326→```bash
+   327→ls /home
+   328→if [ $? -eq 0 ]; then
+   329→  echo "Success"
+   330→else
+   331→  echo "Failed"
+   332→fi
+   333→```
+   334→
+   335→**Inline Code Snippets:**
+   336→*   `echo $?`
+   337→*   `ls /home`
+   338→*   `ls /notfoundfolder`
+   339→*   `cat file.txt`
+   340→*   `exit 0 = success`
+   341→*   `exit 1 = failure`
+   342→*   `$? -eq 0`
+   343→*   `$? -ne 0`
+   344→
+   345→### (5) Tables with Exact Rows
+   346→
+   347→**Table 1: Basic Exit Code Rules (Section 2)**
+   348→
+   349→| Icon/Code | Status | Description |
+   350→| :--- | :--- | :--- |
+   351→| **0** (Green Circle) | **EXIT CODE 0**<br>**Success** | Command completed successfully. |
+   352→| **1+** (Red Circle) | **NON-ZERO EXIT CODE**<br>**Failure** | Something went wrong.<br>Check the error. |
+   353→
+   354→**Table 2: Examples (Section 3)**
+   355→
+   356→| Command | Arrow | Result |
+   357→| :--- | :--- | :--- |
+   358→| `ls /home` | ➔ | `echo $?`<br>Output: **0** |
+   359→| `ls /notfoundfolder` | ➔ | `echo $?`<br>Output: **2** |
+   360→| `cat file.txt` | ➔ | `echo $?`<br>Output: **0 or 1+** |
+   361→
+   362→**Table 3: Testing Command Success (Section 5)**
+   363→
+   364→| Condition | Result |
+   365→| :--- | :--- |
+   366→| `$? -eq 0` | ✅ Success |
+   367→| `$? -ne 0` | ❌ Failure |
+   368→
+   369→**Table 4: Preventing Failures (Section 7)**
+   370→
+   371→| Icon | Header | Sub-header |
+   372→| :--- | :--- | :--- |
+   373→| 🛡️ Shield | Always check exit codes. | Don't ignore command results. |
+   374→| 🔍 Magnifying Glass | Use set -e to exit on error. | Stops the script on first failure. |
+   375→| 📄 Document | Log errors clearly. | Makes debugging much easier. |
+   376→| ⚠️ Warning Triangle | Validate inputs before running. | Bad inputs cause unexpected failures. |
+   377→| ⚙️ Gear | Test your scripts regularly. | Catches issues early. |
+   378→
+   379→### (6) Every Icon — Description
+   380→
+   381→**Header Icons:**
+   382→*   **Terminal Icon:** Dark green rectangle with rounded corners, white `>_` prompt inside. Position: Left of main title.
+   383→*   **Checkmark Circle:** Dark green circle, thick white checkmark inside. Position: Right of main title.
+   384→*   **VERIQTA Logo:** Stylized "VQ" monogram in dark green. Position: Top center.
+   385→
+   386→**Section 1:**
+   387→*   **Question Mark Circle:** Dark green circle, white question mark `?`. Position: Left of text block.
+   388→
+   389→**Section 2:**
+   390→*   **Zero Circle:** Dark green circle, white number `0`.
+   391→*   **One Plus Circle:** Red circle (`#D32F2F`), white text `1+`.
+   392→
+   393→**Section 3:**
+   394→*   **Arrow Right:** Dark green arrow `➔`. Used as a separator between command and output.
+   395→
+   396→**Section 4:**
+   397→*   **Running Man / Exit Icon:** Dark green silhouette of a person running through a door. Position: Right side of card.
+   398→
+   399→**Section 5:**
+   400→*   **Checkmark Circle (Small):** Dark green circle, white checkmark. Next to "$? -eq 0".
+   401→*   **Cross Circle (Small):** Red circle, white X. Next to "$? -ne 0".
+   402→
+   403→**Section 6:**
+   404→*   **Play Button (Circle):** Dark green circle, white triangle pointing right.
+   405→*   **Gear/Cog:** Dark green outline gear shape.
+   406→*   **Checkmark Circle (Large):** Dark green circle, white checkmark.
+   407→    *   *Note:* These three are stacked vertically on the left, connected by a thin line, representing a pipeline flow.
+   408→
+   409→**Section 7:**
+   410→*   **Shield:** Dark green filled shield with a checkmark.
+   411→*   **Magnifying Glass:** Dark green outline magnifying glass.
+   412→*   **Document/List:** Dark green document icon with lines.
+   413→*   **Warning Triangle:** Dark green triangle with exclamation mark.
+   414→*   **Settings/Gear:** Dark green cogwheel.
+   415→
+   416→**Footer:**
+   417→*   **Star/TIP Icon:** Dark green circle with a white star inside. Position: Left of the tip text.
+   418→*   **Code Bracket Icon:** Dark green rectangle with `</>` inside. Position: Right of the tip text.
+   419→*   **Social Icons (Bottom Row):**
+   420→    *   YouTube: Dark green rounded rect with play triangle.
+   421→    *   GitHub: Dark green circle with cat silhouette.
+   422→    *   LinkedIn: Dark green square with "in".
+   423→    * X (Twitter): Dark green square with "X".
+   424→    *   Instagram: Dark green rounded square with camera outline.
+   425→    *   Telegram: Dark green circle with paper plane.
+   426→
+   427→### (7) Layout
+   428→*   **Grid System:** **2-Column Layout** for the main content cards (Sections 1-6).
+   429→*   **Full Width:** Section 7 ("Preventing...") spans the full width at the bottom of the content area.
+   430→*   **Card Style:** Each section is contained within a rounded rectangle card with a dark green header bar.
+   431→
+   432→### (8) Color Scheme
+   433→*   **Primary Green (Headers/Icons):** **#1B5E20** (Dark Forest Green)
+   434→*   **Secondary Green (Text/Accents):** **#2E7D32** (Medium Green)
+   435→*   **Background:** **#FFFFFF** (White) or very light gray/off-white (`#F5F5F5`) for the page background.
+   436→*   **Card Background:** **#FFFFFF** (White).
+   437→*   **Text Color:** **#212121** (Almost Black) for body text.
+   438→*   **Accent Red (Errors):** **#D32F2F** or **#C62828** (Used for "Failure", "1+", and error outputs like "2").
+   439→*   **Code Background:** Light gray (`#EEEEEE` or `#F5F5F5`) with border radius.
+   440→
+   441→### (9) Any Badges/Labels
+   442→*   **PAGE 6:** Located in the top right corner. Style: White text on a dark green rounded rectangle with a black border.
+   443→*   **TIP:** Located in the bottom banner. Preceded by a star icon.
+   444→*   **Success/Failure Labels:** Inline text styling (Green for Success, Red for Failure).
+   445→
+   446→### (10) Footer Text
+   447→*   **Main Tip:** "TIP: Never ignore exit codes. Check them, handle them, and your scripts will be reliable and safe."
+   448→*   **Brand Name:** VERIQTA (Centered below tip).
+   449→*   **Social Links:** YOUTUBE, GITHUB, LINKEDIN, X, INSTAGRAM, TELEGRAM.
+   450→
+   451→===== PAGE 08 =====
+   452→Based on the image provided, here is the exhaustive analysis for HTML recreation:
+   453→
+   454→### (1) Page Title
+   455→**7. CONDITIONAL STATEMENTS**
+   456→**Subtitle:** MAKE SMART DECISIONS IN YOUR SCRIPTS.
+   457→
+   458→### (2) All Section Headings
+   459→1.  **1. BASIC SYNTAX**
+   460→2.  **2. NUMERIC COMPARISONS**
+   461→3.  **3. STRING COMPARISONS**
+   462→4.  **4. FILE TESTS**
+   463→5.  **5. CHECKING SERVICES, FILES, OR DIRECTORIES**
+   464→6.  **6. PRACTICAL EXAMPLE**
+   465→7.  **7. QUICK REFERENCE**
+   466→
+   467→### (3) ALL Text Content (Word-for-Word)
+   468→
+   469→**Header Area:**
+   470→*   VERIQTA (Logo text)
+   471→*   PAGE 7
+   472→
+   473→**Section 1: Basic Syntax**
+   474→*   `if [ condition ]; then`
+   475→    *   `commands`
+   476→*   `elif [ condition ]; then`
+   477→    *   `commands`
+   478→*   `else`
+   479→    *   `commands`
+   480→*   `fi`
+   481→*   **Legend:**
+   482→    *   `if` - Start condition
+   483→    *   `then` - Run if true
+   484→    *   `elif` - Else if another condition
+   485→    *   `else` - Run if all false
+   486→    *   `fi` - End condition
+   487→
+   488→**Section 2: Numeric Comparisons**
+   489→*   `-eq` | Equal | `if [ $a -eq $b ]`
+   490→*   `-ne` | Not equal | `if [ $a -ne $b ]`
+   491→*   `-gt` | Greater than | `if [ $a -gt $b ]`
+   492→*   `-lt` | Less than | `if [ $a -lt $b ]`
+   493→*   `-ge` | Greater or equal | `if [ $a -ge $b ]`
+   494→*   `-le` | Less or equal | `if [ $a -le $b ]`
+   495→
+   496→**Section 3: String Comparisons**
+   497→*   `=` | Equal | `if [ "$a" = "$b" ]`
+   498→*   `!=` | Not equal | `if [ "$a" != "$b" ]`
+   499→*   `-z` | String is empty | `if [ -z "$a" ]`
+   500→*   `-n` | String not empty| `if [ -n "$a" ]`
+   501→*   **Note:** Always quote strings! Prevents errors with spaces.
+   502→
+   503→**Section 4: File Tests**
+   504→*   `-f` | File exists | `if [ -f file.txt ]`
+   505→*   `-d` | Directory exists | `if [ -d /home/user ]`
+   506→*   `-e` | File or directory exists | `if [ -e /tmp/log ]`
+   507→*   `-r` | Readable | `if [ -r file.txt ]`
+   508→*   `-w` | Writable | `if [ -w file.txt ]`
+   509→*   `-x` | Executable | `if [ -x script.sh ]`
+   510→*   `-s` | File is not empty | `if [ -s file.txt ]`
+   511→
+   512→**Section 5: Checking Services, Files, or Directories**
+   513→*   **Card 1:** Check if a file exists
+   514→    ```bash
+   515→    if [ -f /etc/passwd ]; then
+   516→      echo "File exists"
+   517→    else
+   518→      echo "File not found"
+   519→    fi
+   520→    ```
+   521→*   **Card 2:** Check if a directory exists
+   522→    ```bash
+   523→    if [ -d /var/log ]; then
+   524→      echo "Directory exists"
+   525→    else
+   526→      echo "Directory not found"
+   527→    fi
+   528→    ```
+   529→*   **Card 3:** Check if a service is running
+   530→    ```bash
+   531→    if systemctl is-active --quiet nginx; then
+   532→      echo "Nginx is running"
+   533→    else
+   534→      echo "Nginx is not running"
+   535→    fi
+   536→    ```
+   537→
+   538→**Section 6: Practical Example**
+   539→*   Description: Check disk space and act based on the result.
+   540→*   Code:
+   541→    ```bash
+   542→    USAGE=$(df / | awk 'NR==2 {print $5}' | tr -d '%')
+   543→    if [ "$USAGE" -gt 80 ]; then
+   544→        echo "Disk usage is high: ${USAGE}%"
+   545→    elif [ "$USAGE" -gt 60 ]; then
+   546→        echo "Disk usage is moderate: ${USAGE}%"
+   547→    else
+   548→        echo "Disk usage is normal: ${USAGE}%"
+   549→    fi
+   550→    ```
+   551→
+   552→**Section 7: Quick Reference**
+   553→*   `if` Start condition
+   554→*   `then` Run if true
+   555→*   `elif` Else if
+   556→*   `else` Run if all false
+   557→*   `fi` End condition
+   558→*   Use spaces inside `[ ]`.
+   559→*   Quote strings.
+   560→*   Use numeric operators without quotes.
+   561→*   Test before you act.
+   562→*   Make scripts smart and reliable.
+   563→
+   564→**Footer/Tip Area:**
+   565→*   **TIP:** Conditions make your scripts intelligent. Always test, validate, and handle every situation.
+   566→
+   567→**Bottom Bar:**
+   568→*   VERIQTA
+   569→*   YOUTUBE
+   570→*   GITHUB
+   571→*   LINKEDIN
+   572→*   X
+   573→*   INSTAGRAM
+   574→*   TELEGRAM
+   575→
+   576→### (4) Code Blocks with Exact Code
+   577→(See Section 3 above for exact code content in Section 5 and Section 6).
+   578→
+   579→### (5) Tables with Exact Rows
+   580→The page contains three main table structures:
+   581→1.  **Numeric Comparisons Table:** 6 rows (Operator, Meaning, Example).
+   582→2.  **String Comparisons Table:** 4 rows (Operator, Meaning, Example).
+   583→3.  **File Tests Table:** 7 rows (Operator, Meaning, Example).
+   584→
+   585→### (6) Every Icon — Description
+   586→*   **Top Left (Terminal):** Dark green square with rounded corners. Inside is a white outline of a terminal window (`>_`). Position: Left of Title.
+   587→*   **Top Right (Scale/Balance):** Dark green filled icon of the Scales of Justice. Position: Right of Title.
+   588→*   **Logo (Top Center):** Stylized "VQ" monogram in dark green. Shape resembles a checkmark integrated into a V. Text "VERIQTA" below it.
+   589→*   **Lightbulb Icon (Section 3):** Outline style, dark green. Located to the left of the "Always quote strings!" text.
+   590→*   **File Icon (Section 5, Card 1):** Outline document icon, dark green.
+   591→*   **Folder Icon (Section 5, Card 2):** Outline folder icon, dark green.
+   592→*   **Gear/Cog Icon (Section 5, Card 3):** Filled gear icon, dark green.
+   593→*   **Star Icon (Tip Section):** Filled star inside a dark green circle. White star shape.
+   594→*   **Checkmark Icons (Section 7):** White checkmark inside a dark green circle. Used for the list on the right side.
+   595→*   **Circle Icons (Section 7):** Dark green solid circle with white text (`if`, `then`, etc.) inside. Used for the list on the left side.
+   596→*   **Code Bracket Icon (Tip Section):** Dark green rectangle with rounded corners containing white text `</>`.
+   597→*   **Social Icons (Footer):**
+   598→    *   YouTube: Rounded rectangle with play triangle (Dark Green bg, White icon).
+   599→    *   GitHub: Circle with cat silhouette (White bg/Dark Green icon).
+   600→    *   LinkedIn: Rounded square with "in" (Dark Green bg, White icon).
+   601→    *   X (Twitter): Rounded square with "X" (Dark Green bg, White icon).
+   602→    *   Instagram: Rounded square with camera outline (Dark Green bg, White icon).
+   603→    *   Telegram: Circle with paper plane (Dark Green bg, White icon).
+   604→
+   605→### (7) Layout — Column Structure
+   606→*   **Header:** Full width.
+   607→*   **Row 1 (Sections 1 & 2):** **2-Column Layout**. Section 1 takes approx 55% width, Section 2 takes approx 45% width.
+   608→*   **Row 2 (Sections 3 & 4):** **2-Column Layout**. Equal width (50/50).
+   609→*   **Row 3 (Section 5):** **3-Column Layout**. Three equal cards side-by-side.
+   610→*   **Row 4 (Sections 6 & 7):** **2-Column Layout**. Section 6 (Practical Example) is wider (approx 60%), Section 7 (Quick Reference) is narrower (approx 40%).
+   611→*   **Footer:** Full width.
+   612→
+   613→### (8) Color Scheme
+   614→*   **Primary Dark Green (Headers, Icons, Accents):** Approx `#1B4D3E` or `#0F5132`.
+   615→*   **Background (Page):** Off-white/Paper texture color, approx `#F8F9FA` or `#fdfbf7`.
+   616→*   **Card Background:** Very light grey/green tint, approx `#F0F4F0` or `#eef5ee`.
+   617→*   **Text Color (Main):** Black or very dark grey `#212529`.
+   618→*   **Code Text Color:** Reddish-brown for keywords (`if`, `then`, `else`, `fi`) approx `#A52A2A`. Standard black/dark grey for variables and strings.
+   619→*   **Border Colors:** Light grey for card borders.
+   620→
+   621→### (9) Any Badges/Labels
+   622→*   **Page 7 Badge:** Top right corner. Rounded rectangle, dark green border, white background, dark green text "PAGE 7".
+   623→*   **Section Headers:** Dark green background bars with white centered text.
+   624→*   **Tip Badge:** Bottom area. Large Star icon acts as a badge for the tip section.
+   625→
+   626→### (10) Footer Text
+   627→*   **Center Logo:** VERIQTA
+   628→*   **Social Links:** YOUTUBE, GITHUB, LINKEDIN, X, INSTAGRAM, TELEGRAM.
+   629→
+   630→===== PAGE 09 =====
+   631→Here is the exhaustive analysis of the carousel page:
+   632→
+   633→### (1) Page Title
+   634→**8. LOGICAL OPERATORS AND MULTIPLE CONDITIONS**
+   635→**Sub-title:** COMBINE TESTS. MAKE SMARTER DECISIONS.
+   636→
+   637→### (2) All Section Headings
+   638→1.  **1. LOGICAL OPERATORS**
+   639→2.  **2. SHORT-CIRCUIT EXECUTION**
+   640→3.  **3. AND CONDITIONS (&&)**
+   641→4.  **4. OR CONDITIONS (||)**
+   642→5.  **5. NOT CONDITION (!)**
+   643→6.  **6. COMBINING MULTIPLE TESTS**
+   644→    *   EXAMPLE 1: MIX AND & OR
+   645→    *   EXAMPLE 2: NEGATION WITH AND
+   646→    *   EXAMPLE 3: COMPLEX COMBINATION
+   647→7.  **7. BUILDING SAFER DEPLOYMENT CHECKS**
+   648→
+   649→### (3) ALL Text Content
+   650→
+   651→**Header Area:**
+   652→*   VERIQTA
+   653→*   PAGE 8
+   654→
+   655→**Section 1: LOGICAL OPERATORS**
+   656→*   *Table Headers:* OPERATOR | MEANING | EXAMPLE | DESCRIPTION
+   657→*   *Row 1:* && | AND | `if [ $a -gt 5 ] && [ $b -lt 10 ]` | Both conditions must be true.
+   658→*   *Row 2:* || | OR | `if [ $a -gt 5 ] || [ $b -lt 10 ]` | At least one condition must be true.
+   659→*   *Row 3:* ! | NOT | `if ! [ -f file.txt ]` | Reverses the result.
+   660→
+   661→**Section 2: SHORT-CIRCUIT EXECUTION**
+   662→*   **&&**: If the first condition is false, the second condition is NOT executed.
+   663→*   **||**: If the first condition is true, the second condition is NOT executed.
+   664→*   **!**: Flips true to false, and false to true.
+   665→*   **[Lightbulb Icon]**: Saves time and prevents unnecessary checks.
+   666→
+   667→**Section 3: AND CONDITIONS (&&)**
+   668→*   Both conditions must be true.
+   669→*   *Code:*
+   670→    ```bash
+   671→    if [ -f app.sh ] && [ -x app.sh ]; then
+   672→      echo "File exists and is executable"
+   673→    else
+   674→      echo "Check failed"
+   675→    fi
+   676→    ```
+   677→*   *Note:* Use for strict requirements.
+   678→
+   679→**Section 4: OR CONDITIONS (||)**
+   680→*   At least one condition must be true.
+   681→*   *Code:*
+   682→    ```bash
+   683→    if [ -f app.sh ] || [ -f app.py ]; then
+   684→      echo "Script found"
+   685→    else
+   686→      echo "No script found"
+   687→    fi
+   688→    ```
+   689→*   *Note:* Use for alternatives.
+   690→
+   691→**Section 5: NOT CONDITION (!)**
+   692→*   Reverse a condition.
+   693→*   *Code:*
+   694→    ```bash
+   695→    if [ ! -f config.env ]; then
+   696→      echo "Config file missing"
+   697→    else
+   698→      echo "Config file exists"
+   699→    fi
+   700→    ```
+   701→*   *Note:* Use to detect missing items.
+   702→
+   703→**Section 6: COMBINING MULTIPLE TESTS**
+   704→*   You can mix &&, ||, and ! for powerful checks.
+   705→
+   706→*   **EXAMPLE 1: MIX AND & OR**
+   707→    ```bash
+   708→    if [ -f deploy.sh ] && [ -x deploy.sh ] ||
+   709→       [ -f deploy.py ]; then
+   710→      echo "Ready to deploy"
+   711→    else
+   712→      echo "Deployment script missing"
+   713→    fi
+   714→    ```
+   715→    *   *Result:* Executable deploy.sh OR deploy.py exists.
+   716→
+   717→*   **EXAMPLE 2: NEGATION WITH AND**
+   718→    ```bash
+   719→    if [ ! -f .lock ] && [ -d /var/log ]; then
+   720→      echo "Safe to proceed"
+   721→    else
+   722→      echo "Lock file exists or log directory missing"
+   723→    fi
+   724→    ```
+   725→    *   *Result:* No lock file AND directory exists.
+   726→
+   727→*   **EXAMPLE 3: COMPLEX COMBINATION**
+   728→    ```bash
+   729→    if [ -f app.conf ] && [ -r app.conf ] &&
+   730→       ! [ -z "$1" ]; then
+   731→      echo "All checks passed"
+   732→    else
+   733→      echo "Validation failed"
+   734→    fi
+   735→    ```
+   736→    *   *Result:* File exists, readable AND first argument is not empty.
+   737→
+   738→**Section 7: BUILDING SAFER DEPLOYMENT CHECKS**
+   739→*   Example: Before deploying, validate everything.
+   740→*   *Code:*
+   741→    ```bash
+   742→    if [ -f app.tar.gz ] && [ -s app.tar.gz ] && [ -x /usr/bin/docker ] &&
+   743→       ! systemctl is-active --quiet app; then
+   744→      echo "All checks passed. Starting deployment..."
+   745→      # Your deployment commands here
+   746→    else
+   747→      echo "Deployment aborted. Check requirements."
+   748→      exit 1
+   749→    fi
+   750→    ```
+   751→*   *Checklist:*
+   752→    *   File exists AND not empty
+   753→    *   Docker is installed
+   754→    *   App service is not running
+   755→    *   Proceed only when everything is correct
+   756→    *   Prevents failed or risky deployments
+   757→*   *Badge Text:* SAFE DEPLOYMENT STARTS HERE!
+   758→
+   759→**Footer:**
+   760→*   **TIP:** Combine checks, validate early, and fail fast. Smart conditions = reliable automation.
+   761→*   VERIQTA
+   762→*   YOUTUBE | GITHUB | LINKEDIN | X | INSTAGRAM | TELEGRAM
+   763→
+   764→### (4) Code Blocks
+   765→(See text content in Section 3 for full syntax highlighting details)
+   766→1.  **Table Examples:** `if [ $a -gt 5 ] && [ $b -lt 10 ]`, etc.
+   767→2.  **AND Condition Block:** `if [ -f app.sh ]...`
+   768→3.  **OR Condition Block:** `if [ -f app.sh ] ||...`
+   769→4.  **NOT Condition Block:** `if [ ! -f config.env ]...`
+   770→5.  **Mix AND/OR Block:** `if [ -f deploy.sh ]...`
+   771→6.  **Negation with AND Block:** `if [ ! -f .lock ]...`
+   772→7.  **Complex Combination Block:** `if [ -f app.conf ]...`
+   773→8.  **Deployment Check Block:** `if [ -f app.tar.gz ]...`
+   774→
+   775→### (5) Icons with Colors
+   776→*   **Terminal/Console Icon (Top Left):** Dark Green background, White symbol (`>_`).
+   777→*   **Flowchart Icon (Top Right):** Dark Green outline (boxes and lines).
+   778→*   **Logical Operator Icons (Section 2):** Dark Green circles with White symbols (`&&`, `||`, `!`).
+   779→*   **Lightbulb Icon (Section 2):** Dark Green outline/Yellow fill implication (or just Dark Green outline), representing an idea/tip.
+   780→*   **Checkmark Icons (Sections 3, 4, 5, 6):** Dark Green circles with White checkmarks.
+   781→*   **Shield with Checkmark (Section 7):** Dark Green shield with White checkmark.
+   782→*   **Star/TIP Icon (Footer):** Dark Green circle with White star.
+   783→*   **Code Bracket Icon (Footer):** Dark Green rectangle with White `</>` symbol.
+   784→*   **Social Media Icons (Bottom Footer):** Dark Green rounded squares with white platform logos (YouTube, GitHub, LinkedIn, X, Instagram, Telegram).
+   785→*   **Veriqta Logo (Top Center & Bottom Center):** Dark Green "VQ" monogram/stylized text.
+   786→
+   787→### (6) Layout Columns
+   788→The page uses a **Grid Layout** structure:
+   789→*   **Header Row:** Full width (Logo left, Title center, Page number right).
+   790→*   **Row 1 (Top Content):** Split into **2 Columns**.
+   791→    *   Left (approx 60%): Table of Logical Operators.
+   792→    *   Right (approx 40%): Short-circuit execution list.
+   793→*   **Row 2 (Middle Content):** Split into **3 Equal Columns**.
+   794→    *   Column 1: AND Conditions (&&)
+   795→    *   Column 2: OR Conditions (||)
+   796→    *   Column 3: NOT Condition (!)
+   797→*   **Row 3 (Combining Tests):** Split into **3 Equal Columns**.
+   798→    *   Column 1: Example 1
+   799→    *   Column 2: Example 2
+   800→    *   Column 3: Example 3
+   801→*   **Row 4 (Deployment Checks):** Split into **2 Columns** (approx 60/40 or 55/45 split).
+   802→    *   Left: Code block example.
+   803→    *   Right: Checklist bullet points + Shield graphic.
+   804→*   **Footer Row:** Full width (Tip bar + Social links).
+   805→
+   806→### (7) Colors
+   807→*   **Primary Dark Green:** Used for headers, section backgrounds, icons, and main title text. (Approximate Hex: `#1B4D3E` or `#0F3D2E`).
+   808→*   **Background Color:** Off-white/Light Cream/Paper texture color (Approximate Hex: `#F5F5F0` or `#FAF9F6`).
+   809→*   **Text Color (Body):** Black or very dark grey.
+   810→*   **Code Syntax Highlighting:**
+   811→    *   **Red/Orange:** Used for keywords like `if`, `then`, `else`, `fi`, and flags like `-f`, `-x`.
+   812→    *   **Green:** Used for strings in quotes (e.g., `"File exists..."`) and comments.
+   813→    *   **Black/Dark Grey:** Used for variables and command names (e.g., `echo`, `app.sh`).
+   814→*   **White:** Used for text inside dark green icons and headers.
+   815→
+   816→===== PAGE 10 =====
+   817→Here is the exhaustive analysis of the carousel page:
+   818→
+   819→### (1) Page Title
+   820→**9. LOOPS FOR AUTOMATION**
+   821→**REPEAT TASKS. SAVE TIME. ELIMINATE MANUAL WORK.**
+   822→
+   823→### (2) All Section Headings
+   824→1.  **1. FOR LOOPS**
+   825→2.  **2. WHILE LOOPS**
+   826→3.  **3. LOOPING THROUGH FILES**
+   827→4.  **4. LOOPING THROUGH SERVERS**
+   828→5.  **5. BREAK**
+   829→6.  **6. CONTINUE**
+   830→7.  **7. AVOIDING INFINITE LOOPS**
+   831→8.  **8. AUTOMATING REPETITIVE TASKS**
+   832→
+   833→### (3) ALL Text Content
+   834→
+   835→**Header Area:**
+   836→*   VERIQTA
+   837→*   PAGE 9
+   838→*   9. LOOPS FOR AUTOMATION
+   839→*   REPEAT TASKS. SAVE TIME. ELIMINATE MANUAL WORK.
+   840→
+   841→**Section 1: FOR LOOPS**
+   842→*   Loop through a list of items.
+   843→*   Output: Item: a Item: b Item: c
+   844→
+   845→**Section 2: WHILE LOOPS**
+   846→*   Repeat while a condition is true.
+   847→*   Output: Count: 1 2 3 4 5
+   848→
+   849→**Section 3: LOOPING THROUGH FILES**
+   850→*   Process each file in a directory.
+   851→*   Example: Prints all .txt files in the current directory.
+   852→
+   853→**Section 4: LOOPING THROUGH SERVERS**
+   854→*   Run commands on multiple servers.
+   855→*   Example: Check uptime on many servers
+   856→
+   857→**Section 5: BREAK**
+   858→*   Exit the loop immediately.
+   859→*   STOP THE LOOP
+   860→*   Output: Number: 1 2
+   861→
+   862→**Section 6: CONTINUE**
+   863→*   Skip the rest of the loop and continue.
+   864→*   SKIP AND CONTINUE
+   865→*   Output: Number: 1 2 4 5
+   866→
+   867→**Section 7: AVOIDING INFINITE LOOPS**
+   868→*   Always update your condition.
+   869→*   Always change the variable inside the loop.
+   870→*   Use clear exit conditions.
+   871→*   Test your loops with small values first.
+   872→*   Use break when needed.
+   873→*   BE CAREFUL
+   874→
+   875→**Section 8: AUTOMATING REPETITIVE TASKS**
+   876→*   Loops help you automate daily tasks.
+   877→*   File management
+   878→*   Server monitoring
+   879→*   User management
+   880→*   Log analysis
+   881→*   Backups and cleanups
+   882→*   System updates
+   883→*   AUTOMATE EVERYTHING
+   884→
+   885→**Footer / Key Takeaway:**
+   886→*   KEY TAKEAWAY
+   887→*   Loops save time, reduce errors, and make your scripts powerful.
+   888→*   REPEAT SMARTER
+   889→*   SAVE TIME EVERY DAY
+   890→*   VERIQTA
+   891→*   YOUTUBE
+   892→*   GITHUB
+   893→*   LINKEDIN
+   894→*   X
+   895→*   INSTAGRAM
+   896→*   TELEGRAM
+   897→
+   898→### (4) Code Blocks
+   899→
+   900→**Block 1 (For Loop):**
+   901→```bash
+   902→for item in a b c; do
+   903→    echo "Item: $item"
+   904→done
+   905→```
+   906→
+   907→**Block 2 (While Loop):**
+   908→```bash
+   909→count=1
+   910→while [ $count -le 5 ]; do
+   911→    echo "Count: $count"
+   912→    count=$((count + 1))
+   913→done
+   914→```
+   915→
+   916→**Block 3 (File Loop):**
+   917→```bash
+   918→for file in *.txt; do
+   919→    echo "File: $file"
+   920→done
+   921→```
+   922→
+   923→**Block 4 (Server Loop):**
+   924→```bash
+   925→for server in server1 server2 server3; do
+   926→    echo "Checking $server..."
+   927→    ssh $server uptime
+   928→done
+   929→```
+   930→
+   931→**Block 5 (Break):**
+   932→```bash
+   933→for i in {1..5}; do
+   934→    if [ $i -eq 3 ]; then
+   935→        break
+   936→    fi
+   937→    echo "Number: $i"
+   938→done
+   939→```
+   940→
+   941→**Block 6 (Continue):**
+   942→```bash
+   943→for i in {1..5}; do
+   944→    if [ $i -eq 3 ]; then
+   945→        continue
+   946→    fi
+   947→    echo "Number: $i"
+   948→done
+   949→```
+   950→
+   951→### (5) Icons with Colors
+   952→*   **Refresh/Sync Icon:** Dark Green (Top Left)
+   953→*   **Gear/Settings Icon:** Dark Green (Top Right)
+   954→*   **"for" Text Icon:** Dark Green (Section 1)
+   955→*   **"while" Circular Arrow Icon:** Dark Green (Section 2)
+   956→*   **Document/File Icon:** Dark Green Outline (Section 3)
+   957→*   **Server Rack Icon:** Dark Green Solid (Section 4)
+   958→*   **Stop Sign Icon:** Dark Green with White Text "STOP" (Section 5)
+   959→*   **Skip Arrow Icon:** Dark Green Curved Arrow (Section 6)
+   960→*   **Warning Triangle Icons:** Yellow with Black Exclamation Mark (Section 7 - x4)
+   961→*   **Exclamation Circle Icon:** Dark Green Outline (Section 7)
+   962→*   **Checkmark Icons:** Dark Green Circle with White Check (Section 8 - x6)
+   963→*   **Robot Icon:** Dark Green Solid (Section 8)
+   964→*   **Lightbulb Icon:** Yellow/Gold (Footer Key Takeaway)
+   965→*   **Repeat/Cycle Icon:** Dark Green Outline (Footer)
+   966→*   **Clock Icon:** Dark Green Outline (Footer)
+   967→*   **Social Media Icons (YouTube, GitHub, LinkedIn, X, Instagram, Telegram):** Dark Green/Rounded Squares (Bottom Footer)
+   968→
+   969→### (6) Layout Columns
+   970→The page uses a **2-Column Grid Layout** for the main content sections (Sections 1 through 8).
+   971→*   **Left Column:** Contains Sections 1, 3, 5, 7.
+   972→*   **Right Column:** Contains Sections 2, 4, 6, 8.
+   973→
+   974→The **Header** spans full width.
+   975→The **Footer** (Key Takeaway & Social Links) spans full width.
+   976→
+   977→### (7) Colors
+   978→*   **Primary Brand Color (Dark Green):** Used for headers, borders, icons, keywords (`for`, `while`, `do`, `done`, `if`, `then`, `fi`, `break`, `continue`), and main body text.
+   979→*   **Secondary Accent (Red/Orange):** Used for string variables inside code blocks (e.g., `"Item: $item"`) and the word `break`/`continue` within the logic.
+   980→*   **Background (Off-White/Cream):** The background of the code block containers.
+   981→*   **Background (White):** The main page background.
+   982→*   **Highlight (Yellow):** Used for warning icons in Section 7 and the lightbulb icon in the footer.
+   983→*   **Text (Black/Dark Grey):** Used for descriptions, explanations, and non-code text.
+   984→
+   985→

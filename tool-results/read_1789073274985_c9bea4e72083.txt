@@ -1,0 +1,602 @@
+   120→.row .ico svg{display:block;}
+   121→.row .text{flex:1;min-width:0;}
+   122→.row .text h3{
+   123→  font-size:12.5px;font-weight:800;color:var(--green);
+   124→  text-transform:uppercase;letter-spacing:.4px;
+   125→  margin-bottom:3px;
+   126→}
+   127→.row .text p{
+   128→  font-size:12px;color:var(--ink-2);line-height:1.45;
+   129→  margin-bottom:4px;
+   130→}
+   131→.row .text ul{
+   132→  list-style:none;padding:0;margin:4px 0 0 0;
+   133→  font-size:11.5px;color:var(--ink-2);line-height:1.55;
+   134→}
+   135→.row .text ul li{
+   136→  padding-left:18px;position:relative;margin-bottom:3px;
+   137→}
+   138→.row .text ul li::before{
+   139→  content:"";position:absolute;left:2px;top:6px;
+   140→  width:8px;height:8px;border-radius:50%;
+   141→  background:var(--green);
+   142→}
+   143→.row .text code.inline,
+   144→code.inline{
+   145→  font-family:"JetBrains Mono","Fira Code",monospace;
+   146→  font-size:11px;
+   147→  background:#e8e4d4;padding:1px 5px;border-radius:3px;
+   148→  color:var(--navy);
+   149→}
+   150→
+   151→/* ============================================================
+   152→   TERMINAL / CODE BLOCK
+   153→   ============================================================ */
+   154→.terminal{
+   155→  background:var(--term-bg);border-radius:8px;overflow:hidden;
+   156→  box-shadow:0 4px 14px rgba(0,0,0,.2);
+   157→  margin-top:6px;
+   158→}
+   159→.terminal .term-bar{
+   160→  background:#1c2230;padding:6px 12px;
+   161→  display:flex;align-items:center;gap:6px;
+   162→}
+   163→.terminal .term-dot{width:10px;height:10px;border-radius:50%;}
+   164→.terminal .dot-red{background:#ff5f56;}
+   165→.terminal .dot-amber{background:#ffbd2e;}
+   166→.terminal .dot-green{background:#27c93f;}
+   167→.terminal .term-title{
+   168→  margin-left:auto;color:#8b949e;
+   169→  font-size:10px;font-family:monospace;
+   170→}
+   171→.terminal .term-body{
+   172→  padding:10px 14px;
+   173→  font-family:"JetBrains Mono","Fira Code",monospace;
+   174→  font-size:11.5px;line-height:1.55;
+   175→  color:var(--term-fg);
+   176→  white-space:pre-wrap;
+   177→}
+   178→.terminal .term-body .prompt{color:var(--terminal-green,#7ee787);}
+   179→.terminal .term-body .comment{color:var(--terminal-dim,#8b949e);font-style:italic;}
+   180→.terminal .term-body .cmd{color:#79c0ff;}
+   181→.terminal .term-body .str{color:#f2cc60;}
+   182→.terminal .term-body .out{color:var(--term-fg);}
+   183→.terminal .term-body .kw{color:#ff7b72;font-weight:600;}
+   184→
+   185→/* ============================================================
+   186→   SIDEBAR CARDS (right column)
+   187→   ============================================================ */
+   188→.sidebar{display:flex;flex-direction:column;gap:10px;}
+   189→.card{
+   190→  background:#fff;border-radius:10px;overflow:hidden;
+   191→  box-shadow:0 2px 8px rgba(0,0,0,.06);
+   192→  border:1px solid rgba(0,0,0,.05);
+   193→}
+   194→.card .head{
+   195→  background:var(--green);color:#fff;
+   196→  padding:8px 14px;
+   197→  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+   198→  display:flex;align-items:center;gap:8px;
+   199→}
+   200→.card .head .head-ico{
+   201→  width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
+   202→}
+   203→.card .head .head-ico svg{display:block;}
+   204→.card .body-pad{padding:12px 14px;}
+   205→.card .body-pad p{
+   206→  font-size:11.5px;color:var(--ink-2);line-height:1.5;
+   207→  margin-bottom:6px;
+   208→}
+   209→.card .body-pad ul{
+   210→  list-style:none;padding:0;margin:0;
+   211→  font-size:11.5px;color:var(--ink-2);line-height:1.55;
+   212→}
+   213→.card .body-pad ul li{
+   214→  padding-left:20px;position:relative;margin-bottom:5px;
+   215→}
+   216→.card .body-pad ul li::before{
+   217→  content:"";position:absolute;left:2px;top:6px;
+   218→  width:8px;height:8px;border-radius:50%;background:var(--green);
+   219→}
+   220→
+   221→/* ============================================================
+   222→   TABLES
+   223→   ============================================================ */
+   224→.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px;}
+   225→.tbl th{
+   226→  background:var(--green);color:#fff;
+   227→  padding:6px 10px;text-align:left;
+   228→  font-weight:700;font-size:10px;letter-spacing:.3px;text-transform:uppercase;
+   229→}
+   230→.tbl td{
+   231→  padding:6px 10px;
+   232→  border-bottom:1px solid #e0d8c8;
+   233→  color:var(--ink-2);
+   234→}
+   235→.tbl td code,
+   236→.tbl td .mono{
+   237→  font-family:"JetBrains Mono",monospace;font-size:10px;
+   238→  background:#e8e4d4;padding:1px 4px;border-radius:3px;
+   239→  color:var(--navy);
+   240→  display:inline-block;vertical-align:top;
+   241→}
+   242→.tbl tr:last-child td{border-bottom:none;}
+   243→
+   244→/* ============================================================
+   245→   CALLOUTS (warn / tip)
+   246→   ============================================================ */
+   247→.callout{
+   248→  display:flex;gap:10px;align-items:flex-start;
+   249→  border-radius:8px;padding:8px 12px;
+   250→  font-size:11.5px;line-height:1.45;
+   251→  margin-top:6px;
+   252→}
+   253→.callout.warn{
+   254→  background:#fff4e0;border-left:3px solid var(--orange);
+   255→  color:var(--ink-2);
+   256→}
+   257→.callout.tip{
+   258→  background:#e8f5ee;border-left:3px solid var(--green);
+   259→  color:var(--ink-2);
+   260→}
+   261→.callout.danger{
+   262→  background:#ffe5e5;border-left:3px solid var(--red);
+   263→  color:var(--ink-2);
+   264→}
+   265→.callout .ico{flex-shrink:0;width:20px;height:20px;margin-top:1px;display:inline-flex;}
+   266→.callout .ico svg{display:block;}
+   267→
+   268→/* ============================================================
+   269→   3-COLUMN CARD GRID (page 16)
+   270→   ============================================================ */
+   271→.card-grid-3{
+   272→  display:grid;
+   273→  grid-template-columns:1fr 1fr 1fr;
+   274→  gap:10px;
+   275→  margin-bottom:14px;
+   276→}
+   277→.grid-card{
+   278→  background:#fff;border-radius:10px;overflow:hidden;
+   279→  box-shadow:0 2px 8px rgba(0,0,0,.06);
+   280→  border:1px solid rgba(0,0,0,.05);
+   281→  display:flex;flex-direction:column;
+   282→}
+   283→.grid-card .gc-head{
+   284→  padding:8px 12px;
+   285→  font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+   286→  display:flex;align-items:center;gap:8px;
+   287→  color:#fff;
+   288→}
+   289→.grid-card .gc-head .gc-ico{
+   290→  width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;
+   291→}
+   292→.grid-card .gc-head .gc-ico svg{display:block;}
+   293→.grid-card .gc-body{
+   294→  padding:10px 12px;
+   295→  flex:1;display:flex;flex-direction:column;gap:6px;
+   296→}
+   297→.grid-card .gc-body p{
+   298→  font-size:11px;color:var(--ink-2);line-height:1.4;
+   299→}
+   300→.grid-card .gc-body ul{
+   301→  list-style:none;padding:0;margin:0;
+   302→  font-size:10.5px;color:var(--ink-2);line-height:1.5;
+   303→}
+   304→.grid-card .gc-body ul li{
+   305→  padding-left:16px;position:relative;margin-bottom:3px;
+   306→}
+   307→.grid-card .gc-body ul li::before{
+   308→  content:"";position:absolute;left:0;top:6px;
+   309→  width:7px;height:7px;border-radius:50%;background:var(--green);
+   310→}
+   311→.grid-card .gc-body .terminal{margin-top:4px;}
+   312→.grid-card .gc-body .terminal .term-body{font-size:10.5px;padding:8px 12px;}
+   313→
+   314→/* Color variants for grid-card heads */
+   315→.gc-green{background:var(--green);}
+   316→.gc-blue{background:var(--blue);}
+   317→.gc-purple{background:var(--purple);}
+   318→.gc-red{background:var(--red);}
+   319→.gc-gold{background:var(--gold);}
+   320→.gc-teal{background:var(--teal);}
+   321→.gc-navy{background:var(--navy);}
+   322→.gc-orange{background:var(--orange);}
+   323→
+   324→/* ============================================================
+   325→   KEY TAKEAWAY BOX
+   326→   ============================================================ */
+   327→.key-takeaway{
+   328→  display:flex;align-items:center;gap:14px;
+   329→  background:var(--green);color:#fff;
+   330→  border-radius:10px;padding:14px 20px;
+   331→  margin-top:12px;
+   332→}
+   333→.key-takeaway .kt-ico{
+   334→  flex-shrink:0;width:36px;height:36px;
+   335→  display:inline-flex;align-items:center;justify-content:center;
+   336→}
+   337→.key-takeaway .kt-ico svg{display:block;}
+   338→.key-takeaway .kt-text{
+   339→  flex:1;font-size:12.5px;line-height:1.5;
+   340→}
+   341→.key-takeaway .kt-text strong{
+   342→  display:block;font-size:13px;letter-spacing:1.5px;
+   343→  margin-bottom:2px;
+   344→}
+   345→
+   346→/* ============================================================
+   347→   STEPS (numbered)
+   348→   ============================================================ */
+   349→.steps{display:flex;flex-direction:column;gap:6px;}
+   350→.step{
+   351→  display:flex;gap:10px;align-items:flex-start;
+   352→  font-size:12px;color:var(--ink-2);line-height:1.45;
+   353→}
+   354→.step .n{
+   355→  flex-shrink:0;width:22px;height:22px;border-radius:50%;
+   356→  background:var(--green);color:#fff;
+   357→  display:flex;align-items:center;justify-content:center;
+   358→  font-size:11px;font-weight:800;font-family:monospace;
+   359→}
+   360→.step .step-ico{
+   361→  flex-shrink:0;width:22px;height:22px;
+   362→  display:inline-flex;align-items:center;justify-content:center;
+   363→}
+   364→.step .step-ico svg{display:block;}
+   365→
+   366→/* ============================================================
+   367→   COMPARE (debugging page - 2-col comparison)
+   368→   ============================================================ */
+   369→.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+   370→.compare .col{
+   371→  border-radius:8px;padding:8px 10px;
+   372→  font-size:10.5px;line-height:1.45;
+   373→  background:#fff;
+   374→  border:1px solid #e0d8c8;
+   375→}
+   376→.compare .col h4{
+   377→  font-size:10.5px;font-weight:800;text-transform:uppercase;
+   378→  margin-bottom:4px;letter-spacing:.3px;
+   379→  display:flex;align-items:center;gap:6px;
+   380→}
+   381→.compare .col h4 .h-ico{width:16px;height:16px;display:inline-flex;}
+   382→.compare .col h4 .h-ico svg{display:block;}
+   383→.compare .col p{margin-bottom:4px;color:var(--ink-2);}
+   384→.compare .col .fix{
+   385→  font-size:10px;color:var(--green);font-weight:700;
+   386→}
+   387→.compare .col .mini-code{
+   388→  font-family:"JetBrains Mono",monospace;font-size:9.5px;
+   389→  background:var(--term-bg);color:var(--term-fg);
+   390→  padding:5px 7px;border-radius:4px;margin-top:4px;
+   391→  white-space:pre-wrap;
+   392→}
+   393→.compare-grid-2{
+   394→  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;
+   395→}
+   396→.compare-grid-2 .compare{grid-template-columns:1fr;}
+   397→
+   398→/* ============================================================
+   399→   WORKFLOW STRIP (page 20)
+   400→   ============================================================ */
+   401→.workflow{
+   402→  display:flex;align-items:center;justify-content:space-between;gap:8px;
+   403→  background:#fff;border:2px solid var(--green);border-radius:12px;
+   404→  padding:12px 16px;margin-top:12px;
+   405→}
+   406→.workflow .wf-step{
+   407→  display:flex;flex-direction:column;align-items:center;gap:4px;
+   408→  font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;
+   409→  flex:1;
+   410→}
+   411→.workflow .wf-step .wf-ico{width:32px;height:32px;display:inline-flex;}
+   412→.workflow .wf-step .wf-ico svg{display:block;}
+   413→.workflow .wf-arrow{color:var(--green);font-weight:800;font-size:16px;}
+   414→.workflow .wf-final{
+   415→  display:flex;align-items:center;gap:8px;padding-left:14px;
+   416→  border-left:2px solid #cde4d4;
+   417→}
+   418→.workflow .wf-final .wf-check{
+   419→  width:32px;height:32px;border-radius:50%;
+   420→  background:var(--green);color:#fff;
+   421→  display:flex;align-items:center;justify-content:center;
+   422→}
+   423→.workflow .wf-final .wf-check svg{display:block;}
+   424→.workflow .wf-final .wf-text{
+   425→  font-size:11px;font-weight:800;color:var(--green);
+   426→  text-transform:uppercase;line-height:1.3;
+   427→}
+   428→
+   429→/* ============================================================
+   430→   STATUS BADGES (HTTP codes)
+   431→   ============================================================ */
+   432→.status-badges{
+   433→  display:flex;flex-direction:column;gap:5px;align-items:flex-start;
+   434→}
+   435→.status-badge{
+   436→  display:inline-flex;align-items:center;gap:6px;
+   437→  padding:3px 10px;border-radius:6px;
+   438→  font-size:11px;font-weight:800;color:#fff;
+   439→  font-family:monospace;
+   440→}
+   441→.status-2xx{background:var(--green);}
+   442→.status-3xx{background:var(--orange);}
+   443→.status-4xx{background:var(--red);}
+   444→.status-5xx{background:#7c2d12;}
+   445→
+   446→/* ============================================================
+   447→   FOOTER NOTE
+   448→   ============================================================ */
+   449→.page-foot-note{
+   450→  font-size:10.5px;color:var(--ink-2);text-align:center;
+   451→  font-style:italic;margin-top:8px;opacity:.8;
+   452→}
+   453→"""
+   454→
+   455→
+   456→# ============================================================
+   457→# HTML SNIPPET HELPERS
+   458→# ============================================================
+   459→def terminal(code: str, title: str = "bash") -> str:
+   460→    """Build a terminal block. `code` should be pre-formatted HTML."""
+   461→    return f"""<div class="terminal"><div class="term-bar"><span class="term-dot dot-red"></span><span class="term-dot dot-amber"></span><span class="term-dot dot-green"></span><span class="term-title">{title}</span></div><div class="term-body">{code}</div></div>"""
+   462→
+   463→
+   464→def callout(text: str, style: str = "tip", ico_name: str = None) -> str:
+   465→    """Build a callout box."""
+   466→    ico_html = ""
+   467→    if ico_name:
+   468→        ico_html = f'<span class="ico">{icon(ico_name, 20)}</span>'
+   469→    return f'<div class="callout {style}">{ico_html}<div>{text}</div></div>'
+   470→
+   471→
+   472→def row(icon_name: str, num: str, heading: str, desc: str = "",
+   473→        inner_html: str = "") -> str:
+   474→    """Build a row with colorful icon, heading, and inner content."""
+   475→    desc_html = f"<p>{desc}</p>" if desc else ""
+   476→    return f"""<div class="row"><div class="ico">{icon(icon_name, 36)}</div><div class="text"><h3>{num}{heading}</h3>{desc_html}{inner_html}</div></div>"""
+   477→
+   478→
+   479→def sidebar_card(icon_name: str, heading: str, body_html: str) -> str:
+   480→    """Build a sidebar card."""
+   481→    return f"""<div class="card"><div class="head"><span class="head-ico">{icon(icon_name, 18)}</span><span>{heading}</span></div><div class="body-pad">{body_html}</div></div>"""
+   482→
+   483→
+   484→def grid_card(icon_name: str, heading: str, color: str, body_html: str) -> str:
+   485→    """Build a colorful grid card (3-column layout)."""
+   486→    return f"""<div class="grid-card"><div class="gc-head gc-{color}"><span class="gc-ico">{icon(icon_name, 18)}</span><span>{heading}</span></div><div class="gc-body">{body_html}</div></div>"""
+   487→
+   488→
+   489→def key_takeaway(text: str, ico_name: str = "lightbulb",
+   490→                 heading: str = "KEY TAKEAWAY") -> str:
+   491→    """Build a key takeaway box."""
+   492→    return f"""<div class="key-takeaway"><span class="kt-ico">{icon(ico_name, 32)}</span><div class="kt-text"><strong>{heading}</strong>{text}</div></div>"""
+   493→
+   494→
+   495→def page_skeleton(title_num: str, title: str, subtitle: str,
+   496→                  page_num: int, body_html: str) -> str:
+   497→    """Wrap body content in the full HTML page skeleton."""
+   498→    return f"""<!DOCTYPE html>
+   499→<html lang="en">
+   500→<head>
+   501→<meta charset="UTF-8">
+   502→<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   503→<title>{title_num}. {title} — Shell Scripting for DevOps</title>
+   504→<style>
+   505→/* ===== CANONICAL NOTEBOOK TEMPLATE CSS (inlined for portability) ===== */
+   506→{CANONICAL_CSS_INLINE}
+   507→
+   508→/* ===== SUPPLEMENTAL CSS (page-specific layouts) ===== */
+   509→{SUPPLEMENTAL_CSS}
+   510→</style>
+   511→</head>
+   512→<body class="multi-page">
+   513→
+   514→<div class="page-wrapper">
+   515→  <div class="spiral" aria-hidden="true"></div>
+   516→  <div class="holes" aria-hidden="true"></div>
+   517→  <div class="page-bend" aria-hidden="true"></div>
+   518→  <div class="page">
+   519→    <div class="page-top-edge" aria-hidden="true"></div>
+   520→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   521→    <div class="page-badge">Page {page_num} of 20</div>
+   522→    <div class="content">
+   523→
+   524→      <h1 class="page-title"><span class="title-ico">{icon('shell', 38)}</span><span class="num">{title_num}.</span> {title}</h1>
+   525→      <div class="page-subtitle">{subtitle}</div>
+   526→
+   527→{body_html}
+   528→
+   529→    </div>
+   530→  </div>
+   531→</div>
+   532→
+   533→</body>
+   534→</html>
+   535→"""
+   536→
+   537→
+   538→# ============================================================
+   539→# PAGE 16 — NETWORKING WITH SHELL SCRIPTS (3-column grid)
+   540→# ============================================================
+   541→def build_page_16() -> str:
+   542→    """Page 16: 3-column card grid for networking commands."""
+   543→    cards_html = f"""
+   544→      <div class="card-grid-3">
+   545→        {grid_card("globe", "1. CURL — HTTP REQUESTS", "green", """
+   546→          <p>Send HTTP requests to endpoints.</p>
+   547→          {terminal('<span class="prompt">$</span> <span class="cmd">curl</span> <span class="str">https://example.com</span>\\n<span class="prompt">$</span> <span class="cmd">curl</span> -I <span class="str">https://example.com</span>\\n<span class="prompt">$</span> <span class="cmd">curl</span> -s -o /dev/null -w <span class="str">"%{{http_code}}"</span> URL', 'curl')}
+   548→          <ul><li>Fetch URLs</li><li>Test APIs</li><li>Check headers</li></ul>
+   549→        """)}
+   550→        {grid_card("monitor", "2. PING — CONNECTIVITY", "blue", """
+   551→          <p>Test if a host is reachable.</p>
+   552→          {terminal('<span class="prompt">$</span> <span class="cmd">ping</span> -c 4 google.com\\n<span class="prompt">$</span> <span class="cmd">ping</span> -c 4 8.8.8.8', 'ping')}
+   553→          <ul><li>Check reachability</li><li>Measure latency</li><li>Troubleshoot</li></ul>
+   554→        """)}
+   555→        {grid_card("network", "3. SS — CHECK SOCKETS", "purple", """
+   556→          <p>Show network sockets and connections.</p>
+   557→          {terminal('<span class="prompt">$</span> <span class="cmd">ss</span> -tuln  <span class="comment"># listening</span>\\n<span class="prompt">$</span> <span class="cmd">ss</span> -tnp   <span class="comment"># connections</span>\\n<span class="prompt">$</span> <span class="cmd">ss</span> -ltnp  <span class="comment"># w/ PID</span>', 'ss')}
+   558→          <ul><li>Listening ports</li><li>Active connections</li><li>PIDs</li></ul>
+   559→        """)}
+   560→        {grid_card("server", "4. HOSTNAME — SYSTEM NAME", "gold", """
+   561→          <p>Get or set the system hostname.</p>
+   562→          {terminal('<span class="prompt">$</span> <span class="cmd">hostname</span>      <span class="comment"># name</span>\\n<span class="prompt">$</span> <span class="cmd">hostname</span> -I    <span class="comment"># IPs</span>\\n<span class="prompt">$</span> <span class="cmd">hostnamectl</span>   <span class="comment"># details</span>', 'hostname')}
+   563→          <ul><li>Identify hosts</li><li>Find IPs</li><li>Audit fleet</li></ul>
+   564→        """)}
+   565→        {grid_card("globe", "5. DNS CHECKS — RESOLVE", "teal", """
+   566→          <p>Check DNS resolution.</p>
+   567→          {terminal('<span class="prompt">$</span> <span class="cmd">nslookup</span> example.com\\n<span class="prompt">$</span> <span class="cmd">dig</span> example.com\\n<span class="prompt">$</span> <span class="cmd">host</span> example.com', 'dns')}
+   568→          <ul><li>Resolve names</li><li>Inspect records</li><li>Debug DNS</li></ul>
+   569→        """)}
+   570→        {grid_card("warning", "6. HTTP STATUS CODES", "red", """
+   571→          <p>Check HTTP response codes.</p>
+   572→          <div class="status-badges">
+   573→            <span class="status-badge status-2xx">200 OK</span>
+   574→            <span class="status-badge status-3xx">301 / 302 Redirect</span>
+   575→            <span class="status-badge status-4xx">404 Not Found</span>
+   576→            <span class="status-badge status-5xx">500 Server Error</span>
+   577→          </div>
+   578→          <p style="margin-top:6px;font-size:10.5px;">Use <code class="inline">curl -w "%{http_code}"</code> to capture status.</p>
+   579→        """)}
+   580→        {grid_card("check-circle", "7. TEST ENDPOINT UP", "green", """
+   581→          <p>Quickly test if an endpoint is up.</p>
+   582→          {terminal('<span class="prompt">$</span> <span class="cmd">curl</span> -s -o /dev/null -w <span class="str">"%{{http_code}}"</span> URL\\n<span class="comment"># 200-399 = UP</span>\\n<span class="comment"># 400-599 = DOWN</span>\\n<span class="comment"># 000 = no response</span>', 'test')}
+   583→          <ul><li>Verify uptime</li><li>Detect outages</li><li>Alert teams</li></ul>
+   584→        """)}
+   585→        {grid_card("bell", "8. APP HEALTH CHECK", "blue", """
+   586→          <p>Check app health endpoint.</p>
+   587→          {terminal('<span class="prompt">$</span> <span class="cmd">curl</span> -s <span class="str">https://app/health</span>\\n<span class="prompt">$</span> <span class="cmd">curl</span> -sf URL <span class="kw">&amp;&amp;</span> <span class="cmd">echo</span> OK\\n  <span class="kw">||</span> <span class="cmd">echo</span> DOWN', 'health')}
+   588→          <ul><li>Expose /health</li><li>Monitor apps</li><li>Catch issues early</li></ul>
+   589→        """)}
+   590→        {grid_card("shield", "9. WEBSITE SCRIPT", "purple", """
+   591→          <p>Sample availability script.</p>
+   592→          {terminal('<span class="comment">#!/bin/bash</span>\\n<span class="cmd">URL</span>=<span class="str">"https://example.com"</span>\\n<span class="cmd">STATUS</span>=$(<span class="cmd">curl</span> -so /dev/null -w "%{{http_code}}" "$URL")\\n<span class="kw">if</span> [ "$STATUS" = "200" ]; <span class="kw">then</span>\\n  <span class="cmd">echo</span> "UP"\\n<span class="kw">else</span>\\n  <span class="cmd">echo</span> "DOWN"\\n<span class="kw">fi</span>', 'avail.sh')}
+   593→        """)}
+   594→      </div>
+   595→
+   596→      <div class="card-grid-3">
+   597→        {grid_card("list", "10. QUICK REFERENCE", "navy", """
+   598→          <p>Common networking commands.</p>
+   599→          <ul>
+   600→            <li><strong>Test:</strong> ping, curl, nc, telnet</li>
+   601→            <li><strong>Monitor:</strong> ss, netstat, iftop</li>
+   602→            <li><strong>Ensure:</strong> /health endpoint</li>
+   603→            <li><strong>Alert:</strong> on 5xx or timeouts</li>
+   604→            <li><strong>Log:</strong> response codes & times</li>
+   605→          </ul>
+   606→        """)}
+   607→        {grid_card("check-circle", "11. BEST PRACTICES", "green", """
+   608→          <p>Network script best practices.</p>
+   609→          <ul>
+   610→            <li>Check status codes, not just ping</li>
+   611→            <li>Set timeouts on every curl</li>
+   612→            <li>Log every check to file</li>
+   613→            <li>Use retries for flaky links</li>
+   614→            <li>Validate DNS before assuming down</li>
+   615→            <li>Alert only after N failures</li>
+   616→            <li>Use full URLs with protocol</li>
+   617→          </ul>
+   618→        """)}
+   619→        {grid_card("lightbulb", "12. KEY TAKEAWAY", "gold", """
+   620→          <p><strong>Check network.</strong> Verify health. Ensure uptime.</p>
+   621→          <p style="margin-top:6px;font-size:10.5px;">Network scripts keep services reliable. Always test, monitor, and alert.</p>
+   622→        """)}
+   623→      </div>
+   624→
+   625→      {callout('<strong>Pro tip:</strong> Combine <code class="inline">curl</code>, <code class="inline">ping</code>, and <code class="inline">ss</code> in one script to fully diagnose any connectivity issue.', 'tip', 'lightbulb')}
+   626→    """
+   627→
+   628→    body_html = f"""
+   629→      <div class="body single">
+   630→        <div class="rows">
+   631→          <div class="row">
+   632→            <div class="ico">{icon('globe', 36)}</div>
+   633→            <div class="text">
+   634→              <h3>NETWORKING WITH SHELL SCRIPTS — TOOLKIT</h3>
+   635→              <p>Test connectivity, monitor services, and ensure availability with these essential commands.</p>
+   636→            </div>
+   637→          </div>
+   638→        </div>
+   639→      </div>
+   640→
+   641→      {cards_html}
+   642→    """
+   643→
+   644→    return page_skeleton(
+   645→        title_num="15",
+   646→        title="NETWORKING WITH SHELL SCRIPTS",
+   647→        subtitle="TEST. MONITOR. ENSURE AVAILABILITY.",
+   648→        page_num=16,
+   649→        body_html=body_html,
+   650→    )
+   651→
+   652→
+   653→# ============================================================
+   654→# PAGE 17 — ERROR HANDLING & SAFER SCRIPTS (2-column)
+   655→# ============================================================
+   656→def build_page_17() -> str:
+   657→    """Page 17: 2-column rows + sidebar for safer shell scripts."""
+   658→
+   659→    rows_html = f"""
+   660→      {row("warning", "1. ", "WHY SCRIPTS FAIL SILENTLY",
+   661→          "By default, bash ignores errors and keeps going — hiding real issues.",
+   662→          callout('<strong>Problem:</strong> A failed command does not stop the script. The next line runs anyway, often producing wrong results.', 'danger', 'bug'))}
+   663→
+   664→      {row("shield", "2. ", "SET -E: EXIT ON ERROR",
+   665→          "Stop the script as soon as any command fails.",
+   666→          terminal('<span class="cmd">set</span> -e\\n<span class="comment"># script exits if any command returns non-zero</span>') +
+   667→          callout('<strong>Benefit:</strong> Catches the first failure immediately.', 'tip', 'check-circle'))}
+   668→
+   669→      {row("user", "3. ", "SET -U: ERROR ON UNSET VARS",
+   670→          "Fail when an undefined variable is used.",
+   671→          terminal('<span class="cmd">set</span> -u\\n<span class="cmd">echo</span> <span class="str">"$UNDEFINED"</span>  <span class="comment"># fails fast</span>') +
+   672→          callout('<strong>Benefit:</strong> Catches typos and missing inputs.', 'tip', 'check-circle'))}
+   673→
+   674→      {row("code", "4. ", "SET -O PIPEFAIL: CATCH PIPE ERRORS",
+   675→          "Detect failures inside pipelines.",
+   676→          terminal('<span class="cmd">set</span> -o pipefail\\n<span class="cmd">cat</span> file.txt <span class="kw">|</span> <span class="cmd">grep</span> <span class="str">"ERROR"</span> <span class="kw">|</span> <span class="cmd">wc</span> -l') +
+   677→          callout('<strong>Benefit:</strong> Without pipefail, only the last command\'s status is checked.', 'tip', 'check-circle'))}
+   678→
+   679→      {row("shield", "5. ", "SET -EUO PIPEFAIL: STRONG &amp; SAFE MODE",
+   680→          "Best practice — combine all three flags.",
+   681→          terminal('<span class="cmd">set</span> -euo pipefail') +
+   682→          '<ul><li>Exit on any command error</li><li>Error on unset variables</li><li>Catch pipeline failures</li></ul>')}
+   683→
+   684→      {row("clipboard", "6. ", "VALIDATING INPUTS",
+   685→          "Always verify inputs before using them.",
+   686→          terminal('<span class="kw">if</span> [ -z <span class="str">"$1"</span> ]; <span class="kw">then</span>\\n  <span class="cmd">echo</span> <span class="str">"Usage: $0 &lt;url&gt;"</span>\\n  <span class="cmd">exit</span> 1\\n<span class="kw">fi</span>') +
+   687→          callout('<strong>Benefit:</strong> Prevents errors and makes scripts user-friendly.', 'tip', 'check-circle'))}
+   688→
+   689→      {row("gear", "7. ", "CHECKING DEPENDENCIES",
+   690→          "Ensure required commands exist before running.",
+   691→          terminal('<span class="kw">if</span> ! <span class="cmd">command</span> -v curl <span class="kw">&gt;/dev/null</span> 2&gt;&amp;1; <span class="kw">then</span>\\n  <span class="cmd">echo</span> <span class="str">"curl not found!"</span>\\n  <span class="cmd">exit</span> 1\\n<span class="kw">fi</span>') +
+   692→          callout('<strong>Benefit:</strong> Avoids failures due to missing tools.', 'tip', 'check-circle'))}
+   693→
+   694→      {row("bug", "8. ", "HANDLING FAILED COMMANDS",
+   695→          "Check command results and handle failures.",
+   696→          terminal('<span class="kw">if</span> ! <span class="cmd">rm</span> file.txt; <span class="kw">then</span>\\n  <span class="cmd">echo</span> <span class="str">"Failed to remove file.txt"</span>\\n  <span class="cmd">exit</span> 1\\n<span class="kw">fi</span>') +
+   697→          callout('<strong>Benefit:</strong> React to failures and prevent bad outcomes.', 'tip', 'check-circle'))}
+   698→
+   699→      {row("refresh", "9. ", "CLEANING UP AFTER FAILURES",
+   700→          "Use traps to clean up on exit or error.",
+   701→          terminal('<span class="cmd">cleanup</span>() {{\\n  <span class="cmd">echo</span> <span class="str">"Cleaning up..."</span>\\n  <span class="cmd">rm</span> -f temp.log\\n}}\\n<span class="cmd">trap</span> cleanup EXIT') +
+   702→          callout('<strong>Benefit:</strong> Keeps systems clean even when scripts fail.', 'tip', 'check-circle'))}
+   703→
+   704→      {row("target", "10. ", "WRITING PREDICTABLE AUTOMATION",
+   705→          "Follow these rules for reliable scripts:",
+   706→          '<ul><li>Fail fast</li><li>Validate inputs</li><li>Check dependencies</li><li>Handle errors</li><li>Clean up properly</li><li>Log what happens</li><li>Exit with the right status code</li></ul>')}
+   707→
+   708→      {row("code", "EXAMPLE: ", "SAFE SCRIPT TEMPLATE",
+   709→          "A complete template combining all safety flags.",
+   710→          terminal('<span class="comment">#!/bin/bash</span>\\n<span class="cmd">set</span> -euo pipefail\\n\\n<span class="comment"># Check input</span>\\n<span class="kw">if</span> [ -z <span class="str">"$1"</span> ]; <span class="kw">then</span>\\n  <span class="cmd">echo</span> <span class="str">"Usage: $0 &lt;url&gt;"</span>; <span class="cmd">exit</span> 1\\n<span class="kw">fi</span>\\n\\n<span class="comment"># Check dependency</span>\\n<span class="cmd">command</span> -v curl <span class="kw">&gt;/dev/null</span> 2&gt;&amp;1 <span class="kw">||</span> {{ <span class="cmd">echo</span> <span class="str">"curl not found"</span>; <span class="cmd">exit</span> 1; }}\\n\\n<span class="comment"># Cleanup trap</span>\\n<span class="cmd">cleanup</span>() {{ <span class="cmd">rm</span> -f temp.log; }}\\n<span class="cmd">trap</span> cleanup EXIT\\n\\n<span class="comment"># Main logic</span>\\n<span class="cmd">URL</span>=<span class="str">"$1"</span>\\n<span class="cmd">HTTP_CODE</span>=$(<span class="cmd">curl</span> -s -o /dev/null -w <span class="str">"%{{http_code}}"</span> <span class="str">"$URL"</span>)\\n<span class="kw">if</span> [ <span class="str">"$HTTP_CODE"</span> -ge 200 ] <span class="kw">&amp;&amp;</span> [ <span class="str">"$HTTP_CODE"</span> -lt 400 ]; <span class="kw">then</span>\\n  <span class="cmd">echo</span> <span class="str">"[$URL] UP (HTTP $HTTP_CODE)"</span>\\n<span class="kw">else</span>\\n  <span class="cmd">echo</span> <span class="str">"[$URL] DOWN (HTTP $HTTP_CODE)"</span>; <span class="cmd">exit</span> 1\\n<span class="kw">fi</span>', 'safe.sh'))}
+   711→    """
+   712→
+   713→    sidebar_html = f"""
+   714→      {sidebar_card("warning", "WHY SCRIPTS FAIL", """
+   715→        <p>Without safety flags, scripts:</p>
+   716→        <ul>
+   717→          <li>Ignore command failures</li>
+   718→          <li>Use unset variables as empty</li>
+   719→          <li>Hide pipeline errors</li>
+
+[showing lines 120-719 of 1227; use offset=720 with limit to continue reading]

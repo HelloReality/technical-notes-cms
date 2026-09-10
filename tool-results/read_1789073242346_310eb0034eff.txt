@@ -1,0 +1,1138 @@
+     1→#!/usr/bin/env python3
+     2→"""
+     3→Rebuild carousel pages 6-10 as self-contained HTML files.
+     4→
+     5→This is the v2 rebuild — uses:
+     6→  - The colorful filled SVG icons from scripts/shell_scripting_icons.py
+     7→  - The canonical notebook-template.css
+     8→    (public/uploads/notebook-template/notebook-template.css)
+     9→  - The correct layout per page based on VLM analysis:
+    10→      Page 6: 3-column layout  (Variables)
+    11→      Page 7: 3-column layout  (Exit Codes)
+    12→      Page 8: 3-column layout  (Conditional Statements)
+    13→      Page 9: single column centered (Logical Operators)
+    14→      Page 10: 2-column grid   (Loops for Automation)
+    15→
+    16→Output structure: <body class="multi-page"> > .page-wrapper > .page > .content
+    17→
+    18→NO VERIQTA branding, NO social footer.
+    19→
+    20→Writes:
+    21→  downloads/instagram-DcaW1UljsVk/recreated-page-06.html
+    22→  downloads/instagram-DcaW1UljsVk/recreated-page-07.html
+    23→  downloads/instagram-DcaW1UljsVk/recreated-page-08.html
+    24→  downloads/instagram-DcaW1UljsVk/recreated-page-09.html
+    25→  downloads/instagram-DcaW1UljsVk/recreated-page-10.html
+    26→"""
+    27→
+    28→import os
+    29→import sys
+    30→
+    31→# Make sibling icon library importable
+    32→SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+    33→sys.path.insert(0, SCRIPTS_DIR)
+    34→
+    35→# Colorful multi-color filled SVG icons (53 icons)
+    36→from shell_scripting_icons import icon as color_icon  # noqa: E402
+    37→
+    38→# Canonical notebook template CSS
+    39→PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPTS_DIR, ".."))
+    40→CANONICAL_CSS_PATH = os.path.join(
+    41→    PROJECT_ROOT, "public", "uploads", "notebook-template", "notebook-template.css"
+    42→)
+    43→with open(CANONICAL_CSS_PATH, "r", encoding="utf-8") as f:
+    44→    CANONICAL_CSS = f.read()
+    45→
+    46→OUTPUT_DIR = os.path.join(
+    47→    PROJECT_ROOT, "downloads", "instagram-DcaW1UljsVk"
+    48→)
+    49→
+    50→
+    51→# ============================================================
+    52→# CONTENT CSS — extends the canonical notebook template
+    53→# ============================================================
+    54→
+    55→CONTENT_CSS = r"""
+    56→/* ============================================================
+    57→   CONTENT STYLES for Shell Scripting carousel pages
+    58→   (extends canonical notebook-template.css)
+    59→   ============================================================ */
+    60→
+    61→/* ---- Brand bar ---- */
+    62→.brand-bar{
+    63→  display:flex;align-items:center;justify-content:space-between;
+    64→  margin-bottom:18px;
+    65→}
+    66→.brand-bar .badge{
+    67→  background:var(--navy);color:#fff;
+    68→  padding:6px 16px;border-radius:999px;
+    69→  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    70→}
+    71→.brand-bar .crumb{
+    72→  font-size:11px;font-weight:700;letter-spacing:1.5px;
+    73→  color:var(--navy);text-transform:uppercase;
+    74→  display:flex;align-items:center;gap:8px;
+    75→}
+    76→
+    77→/* ---- Page title ---- */
+    78→.page-title{
+    79→  display:flex;align-items:center;justify-content:center;gap:14px;
+    80→  margin-bottom:6px;
+    81→}
+    82→.page-title .ico{flex-shrink:0;}
+    83→.page-title .ico svg{width:46px;height:46px;display:block;}
+    84→.page-title h1{
+    85→  font-size:34px;font-weight:800;color:var(--navy);
+    86→  text-transform:uppercase;letter-spacing:-.5px;line-height:1.05;
+    87→  text-align:center;
+    88→}
+    89→.page-subtitle{
+    90→  font-size:13px;font-weight:700;color:var(--ink-2);
+    91→  text-transform:uppercase;letter-spacing:1.4px;text-align:center;
+    92→  margin-bottom:18px;
+    93→  padding-bottom:12px;
+    94→  border-bottom:2px solid var(--navy);
+    95→  position:relative;
+    96→}
+    97→.page-subtitle::after{
+    98→  content:"";position:absolute;left:50%;bottom:-6px;
+    99→  width:10px;height:10px;background:var(--navy);
+   100→  border-radius:50%;transform:translateX(-50%);
+   101→}
+   102→
+   103→/* ---- Body layout primitives ---- */
+   104→.body{margin-bottom:14px;}
+   105→.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+   106→.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+   107→.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+   108→.single{max-width:920px;margin:0 auto;}
+   109→
+   110→/* ---- Card ---- */
+   111→.card{
+   112→  background:#fff;
+   113→  border-radius:10px;
+   114→  overflow:hidden;
+   115→  box-shadow:0 2px 8px rgba(0,0,0,.06);
+   116→  border:1px solid rgba(0,0,0,.05);
+   117→  display:flex;flex-direction:column;
+   118→}
+   119→.card .head{
+   120→  background:var(--navy);color:#fff;
+   121→  padding:8px 12px;
+   122→  font-size:11.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   123→  display:flex;align-items:center;gap:8px;
+   124→  line-height:1.2;
+   125→}
+   126→.card .head .num{
+   127→  background:rgba(255,255,255,.18);
+   128→  border-radius:6px;
+   129→  padding:1px 6px;font-size:10px;
+   130→}
+   131→.card .head .ico{flex-shrink:0;display:inline-flex;}
+   132→.card .head .ico svg{width:18px;height:18px;display:block;}
+   133→.card .body-pad{padding:10px 12px;flex:1;}
+   134→
+   135→/* ---- Card heading variants (color-coded) ---- */
+   136→.card.head-green .head{background:#1B5E3F;}
+   137→.card.head-blue .head{background:#2563eb;}
+   138→.card.head-purple .head{background:#7c3aed;}
+   139→.card.head-red .head{background:#dc2626;}
+   140→.card.head-gold .head{background:#d4a017;}
+   141→.card.head-teal .head{background:#0d7377;}
+   142→.card.head-navy .head{background:#15264d;}
+   143→
+   144→/* ---- Terminal ---- */
+   145→.terminal{
+   146→  background:#0d1117;border-radius:8px;overflow:hidden;
+   147→  box-shadow:0 4px 14px rgba(0,0,0,.2);
+   148→}
+   149→.terminal .term-bar{
+   150→  background:#1c2230;padding:6px 12px;
+   151→  display:flex;align-items:center;gap:6px;
+   152→}
+   153→.terminal .term-dot{width:9px;height:9px;border-radius:50%;}
+   154→.terminal .dot-red{background:#ff5f56;}
+   155→.terminal .dot-amber{background:#ffbd2e;}
+   156→.terminal .dot-green{background:#27c93f;}
+   157→.terminal .term-title{
+   158→  margin-left:auto;color:#8b949e;
+   159→  font-size:10px;font-family:"JetBrains Mono","Fira Code",monospace;
+   160→}
+   161→.terminal .term-body{
+   162→  padding:10px 12px;
+   163→  font-family:"JetBrains Mono","Fira Code",monospace;
+   164→  font-size:11.5px;line-height:1.55;
+   165→  color:#e6edf3;
+   166→  white-space:pre;
+   167→  overflow-x:auto;
+   168→}
+   169→.terminal .term-body .prompt{color:#7ee787;}
+   170→.terminal .term-body .comment{color:#8b949e;}
+   171→.terminal .term-body .cmd{color:#79c0ff;}
+   172→.terminal .term-body .str{color:#f2cc60;}
+   173→.terminal .term-body .out{color:#e6edf3;}
+   174→.terminal .term-body .kw{color:#ff7b72;}
+   175→
+   176→/* ---- Inline code & text ---- */
+   177→.card p{font-size:11.5px;color:var(--ink-2);line-height:1.5;margin-bottom:4px;}
+   178→.card p:last-child{margin-bottom:0;}
+   179→.card code, code.inline{
+   180→  font-family:"JetBrains Mono","Fira Code",monospace;
+   181→  font-size:10.5px;
+   182→  background:#efe9dd;padding:1px 5px;border-radius:3px;
+   183→  color:var(--navy);
+   184→}
+   185→.bullets{
+   186→  list-style:none;padding:0;margin:0;
+   187→  font-size:11px;color:var(--ink-2);line-height:1.5;
+   188→}
+   189→.bullets li{
+   190→  padding-left:14px;position:relative;margin-bottom:2px;
+   191→}
+   192→.bullets li::before{
+   193→  content:"•";position:absolute;left:0;color:var(--navy);font-weight:700;
+   194→}
+   195→.bullets.tick li::before{content:"✓";color:#1B5E3F;font-weight:800;}
+   196→.bullets.warn li::before{content:"!";color:#d4a017;font-weight:800;}
+   197→
+   198→/* ---- Tables ---- */
+   199→.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+   200→.tbl th{
+   201→  background:var(--navy);color:#fff;
+   202→  padding:6px 9px;text-align:left;
+   203→  font-weight:700;font-size:10px;letter-spacing:.3px;text-transform:uppercase;
+   204→}
+   205→.tbl td{
+   206→  padding:5px 9px;
+   207→  border-bottom:1px solid #e0d8c8;
+   208→  color:var(--ink-2);
+   209→  vertical-align:top;
+   210→}
+   211→.tbl td code{
+   212→  font-family:"JetBrains Mono",monospace;font-size:10px;
+   213→  background:#efe9dd;padding:1px 4px;border-radius:3px;
+   214→  color:var(--navy);
+   215→}
+   216→.tbl tr:last-child td{border-bottom:none;}
+   217→
+   218→/* ---- Callout ---- */
+   219→.callout{
+   220→  display:flex;gap:10px;align-items:flex-start;
+   221→  border-radius:10px;padding:10px 12px;
+   222→  font-size:11.5px;line-height:1.5;
+   223→}
+   224→.callout.warn{background:#fff4e0;border-left:3px solid #ef6c00;color:var(--ink);}
+   225→.callout.tip{background:#e8f5ee;border-left:3px solid #1B5E3F;color:var(--ink);}
+   226→.callout.danger{background:#ffe5e5;border-left:3px solid #dc2626;color:var(--ink);}
+   227→.callout .ico{flex-shrink:0;width:22px;height:22px;margin-top:1px;}
+   228→.callout .ico svg{width:22px;height:22px;display:block;}
+   229→.callout strong{display:block;font-size:12px;color:var(--ink);margin-bottom:2px;}
+   230→
+   231→/* ---- Pill (small icon row inside full-width card) ---- */
+   232→.pill-row{
+   233→  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+   234→}
+   235→.pill{
+   236→  background:#f7f3e8;border:1px solid rgba(0,0,0,.06);
+   237→  border-radius:8px;padding:10px;
+   238→  display:flex;gap:10px;align-items:flex-start;
+   239→}
+   240→.pill .ico{flex-shrink:0;width:36px;height:36px;}
+   241→.pill .ico svg{width:36px;height:36px;display:block;}
+   242→.pill h4{font-size:12px;color:var(--navy);font-weight:800;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;}
+   243→.pill p{font-size:11px;color:var(--ink-2);line-height:1.45;margin:0 0 5px 0;}
+   244→.pill code{font-family:"JetBrains Mono",monospace;font-size:10px;background:#efe9dd;padding:1px 5px;border-radius:3px;color:var(--navy);}
+   245→
+   246→/* ---- Mini feature column inside full-width card ---- */
+   247→.feature-col{
+   248→  background:#f7f3e8;border-radius:8px;padding:10px 12px;
+   249→  text-align:center;
+   250→}
+   251→.feature-col .ico{margin:0 auto 6px;width:36px;height:36px;}
+   252→.feature-col .ico svg{width:36px;height:36px;display:block;}
+   253→.feature-col h4{font-size:11px;color:var(--navy);font-weight:800;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;}
+   254→.feature-col p{font-size:10.5px;color:var(--ink-2);line-height:1.45;margin:0;}
+   255→
+   256→/* ---- Bottom takeaway banner ---- */
+   257→.takeaway{
+   258→  display:flex;align-items:center;justify-content:space-around;
+   259→  gap:18px;
+   260→  background:#15264d;color:#fff;
+   261→  border-radius:10px;padding:12px 18px;
+   262→  margin-top:14px;
+   263→}
+   264→.takeaway .item{
+   265→  display:flex;align-items:center;gap:10px;
+   266→  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   267→}
+   268→.takeaway .item .ico{width:28px;height:28px;}
+   269→.takeaway .item .ico svg{width:28px;height:28px;display:block;}
+   270→.takeaway .item .label{display:block;font-size:9.5px;letter-spacing:.8px;color:#bcc8d6;font-weight:600;}
+   271→.takeaway .item .text{display:block;font-size:13px;color:#fff;font-weight:800;}
+   272→
+   273→/* ---- Quick reference keywords ---- */
+   274→.qref{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;}
+   275→.qref .row{
+   276→  display:flex;align-items:center;gap:8px;
+   277→  font-family:"JetBrains Mono","Fira Code",monospace;
+   278→  font-size:11px;color:var(--ink);
+   279→}
+   280→.qref .badge{
+   281→  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+   282→  background:#1B5E3F;color:#fff;
+   283→  display:flex;align-items:center;justify-content:center;
+   284→  font-size:10px;font-weight:800;
+   285→}
+   286→.qref .badge.check{
+   287→  background:#1B5E3F;
+   288→}
+   289→.qref .badge.check svg{width:14px;height:14px;display:block;}
+   290→
+   291→/* ---- Number badge ---- */
+   292→.nbadge{
+   293→  flex-shrink:0;width:30px;height:30px;border-radius:50%;
+   294→  display:inline-flex;align-items:center;justify-content:center;
+   295→  font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:800;
+   296→  color:#fff;
+   297→}
+   298→.nbadge.green{background:#1B5E3F;}
+   299→.nbadge.red{background:#dc2626;}
+   300→.nbadge.blue{background:#2563eb;}
+   301→.nbadge.gold{background:#d4a017;}
+   302→.nbadge.purple{background:#7c3aed;}
+   303→.nbadge.navy{background:#15264d;}
+   304→.nbadge.teal{background:#0d7377;}
+   305→
+   306→/* ---- Mobile: collapse grids to single column ---- */
+   307→@media (max-width: 900px){
+   308→  .grid-3,.grid-5,.pill-row,.qref{grid-template-columns:1fr;}
+   309→  .grid-2{grid-template-columns:1fr;}
+   310→  .takeaway{flex-direction:column;}
+   311→}
+   312→"""
+   313→
+   314→
+   315→# ============================================================
+   316→# HTML helper builders
+   317→# ============================================================
+   318→
+   319→def icon(name: str, size: int = 48) -> str:
+   320→    """Return a colorful filled SVG icon by name (from shell_scripting_icons)."""
+   321→    return color_icon(name, size)
+   322→
+   323→
+   324→def terminal(title: str, body_html: str) -> str:
+   325→    """Build a terminal block with macOS-style title bar."""
+   326→    return (
+   327→        f'<div class="terminal">'
+   328→        f'<div class="term-bar">'
+   329→        f'<span class="term-dot dot-red"></span>'
+   330→        f'<span class="term-dot dot-amber"></span>'
+   331→        f'<span class="term-dot dot-green"></span>'
+   332→        f'<span class="term-title">{title}</span>'
+   333→        f'</div>'
+   334→        f'<div class="term-body">{body_html}</div>'
+   335→        f'</div>'
+   336→    )
+   337→
+   338→
+   339→def card(num: str, head_icon: str, heading: str, body_html: str,
+   340→         variant: str = "navy") -> str:
+   341→    """Build a .card with header (number + icon + heading) and body."""
+   342→    return (
+   343→        f'<div class="card head-{variant}">'
+   344→        f'<div class="head">'
+   345→        f'<span class="num">{num}</span>'
+   346→        f'<span class="ico">{icon(head_icon, 18)}</span>'
+   347→        f'<span>{heading}</span>'
+   348→        f'</div>'
+   349→        f'<div class="body-pad">{body_html}</div>'
+   350→        f'</div>'
+   351→    )
+   352→
+   353→
+   354→def callout(kind: str, ico: str, title: str, text_html: str) -> str:
+   355→    """Build a callout box (warn/tip/danger)."""
+   356→    return (
+   357→        f'<div class="callout {kind}">'
+   358→        f'<span class="ico">{icon(ico, 22)}</span>'
+   359→        f'<div><strong>{title}</strong>{text_html}</div>'
+   360→        f'</div>'
+   361→    )
+   362→
+   363→
+   364→def page_wrapper(page_num: int, total: int, title: str, subtitle: str,
+   365→                 left_icon: str, right_icon: str, body_html: str) -> str:
+   366→    """Build a complete self-contained HTML page using the canonical CSS.
+   367→
+   368→    No VERIQTA branding, no social footer. Body has class="multi-page".
+   369→    Structure: .page-wrapper > .page > .content
+   370→    """
+   371→    return f"""<!DOCTYPE html>
+   372→<html lang="en">
+   373→<head>
+   374→<meta charset="UTF-8">
+   375→<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   376→<title>{title}</title>
+   377→<style>
+   378→{CANONICAL_CSS}
+   379→
+   380→{CONTENT_CSS}
+   381→</style>
+   382→</head>
+   383→<body class="multi-page">
+   384→
+   385→<div class="page-wrapper">
+   386→  <div class="holes" aria-hidden="true"></div>
+   387→  <div class="spiral" aria-hidden="true"></div>
+   388→  <div class="page-bend" aria-hidden="true"></div>
+   389→  <div class="page">
+   390→    <div class="page-top-edge" aria-hidden="true"></div>
+   391→    <div class="page-bottom-edge" aria-hidden="true"></div>
+   392→    <div class="content">
+   393→
+   394→      <!-- Brand bar -->
+   395→      <div class="brand-bar">
+   396→        <div class="crumb">{icon('book', 18)} Shell Scripting for DevOps</div>
+   397→        <div class="badge">Page {page_num} of {total}</div>
+   398→      </div>
+   399→
+   400→      <!-- Title -->
+   401→      <div class="page-title">
+   402→        <span class="ico">{icon(left_icon, 46)}</span>
+   403→        <h1>{title}</h1>
+   404→        <span class="ico">{icon(right_icon, 46)}</span>
+   405→      </div>
+   406→      <div class="page-subtitle">{subtitle}</div>
+   407→
+   408→      <!-- Body -->
+   409→      {body_html}
+   410→
+   411→    </div>
+   412→  </div>
+   413→</div>
+   414→
+   415→</body>
+   416→</html>"""
+   417→
+   418→
+   419→# ============================================================
+   420→# PAGE 6 — VARIABLES AND ENVIRONMENT VARIABLES
+   421→# Layout: 3-column (top 6 cards in 3x2 grid, full-width env card,
+   422→#         then 2-col bottom: script + best practices)
+   423→# ============================================================
+   424→def body_page_06() -> str:
+   425→    # Card 1: Creating Variables
+   426→    c1 = card("1", "tag", "Creating Variables",
+   427→        '<p>No spaces around <code>=</code> sign.</p>'
+   428→        '<div style="margin-top:6px;">' +
+   429→        terminal("variables.sh",
+   430→            '<span class="cmd">NAME</span>=<span class="str">DevOps</span>\n'
+   431→            '<span class="cmd">COUNT</span>=<span class="str">5</span>'
+   432→        ) + '</div>',
+   433→        variant="green")
+   434→
+   435→    # Card 2: Reading Variables
+   436→    c2 = card("2", "play", "Reading Variables",
+   437→        '<p>Use <code>$</code> to read a variable.</p>'
+   438→        '<div style="margin-top:6px;">' +
+   439→        terminal("read.sh",
+   440→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$NAME</span>\n'
+   441→            '<span class="out">DevOps</span>'
+   442→        ) + '</div>',
+   443→        variant="blue")
+   444→
+   445→    # Card 3: Quoting Variables
+   446→    c3 = card("3", "book", "Quoting Variables",
+   447→        '<ul class="bullets">'
+   448→        '<li>Use quotes to handle spaces.</li>'
+   449→        '<li>Prevents word splitting.</li>'
+   450→        '<li>Prevents filename expansion.</li>'
+   451→        '</ul>'
+   452→        '<div style="margin-top:6px;">' +
+   453→        terminal("quote.sh",
+   454→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">"$NAME"</span>\n'
+   455→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">\'$NAME\'</span>'
+   456→        ) + '</div>',
+   457→        variant="purple")
+   458→
+   459→    # Card 4: Command Substitution
+   460→    c4 = card("4", "cube", "Command Substitution",
+   461→        '<p>Store the output of a command.</p>'
+   462→        '<div style="margin-top:6px;">' +
+   463→        terminal("sub.sh",
+   464→            '<span class="prompt">$</span> <span class="cmd">DATE</span>=$(<span class="cmd">date</span> +%Y-%m-%d)\n'
+   465→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$DATE</span>\n'
+   466→            '<span class="out">2025-05-18</span>'
+   467→        ) + '</div>',
+   468→        variant="gold")
+   469→
+   470→    # Card 5: Export Variables
+   471→    c5 = card("5", "rocket", "Export Variables",
+   472→        '<ul class="bullets">'
+   473→        '<li>Makes a variable available to child processes.</li>'
+   474→        '<li>Use <code>export</code>.</li>'
+   475→        '</ul>'
+   476→        '<div style="margin-top:6px;">' +
+   477→        terminal("export.sh",
+   478→            '<span class="prompt">$</span> <span class="cmd">export</span> PROJECT=<span class="str">MyApp</span>\n'
+   479→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$PROJECT</span>\n'
+   480→            '<span class="out">MyApp</span>'
+   481→        ) + '</div>',
+   482→        variant="teal")
+   483→
+   484→    # Card 6: Environment Variables
+   485→    c6 = card("6", "server", "Environment Variables",
+   486→        '<p>Set by the system. Available in every shell.</p>'
+   487→        '<div style="margin-top:6px;">' +
+   488→        terminal("env.sh",
+   489→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$HOME</span>\n'
+   490→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$USER</span>\n'
+   491→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$SHELL</span>\n'
+   492→            '<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">$LANG</span>'
+   493→        ) + '</div>',
+   494→        variant="navy")
+   495→
+   496→    # Card 7 (full-width): Common Environment Variables
+   497→    env_pills = (
+   498→        '<div class="pill-row">'
+   499→        '<div class="pill">'
+   500→        f'<div class="ico">{icon("folder", 36)}</div>'
+   501→        '<div><h4>$HOME</h4><p>Your home directory path.</p>'
+   502→        '<code>/home/user</code></div>'
+   503→        '</div>'
+   504→        '<div class="pill">'
+   505→        f'<div class="ico">{icon("user", 36)}</div>'
+   506→        '<div><h4>$USER</h4><p>Currently logged-in user.</p>'
+   507→        '<code>user</code></div>'
+   508→        '</div>'
+   509→        '<div class="pill">'
+   510→        f'<div class="ico">{icon("terminal", 36)}</div>'
+   511→        '<div><h4>$PATH</h4><p>Command search directories.</p>'
+   512→        '<code>/usr/bin:/bin</code></div>'
+   513→        '</div>'
+   514→        '</div>'
+   515→    )
+   516→    c7 = card("7", "clipboard", "Common Environment Variables", env_pills, variant="navy")
+   517→
+   518→    # Card 8: Using Variables in Scripts
+   519→    c8 = card("8", "terminal", "Using Variables in Scripts",
+   520→        terminal("app.sh",
+   521→            '<span class="comment">#!/bin/bash</span>\n'
+   522→            '<span class="cmd">APP_NAME</span>=<span class="str">"MyApp"</span>\n'
+   523→            '<span class="cmd">LOG_DIR</span>=<span class="str">"$HOME/logs"</span>\n'
+   524→            '<span class="cmd">mkdir</span> -p <span class="str">"$LOG_DIR"</span>\n'
+   525→            '<span class="cmd">echo</span> <span class="str">"Starting $APP_NAME..."</span>\n'
+   526→            '<span class="cmd">echo</span> <span class="str">"Logs in $LOG_DIR"</span>'
+   527→        ),
+   528→        variant="green")
+   529→
+   530→    # Card 9: Best Practices (checklist callout)
+   531→    c9_body = (
+   532→        '<ul class="bullets tick">'
+   533→        '<li>Always use quotes when in doubt.</li>'
+   534→        '<li>Use meaningful variable names.</li>'
+   535→        '<li>Export only what child processes need.</li>'
+   536→        '<li>Keep constants uppercase.</li>'
+   537→        '<li>Use <code>$( )</code> for command substitution.</li>'
+   538→        '<li>Test scripts with different values.</li>'
+   539→        '</ul>'
+   540→    )
+   541→    c9 = card("9", "check-square", "Best Practices", c9_body, variant="green")
+   542→
+   543→    body = (
+   544→        '<div class="body">'
+   545→        # Row 1: 3 cards (Creating, Reading, Quoting)
+   546→        f'<div class="grid-3">{c1}{c2}{c3}</div>'
+   547→        # Row 2: 3 cards (Substitution, Export, Environment)
+   548→        f'<div class="grid-3" style="margin-top:14px;">{c4}{c5}{c6}</div>'
+   549→        # Full-width card 7
+   550→        f'<div style="margin-top:14px;">{c7}</div>'
+   551→        # Row 3: 2 cards (Script + Best Practices)
+   552→        f'<div class="grid-2" style="margin-top:14px;">{c8}{c9}</div>'
+   553→        '</div>'
+   554→    )
+   555→    return body
+   556→
+   557→
+   558→# ============================================================
+   559→# PAGE 7 — EXIT CODES AND COMMAND SUCCESS
+   560→# Layout: 3-column (top 6 cards in 3x2 grid, full-width
+   561→#         5-column "Preventing Failures" card)
+   562→# ============================================================
+   563→def body_page_07() -> str:
+   564→    # Card 1: What Exit Codes Mean
+   565→    c1 = card("1", "question", "What Exit Codes Mean",
+   566→        '<p>After any command runs, the system returns a number called an <strong>exit code</strong>. '
+   567→        'It tells you if the command succeeded or failed.</p>'
+   568→        '<p style="margin-top:6px;"><code>echo $?</code> &mdash; shows the exit code of the last command.</p>',
+   569→        variant="blue")
+   570→
+   571→    # Card 2: Basic Exit Code Rules (table)
+   572→    c2_body = (
+   573→        '<table class="tbl">'
+   574→        '<thead><tr><th>Code</th><th>Type</th><th>Meaning</th></tr></thead>'
+   575→        '<tbody>'
+   576→        '<tr><td><span class="nbadge green">0</span></td><td>Success</td><td>Command completed successfully.</td></tr>'
+   577→        '<tr><td><span class="nbadge red">1+</span></td><td>Non-zero</td><td>Failure — check the error.</td></tr>'
+   578→        '</tbody>'
+   579→        '</table>'
+   580→    )
+   581→    c2 = card("2", "clipboard", "Basic Exit Code Rules", c2_body, variant="green")
+   582→
+   583→    # Card 3: Examples
+   584→    c3 = card("3", "terminal", "Examples",
+   585→        '<p style="margin-bottom:6px;">See exit codes in action.</p>'
+   586→        + terminal("examples.sh",
+   587→            '<span class="prompt">$</span> <span class="cmd">ls</span> /home; <span class="cmd">echo</span> <span class="str">$?</span>\n'
+   588→            '<span class="out">0</span>\n\n'
+   589→            '<span class="prompt">$</span> <span class="cmd">ls</span> /nope; <span class="cmd">echo</span> <span class="str">$?</span>\n'
+   590→            '<span class="out">2</span>\n\n'
+   591→            '<span class="prompt">$</span> <span class="cmd">cat</span> file.txt; <span class="cmd">echo</span> <span class="str">$?</span>\n'
+   592→            '<span class="out">0 or 1+</span>'
+   593→        ),
+   594→        variant="purple")
+   595→
+   596→    # Card 4: The exit Command
+   597→    c4 = card("4", "lock", "The exit Command",
+   598→        '<p>End a script and return a code.</p>'
+   599→        '<div style="margin-top:6px;">'
+   600→        + terminal("exit-cmd.sh",
+   601→            '<span class="kw">if</span> [ ! -f file.txt ]; <span class="kw">then</span>\n'
+   602→            '  <span class="cmd">echo</span> <span class="str">"File not found!"</span>\n'
+   603→            '  <span class="cmd">exit</span> 1\n'
+   604→            '<span class="kw">fi</span>\n\n'
+   605→            '<span class="comment"># exit 0 = success</span>\n'
+   606→            '<span class="comment"># exit 1 = failure</span>'
+   607→        ) + '</div>',
+   608→        variant="gold")
+   609→
+   610→    # Card 5: Testing Command Success
+   611→    c5 = card("5", "check-circle", "Testing Command Success",
+   612→        '<p>Use exit codes in conditions.</p>'
+   613→        '<div style="margin-top:6px;">'
+   614→        + terminal("test.sh",
+   615→            '<span class="cmd">ls</span> /home\n'
+   616→            '<span class="kw">if</span> [ <span class="str">$?</span> -eq 0 ]; <span class="kw">then</span>\n'
+   617→            '  <span class="cmd">echo</span> <span class="str">"Success"</span>\n'
+   618→            '<span class="kw">else</span>\n'
+   619→            '  <span class="cmd">echo</span> <span class="str">"Failed"</span>\n'
+   620→            '<span class="kw">fi</span>'
+   621→        ) + '</div>',
+   622→        variant="teal")
+   623→
+   624→    # Card 6: Why CI/CD Pipelines Depend on Exit Codes
+   625→    c6 = card("6", "rocket", "Why CI/CD Pipelines Depend on Exit Codes",
+   626→        '<ul class="bullets tick">'
+   627→        '<li>Each step returns an exit code.</li>'
+   628→        '<li>CI/CD tools stop the pipeline on failure.</li>'
+   629→        '<li>Exit 0 = pipeline continues.</li>'
+   630→        '<li>Exit 1+ = pipeline fails.</li>'
+   631→        '<li>Ensures reliable, consistent deployments.</li>'
+   632→        '</ul>',
+   633→        variant="navy")
+   634→
+   635→    # Card 7 (full-width): Preventing Silent Automation Failures (5 columns)
+   636→    features = (
+   637→        '<div class="grid-5">'
+   638→        f'<div class="feature-col"><div class="ico">{icon("shield", 36)}</div>'
+   639→        '<h4>Validate</h4><p>Check files & inputs before running.</p></div>'
+   640→        f'<div class="feature-col"><div class="ico">{icon("monitor", 36)}</div>'
+   641→        '<h4>Log</h4><p>Capture stdout & stderr for diagnosis.</p></div>'
+   642→        f'<div class="feature-col"><div class="ico">{icon("folder", 36)}</div>'
+   643→        '<h4>Document</h4><p>Track each step in a script log file.</p></div>'
+   644→        f'<div class="feature-col"><div class="ico">{icon("warning", 36)}</div>'
+   645→        '<h4>Alert</h4><p>Surface non-zero exit codes immediately.</p></div>'
+   646→        f'<div class="feature-col"><div class="ico">{icon("gear", 36)}</div>'
+   647→        '<h4>Tune</h4><p>Set <code>set -e</code> for fail-fast behavior.</p></div>'
+   648→        '</div>'
+   649→    )
+   650→    c7 = card("7", "shield", "Preventing Silent Automation Failures",
+   651→              features, variant="navy")
+   652→
+   653→    # Bottom takeaway banner
+   654→    takeaway = (
+   655→        '<div class="takeaway">'
+   656→        f'<div class="item"><span class="ico">{icon("star", 28)}</span>'
+   657→        '<div><span class="label">Tip</span><span class="text">Always check $? after risky commands</span></div></div>'
+   658→        f'<div class="item"><span class="ico">{icon("terminal", 28)}</span>'
+   659→        '<div><span class="label">Pattern</span><span class="text">set -e + set -o pipefail</span></div></div>'
+   660→        '</div>'
+   661→    )
+   662→
+   663→    body = (
+   664→        '<div class="body">'
+   665→        # Row 1: 3 cards
+   666→        f'<div class="grid-3">{c1}{c2}{c3}</div>'
+   667→        # Row 2: 3 cards
+   668→        f'<div class="grid-3" style="margin-top:14px;">{c4}{c5}{c6}</div>'
+   669→        # Full-width card 7 (5-column inner)
+   670→        f'<div style="margin-top:14px;">{c7}</div>'
+   671→        # Takeaway banner
+   672→        f'{takeaway}'
+   673→        '</div>'
+   674→    )
+   675→    return body
+   676→
+   677→
+   678→# ============================================================
+   679→# PAGE 8 — CONDITIONAL STATEMENTS
+   680→# Layout: 3-column (top 6 cards in 3x2 grid + tip banner)
+   681→# ============================================================
+   682→def body_page_08() -> str:
+   683→    # Card 1: Basic Syntax
+   684→    c1 = card("1", "book", "Basic Syntax",
+   685→        '<p>The <code>if</code> statement runs code based on a condition.</p>'
+   686→        '<div style="margin-top:6px;">'
+   687→        + terminal("if.sh",
+   688→            '<span class="kw">if</span> [ condition ]; <span class="kw">then</span>\n'
+   689→            '  <span class="cmd">echo</span> <span class="str">"yes"</span>\n'
+   690→            '<span class="kw">elif</span> [ other ]; <span class="kw">then</span>\n'
+   691→            '  <span class="cmd">echo</span> <span class="str">"maybe"</span>\n'
+   692→            '<span class="kw">else</span>\n'
+   693→            '  <span class="cmd">echo</span> <span class="str">"no"</span>\n'
+   694→            '<span class="kw">fi</span>'
+   695→        ) + '</div>',
+   696→        variant="navy")
+   697→
+   698→    # Card 2: Numeric Comparisons (table)
+   699→    c2_body = (
+   700→        '<table class="tbl">'
+   701→        '<thead><tr><th>Op</th><th>Meaning</th><th>Example</th></tr></thead>'
+   702→        '<tbody>'
+   703→        '<tr><td><code>-eq</code></td><td>Equal</td><td>[ $a -eq 5 ]</td></tr>'
+   704→        '<tr><td><code>-ne</code></td><td>Not equal</td><td>[ $a -ne 5 ]</td></tr>'
+   705→        '<tr><td><code>-lt</code></td><td>Less than</td><td>[ $a -lt 5 ]</td></tr>'
+   706→        '<tr><td><code>-le</code></td><td>Less or equal</td><td>[ $a -le 5 ]</td></tr>'
+   707→        '<tr><td><code>-gt</code></td><td>Greater than</td><td>[ $a -gt 5 ]</td></tr>'
+   708→        '<tr><td><code>-ge</code></td><td>Greater or equal</td><td>[ $a -ge 5 ]</td></tr>'
+   709→        '</tbody>'
+   710→        '</table>'
+   711→    )
+   712→    c2 = card("2", "clipboard", "Numeric Comparisons", c2_body, variant="green")
+   713→
+   714→    # Card 3: String Comparisons
+   715→    c3_body = (
+   716→        '<table class="tbl" style="margin-bottom:6px;">'
+   717→        '<thead><tr><th>Op</th><th>Meaning</th></tr></thead>'
+   718→        '<tbody>'
+   719→        '<tr><td><code>=</code></td><td>Equal strings</td></tr>'
+   720→        '<tr><td><code>!=</code></td><td>Not equal</td></tr>'
+   721→        '<tr><td><code>-z</code></td><td>Empty string</td></tr>'
+   722→        '<tr><td><code>-n</code></td><td>Non-empty</td></tr>'
+   723→        '</tbody>'
+   724→        '</table>'
+   725→        + '<div class="callout tip" style="padding:6px 8px;margin-top:6px;">'
+   726→        f'<span class="ico">{icon("lightbulb", 18)}</span>'
+   727→        '<div>Always quote variables: <code>[ "$s" = "y" ]</code></div></div>'
+   728→    )
+   729→    c3 = card("3", "lightbulb", "String Comparisons", c3_body, variant="purple")
+   730→
+   731→    # Card 4: File Tests
+   732→    c4_body = (
+   733→        '<table class="tbl">'
+   734→        '<thead><tr><th>Flag</th><th>True if</th></tr></thead>'
+   735→        '<tbody>'
+   736→        '<tr><td><code>-f</code></td><td>File exists & is regular</td></tr>'
+   737→        '<tr><td><code>-d</code></td><td>Directory exists</td></tr>'
+   738→        '<tr><td><code>-e</code></td><td>Path exists</td></tr>'
+   739→        '<tr><td><code>-r</code></td><td>Readable</td></tr>'
+   740→        '<tr><td><code>-w</code></td><td>Writable</td></tr>'
+   741→        '<tr><td><code>-x</code></td><td>Executable</td></tr>'
+   742→        '</tbody>'
+   743→        '</table>'
+   744→    )
+   745→    c4 = card("4", "folder", "File Tests", c4_body, variant="teal")
+   746→
+   747→    # Card 5: Practical Example
+   748→    c5 = card("5", "terminal", "Practical Example",
+   749→        '<p style="margin-bottom:6px;">Check if a service is running.</p>'
+   750→        + terminal("check.sh",
+   751→            '<span class="kw">if</span> <span class="cmd">systemctl</span> is-active --quiet nginx; <span class="kw">then</span>\n'
+   752→            '  <span class="cmd">echo</span> <span class="str">"nginx up"</span>\n'
+   753→            '<span class="kw">else</span>\n'
+   754→            '  <span class="cmd">sudo</span> systemctl start nginx\n'
+   755→            '<span class="kw">fi</span>'
+   756→        ),
+   757→        variant="blue")
+   758→
+   759→    # Card 6: Quick Reference
+   760→    c6_body = (
+   761→        '<div class="qref">'
+   762→        '<div class="row"><span class="badge">if</span> starts a block</div>'
+   763→        '<div class="row"><span class="badge check">' + icon("check-square", 14) + '</span> use [ ] or [[ ]]</div>'
+   764→        '<div class="row"><span class="badge">then</span> body runs if true</div>'
+   765→        '<div class="row"><span class="badge check">' + icon("check-square", 14) + '</span> quote variables</div>'
+   766→        '<div class="row"><span class="badge">elif</span> else-if chain</div>'
+   767→        '<div class="row"><span class="badge check">' + icon("check-square", 14) + '</span> close with fi</div>'
+   768→        '<div class="row"><span class="badge">else</span> fallback</div>'
+   769→        '<div class="row"><span class="badge check">' + icon("check-square", 14) + '</span> use &amp;&amp; / ||</div>'
+   770→        '<div class="row"><span class="badge">fi</span> ends block</div>'
+   771→        '<div class="row"><span class="badge check">' + icon("check-square", 14) + '</span> test with -e first</div>'
+   772→        '</div>'
+   773→    )
+   774→    c6 = card("6", "check-square", "Quick Reference", c6_body, variant="green")
+   775→
+   776→    # Bottom takeaway banner
+   777→    takeaway = (
+   778→        '<div class="takeaway">'
+   779→        f'<div class="item"><span class="ico">{icon("star", 28)}</span>'
+   780→        '<div><span class="label">Tip</span><span class="text">Prefer [[ ]] for safer tests</span></div></div>'
+   781→        f'<div class="item"><span class="ico">{icon("terminal", 28)}</span>'
+   782→        '<div><span class="label">Pattern</span><span class="text">[ -f x ] &amp;&amp; echo ok</span></div></div>'
+   783→        '</div>'
+   784→    )
+   785→
+   786→    body = (
+   787→        '<div class="body">'
+   788→        # Row 1: 3 cards
+   789→        f'<div class="grid-3">{c1}{c2}{c3}</div>'
+   790→        # Row 2: 3 cards
+   791→        f'<div class="grid-3" style="margin-top:14px;">{c4}{c5}{c6}</div>'
+   792→        # Takeaway banner
+   793→        f'{takeaway}'
+   794→        '</div>'
+   795→    )
+   796→    return body
+   797→
+   798→
+   799→# ============================================================
+   800→# PAGE 9 — LOGICAL OPERATORS
+   801→# Layout: single column centered (max-width 920px)
+   802→# Internal sections:
+   803→#   - Logical Operators table
+   804→#   - Short-Circuit Execution list
+   805→#   - AND / OR / NOT condition code blocks (stacked)
+   806→#   - Combining Multiple Tests (3 examples stacked)
+   807→#   - Building Safer Checks code + checklist
+   808→# ============================================================
+   809→def body_page_09() -> str:
+   810→    # Section 1: Logical Operators table
+   811→    s1 = card("1", "clipboard", "Logical Operators",
+   812→        '<table class="tbl">'
+   813→        '<thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>'
+   814→        '<tbody>'
+   815→        '<tr><td><code>&amp;&amp;</code></td><td>AND — run next if previous succeeds</td><td>cmd1 &amp;&amp; cmd2</td></tr>'
+   816→        '<tr><td><code>||</code></td><td>OR — run next if previous fails</td><td>cmd1 || cmd2</td></tr>'
+   817→        '<tr><td><code>!</code></td><td>NOT — invert exit status</td><td>! cmd</td></tr>'
+   818→        '</tbody>'
+   819→        '</table>',
+   820→        variant="navy")
+   821→
+   822→    # Section 2: Short-Circuit Execution (icon list)
+   823→    s2 = card("2", "cube", "Short-Circuit Execution",
+   824→        '<div class="grid-2" style="gap:8px;">'
+   825→        '<div class="row" style="display:flex;gap:8px;align-items:flex-start;">'
+   826→        f'<span class="nbadge green" style="background:#1B5E3F;width:26px;height:26px;font-size:11px;">&amp;&amp;</span>'
+   827→        '<div style="font-size:11px;color:var(--ink-2);line-height:1.45;">'
+   828→        '<strong style="color:var(--ink);">AND</strong> — runs the second command only if the first succeeds (exit 0).</div></div>'
+   829→        '<div class="row" style="display:flex;gap:8px;align-items:flex-start;">'
+   830→        f'<span class="nbadge blue" style="background:#2563eb;width:26px;height:26px;font-size:11px;">||</span>'
+   831→        '<div style="font-size:11px;color:var(--ink-2);line-height:1.45;">'
+   832→        '<strong style="color:var(--ink);">OR</strong> — runs the second command only if the first fails (non-zero).</div></div>'
+   833→        '<div class="row" style="display:flex;gap:8px;align-items:flex-start;">'
+   834→        f'<span class="nbadge red" style="background:#dc2626;width:26px;height:26px;font-size:11px;">!</span>'
+   835→        '<div style="font-size:11px;color:var(--ink-2);line-height:1.45;">'
+   836→        '<strong style="color:var(--ink);">NOT</strong> — inverts the exit status of a command.</div></div>'
+   837→        '<div class="row" style="display:flex;gap:8px;align-items:flex-start;">'
+   838→        f'<span class="ico" style="flex-shrink:0;">{icon("lightbulb", 26)}</span>'
+   839→        '<div style="font-size:11px;color:var(--ink-2);line-height:1.45;">'
+   840→        '<strong style="color:var(--ink);">Efficiency</strong> — shell skips commands that cannot change the result.</div></div>'
+   841→        '</div>',
+   842→        variant="blue")
+   843→
+   844→    # Sections 3-5: AND, OR, NOT conditions (single column stack)
+   845→    s3 = card("3", "check-circle", "AND Conditions",
+   846→        '<p>Run a chain only if every step succeeds.</p>'
+   847→        '<div style="margin-top:6px;">'
+   848→        + terminal("and.sh",
+   849→            '<span class="cmd">mkdir</span> build <span class="kw">&amp;&amp;</span> <span class="cmd">cd</span> build <span class="kw">&amp;&amp;</span> <span class="cmd">make</span>\n'
+   850→            '<span class="comment"># only proceeds if each step returns 0</span>'
+   851→        ) + '</div>'
+   852→        '<div style="margin-top:6px;">' + callout("tip", "check-circle", "OK",
+   853→            '<span style="font-size:11px;">All three commands ran successfully.</span>') + '</div>',
+   854→        variant="green")
+   855→
+   856→    s4 = card("4", "check-circle", "OR Conditions",
+   857→        '<p>Provide a fallback when the first command fails.</p>'
+   858→        '<div style="margin-top:6px;">'
+   859→        + terminal("or.sh",
+   860→            '<span class="cmd">cat</span> config.cfg <span class="kw">||</span> <span class="cmd">echo</span> <span class="str">"missing config"</span>\n'
+   861→            '<span class="comment"># prints fallback if cat fails</span>'
+   862→        ) + '</div>'
+   863→        '<div style="margin-top:6px;">' + callout("tip", "check-circle", "OK",
+   864→            '<span style="font-size:11px;">Reads file or reports missing.</span>') + '</div>',
+   865→        variant="blue")
+   866→
+   867→    s5 = card("5", "check-circle", "NOT Condition",
+   868→        '<p>Invert a test result (useful in <code>if</code> blocks).</p>'
+   869→        '<div style="margin-top:6px;">'
+   870→        + terminal("not.sh",
+   871→            '<span class="kw">if</span> [ ! -f /tmp/lock ]; <span class="kw">then</span>\n'
+   872→            '  <span class="cmd">echo</span> <span class="str">"lock absent — proceed"</span>\n'
+   873→            '<span class="kw">fi</span>'
+   874→        ) + '</div>'
+   875→        '<div style="margin-top:6px;">' + callout("tip", "check-circle", "OK",
+   876→            '<span style="font-size:11px;">Proceeds only when lock is absent.</span>') + '</div>',
+   877→        variant="purple")
+   878→
+   879→    # Section 6: Combining Multiple Tests
+   880→    s6_intro = card("6", "book", "Combining Multiple Tests",
+   881→        '<p>Stack operators for richer logic. Examples 1, 2, and 3 below.</p>',
+   882→        variant="gold")
+   883→
+   884→    s6_examples = (
+   885→        '<div class="grid-2" style="margin-top:0;">'
+   886→        + card("", "check-circle", "Example 1 — File exists & readable",
+   887→            terminal("ex1.sh",
+   888→                '<span class="kw">if</span> [ -f app.conf ] &amp;&amp; [ -r app.conf ]; <span class="kw">then</span>\n'
+   889→                '  <span class="cmd">echo</span> <span class="str">"config OK"</span>\n'
+   890→                '<span class="kw">fi</span>'
+   891→            ), variant="green")
+   892→        + card("", "check-circle", "Example 2 — Ping or fallback",
+   893→            terminal("ex2.sh",
+   894→                '<span class="cmd">ping</span> -c1 host <span class="kw">||</span> <span class="cmd">echo</span> <span class="str">"down"</span>'
+   895→            ), variant="blue")
+   896→        + '</div>'
+   897→        '<div class="grid-2" style="margin-top:14px;">'
+   898→        + card("", "check-circle", "Example 3 — Both required",
+   899→            terminal("ex3.sh",
+   900→                '<span class="cmd">[ -d logs ]</span> <span class="kw">&amp;&amp;</span> <span class="cmd">[ -w logs ]</span> <span class="kw">||</span> <span class="cmd">exit</span> 1'
+   901→            ), variant="purple")
+   902→        + card("", "shield", "Safe Deployment",
+   903→            '<ul class="bullets tick">'
+   904→            '<li>Verify preconditions.</li>'
+   905→            '<li>Capture every failure.</li>'
+   906→            '<li>Provide meaningful fallbacks.</li>'
+   907→            '<li>Use <code>set -e</code> for safety.</li>'
+   908→            '</ul>'
+   909→            + '<div style="margin-top:8px;">' + callout("danger", "shield", "Safe Deployment",
+   910→                '<span style="font-size:11px;">Always validate inputs and exit codes before acting on results.</span>') + '</div>',
+   911→            variant="navy")
+   912→        + '</div>'
+   913→    )
+   914→
+   915→    # Section 7: Building Safer Checks
+   916→    s7 = card("7", "shield", "Building Safer Checks",
+   917→        '<p style="margin-bottom:6px;">Combine operators with explicit tests for robust scripts.</p>'
+   918→        + terminal("safe.sh",
+   919→            '<span class="comment">#!/bin/bash</span>\n'
+   920→            '<span class="cmd">set</span> -e\n'
+   921→            '<span class="cmd">[ -f /etc/app.conf ]</span> <span class="kw">&amp;&amp;</span> <span class="cmd">source</span> /etc/app.conf <span class="kw">||</span> <span class="cmd">exit</span> 1\n'
+   922→            '<span class="cmd">[ -n <span class="str">"$APP_KEY"</span> ]</span> <span class="kw">||</span> { <span class="cmd">echo</span> <span class="str">"missing APP_KEY"</span>; <span class="cmd">exit</span> 2; }\n'
+   923→            '<span class="cmd">deploy</span> <span class="str">"$APP_KEY"</span>'
+   924→        ),
+   925→        variant="navy")
+   926→
+   927→    # Bottom takeaway banner
+   928→    takeaway = (
+   929→        '<div class="takeaway">'
+   930→        f'<div class="item"><span class="ico">{icon("star", 28)}</span>'
+   931→        '<div><span class="label">Tip</span><span class="text">Short-circuit keeps scripts lean</span></div></div>'
+   932→        f'<div class="item"><span class="ico">{icon("terminal", 28)}</span>'
+   933→        '<div><span class="label">Pattern</span><span class="text">cmd &amp;&amp; ok || fail</span></div></div>'
+   934→        f'<div class="item"><span class="ico">{icon("shield", 28)}</span>'
+   935→        '<div><span class="label">Safety</span><span class="text">Validate then act</span></div></div>'
+   936→        '</div>'
+   937→    )
+   938→
+   939→    body = (
+   940→        '<div class="body">'
+   941→        '<div class="single">'
+   942→        # Sections 1 & 2 side-by-side
+   943→        f'<div class="grid-2">{s1}{s2}</div>'
+   944→        # Sections 3, 4, 5 stacked (single column)
+   945→        f'<div style="margin-top:14px;">{s3}</div>'
+   946→        f'<div style="margin-top:14px;">{s4}</div>'
+   947→        f'<div style="margin-top:14px;">{s5}</div>'
+   948→        # Section 6 intro + examples
+   949→        f'<div style="margin-top:14px;">{s6_intro}</div>'
+   950→        f'<div style="margin-top:14px;">{s6_examples}</div>'
+   951→        # Section 7
+   952→        f'<div style="margin-top:14px;">{s7}</div>'
+   953→        # Takeaway
+   954→        f'{takeaway}'
+   955→        '</div>'
+   956→        '</div>'
+   957→    )
+   958→    return body
+   959→
+   960→
+   961→# ============================================================
+   962→# PAGE 10 — LOOPS FOR AUTOMATION
+   963→# Layout: 2-column grid (8 cards in 4 rows × 2 cols + takeaway banner)
+   964→# ============================================================
+   965→def body_page_10() -> str:
+   966→    # Card 1: For Loops
+   967→    c1 = card("1", "play", "For Loops",
+   968→        '<p>Iterate over a list or range.</p>'
+   969→        '<div style="margin-top:6px;">'
+   970→        + terminal("for.sh",
+   971→            '<span class="kw">for</span> i <span class="kw">in</span> 1 2 3; <span class="kw">do</span>\n'
+   972→            '  <span class="cmd">echo</span> <span class="str">"Item $i"</span>\n'
+   973→            '<span class="kw">done</span>'
+   974→        ) + '</div>',
+   975→        variant="green")
+   976→
+   977→    # Card 2: While Loops
+   978→    c2 = card("2", "cube", "While Loops",
+   979→        '<p>Repeat while a condition is true.</p>'
+   980→        '<div style="margin-top:6px;">'
+   981→        + terminal("while.sh",
+   982→            '<span class="cmd">n=0</span>\n'
+   983→            '<span class="kw">while</span> [ $n -lt 3 ]; <span class="kw">do</span>\n'
+   984→            '  <span class="cmd">echo</span> <span class="str">"n=$n"</span>\n'
+   985→            '  <span class="cmd">n=$((n+1))</span>\n'
+   986→            '<span class="kw">done</span>'
+   987→        ) + '</div>',
+   988→        variant="blue")
+   989→
+   990→    # Card 3: Looping Through Files
+   991→    c3 = card("3", "folder", "Looping Through Files",
+   992→        '<p>Process every file in a directory.</p>'
+   993→        '<div style="margin-top:6px;">'
+   994→        + terminal("files.sh",
+   995→            '<span class="kw">for</span> f <span class="kw">in</span> /etc/*.conf; <span class="kw">do</span>\n'
+   996→            '  <span class="cmd">echo</span> <span class="str">"$f"</span>\n'
+   997→            '<span class="kw">done</span>'
+   998→        ) + '</div>',
+   999→        variant="teal")
+  1000→
+  1001→    # Card 4: Looping Through Servers
+  1002→    c4 = card("4", "server", "Looping Through Servers",
+  1003→        '<p>Run a command on each host.</p>'
+  1004→        '<div style="margin-top:6px;">'
+  1005→        + terminal("hosts.sh",
+  1006→            '<span class="kw">for</span> h <span class="kw">in</span> web1 web2 web3; <span class="kw">do</span>\n'
+  1007→            '  <span class="cmd">ssh</span> $h <span class="str">"uptime"</span>\n'
+  1008→            '<span class="kw">done</span>'
+  1009→        ) + '</div>',
+  1010→        variant="purple")
+  1011→
+  1012→    # Card 5: Break
+  1013→    c5 = card("5", "stop", "Break",
+  1014→        '<p>Exit the loop early when a condition is met.</p>'
+  1015→        '<div style="margin-top:6px;">'
+  1016→        + terminal("break.sh",
+  1017→            '<span class="kw">for</span> i <span class="kw">in</span> 1 2 3 4 5; <span class="kw">do</span>\n'
+  1018→            '  <span class="kw">if</span> [ $i -eq 3 ]; <span class="kw">then</span> <span class="cmd">break</span>; <span class="kw">fi</span>\n'
+  1019→            '  <span class="cmd">echo</span> <span class="str">"$i"</span>\n'
+  1020→            '<span class="kw">done</span>\n'
+  1021→            '<span class="out">1\n2</span>'
+  1022→        ) + '</div>',
+  1023→        variant="red")
+  1024→
+  1025→    # Card 6: Continue
+  1026→    c6 = card("6", "rocket", "Continue",
+  1027→        '<p>Skip the current iteration and continue with the next.</p>'
+  1028→        '<div style="margin-top:6px;">'
+  1029→        + terminal("continue.sh",
+  1030→            '<span class="kw">for</span> i <span class="kw">in</span> 1 2 3 4 5; <span class="kw">do</span>\n'
+  1031→            '  <span class="kw">if</span> [ $((i%2)) -eq 0 ]; <span class="kw">then</span> <span class="cmd">continue</span>; <span class="kw">fi</span>\n'
+  1032→            '  <span class="cmd">echo</span> <span class="str">"$i"</span>\n'
+  1033→            '<span class="kw">done</span>\n'
+  1034→            '<span class="out">1\n3\n5</span>'
+  1035→        ) + '</div>',
+  1036→        variant="gold")
+  1037→
+  1038→    # Card 7: Avoiding Infinite Loops
+  1039→    c7 = card("7", "warning", "Avoiding Infinite Loops",
+  1040→        '<ul class="bullets warn">'
+  1041→        '<li>Always increment or decrement the counter.</li>'
+  1042→        '<li>Use <code>break</code> for an explicit exit.</li>'
+  1043→        '<li>Set a maximum iteration cap.</li>'
+  1044→        '<li>Use <code>set -e</code> to abort on errors.</li>'
+  1045→        '</ul>'
+  1046→        '<div style="margin-top:6px;">'
+  1047→        + callout("danger", "warning", "Risk",
+  1048→            '<span style="font-size:11px;">A forgotten counter hangs the script forever.</span>')
+  1049→        + '</div>',
+  1050→        variant="red")
+  1051→
+  1052→    # Card 8: Automating Repetitive Tasks
+  1053→    c8 = card("8", "check-square", "Automating Repetitive Tasks",
+  1054→        '<ul class="bullets tick">'
+  1055→        '<li>Back up logs nightly.</li>'
+  1056→        '<li>Rotate files older than 7 days.</li>'
+  1057→        '<li>Poll a service until ready.</li>'
+  1058→        '<li>Run health checks across hosts.</li>'
+  1059→        '<li>Process CSV rows one by one.</li>'
+  1060→        '<li>Apply config to multiple nodes.</li>'
+  1061→        '</ul>',
+  1062→        variant="green")
+  1063→
+  1064→    # Bottom takeaway banner
+  1065→    takeaway = (
+  1066→        '<div class="takeaway">'
+  1067→        f'<div class="item"><span class="ico">{icon("lightbulb", 28)}</span>'
+  1068→        '<div><span class="label">Key Takeaway</span><span class="text">Automate, do not repeat</span></div></div>'
+  1069→        f'<div class="item"><span class="ico">{icon("branch", 28)}</span>'
+  1070→        '<div><span class="label">Repeat</span><span class="text">Smarter every day</span></div></div>'
+  1071→        f'<div class="item"><span class="ico">{icon("clock", 28)}</span>'
+  1072→        '<div><span class="label">Save Time</span><span class="text">Every single day</span></div></div>'
+  1073→        '</div>'
+  1074→    )
+  1075→
+  1076→    body = (
+  1077→        '<div class="body">'
+  1078→        # 4 rows × 2 cols
+  1079→        f'<div class="grid-2">{c1}{c2}</div>'
+  1080→        f'<div class="grid-2" style="margin-top:14px;">{c3}{c4}</div>'
+  1081→        f'<div class="grid-2" style="margin-top:14px;">{c5}{c6}</div>'
+  1082→        f'<div class="grid-2" style="margin-top:14px;">{c7}{c8}</div>'
+  1083→        # Takeaway
+  1084→        f'{takeaway}'
+  1085→        '</div>'
+  1086→    )
+  1087→    return body
+  1088→
+  1089→
+  1090→# ============================================================
+  1091→# MAIN — write all 5 pages
+  1092→# ============================================================
+  1093→
+  1094→def main():
+  1095→    pages = [
+  1096→        # (page_num, total, title, subtitle, left_icon, right_icon, body_fn)
+  1097→        (6, 20,
+  1098→         "4. VARIABLES & ENVIRONMENT VARIABLES",
+  1099→         "STORE DATA. REUSE. AUTOMATE.",
+  1100→         "terminal", "dollar", body_page_06),
+  1101→        (7, 20,
+  1102→         "6. EXIT CODES & COMMAND SUCCESS",
+  1103→         "EVERY COMMAND RETURNS A STATUS.",
+  1104→         "terminal", "check-circle", body_page_07),
+  1105→        (8, 20,
+  1106→         "7. CONDITIONAL STATEMENTS",
+  1107→         "IF. THEN. ELSE. ELIF.",
+  1108→         "terminal", "shield", body_page_08),
+  1109→        (9, 20,
+  1110→         "8. LOGICAL OPERATORS",
+  1111→         "COMBINE COMMANDS. CONTROL FLOW.",
+  1112→         "terminal", "network", body_page_09),
+  1113→        (10, 20,
+  1114→         "9. LOOPS FOR AUTOMATION",
+  1115→         "REPEAT TASKS. SAVE TIME. ELIMINATE MANUAL WORK.",
+  1116→         "rocket", "gear", body_page_10),
+  1117→    ]
+  1118→
+  1119→    written = []
+  1120→    for page_num, total, title, subtitle, licon, ricon, body_fn in pages:
+  1121→        body_html = body_fn()
+  1122→        html = page_wrapper(page_num, total, title, subtitle, licon, ricon, body_html)
+  1123→        out_path = os.path.join(OUTPUT_DIR, f"recreated-page-{page_num:02d}.html")
+  1124→        with open(out_path, "w", encoding="utf-8") as f:
+  1125→            f.write(html)
+  1126→        written.append((out_path, len(html)))
+  1127→        print(f"  wrote {out_path} ({len(html)} bytes)")
+  1128→
+  1129→    print()
+  1130→    print(f"Wrote {len(written)} pages.")
+  1131→    print("Pages:")
+  1132→    for path, size in written:
+  1133→        print(f"  {path}  ({size} bytes)")
+  1134→
+  1135→
+  1136→if __name__ == "__main__":
+  1137→    main()
+  1138→

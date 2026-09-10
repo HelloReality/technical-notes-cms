@@ -1,0 +1,1241 @@
+     1→#!/usr/bin/env python3
+     2→"""
+     3→Rebuild carousel pages 1-5 of the Shell Scripting for DevOps handbook.
+     4→
+     5→Uses:
+     6→  - Colorful filled multi-color SVG icons from shell_scripting_icons.py
+     7→  - Canonical notebook template CSS (public/uploads/notebook-template/notebook-template.css)
+     8→  - VLM analysis (text, layout, icon inventory) per page
+     9→
+    10→Output: /home/z/my-project/downloads/instagram-DcaW1UljsVk/recreated-page-NN.html
+    11→
+    12→Each output HTML is fully self-contained (inline CSS + inline colorful SVG icons).
+    13→NO VERIQTA branding, NO social media footer.
+    14→Each page uses the canonical scaffold:
+    15→    <body class="multi-page">
+    16→      <div class="page-wrapper">
+    17→        <div class="page">
+    18→          <div class="spiral"></div>
+    19→          <div class="holes"></div>
+    20→          <div class="page-bend"></div>
+    21→          <div class="page-top-edge"></div>
+    22→          <div class="page-bottom-edge"></div>
+    23→          <div class="content"> ... </div>
+    24→        </div>
+    25→      </div>
+    26→    </body>
+    27→"""
+    28→
+    29→import os
+    30→import sys
+    31→
+    32→SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    33→if SCRIPT_DIR not in sys.path:
+    34→    sys.path.insert(0, SCRIPT_DIR)
+    35→
+    36→# Import the colorful multi-color filled SVG icon library
+    37→from shell_scripting_icons import ICONS, icon  # noqa: F401
+    38→
+    39→PROJECT_ROOT = "/home/z/my-project"
+    40→CSS_PATH = os.path.join(
+    41→    PROJECT_ROOT, "public", "uploads", "notebook-template", "notebook-template.css"
+    42→)
+    43→OUT_DIR = os.path.join(
+    44→    PROJECT_ROOT, "downloads", "instagram-DcaW1UljsVk"
+    45→)
+    46→
+    47→# Read the canonical notebook CSS once — inlined into every page
+    48→with open(CSS_PATH, "r", encoding="utf-8") as fh:
+    49→    CANONICAL_CSS = fh.read()
+    50→
+    51→# ============================================================
+    52→# Common page scaffold helpers
+    53→# ============================================================
+    54→
+    55→# Extra CSS shared by every page (page-specific styles are appended per page)
+    56→SHARED_EXTRA_CSS = """
+    57→/* ====== PAGE-LEVEL LAYOUT (extends canonical notebook CSS) ====== */
+    58→.content{position:relative;z-index:2;}
+    59→
+    60→/* Generic content card */
+    61→.card{
+    62→  background:#fff;
+    63→  border-radius:10px;
+    64→  overflow:hidden;
+    65→  box-shadow:0 2px 8px rgba(0,0,0,.06);
+    66→  border:1px solid rgba(0,0,0,.06);
+    67→}
+    68→.card .head{
+    69→  background:var(--green);
+    70→  color:#fff;
+    71→  padding:8px 14px;
+    72→  font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    73→  display:flex;align-items:center;gap:8px;
+    74→  border-bottom:2px solid var(--green-2);
+    75→}
+    76→.card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
+    77→.card .head.red{background:var(--red);border-bottom-color:#a01818;}
+    78→.card .head svg{width:18px;height:18px;flex-shrink:0;}
+    79→.card .pad{padding:12px 14px;}
+    80→
+    81→/* Generic two-column body */
+    82→.body-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    83→.body-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+    84→.col-stack{display:flex;flex-direction:column;gap:14px;}
+    85→
+    86→/* Terminal / code block (dark) */
+    87→.terminal{
+    88→  background:var(--term-bg);
+    89→  border-radius:8px;
+    90→  overflow:hidden;
+    91→  box-shadow:0 4px 14px rgba(0,0,0,.22);
+    92→}
+    93→.terminal .bar{
+    94→  background:#1c2230;
+    95→  padding:6px 12px;
+    96→  display:flex;align-items:center;gap:6px;
+    97→}
+    98→.terminal .dot{width:10px;height:10px;border-radius:50%;}
+    99→.terminal .dot-r{background:#ff5f56;}
+   100→.terminal .dot-y{background:#ffbd2e;}
+   101→.terminal .dot-g{background:#27c93f;}
+   102→.terminal .ttl{margin-left:auto;color:#8b949e;font-size:10px;font-family:monospace;}
+   103→.terminal .body{
+   104→  padding:12px 14px;
+   105→  font-family:"JetBrains Mono","Fira Code",monospace;
+   106→  font-size:12px;line-height:1.65;
+   107→  color:var(--term-fg);
+   108→  white-space:pre;
+   109→}
+   110→.terminal .body .p{color:#7ee787;}
+   111→.terminal .body .c{color:#8b949e;}
+   112→.terminal .body .k{color:#79c0ff;}
+   113→.terminal .body .s{color:#f2cc60;}
+   114→.terminal .body .o{color:#e6edf3;}
+   115→
+   116→/* Inline code */
+   117→code.inl{
+   118→  font-family:"JetBrains Mono","Fira Code",monospace;
+   119→  font-size:11px;
+   120→  background:#e8e4d4;padding:1px 5px;border-radius:3px;
+   121→  color:var(--green-2);
+   122→}
+   123→
+   124→/* Tables */
+   125→.tbl{width:100%;border-collapse:collapse;font-size:11.5px;}
+   126→.tbl th{
+   127→  background:var(--green);color:#fff;
+   128→  padding:7px 10px;text-align:left;
+   129→  font-weight:700;font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;
+   130→}
+   131→.tbl td{padding:6px 10px;border-bottom:1px solid #e0d8c8;color:var(--ink-2);vertical-align:top;}
+   132→.tbl td code{
+   133→  font-family:"JetBrains Mono",monospace;font-size:10.5px;
+   134→  background:#e8e4d4;padding:1px 4px;border-radius:3px;color:var(--green-2);
+   135→}
+   136→.tbl tr:last-child td{border-bottom:none;}
+   137→
+   138→/* Numbered steps */
+   139→.steps{display:flex;flex-direction:column;gap:7px;}
+   140→.step{display:flex;gap:10px;align-items:flex-start;font-size:11.5px;color:var(--ink-2);line-height:1.45;}
+   141→.step .n{
+   142→  flex-shrink:0;width:22px;height:22px;border-radius:50%;
+   143→  background:var(--green);color:#fff;
+   144→  display:flex;align-items:center;justify-content:center;
+   145→  font-size:11px;font-weight:800;font-family:monospace;
+   146→}
+   147→.step .ico{flex-shrink:0;width:24px;height:24px;}
+   148→.step .txt{flex:1;min-width:0;}
+   149→.step .txt b{color:var(--green-2);}
+   150→
+   151→/* Checkmark bullets */
+   152→.checks{display:flex;flex-direction:column;gap:6px;}
+   153→.check{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--ink-2);line-height:1.45;}
+   154→.check svg{flex-shrink:0;width:18px;height:18px;}
+   155→
+   156→/* Callouts */
+   157→.callout{display:flex;gap:10px;align-items:flex-start;border-radius:10px;padding:10px 14px;font-size:11.5px;line-height:1.45;}
+   158→.callout.warn{background:#fff4e0;border-left:3px solid var(--orange);color:var(--ink-2);}
+   159→.callout.tip{background:var(--green-light);border-left:3px solid var(--green);color:var(--ink-2);}
+   160→.callout.err{background:var(--red-soft);border-left:3px solid var(--red);color:var(--ink-2);}
+   161→.callout .ico{flex-shrink:0;width:24px;height:24px;margin-top:1px;}
+   162→.callout .ico svg{width:24px;height:24px;}
+   163→
+   164→/* Mini flow boxes (for diagrams) */
+   165→.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;}
+   166→.flow .box{
+   167→  flex:1;min-width:0;
+   168→  background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;
+   169→  padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
+   170→}
+   171→.flow .box .ico{width:34px;height:34px;}
+   172→.flow .box .lbl{font-size:10px;font-weight:700;color:var(--green-2);text-transform:uppercase;letter-spacing:.3px;}
+   173→.flow .box .sub{font-size:9.5px;color:var(--ink-3);}
+   174→.flow .arr{display:flex;align-items:center;color:var(--ink-3);}
+   175→
+   176→/* Page header */
+   177→.page-head{
+   178→  display:flex;align-items:center;justify-content:space-between;
+   179→  margin-bottom:14px;
+   180→}
+   181→.page-head .badge{
+   182→  background:var(--green);color:#fff;
+   183→  padding:5px 14px;border-radius:999px;
+   184→  font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+   185→}
+   186→.page-head .brand{
+   187→  font-size:13px;font-weight:800;letter-spacing:1.5px;color:var(--green-2);
+   188→  display:flex;align-items:center;gap:8px;
+   189→}
+   190→.page-head .brand .vq{
+   191→  width:26px;height:26px;border-radius:6px;background:var(--green);
+   192→  color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;
+   193→}
+   194→
+   195→.page-title{
+   196→  font-size:30px;font-weight:900;color:var(--green);
+   197→  text-transform:uppercase;letter-spacing:-.5px;line-height:1.05;
+   198→  margin-bottom:4px;
+   199→}
+   200→.page-title .num{color:var(--gold);}
+   201→.page-subtitle{
+   202→  font-size:13px;font-weight:700;color:var(--ink-2);
+   203→  text-transform:uppercase;letter-spacing:1.5px;
+   204→  margin-bottom:18px;padding-bottom:12px;
+   205→  border-bottom:2px solid var(--green);position:relative;
+   206→}
+   207→.page-subtitle::after{
+   208→  content:"";position:absolute;left:50%;bottom:-6px;
+   209→  width:10px;height:10px;background:var(--green);
+   210→  border-radius:50%;transform:translateX(-50%);
+   211→}
+   212→"""
+   213→
+   214→
+   215→def html_scaffold(title: str, page_css: str, content: str) -> str:
+   216→    """Wrap page content in a full HTML document with canonical + shared + page CSS."""
+   217→    return f"""<!DOCTYPE html>
+   218→<html lang="en">
+   219→<head>
+   220→<meta charset="UTF-8">
+   221→<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   222→<title>{title}</title>
+   223→<style>
+   224→/* ====== CANONICAL NOTEBOOK TEMPLATE CSS ====== */
+   225→{CANONICAL_CSS}
+   226→
+   227→/* ====== SHARED PAGE EXTENSIONS ====== */
+   228→{SHARED_EXTRA_CSS}
+   229→
+   230→/* ====== PAGE-SPECIFIC STYLES ====== */
+   231→{page_css}
+   232→</style>
+   233→</head>
+   234→<body class="multi-page">
+   235→<div class="page-wrapper">
+   236→  <div class="page">
+   237→    <div class="spiral"></div>
+   238→    <div class="holes"></div>
+   239→    <div class="page-bend"></div>
+   240→    <div class="page-top-edge"></div>
+   241→    <div class="page-bottom-edge"></div>
+   242→    <div class="content">
+   243→{content}
+   244→    </div>
+   245→  </div>
+   246→</div>
+   247→</body>
+   248→</html>"""
+   249→
+   250→
+   251→def head(brand_text: str, page_label: str, title_html: str, subtitle_html: str = "") -> str:
+   252→    """Page header (brand + badge + title + subtitle)."""
+   253→    sub = ""
+   254→    if subtitle_html:
+   255→        sub = f'<div class="page-subtitle">{subtitle_html}</div>'
+   256→    else:
+   257→        sub = '<div class="page-subtitle">&nbsp;</div>'
+   258→    return f"""
+   259→<div class="page-head">
+   260→  <div class="brand"><span class="vq">S</span>{brand_text}</div>
+   261→  <div class="badge">{page_label}</div>
+   262→</div>
+   263→<h1 class="page-title">{title_html}</h1>
+   264→{sub}
+   265→"""
+   266→
+   267→
+   268→def card(head_html: str, body_html: str, extra_cls: str = "") -> str:
+   269→    """A standard .card with header + pad body."""
+   270→    return f'<div class="card {extra_cls}"><div class="head">{head_html}</div><div class="pad">{body_html}</div></div>'
+   271→
+   272→
+   273→def terminal_block(title: str, body_lines: list, extra_cls: str = "") -> str:
+   274→    """Dark terminal block. body_lines is a list of (cls, text)."""
+   275→    dots = (
+   276→        '<span class="dot dot-r"></span>'
+   277→        '<span class="dot dot-y"></span>'
+   278→        '<span class="dot dot-g"></span>'
+   279→    )
+   280→    body_html = "\n".join(
+   281→        f'<div class="{cls}">{txt}</div>' if cls else f'<div>{txt}</div>'
+   282→        for cls, txt in body_lines
+   283→    )
+   284→    return f"""<div class="terminal {extra_cls}">
+   285→  <div class="bar">{dots}<span class="ttl">{title}</span></div>
+   286→  <div class="body">{body_html}</div>
+   287→</div>"""
+   288→
+   289→
+   290→# ============================================================
+   291→# PAGE 1 — Cover (single column centered)
+   292→# ============================================================
+   293→
+   294→def build_page_1() -> str:
+   295→    page_css = """
+   296→.cover{
+   297→  display:flex;flex-direction:column;align-items:center;
+   298→  text-align:center;padding:8px 0 0;
+   299→}
+   300→.cover .pre{
+   301→  font-size:12px;font-weight:700;letter-spacing:3px;color:var(--ink-3);
+   302→  text-transform:uppercase;margin-bottom:14px;
+   303→}
+   304→.cover .title-1{
+   305→  font-size:78px;font-weight:900;color:var(--green);
+   306→  letter-spacing:-2px;line-height:1;text-transform:uppercase;
+   307→}
+   308→.cover .title-for{
+   309→  display:flex;align-items:center;justify-content:center;gap:18px;
+   310→  margin:6px 0;
+   311→}
+   312→.cover .title-for .ln{flex:0 0 80px;height:3px;background:var(--green);border-radius:2px;}
+   313→.cover .title-for .t{font-size:34px;font-weight:800;color:var(--green-2);letter-spacing:6px;text-transform:uppercase;}
+   314→.cover .title-2{
+   315→  font-size:78px;font-weight:900;color:var(--green);
+   316→  letter-spacing:-2px;line-height:1;text-transform:uppercase;
+   317→}
+   318→.cover .ribbon{
+   319→  margin-top:6px;
+   320→  background:var(--green);
+   321→  color:#fff;
+   322→  font-size:32px;font-weight:900;letter-spacing:4px;
+   323→  padding:6px 60px;text-transform:uppercase;
+   324→  position:relative;
+   325→  box-shadow:0 4px 12px rgba(0,0,0,.18);
+   326→}
+   327→.cover .ribbon::before,.cover .ribbon::after{
+   328→  content:"";position:absolute;top:0;bottom:0;width:0;
+   329→  border:18px solid transparent;
+   330→}
+   331→.cover .ribbon::before{left:-36px;border-right:18px solid var(--green);}
+   332→.cover .ribbon::after{right:-36px;border-left:18px solid var(--green);}
+   333→
+   334→.cover .pill{
+   335→  margin-top:18px;
+   336→  display:inline-block;padding:7px 24px;
+   337→  border:2.5px solid var(--green);
+   338→  color:var(--green);font-size:13px;font-weight:800;
+   339→  letter-spacing:2px;text-transform:uppercase;border-radius:999px;
+   340→}
+   341→
+   342→.cover .stage{
+   343→  margin-top:24px;
+   344→  display:grid;
+   345→  grid-template-columns:1fr 1.4fr 1fr;
+   346→  gap:18px;align-items:center;
+   347→  width:100%;
+   348→}
+   349→.cover .side-icons{display:flex;flex-direction:column;align-items:center;gap:14px;}
+   350→.cover .side-icons .ic{width:62px;height:62px;}
+   351→.cover .side-icons.left{align-items:flex-start;}
+   352→.cover .side-icons.right{align-items:flex-end;gap:10px;}
+   353→
+   354→.cover .terminal-hero{
+   355→  background:var(--term-bg);
+   356→  border-radius:14px;
+   357→  overflow:hidden;
+   358→  box-shadow:0 14px 40px rgba(0,0,0,.3);
+   359→  border:3px solid var(--navy);
+   360→}
+   361→.cover .terminal-hero .bar{
+   362→  background:#1c2230;padding:8px 12px;
+   363→  display:flex;align-items:center;gap:6px;
+   364→}
+   365→.cover .terminal-hero .dot{width:11px;height:11px;border-radius:50%;}
+   366→.cover .terminal-hero .dot-r{background:#ff5f56;}
+   367→.cover .terminal-hero .dot-y{background:#ffbd2e;}
+   368→.cover .terminal-hero .dot-g{background:#27c93f;}
+   369→.cover .terminal-hero .ttl{margin-left:auto;color:#8b949e;font-size:11px;font-family:monospace;}
+   370→.cover .terminal-hero .body{
+   371→  padding:18px 18px 24px;
+   372→  font-family:"JetBrains Mono","Fira Code",monospace;
+   373→  font-size:15px;line-height:1.9;color:var(--term-fg);
+   374→  text-align:left;
+   375→}
+   376→.cover .terminal-hero .body .p{color:#7ee787;}
+   377→.cover .terminal-hero .body .c{color:#8b949e;}
+   378→.cover .terminal-hero .body .k{color:#79c0ff;}
+   379→.cover .terminal-hero .body .s{color:#f2cc60;}
+   380→.cover .terminal-hero .body .o{color:#e6edf3;}
+   381→
+   382→.cover .checklist{
+   383→  display:flex;flex-direction:column;align-items:flex-end;gap:6px;
+   384→}
+   385→.cover .checklist .it{
+   386→  display:flex;align-items:center;gap:6px;
+   387→  font-size:13px;font-weight:800;color:var(--green-2);
+   388→  letter-spacing:1.5px;text-transform:uppercase;
+   389→}
+   390→.cover .checklist .it svg{width:22px;height:22px;}
+   391→.cover .checklist .it.under{
+   392→  border-bottom:2px solid var(--green);padding-bottom:2px;width:auto;
+   393→}
+   394→
+   395→.cover .features{
+   396→  margin-top:26px;
+   397→  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+   398→  border-top:2px solid var(--green);border-bottom:2px solid var(--green);
+   399→  padding:14px 0;
+   400→}
+   401→.cover .features .feat{
+   402→  display:flex;flex-direction:column;align-items:center;gap:6px;
+   403→  padding:0 14px;border-right:1px dashed rgba(27,94,63,.35);
+   404→}
+   405→.cover .features .feat:last-child{border-right:none;}
+   406→.cover .features .feat svg{width:32px;height:32px;}
+   407→.cover .features .feat .lbl{
+   408→  font-size:11px;font-weight:800;color:var(--green-2);
+   409→  text-transform:uppercase;letter-spacing:.8px;text-align:center;line-height:1.3;
+   410→}
+   411→"""
+   412→
+   413→    body = f"""
+   414→<div class="cover">
+   415→  <div class="pre">The DevOps Engineer's Pocket Guide · Vol. 01</div>
+   416→
+   417→  <div class="title-1">Shell Scripting</div>
+   418→  <div class="title-for"><span class="ln"></span><span class="t">For</span><span class="ln"></span></div>
+   419→  <div class="title-2">DevOps</div>
+   420→  <div class="ribbon">Handbook</div>
+   421→
+   422→  <div class="pill">For Complete Beginners</div>
+   423→
+   424→  <div class="stage">
+   425→    <div class="side-icons left">
+   426→      <div class="ic">{icon("lightbulb", 62)}</div>
+   427→      <div class="ic">{icon("gear", 50)}</div>
+   428→    </div>
+   429→
+   430→    <div class="terminal-hero">
+   431→      <div class="bar">
+   432→        <span class="dot dot-r"></span>
+   433→        <span class="dot dot-y"></span>
+   434→        <span class="dot dot-g"></span>
+   435→        <span class="ttl">bash — devops@handbook</span>
+   436→      </div>
+   437→      <div class="body"><span class="c">#!/bin/bash</span>
+   438→<span class="p">$</span> <span class="k">echo</span> <span class="s">"Hello, DevOps!"</span>
+   439→<span class="o">Hello, DevOps!</span>
+   440→<span class="p">$</span> <span class="k">./deploy.sh</span> <span class="s">--env=prod</span>
+   441→<span class="o">  → building</span>
+   442→<span class="o">  → testing</span>
+   443→<span class="o">  → shipping</span>
+   444→<span class="c"># automate everything.</span></div>
+   445→    </div>
+   446→
+   447→    <div class="side-icons right">
+   448→      <div class="ic">{icon("cloud", 62)}</div>
+   449→      <div class="checklist">
+   450→        <div class="it">{icon("check-circle", 22)} Learn</div>
+   451→        <div class="it">{icon("check-circle", 22)} Practice</div>
+   452→        <div class="it">{icon("check-circle", 22)} Automate</div>
+   453→        <div class="it under">{icon("check-circle", 22)} Deploy</div>
+   454→      </div>
+   455→      <div class="ic">{icon("globe", 50)}</div>
+   456→    </div>
+   457→  </div>
+   458→
+   459→  <div class="features">
+   460→    <div class="feat">{icon("check-circle", 32)}<div class="lbl">Step-by-Step<br>Explanations</div></div>
+   461→    <div class="feat">{icon("lightbulb", 32)}<div class="lbl">Practical<br>Examples</div></div>
+   462→    <div class="feat">{icon("rocket", 32)}<div class="lbl">DevOps<br>Use Cases</div></div>
+   463→    <div class="feat">{icon("book", 32)}<div class="lbl">Beginner<br>Friendly</div></div>
+   464→  </div>
+   465→</div>
+   466→"""
+   467→    return html_scaffold(
+   468→        "Shell Scripting for DevOps — Handbook Cover",
+   469→        page_css,
+   470→        body,
+   471→    )
+   472→
+   473→
+   474→# ============================================================
+   475→# PAGE 2 — 2-column layout (left + right)
+   476→# ============================================================
+   477→
+   478→def build_page_2() -> str:
+   479→    page_css = """
+   480→.p2-body{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+   481→.p2-body .col{display:flex;flex-direction:column;gap:14px;}
+   482→
+   483→.compare-row{
+   484→  display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:center;
+   485→  padding:8px 4px;border-bottom:1px dashed rgba(22,38,77,.10);
+   486→}
+   487→.compare-row:last-child{border-bottom:none;}
+   488→.compare-row .ico-box{
+   489→  width:48px;height:48px;border-radius:10px;
+   490→  background:var(--green-light);
+   491→  display:flex;align-items:center;justify-content:center;
+   492→}
+   493→.compare-row .ico-box svg{width:34px;height:34px;}
+   494→.compare-row .ico-box.navy{background:var(--blue-soft);}
+   495→.compare-row .txt h4{
+   496→  font-size:13px;font-weight:800;color:var(--green-2);
+   497→  text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px;
+   498→}
+   499→.compare-row .txt p{font-size:11.5px;color:var(--ink-2);line-height:1.4;}
+   500→
+   501→.flow-2 .box .ico svg{width:34px;height:34px;}
+   502→.compare-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+   503→.compare-2col .col{
+   504→  border-radius:8px;padding:8px 10px;font-size:11px;line-height:1.45;
+   505→}
+   506→.compare-2col .col.blue{background:var(--blue-soft);border-left:3px solid var(--blue);}
+   507→.compare-2col .col.green{background:var(--green-light);border-left:3px solid var(--green);}
+   508→.compare-2col .col h4{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+   509→.compare-2col .col.blue h4{color:var(--blue);}
+   510→.compare-2col .col.green h4{color:var(--green);}
+   511→.compare-2col .col p{color:var(--ink-2);}
+   512→"""
+   513→
+   514→    title = head(
+   515→        "Shell&nbsp;Scripting Handbook",
+   516→        "Page 2 of 20",
+   517→        "<span class='num'>1.</span> What is Shell Scripting?",
+   518→        "The Command-Line Foundations Every DevOps Engineer Needs",
+   519→    )
+   520→
+   521→    # Left column
+   522→    left_col = f"""
+   523→{card(f"{icon('terminal', 18)} Shell vs Terminal vs Bash", """
+   524→  <div class="compare-row">
+   525→    <div class="ico-box navy">{icon('terminal', 34)}</div>
+   526→    <div class="txt"><h4>Terminal</h4><p>The application window that lets you type commands and see output. It's the UI, not the brain.</p></div>
+   527→  </div>
+   528→  <div class="compare-row">
+   529→    <div class="ico-box">{icon('shell', 34)}</div>
+   530→    <div class="txt"><h4>Shell</h4><p>The interpreter that parses your commands and asks the kernel to run them (bash, zsh, sh, fish…).</p></div>
+   531→  </div>
+   532→  <div class="compare-row">
+   533→    <div class="ico-box navy">{icon('cube', 34)}</div>
+   534→    <div class="txt"><h4>Bash</h4><p>One specific shell (Bourne-Again SHell). Default on most Linux distros &amp; the one this handbook uses.</p></div>
+   535→  </div>
+   536→""")}
+   537→
+   538→{card(f"{icon('check-circle', 18)} Why DevOps Engineers Automate with Scripts", """
+   539→  <div class="checks">
+   540→    <div class="check">{icon('check-circle', 18)}<div>Eliminate repetitive toil — run one command, not fifty.</div></div>
+   541→    <div class="check">{icon('check-circle', 18)}<div>Make deployments repeatable, auditable &amp; reversible.</div></div>
+   542→    <div class="check">{icon('check-circle', 18)}<div>Codify institutional knowledge instead of sticky-notes.</div></div>
+   543→    <div class="check">{icon('check-circle', 18)}<div>Reduce human error in fragile production changes.</div></div>
+   544→    <div class="check">{icon('check-circle', 18)}<div>Enable CI/CD pipelines to run unattended at 3&nbsp;AM.</div></div>
+   545→    <div class="check">{icon('check-circle', 18)}<div>Ship a self-contained script instead of a 12-step runbook.</div></div>
+   546→    <div class="check">{icon('check-circle', 18)}<div>Version control your operations the same way you version code.</div></div>
+   547→  </div>
+   548→""")}
+   549→
+   550→{card(f"{icon('file', 18)} Your First Bash Script", """
+   551→  """ + terminal_block("hello.sh", [
+   552→      ("c", "#!/bin/bash"),
+   553→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Hello, DevOps!"</span>'),
+   554→      ("o", "Hello, DevOps!"),
+   555→      ("c", "# Shebang tells the system which shell to use"),
+   556→      ("c", "# Comments start with # and are ignored at runtime"),
+   557→      ("", '<span class="p">$</span> <span class="k">name</span><span class="o">=</span><span class="s">"Alice"</span>'),
+   558→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Hi, $name"</span>'),
+   559→      ("o", "Hi, Alice"),
+   560→  ]) + """
+   561→""")}
+   562→
+   563→{card(f"{icon('lightbulb', 18)} Important Note", """
+   564→  <div class="callout warn">
+   565→    <div class="ico">""" + icon("lightbulb", 24) + """</div>
+   566→    <div><b>Scripts are plain text files.</b> Save with a <code class="inl">.sh</code> extension (convention only),
+   567→    mark them executable with <code class="inl">chmod +x</code>, then run them with
+   568→    <code class="inl">./script.sh</code> or <code class="inl">bash script.sh</code>. No compilation needed.</div>
+   569→  </div>
+   570→""")}
+   571→"""
+   572→
+   573→    # Right column
+   574→    right_col = f"""
+   575→{card(f"{icon('gear', 18)} What a Shell Actually Does", """
+   576→  <div class="steps">
+   577→    <div class="step"><div class="n">1</div><div class="txt"><b>Reads</b> your command from stdin (the keyboard).</div></div>
+   578→    <div class="step"><div class="n">2</div><div class="txt"><b>Parses</b> it into tokens: command + flags + arguments.</div></div>
+   579→    <div class="step"><div class="n">3</div><div class="txt"><b>Expands</b> variables, globs, and command substitutions.</div></div>
+   580→    <div class="step"><div class="n">4</div><div class="txt"><b>Resolves</b> the command path via <code class="inl">$PATH</code>.</div></div>
+   581→    <div class="step"><div class="n">5</div><div class="txt"><b>Asks the kernel</b> to spawn the process.</div></div>
+   582→    <div class="step"><div class="n">6</div><div class="txt"><b>Streams</b> stdout/stderr back to your terminal.</div></div>
+   583→  </div>
+   584→  <div style="margin-top:10px;" class="flow flow-2">
+   585→    <div class="box"><div class="ico">""" + icon("user", 34) + """</div><div class="lbl">You</div></div>
+   586→    <div class="arr">→</div>
+   587→    <div class="box"><div class="ico">""" + icon("shell", 34) + """</div><div class="lbl">Shell</div></div>
+   588→    <div class="arr">→</div>
+   589→    <div class="box"><div class="ico">""" + icon("gear", 34) + """</div><div class="lbl">Kernel</div></div>
+   590→    <div class="arr">→</div>
+   591→    <div class="box"><div class="ico">""" + icon("monitor", 34) + """</div><div class="lbl">Output</div></div>
+   592→  </div>
+   593→""")}
+   594→
+   595→{card(f"{icon('arrow', 18)} Command Execution Flow", """
+   596→  <div class="flow flow-2">
+   597→    <div class="box"><div class="ico">""" + icon("pencil", 34) + """</div><div class="lbl">You Type</div><div class="sub">a command</div></div>
+   598→    <div class="arr">→</div>
+   599→    <div class="box"><div class="ico">""" + icon("terminal", 34) + """</div><div class="lbl">Shell</div><div class="sub">interprets</div></div>
+   600→    <div class="arr">→</div>
+   601→    <div class="box"><div class="ico">""" + icon("gear", 34) + """</div><div class="lbl">Kernel</div><div class="sub">executes</div></div>
+   602→    <div class="arr">→</div>
+   603→    <div class="box"><div class="ico">""" + icon("monitor", 34) + """</div><div class="lbl">Output</div><div class="sub">+ exit code</div></div>
+   604→  </div>
+   605→""")}
+   606→
+   607→{card(f"{icon('list', 18)} Interactive Commands vs Scripts", """
+   608→  <div class="compare-2col">
+   609→    <div class="col blue">
+   610→      <h4>Interactive</h4>
+   611→      <p>One command at a time. Great for exploration &amp; quick fixes. Lost when the terminal closes.</p>
+   612→    </div>
+   613→    <div class="col green">
+   614→      <h4>Scripted</h4>
+   615→      <p>Many commands saved to a file. Repeatable, version-controlled, and runnable unattended in CI.</p>
+   616→    </div>
+   617→  </div>
+   618→""")}
+   619→
+   620→{card(f"{icon('play', 18)} Running a Script Safely", """
+   621→  <div class="steps">
+   622→    <div class="step"><div class="n">1</div><div class="ico">""" + icon("file", 24) + """</div><div class="txt"><b>Create the file</b><br><code class="inl">nano myscript.sh</code></div></div>
+   623→    <div class="step"><div class="n">2</div><div class="ico">""" + icon("download", 24) + """</div><div class="txt"><b>Save &amp; exit</b><br><code class="inl">Ctrl+O</code>, <code class="inl">Enter</code>, <code class="inl">Ctrl+X</code></div></div>
+   624→    <div class="step"><div class="n">3</div><div class="ico">""" + icon("lock", 24) + """</div><div class="txt"><b>Make it executable</b><br><code class="inl">chmod +x myscript.sh</code></div></div>
+   625→    <div class="step"><div class="n">4</div><div class="ico">""" + icon("play", 24) + """</div><div class="txt"><b>Run the script</b><br><code class="inl">./myscript.sh</code></div></div>
+   626→    <div class="step"><div class="n">5</div><div class="ico">""" + icon("shield", 24) + """</div><div class="txt"><b>Best practices</b><br>Always read scripts before running them — especially with <code class="inl">sudo</code>.</div></div>
+   627→  </div>
+   628→""")}
+   629→"""
+   630→
+   631→    content = f"""
+   632→{title}
+   633→<div class="p2-body">
+   634→  <div class="col">{left_col}</div>
+   635→  <div class="col">{right_col}</div>
+   636→</div>
+   637→"""
+   638→    return html_scaffold(
+   639→        "1. What is Shell Scripting? — Shell Scripting Handbook",
+   640→        page_css,
+   641→        content,
+   642→    )
+   643→
+   644→
+   645→# ============================================================
+   646→# PAGE 3 — 3-column grid (6 cards) + 2-col bottom
+   647→# ============================================================
+   648→
+   649→def build_page_3() -> str:
+   650→    page_css = """
+   651→.p3-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+   652→.p3-bottom{display:grid;grid-template-columns:1.9fr 1fr;gap:14px;}
+   653→.perm-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+   654→.perm-chips .chip{
+   655→  font-family:"JetBrains Mono",monospace;font-size:11px;
+   656→  background:#e8e4d4;color:var(--green-2);
+   657→  padding:2px 6px;border-radius:3px;font-weight:700;
+   658→}
+   659→.perm-vis{
+   660→  display:grid;grid-template-columns:auto 1fr;gap:4px 10px;
+   661→  font-family:monospace;font-size:11px;margin-top:6px;
+   662→  background:#0d1117;color:#e6edf3;border-radius:6px;padding:8px 10px;
+   663→}
+   664→.perm-vis .s{color:#7ee787;font-weight:700;}
+   665→.perm-vis .d{color:#8b949e;}
+   666→.err-list{display:flex;flex-direction:column;gap:5px;font-size:11px;line-height:1.4;}
+   667→.err-list .it{display:flex;gap:6px;align-items:flex-start;}
+   668→.err-list .it .tag{
+   669→  flex-shrink:0;font-family:monospace;font-size:10px;
+   670→  background:#ffd4d4;color:#a01818;padding:1px 5px;border-radius:3px;font-weight:700;
+   671→}
+   672→.dbg-tbl td{font-size:11px;}
+   673→.dbg-tbl .pcol{width:30%;}
+   674→.dbg-tbl .wcol{width:35%;}
+   675→.dbg-tbl .fcol{width:35%;}
+   676→.tip-bar{
+   677→  display:flex;align-items:center;gap:10px;
+   678→  background:var(--blue-soft);border-left:3px solid var(--blue);
+   679→  border-radius:8px;padding:8px 12px;font-size:11px;
+   680→  margin-top:8px;
+   681→}
+   682→.tip-bar svg{flex-shrink:0;width:20px;height:20px;}
+   683→.tip-bar b{color:var(--blue);}
+   684→"""
+   685→
+   686→    title = head(
+   687→        "Shell&nbsp;Scripting Handbook",
+   688→        "Page 3 of 20",
+   689→        "<span class='num'>3.</span> Creating &amp; Running Shell Scripts",
+   690→        "Turn Commands Into Automation",
+   691→    )
+   692→
+   693→    card1 = card(
+   694→        f"{icon('file', 18)} Creating .sh Files",
+   695→        f"""
+   696→  <p style="font-size:11.5px;color:var(--ink-2);margin-bottom:8px;">Use your editor to create a script file with a descriptive name and the <code class="inl">.sh</code> extension.</p>
+   697→  {terminal_block("create script", [
+   698→      ("", '<span class="p">$</span> <span class="k">nano</span> deploy.sh'),
+   699→      ("", '<span class="p">$</span> <span class="k">touch</span> backup.sh'),
+   700→      ("", '<span class="p">$</span> <span class="k">chmod</span> +x backup.sh'),
+   701→  ])}
+   702→""",
+   703→    )
+   704→
+   705→    card2 = card(
+   706→        f"{icon('code', 18)} The Shebang",
+   707→        f"""
+   708→  <p style="font-size:11.5px;color:var(--ink-2);margin-bottom:8px;">Line <b>1</b> of every script must declare the interpreter so the kernel knows what to run.</p>
+   709→  {terminal_block("shebang", [
+   710→      ("c", "#!/bin/bash"),
+   711→      ("c", "#!/usr/bin/env bash  ← portable"),
+   712→      ("c", "#!/bin/sh            ← minimal POSIX"),
+   713→      ("o", "# Without it: system may use the wrong shell"),
+   714→  ])}
+   715→""",
+   716→    )
+   717→
+   718→    card3 = card(
+   719→        f"{icon('lock', 18)} Make It Executable",
+   720→        f"""
+   721→  <p style="font-size:11.5px;color:var(--ink-2);margin-bottom:8px;">By default new files are not runnable. Grant execute permission, then run directly.</p>
+   722→  {terminal_block("chmod +x", [
+   723→      ("", '<span class="p">$</span> <span class="k">chmod</span> +x deploy.sh'),
+   724→      ("", '<span class="p">$</span> <span class="k">./deploy.sh</span>'),
+   725→      ("o", "→ Building..."),
+   726→      ("o", "→ Deploying to prod"),
+   727→  ])}
+   728→""",
+   729→    )
+   730→
+   731→    card4 = card(
+   732→        f"{icon('play', 18)} Run Your Script",
+   733→        f"""
+   734→  <p style="font-size:11.5px;color:var(--ink-2);margin-bottom:8px;">Two equivalent ways to invoke a script:</p>
+   735→  {terminal_block("run script", [
+   736→      ("c", "# Method 1: direct (needs +x & shebang)"),
+   737→      ("", '<span class="p">$</span> <span class="k">./deploy.sh</span>'),
+   738→      ("c", "# Method 2: pass to bash explicitly"),
+   739→      ("", '<span class="p">$</span> <span class="k">bash</span> deploy.sh'),
+   740→  ])}
+   741→  <div class="tip-bar">{icon('lightbulb', 20)}<div><b>Tip:</b> Method&nbsp;2 works even without <code class="inl">+x</code> — handy for one-off scripts.</div></div>
+   742→""",
+   743→    )
+   744→
+   745→    card5 = card(
+   746→        f"{icon('key', 18)} File Permissions",
+   747→        f"""
+   748→  <table class="tbl">
+   749→    <tr><th>Perm</th><th>Symbol</th><th>Number</th><th>Meaning</th></tr>
+   750→    <tr><td>Read</td><td><code>r</code></td><td>4</td><td>View file</td></tr>
+   751→    <tr><td>Write</td><td><code>w</code></td><td>2</td><td>Modify</td></tr>
+   752→    <tr><td>Execute</td><td><code>x</code></td><td>1</td><td>Run / enter</td></tr>
+   753→  </table>
+   754→  <div class="perm-vis">
+   755→    <div class="s">-</div><div class="d">file type</div>
+   756→    <div class="s">rwx</div><div class="d">owner&nbsp;=&nbsp;7</div>
+   757→    <div class="s">r-x</div><div class="d">group&nbsp;=&nbsp;5</div>
+   758→    <div class="s">r--</div><div class="d">other&nbsp;=&nbsp;4</div>
+   759→  </div>
+   760→  <div class="perm-chips">
+   761→    <span class="chip">chmod 754 script.sh</span>
+   762→    <span class="chip">chmod +x</span>
+   763→    <span class="chip">chmod u+x</span>
+   764→  </div>
+   765→""",
+   766→    )
+   767→
+   768→    card6 = card(
+   769→        f"{icon('stop', 18)} Common Errors",
+   770→        f"""<div class="head red">{icon('stop', 18)} Common Errors</div>""",
+   771→        extra_cls="",
+   772→    )
+   773→    # Rebuild card6 with red header
+   774→    card6 = f"""<div class="card"><div class="head red">{icon('stop', 18)} Common Errors</div><div class="pad">
+   775→  <div class="err-list">
+   776→    <div class="it"><span class="tag">E1</span><div><b>Permission denied</b> — forgot <code class="inl">chmod +x</code>.</div></div>
+   777→    <div class="it"><span class="tag">E2</span><div><b>Command not found</b> — typo or missing <code class="inl">$PATH</code>.</div></div>
+   778→    <div class="it"><span class="tag">E3</span><div><b>bad interpreter</b> — wrong shebang path.</div></div>
+   779→    <div class="it"><span class="tag">E4</span><div><b>Syntax error near token</b> — unmatched quote or missing <code class="inl">fi</code>/<code class="inl">done</code>.</div></div>
+   780→  </div>
+   781→  <div class="callout err" style="margin-top:8px;">
+   782→    <div class="ico">{icon('wrench', 24)}</div>
+   783→    <div><b>Fix:</b> Always run <code class="inl">bash -n script.sh</code> to syntax-check before executing.</div>
+   784→  </div>
+   785→</div></div>"""
+   786→
+   787→    # Bottom row
+   788→    card7 = f"""<div class="card"><div class="head">{icon('bug', 18)} Debugging Like a Pro</div><div class="pad">
+   789→  <table class="tbl dbg-tbl">
+   790→    <tr><th class="pcol">Problem</th><th class="wcol">Why</th><th class="fcol">How to Fix</th></tr>
+   791→    <tr>
+   792→      <td><div style="display:flex;gap:6px;align-items:center;">{icon('warning', 18)} Permission denied</div></td>
+   793→      <td>File lacks execute bit.</td>
+   794→      <td><code>chmod +x script.sh</code></td>
+   795→    </tr>
+   796→    <tr>
+   797→      <td><div style="display:flex;gap:6px;align-items:center;">{icon('file', 18)} Script not found</div></td>
+   798→      <td>Wrong path or <code>./</code> omitted.</td>
+   799→      <td><code>./script.sh</code> (note the dot-slash)</td>
+   800→    </tr>
+   801→    <tr>
+   802→      <td><div style="display:flex;gap:6px;align-items:center;">{icon('terminal', 18)} bad interpreter</div></td>
+   803→      <td>Bad shebang or hidden CRLF line endings.</td>
+   804→      <td><code>dos2unix script.sh</code> then re-check shebang</td>
+   805→    </tr>
+   806→    <tr>
+   807→      <td><div style="display:flex;gap:6px;align-items:center;">{icon('code', 18)} Syntax error</div></td>
+   808→      <td>Unmatched quote / missing keyword.</td>
+   809→      <td><code>bash -n script.sh</code> to find the line</td>
+   810→    </tr>
+   811→    <tr>
+   812→      <td><div style="display:flex;gap:6px;align-items:center;">{icon('question', 18)} Logic wrong, no error</div></td>
+   813→      <td>Variables expanding unexpectedly.</td>
+   814→      <td><code>bash -x script.sh</code> to trace each step</td>
+   815→    </tr>
+   816→  </table>
+   817→</div></div>"""
+   818→
+   819→    card8 = f"""<div class="card"><div class="head">{icon('check-square', 18)} Best Practices</div><div class="pad">
+   820→  <div class="checks">
+   821→    <div class="check">{icon('check-circle', 18)}<div>Always start with <code class="inl">#!/bin/bash</code></div></div>
+   822→    <div class="check">{icon('check-circle', 18)}<div>Use <code class="inl">set -euo pipefail</code> to fail loudly.</div></div>
+   823→    <div class="check">{icon('check-circle', 18)}<div>Quote every variable: <code class="inl">"$VAR"</code></div></div>
+   824→    <div class="check">{icon('check-circle', 18)}<div>Comment the <b>why</b>, not the <b>what</b>.</div></div>
+   825→    <div class="check">{icon('check-circle', 18)}<div>Test with <code class="inl">bash -n</code> before running.</div></div>
+   826→    <div class="check">{icon('check-circle', 18)}<div>Keep scripts under 200 lines; refactor more.</div></div>
+   827→    <div class="check">{icon('check-circle', 18)}<div>Use <code class="inl">shellcheck</code> as your linter.</div></div>
+   828→    <div class="check">{icon('check-circle', 18)}<div>Exit with explicit codes: <code class="inl">exit 1</code></div></div>
+   829→  </div>
+   830→  <div class="tip-bar" style="background:var(--green-light);border-left-color:var(--green);">
+   831→    {icon('star', 20)}
+   832→    <div><b style="color:var(--green-2);">Remember:</b> A script that fails silently is worse than no script at all. Make noise!</div>
+   833→  </div>
+   834→</div></div>"""
+   835→
+   836→    content = f"""
+   837→{title}
+   838→<div class="p3-grid">{card1}{card2}{card3}{card4}{card5}{card6}</div>
+   839→<div class="p3-bottom">{card7}{card8}</div>
+   840→"""
+   841→    return html_scaffold(
+   842→        "3. Creating & Running Shell Scripts — Shell Scripting Handbook",
+   843→        page_css,
+   844→        content,
+   845→    )
+   846→
+   847→
+   848→# ============================================================
+   849→# PAGE 4 — Structured 2-col grid + full-width bottom
+   850→# ============================================================
+   851→
+   852→def build_page_4() -> str:
+   853→    page_css = """
+   854→.p4-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+   855→.p4-full{display:grid;grid-template-columns:1fr;}
+   856→.tree{font-family:monospace;font-size:11px;line-height:1.7;color:var(--ink-2);}
+   857→.tree .l{display:flex;align-items:center;gap:6px;}
+   858→.tree .l svg{width:14px;height:14px;flex-shrink:0;}
+   859→.tree .ind{padding-left:18px;}
+   860→.tree .ind2{padding-left:36px;}
+   861→.tree .ind3{padding-left:54px;}
+   862→.path-box{
+   863→  background:#0d1117;color:#e6edf3;border-radius:6px;padding:8px 12px;
+   864→  font-family:monospace;font-size:11.5px;margin:6px 0;
+   865→}
+   866→.path-box .p{color:#7ee787;}
+   867→.path-box .s{color:#f2cc60;}
+   868→.op-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:11px;line-height:1.5;}
+   869→.op-grid code{
+   870→  font-family:"JetBrains Mono",monospace;font-size:11px;
+   871→  background:#e8e4d4;color:var(--green-2);padding:1px 6px;border-radius:3px;font-weight:700;
+   872→}
+   873→.op-grid .desc{color:var(--ink-2);}
+   874→.cmd-list .row4{
+   875→  display:grid;grid-template-columns:32px auto 1fr;gap:8px;align-items:center;
+   876→  padding:6px 4px;border-bottom:1px dashed rgba(22,38,77,.10);
+   877→}
+   878→.cmd-list .row4:last-child{border-bottom:none;}
+   879→.cmd-list .row4 .ic{width:24px;height:24px;}
+   880→.cmd-list .row4 .cmd code{
+   881→  font-family:"JetBrains Mono",monospace;font-size:10.5px;
+   882→  background:#e8e4d4;color:var(--green-2);padding:1px 5px;border-radius:3px;font-weight:700;
+   883→}
+   884→.cmd-list .row4 .desc{font-size:11px;color:var(--ink-2);}
+   885→.exercise{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+   886→.exercise .st{
+   887→  background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;
+   888→  padding:8px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;
+   889→  position:relative;
+   890→}
+   891→.exercise .st .n{
+   892→  width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;
+   893→  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:monospace;
+   894→}
+   895→.exercise .st .t{font-size:10px;font-weight:700;color:var(--green-2);text-transform:uppercase;letter-spacing:.3px;line-height:1.2;}
+   896→.exercise .st .c{font-size:9.5px;color:var(--ink-3);font-family:monospace;}
+   897→.exercise .st::after{
+   898→  content:"→";position:absolute;right:-9px;top:50%;transform:translateY(-50%);
+   899→  color:var(--green);font-size:14px;font-weight:900;
+   900→}
+   901→.exercise .st:last-child::after{content:"";}
+   902→.exercise .st:nth-child(6)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-12px;transform:translateX(-50%);}
+   903→"""
+   904→
+   905→    title = head(
+   906→        "Shell&nbsp;Scripting Handbook",
+   907→        "Page 4 of 20",
+   908→        "<span class='num'>2.</span> Shell Commands",
+   909→        "You Must Know First",
+   910→    )
+   911→
+   912→    card1 = card(
+   913→        f"{icon('folder', 18)} Navigate Your File System",
+   914→        """
+   915→  <table class="tbl">
+   916→    <tr><th>Cmd</th><th>What it does</th></tr>
+   917→    <tr><td><code>pwd</code></td><td>Print working directory</td></tr>
+   918→    <tr><td><code>ls</code></td><td>List files in current dir</td></tr>
+   919→    <tr><td><code>ls -la</code></td><td>List all (incl. hidden) in long form</td></tr>
+   920→    <tr><td><code>cd /tmp</code></td><td>Change directory to /tmp</td></tr>
+   921→    <tr><td><code>cd ~</code></td><td>Go to your home directory</td></tr>
+   922→    <tr><td><code>cd ..</code></td><td>Go up one level</td></tr>
+   923→    <tr><td><code>cd -</code></td><td>Toggle to previous directory</td></tr>
+   924→  </table>
+   925→""",
+   926→    )
+   927→
+   928→    card2 = card(
+   929→        f"{icon('pencil', 18)} Create, Copy, Move, Delete",
+   930→        """
+   931→  <table class="tbl">
+   932→    <tr><th>Cmd</th><th>What it does</th></tr>
+   933→    <tr><td><code>mkdir logs</code></td><td>Make a new directory</td></tr>
+   934→    <tr><td><code>touch app.sh</code></td><td>Create empty file (or update mtime)</td></tr>
+   935→    <tr><td><code>cp a.sh b.sh</code></td><td>Copy file a → b</td></tr>
+   936→    <tr><td><code>cp -r src/ dst/</code></td><td>Copy directory recursively</td></tr>
+   937→    <tr><td><code>mv old.sh new.sh</code></td><td>Move or rename</td></tr>
+   938→    <tr><td><code>rm file.tmp</code></td><td>Delete a file</td></tr>
+   939→    <tr><td><code>rm -rf build/</code></td><td>Force-remove a directory tree</td></tr>
+   940→  </table>
+   941→""",
+   942→    )
+   943→
+   944→    card3 = card(
+   945→        f"{icon('eye', 18)} View File Content",
+   946→        """
+   947→  <table class="tbl">
+   948→    <tr><th>Cmd</th><th>What it does</th></tr>
+   949→    <tr><td><code>cat file</code></td><td>Print whole file to stdout</td></tr>
+   950→    <tr><td><code>less file</code></td><td>Pager (q to quit, / to search)</td></tr>
+   951→    <tr><td><code>head -n 20 file</code></td><td>First 20 lines</td></tr>
+   952→    <tr><td><code>tail -n 20 file</code></td><td>Last 20 lines</td></tr>
+   953→    <tr><td><code>tail -f log</code></td><td>Follow a growing log live</td></tr>
+   954→    <tr><td><code>wc -l file</code></td><td>Count lines</td></tr>
+   955→  </table>
+   956→""",
+   957→    )
+   958→
+   959→    card4 = f"""<div class="card"><div class="head navy">{icon('folder', 18)} Absolute vs Relative Paths</div><div class="pad">
+   960→  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+   961→    <div>
+   962→      <div style="font-size:11px;font-weight:800;color:var(--navy);text-transform:uppercase;margin-bottom:4px;">Absolute</div>
+   963→      <div class="path-box"><span class="p">/</span>home<span class="p">/</span>user<span class="p">/</span><span class="s">scripts</span></div>
+   964→      <div class="tree">
+   965→        <div class="l">{icon('folder', 14)} /</div>
+   966→        <div class="l ind">{icon('folder', 14)} home</div>
+   967→        <div class="l ind2">{icon('folder', 14)} user</div>
+   968→        <div class="l ind3">{icon('folder', 14)} scripts ←</div>
+   969→      </div>
+   970→    </div>
+   971→    <div>
+   972→      <div style="font-size:11px;font-weight:800;color:var(--navy);text-transform:uppercase;margin-bottom:4px;">Relative</div>
+   973→      <div class="path-box"><span class="s">scripts</span><span class="p">/</span>deploy.sh</div>
+   974→      <div class="checks" style="margin-top:4px;">
+   975→        <div class="check">{icon('check-circle', 18)}<div>Relative to <b>cwd</b>.</div></div>
+   976→        <div class="check">{icon('check-circle', 18)}<div><code class="inl">.</code> = here</div></div>
+   977→        <div class="check">{icon('check-circle', 18)}<div><code class="inl">..</code> = parent</div></div>
+   978→        <div class="check">{icon('check-circle', 18)}<div><code class="inl">~/</code> = home</div></div>
+   979→      </div>
+   980→    </div>
+   981→  </div>
+   982→</div></div>"""
+   983→
+   984→    card5 = card(
+   985→        f"{icon('branch', 18)} Combining Commands",
+   986→        """
+   987→  <div class="op-grid">
+   988→    <code>;</code><div class="desc">Run sequentially: <code class="inl">a ; b</code></div>
+   989→    <code>&amp;&amp;</code><div class="desc">Run b only if a succeeds: <code class="inl">build &amp;&amp; deploy</code></div>
+   990→    <code>||</code><div class="desc">Run b only if a fails: <code class="inl">ping host || alert</code></div>
+   991→    <code>|</code><div class="desc">Pipe a's output into b's input: <code class="inl">cat log | grep err</code></div>
+   992→    <code>&gt;</code><div class="desc">Overwrite file with output: <code class="inl">echo hi &gt; f.txt</code></div>
+   993→    <code>&gt;&gt;</code><div class="desc">Append output to file: <code class="inl">echo hi &gt;&gt; f.txt</code></div>
+   994→  </div>
+   995→""",
+   996→    )
+   997→
+   998→    card6 = f"""<div class="card"><div class="head navy">{icon('list', 18)} Reading Command Output</div><div class="pad">
+   999→  <div class="cmd-list">
+  1000→    <div class="row4"><div class="ic">{icon('list', 24)}</div><div class="cmd"><code>ls -l</code></div><div class="desc">Long listing of files &amp; perms</div></div>
+  1001→    <div class="row4"><div class="ic">{icon('file', 24)}</div><div class="cmd"><code>ls -l | less</code></div><div class="desc">Page through a long listing</div></div>
+  1002→    <div class="row4"><div class="ic">{icon('code', 24)}</div><div class="cmd"><code>cat file.txt | head</code></div><div class="desc">First 10 lines of a file</div></div>
+  1003→    <div class="row4"><div class="ic">{icon('search', 24)}</div><div class="cmd"><code>grep "error" log</code></div><div class="desc">Filter matching lines</div></div>
+  1004→  </div>
+  1005→</div></div>"""
+  1006→
+  1007→    card7 = f"""<div class="card"><div class="head navy">{icon('rocket', 18)} Beginner Practice Exercise</div><div class="pad">
+  1008→  <p style="font-size:11.5px;color:var(--ink-2);margin-bottom:10px;">Follow the 12 steps in order. Each builds on the previous one.</p>
+  1009→  <div class="exercise">
+  1010→    <div class="st"><div class="n">1</div><div class="t">Open Term</div><div class="c">Ctrl+Alt+T</div></div>
+  1011→    <div class="st"><div class="n">2</div><div class="t">Where am I</div><div class="c">pwd</div></div>
+  1012→    <div class="st"><div class="n">3</div><div class="t">List files</div><div class="c">ls -la</div></div>
+  1013→    <div class="st"><div class="n">4</div><div class="t">Make dir</div><div class="c">mkdir devops</div></div>
+  1014→    <div class="st"><div class="n">5</div><div class="t">Enter dir</div><div class="c">cd devops</div></div>
+  1015→    <div class="st"><div class="n">6</div><div class="t">Create file</div><div class="c">touch notes.sh</div></div>
+  1016→    <div class="st"><div class="n">7</div><div class="t">Edit file</div><div class="c">nano notes.sh</div></div>
+  1017→    <div class="st"><div class="n">8</div><div class="t">Add shebang</div><div class="c">#!/bin/bash</div></div>
+  1018→    <div class="st"><div class="n">9</div><div class="t">Save &amp; exit</div><div class="c">Ctrl+O, X</div></div>
+  1019→    <div class="st"><div class="n">10</div><div class="t">Make exec</div><div class="c">chmod +x</div></div>
+  1020→    <div class="st"><div class="n">11</div><div class="t">Run it</div><div class="c">./notes.sh</div></div>
+  1021→    <div class="st"><div class="n">12</div><div class="t">Go home</div><div class="c">cd ~</div></div>
+  1022→  </div>
+  1023→</div></div>"""
+  1024→
+  1025→    content = f"""
+  1026→{title}
+  1027→<div class="p4-grid">{card1}{card2}</div>
+  1028→<div class="p4-grid">{card3}{card4}</div>
+  1029→<div class="p4-grid">{card5}{card6}</div>
+  1030→<div class="p4-full">{card7}</div>
+  1031→"""
+  1032→    return html_scaffold(
+  1033→        "2. Shell Commands — Shell Scripting Handbook",
+  1034→        page_css,
+  1035→        content,
+  1036→    )
+  1037→
+  1038→
+  1039→# ============================================================
+  1040→# PAGE 5 — 2-column + 3-column split layout
+  1041→# ============================================================
+  1042→
+  1043→def build_page_5() -> str:
+  1044→    page_css = """
+  1045→.p5-row1{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  1046→.p5-row2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+  1047→.p5-row3{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px;}
+  1048→.p5-right-stack{display:flex;flex-direction:column;gap:14px;}
+  1049→.tip-banner{
+  1050→  display:flex;align-items:center;gap:12px;
+  1051→  background:var(--green-light);border-left:4px solid var(--green);
+  1052→  border-radius:10px;padding:10px 16px;font-size:12px;color:var(--ink-2);
+  1053→}
+  1054→.tip-banner svg{flex-shrink:0;width:28px;height:28px;}
+  1055→.tip-banner .end-ico{margin-left:auto;}
+  1056→.tip-banner b{color:var(--green-2);}
+  1057→.arg-tbl{font-size:11px;}
+  1058→.arg-tbl td{padding:5px 8px;}
+  1059→"""
+  1060→
+  1061→    title = head(
+  1062→        "Shell&nbsp;Scripting Handbook",
+  1063→        "Page 5 of 20",
+  1064→        "<span class='num'>5.</span> Reading User Input &amp; Arguments",
+  1065→        "Get Input · Use Arguments · Build Smarter Scripts",
+  1066→    )
+  1067→
+  1068→    card1 = card(
+  1069→        f"{icon('terminal', 18)} Read: Get User Input",
+  1070→        f"""
+  1071→  {terminal_block("read.sh", [
+  1072→      ("c", "#!/bin/bash"),
+  1073→      ("c", "# Prompt the user and store their answer"),
+  1074→      ("", '<span class="p">$</span> <span class="k">read</span> -p <span class="s">"Enter your name: "</span> name'),
+  1075→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Hi, $name!"</span>'),
+  1076→      ("o", "Enter your name: Alice"),
+  1077→      ("o", "Hi, Alice!"),
+  1078→  ])}
+  1079→  <div class="callout tip" style="margin-top:8px;">
+  1080→    <div class="ico">{icon('lightbulb', 24)}</div>
+  1081→    <div><b>read</b> pauses the script until the user presses Enter. Use <code class="inl">-s</code> for passwords (silent) and <code class="inl">-t 10</code> to time out after 10s.</div>
+  1082→  </div>
+  1083→""",
+  1084→    )
+  1085→
+  1086→    card2 = card(
+  1087→        f"{icon('list', 18)} Script Arguments",
+  1088→        """
+  1089→  <table class="tbl arg-tbl">
+  1090→    <tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr>
+  1091→    <tr><td><code>$0</code></td><td>Script name</td><td>./deploy.sh</td></tr>
+  1092→    <tr><td><code>$1 … $9</code></td><td>1st–9th argument</td><td>$1 = prod</td></tr>
+  1093→    <tr><td><code>$#</code></td><td>Argument count</td><td>3</td></tr>
+  1094→    <tr><td><code>$@</code></td><td>All args (array)</td><td>prod us-east-1 v1</td></tr>
+  1095→    <tr><td><code>$?</code></td><td>Last exit code</td><td>0 = success</td></tr>
+  1096→    <tr><td><code>$$</code></td><td>PID of script</td><td>4287</td></tr>
+  1097→  </table>
+  1098→""",
+  1099→    )
+  1100→
+  1101→    card3 = card(
+  1102→        f"{icon('rocket', 18)} Passing Arguments",
+  1103→        f"""
+  1104→  {terminal_block("args.sh", [
+  1105→      ("c", "#!/bin/bash"),
+  1106→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Script: $0"</span>'),
+  1107→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Env:   $1"</span>'),
+  1108→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Ver:   $2"</span>'),
+  1109→      ("", '<span class="p">$</span> <span class="k">./args.sh prod v1.2</span>'),
+  1110→      ("o", "Script: ./args.sh"),
+  1111→      ("o", "Env:   prod"),
+  1112→      ("o", "Ver:   v1.2"),
+  1113→  ])}
+  1114→  <div style="display:flex;justify-content:flex-end;margin-top:6px;">{icon('rocket', 36)}</div>
+  1115→""",
+  1116→    )
+  1117→
+  1118→    card4 = card(
+  1119→        f"{icon('warning', 18)} Validating Arguments",
+  1120→        f"""
+  1121→  {terminal_block("validate.sh", [
+  1122→      ("c", "#!/bin/bash"),
+  1123→      ("c", "# Stop if the user forgot the env arg"),
+  1124→      ("", '<span class="p">$</span> <span class="k">if</span> [ -z <span class="s">"$1"</span> ]; <span class="k">then</span>'),
+  1125→      ("", '<span class="p">$</span>   <span class="k">echo</span> <span class="s">"Usage: $0 &lt;env&gt;"</span>'),
+  1126→      ("", '<span class="p">$</span>   <span class="k">exit</span> 1'),
+  1127→      ("", '<span class="p">$</span> <span class="k">fi</span>'),
+  1128→  ])}
+  1129→  <div class="callout warn" style="margin-top:8px;">
+  1130→    <div class="ico">{icon('warning', 24)}</div>
+  1131→    <div><b>Validate early.</b> Fail fast with <code class="inl">exit 1</code> before any work begins.</div>
+  1132→  </div>
+  1133→""",
+  1134→    )
+  1135→
+  1136→    card5 = card(
+  1137→        f"{icon('check-circle', 18)} Common Practices",
+  1138→        """
+  1139→  <div class="checks">
+  1140→    <div class="check">{icon('check-circle', 18)}<div>Always quote: <code class="inl">"$1"</code></div></div>
+  1141→    <div class="check">{icon('check-circle', 18)}<div>Check <code class="inl">$#</code> before using args.</div></div>
+  1142→    <div class="check">{icon('check-circle', 18)}<div>Use <code class="inl">$@</code> (not <code class="inl">$*</code>) in loops.</div></div>
+  1143→    <div class="check">{icon('check-circle', 18)}<div>Default with <code class="inl">${1:-default}</code></div></div>
+  1144→    <div class="check">{icon('check-circle', 18)}<div>Print usage on bad input.</div></div>
+  1145→  </div>
+  1146→""",
+  1147→    )
+  1148→
+  1149→    card6 = card(
+  1150→        f"{icon('code', 18)} Example: Simple Reusable DevOps Script",
+  1151→        f"""
+  1152→  {terminal_block("deploy.sh", [
+  1153→      ("c", "#!/bin/bash"),
+  1154→      ("c", "# A reusable deploy script"),
+  1155→      ("", '<span class="p">$</span> <span class="k">set</span> -euo pipefail'),
+  1156→      ("", '<span class="p">$</span> ENV<span class="o">=</span><span class="s">"${1:-staging}"</span>'),
+  1157→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Deploying to $ENV…"</span>'),
+  1158→      ("", '<span class="p">$</span> <span class="k">./build</span> && <span class="k">./test</span> && <span class="k">./ship</span> <span class="s">"$ENV"</span>'),
+  1159→      ("", '<span class="p">$</span> <span class="k">echo</span> <span class="s">"Done. ($?)"</span>'),
+  1160→  ])}
+  1161→""",
+  1162→    )
+  1163→
+  1164→    sub_a = card(
+  1165→        f"{icon('terminal', 18)} Run Example",
+  1166→        f"""
+  1167→  {terminal_block("console", [
+  1168→      ("", '<span class="p">$</span> <span class="k">./deploy.sh</span> prod'),
+  1169→      ("o", "Deploying to prod…"),
+  1170→      ("o", "  → build OK"),
+  1171→      ("o", "  → test  OK"),
+  1172→      ("o", "  → ship  OK"),
+  1173→      ("o", "Done. (0)"),
+  1174→  ])}
+  1175→""",
+  1176→    )
+  1177→
+  1178→    sub_b = card(
+  1179→        f"{icon('gear', 18)} What This Script Does",
+  1180→        f"""
+  1181→  <div class="steps">
+  1182→    <div class="step"><div class="n">1</div><div class="txt"><b>set -euo pipefail</b> — fail on any error.</div></div>
+  1183→    <div class="step"><div class="n">2</div><div class="txt"><b>ENV=${{1:-staging}}</b> — use arg or default.</div></div>
+  1184→    <div class="step"><div class="n">3</div><div class="txt"><b>&amp;&amp;</b> chains build → test → ship.</div></div>
+  1185→    <div class="step"><div class="n">4</div><div class="txt"><b>$?</b> prints the final exit code.</div></div>
+  1186→  </div>
+  1187→  <div style="display:flex;justify-content:flex-end;margin-top:6px;">{icon('gear', 40)}</div>
+  1188→""",
+  1189→    )
+  1190→
+  1191→    tip_banner = f"""
+  1192→<div class="tip-banner">
+  1193→  {icon('star', 28)}
+  1194→  <div><b>Tip:</b> Combine <code class="inl">read</code> for interactive prompts with positional args for automation. Same script, two modes.</div>
+  1195→  <div class="end-ico">{icon('clipboard', 28)}</div>
+  1196→</div>
+  1197→"""
+  1198→
+  1199→    content = f"""
+  1200→{title}
+  1201→<div class="p5-row1">{card1}{card2}</div>
+  1202→<div class="p5-row2">{card3}{card4}{card5}</div>
+  1203→<div class="p5-row3">
+  1204→  {card6}
+  1205→  <div class="p5-right-stack">{sub_a}{sub_b}</div>
+  1206→</div>
+  1207→{tip_banner}
+  1208→"""
+  1209→    return html_scaffold(
+  1210→        "5. Reading User Input & Arguments — Shell Scripting Handbook",
+  1211→        page_css,
+  1212→        content,
+  1213→    )
+  1214→
+  1215→
+  1216→# ============================================================
+  1217→# Main
+  1218→# ============================================================
+  1219→
+  1220→def main():
+  1221→    os.makedirs(OUT_DIR, exist_ok=True)
+  1222→    pages = [
+  1223→        (1, build_page_1),
+  1224→        (2, build_page_2),
+  1225→        (3, build_page_3),
+  1226→        (4, build_page_4),
+  1227→        (5, build_page_5),
+  1228→    ]
+  1229→    for n, fn in pages:
+  1230→        html = fn()
+  1231→        out = os.path.join(OUT_DIR, f"recreated-page-{n:02d}.html")
+  1232→        with open(out, "w", encoding="utf-8") as fh:
+  1233→            fh.write(html)
+  1234→        size_kb = len(html) / 1024
+  1235→        print(f"  ✓ page {n:02d} → {out}  ({size_kb:.1f} KB)")
+  1236→    print(f"\nDone. {len(pages)} pages written to {OUT_DIR}")
+  1237→
+  1238→
+  1239→if __name__ == "__main__":
+  1240→    main()
+  1241→
