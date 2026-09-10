@@ -70,14 +70,18 @@ DEFAULT_PAPER_H = 1139.736947
 
 # Content margins (from the Linux Security Handbook page analysis)
 # These define where the content area sits inside the paper.
-# Measured from the uploaded Polotno content page:
-#   Left margin:   108px from page left (= 45px from paper left edge)
-#   Right margin:   50px from page right
-#   Top margin:     42px from page top (= 18px from paper top edge)
-#   Bottom margin:  36px from page bottom
-CONTENT_PADDING_TOP = 42       # from page top
-CONTENT_PADDING_RIGHT = 50     # from page right
-CONTENT_PADDING_BOTTOM = 36    # from page bottom
+# Measured from the uploaded Polotno content page (1110×1082px):
+#   Left margin:   108px from page left (accounts for spiral binding)
+#   Right margin:   80px from page right (increased for wider 1220px page)
+#   Top margin:     52px from page top (increased for breathing room below 3D edge)
+#   Bottom margin:  56px from page bottom (increased for breathing room above 3D edge)
+#
+# NOTE: The reference page was 1110px wide; our template is 1220px wide.
+# Margins are increased proportionally so content doesn't go outside the page
+# and has proper spacing from the rings (left) and 3D edges (top/bottom).
+CONTENT_PADDING_TOP = 52       # from page top (below 3D top edge)
+CONTENT_PADDING_RIGHT = 80     # from page right (safe margin from paper edge)
+CONTENT_PADDING_BOTTOM = 56    # from page bottom (above 3D bottom edge)
 CONTENT_PADDING_LEFT = 108     # from page left (accounts for spiral binding)
 
 
