@@ -31,8 +31,10 @@ HOLE_SVG_TEMPLATE = """<svg xmlns='http://www.w3.org/2000/svg' width='18.5' heig
 # Ring SVG — 76×23.2px with 2 separate path elements (exact from Polotno)
 RING_SVG = """<svg xmlns='http://www.w3.org/2000/svg' width='76' height='23.2' viewBox='0 21.675 76 23.2'><path d='M27.2 22.95 C17 23.8 8.5 27.2 8.5 29.75 C8.5 34 16.15 36.55 27.2 37.4 C44.2 38.25 59.5 35.7 69.7 32.3' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/><path d='M27.2 28.9 C17 29.75 8.5 33.15 8.5 35.7 C8.5 39.95 16.15 42.5 27.2 43.35 C44.2 44.2 59.5 41.65 69.7 38.25' fill='none' stroke='#111111' stroke-width='2.55' stroke-linecap='round' stroke-linejoin='round'/></svg>"""
 
-# Paper SVG — grid pattern + left bend shadow
-PAPER_SVG_TEMPLATE = """<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='{paper_h}' viewBox='0 0 1080 {paper_h}' preserveAspectRatio='none'><defs><clipPath id='pc'><rect width='1080' height='{paper_h}' rx='14' ry='14'/></clipPath><pattern id='grid' width='26' height='26' patternUnits='userSpaceOnUse'><rect width='26' height='1' fill='#bcc8d6'/><rect width='1' height='26' fill='#bcc8d6'/></pattern><linearGradient id='bend' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0.45'/><stop offset='0.1667' stop-color='#000000' stop-opacity='0.30'/><stop offset='0.3889' stop-color='#000000' stop-opacity='0.18'/><stop offset='0.6667' stop-color='#000000' stop-opacity='0.08'/><stop offset='0.8889' stop-color='#000000' stop-opacity='0.03'/><stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient></defs><g clip-path='url(#pc)'><rect width='1080' height='{paper_h}' fill='#f5f1e8'/><rect width='1080' height='{paper_h}' fill='url(#grid)' opacity='0.5'/><rect width='18' height='{paper_h}' fill='url(#bend)'/></g></svg>"""
+# Paper SVG — grid pattern + left bend shadow + 3D top/bottom edges MERGED IN
+# The top and bottom edge effects are drawn inside the paper SVG itself,
+# so they auto-scale with the paper height. No separate edge divs needed.
+PAPER_SVG_TEMPLATE = """<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='{paper_h}' viewBox='0 0 1080 {paper_h}' preserveAspectRatio='none'><defs><clipPath id='pc'><rect width='1080' height='{paper_h}' rx='14' ry='14'/></clipPath><pattern id='grid' width='26' height='26' patternUnits='userSpaceOnUse'><rect width='26' height='1' fill='#bcc8d6'/><rect width='1' height='26' fill='#bcc8d6'/></pattern><linearGradient id='bend' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0.45'/><stop offset='0.1667' stop-color='#000000' stop-opacity='0.30'/><stop offset='0.3889' stop-color='#000000' stop-opacity='0.18'/><stop offset='0.6667' stop-color='#000000' stop-opacity='0.08'/><stop offset='0.8889' stop-color='#000000' stop-opacity='0.03'/><stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient><pattern id='tlines' width='2.4' height='2.4' patternUnits='userSpaceOnUse'><rect width='2.4' height='0.4' fill='rgba(140,120,80,0.12)'/></pattern></defs><g clip-path='url(#pc)'><rect width='1080' height='{paper_h}' fill='#f5f1e8'/><rect width='1080' height='{paper_h}' fill='url(#grid)' opacity='0.5'/><rect width='18' height='{paper_h}' fill='url(#bend)'/><rect width='1080' height='13' fill='url(#tlines)'/><rect width='1080' height='7' fill='#fbf8ef'/><rect width='1080' height='4' y='7' fill='#f7f3e8'/><rect width='1080' height='2' y='11' fill='#f5f1e8'/><rect width='1080' height='0.5' y='12.5' fill='rgba(100,80,40,0.22)'/><rect width='1080' height='14' y='{paper_bottom}' fill='url(#tlines)'/><rect width='1080' height='7' y='{paper_bottom}' fill='#fbf8ef'/><rect width='1080' height='4' y='{paper_bottom_plus_4}' fill='#f7f3e8'/><rect width='1080' height='2' y='{paper_bottom_plus_7}' fill='#f5f1e8'/><rect width='1080' height='0.5' y='{paper_bottom_plus_7}' fill='rgba(100,80,40,0.22)'/></g></svg>"""
 
 # Top edge SVG — 3D page-stack thickness
 TOP_EDGE_SVG = """<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='13' viewBox='0 0 1080 13' preserveAspectRatio='none'><defs><clipPath id='tc'><rect x='0' y='0' width='1080' height='28' rx='14' ry='14'/></clipPath><pattern id='tlines' width='2.4' height='2.4' patternUnits='userSpaceOnUse'><rect width='2.4' height='0.4' fill='rgba(140,120,80,0.12)'/></pattern></defs><g clip-path='url(#tc)'><rect width='1080' height='13' fill='url(#tlines)'/><rect width='1080' height='7' fill='#fbf8ef'/><rect width='1080' height='4' y='7' fill='#f7f3e8'/><rect width='1080' height='2' y='11' fill='#f5f1e8'/><rect width='1080' height='0.5' y='12.5' fill='rgba(100,80,40,0.22)'/></g></svg>"""
@@ -80,9 +82,9 @@ DEFAULT_PAPER_H = 1139.736947
 # Margins are increased proportionally so content doesn't go outside the page
 # and has proper spacing from the rings (left) and 3D edges (top/bottom).
 CONTENT_PADDING_TOP = 42       # from page top
-CONTENT_PADDING_RIGHT = 80     # from page right (safe margin from paper edge)
-CONTENT_PADDING_BOTTOM = 42    # from page bottom
-CONTENT_PADDING_LEFT = 108     # from page left (accounts for spiral binding)
+CONTENT_PADDING_RIGHT = 50     # from page right
+CONTENT_PADDING_BOTTOM = 42   # from page bottom
+CONTENT_PADDING_LEFT = 108    # from page left (accounts for spiral binding)
 
 
 def calc_hole_count(paper_height: float) -> int:
@@ -134,15 +136,19 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     Returns:
         HTML string for the page-wrapper div.
     """
-    page_height = paper_height + PAPER_Y + PAPER_Y * 0.268  # paper + top margin + bottom margin (matches Polotno: 1139.736947 + 24 + 6.423 = 1170.16)
+    page_height = paper_height + PAPER_Y * 2  # paper + top/bottom margin (symmetric)
     hole_count = calc_hole_count(paper_height)
 
     # Generate holes with unique IDs
     holes_html = generate_holes(hole_count, id_prefix=page_id)
     rings_html = generate_rings(hole_count)
 
-    # Paper SVG with correct height
+    # Paper SVG with correct height + merged 3D edges
+    paper_bottom = paper_height - 14  # bottom edge starts 14px from paper bottom
     paper_svg = PAPER_SVG_TEMPLATE.replace("{paper_h}", str(paper_height))
+    paper_svg = paper_svg.replace("{paper_bottom}", str(paper_bottom))
+    paper_svg = paper_svg.replace("{paper_bottom_plus_4}", str(paper_bottom + 4))
+    paper_svg = paper_svg.replace("{paper_bottom_plus_7}", str(paper_bottom + 7))
 
     return f"""<div class="page-wrapper" style="position:relative;width:{PAGE_WIDTH}px;height:{page_height}px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
