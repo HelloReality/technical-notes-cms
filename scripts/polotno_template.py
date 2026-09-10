@@ -81,10 +81,10 @@ DEFAULT_PAPER_H = 1139.736947
 # NOTE: The reference page was 1110px wide; our template is 1220px wide.
 # Margins are increased proportionally so content doesn't go outside the page
 # and has proper spacing from the rings (left) and 3D edges (top/bottom).
-CONTENT_PADDING_TOP = 42       # from page top
-CONTENT_PADDING_RIGHT = 50     # from page right
-CONTENT_PADDING_BOTTOM = 42   # from page bottom
-CONTENT_PADDING_LEFT = 108    # from page left (accounts for spiral binding)
+CONTENT_PADDING_TOP = 60       # from page top
+CONTENT_PADDING_RIGHT = 100    # from page right
+CONTENT_PADDING_BOTTOM = 60    # from page bottom
+CONTENT_PADDING_LEFT = 150     # from page left (accounts for spiral binding)
 
 
 def calc_hole_count(paper_height: float) -> int:
