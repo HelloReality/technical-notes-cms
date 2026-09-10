@@ -130,7 +130,11 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     top_svg = TOP_EDGE_SVG
     bottom_svg = BOTTOM_EDGE_SVG
 
-    bottom_edge_y = PAPER_Y + paper_height - BOTTOM_EDGE_H  # edge bottom = paper bottom
+    # Bottom edge: exact position from Polotno reference
+    # bottom_edge_top (relative to page) = 1149.302688
+    # This = paper_bottom - 14.434 = (PAPER_Y + paper_height) - 14.434
+    # The edge slightly overlaps the paper bottom (extends ~0.3px beyond)
+    bottom_edge_y = PAPER_Y + paper_height - 14.434259
 
     return f"""<div class="page-wrapper" style="position:relative;width:{PAGE_WIDTH}px;height:{page_height}px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
