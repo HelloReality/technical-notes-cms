@@ -68,6 +68,18 @@ BOTTOM_EDGE_H = 14.744878
 # Default paper height (matches Polotno original exactly)
 DEFAULT_PAPER_H = 1139.736947
 
+# Content margins (from the Linux Security Handbook page analysis)
+# These define where the content area sits inside the paper.
+# Measured from the uploaded Polotno content page:
+#   Left margin:   108px from page left (= 45px from paper left edge)
+#   Right margin:   50px from page right
+#   Top margin:     42px from page top (= 18px from paper top edge)
+#   Bottom margin:  36px from page bottom
+CONTENT_PADDING_TOP = 42       # from page top
+CONTENT_PADDING_RIGHT = 50     # from page right
+CONTENT_PADDING_BOTTOM = 36    # from page bottom
+CONTENT_PADDING_LEFT = 108     # from page left (accounts for spiral binding)
+
 
 def calc_hole_count(paper_height: float) -> int:
     """Calculate the number of holes/rings needed for a given paper height.
@@ -164,7 +176,7 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     </div>
 
     <!-- Content -->
-    <div class="content" style="position:relative;z-index:2;padding:42px 50px 26px 78px;">
+    <div class="content" style="position:relative;z-index:2;padding:{CONTENT_PADDING_TOP}px {CONTENT_PADDING_RIGHT}px {CONTENT_PADDING_BOTTOM}px {CONTENT_PADDING_LEFT}px;">
       {content_html}
     </div>
 
