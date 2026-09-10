@@ -140,7 +140,7 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     return f"""<div class="page-wrapper" style="position:relative;width:{PAGE_WIDTH}px;height:{page_height}px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
     <!-- Paper sheet with grid + left bend -->
-    <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_W}px;height:{paper_height}px;border-radius:14px;overflow:hidden;">
+    <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_DESIGN_W}px;height:{paper_height}px;border-radius:14px;overflow:hidden;">
       {paper_svg}
       <!-- 3D page-stack top edge (from Linux Security Handbook) -->
       <div style="position:absolute;z-index:8;top:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to bottom,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-bottom:1px solid rgba(100,80,40,0.22);box-shadow:0 1px 2px rgba(0,0,0,0.10);"></div>
