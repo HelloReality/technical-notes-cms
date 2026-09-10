@@ -79,9 +79,9 @@ DEFAULT_PAPER_H = 1139.736947
 # NOTE: The reference page was 1110px wide; our template is 1220px wide.
 # Margins are increased proportionally so content doesn't go outside the page
 # and has proper spacing from the rings (left) and 3D edges (top/bottom).
-CONTENT_PADDING_TOP = 52       # from page top (below 3D top edge)
+CONTENT_PADDING_TOP = 42       # from page top
 CONTENT_PADDING_RIGHT = 80     # from page right (safe margin from paper edge)
-CONTENT_PADDING_BOTTOM = 56    # from page bottom (above 3D bottom edge)
+CONTENT_PADDING_BOTTOM = 42    # from page bottom
 CONTENT_PADDING_LEFT = 108     # from page left (accounts for spiral binding)
 
 
@@ -143,25 +143,12 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
 
     # Paper SVG with correct height
     paper_svg = PAPER_SVG_TEMPLATE.replace("{paper_h}", str(paper_height))
-    top_svg = TOP_EDGE_SVG
-    bottom_svg = BOTTOM_EDGE_SVG
-
-    # Bottom edge: exact position from Polotno reference
-    # bottom_edge_top (relative to page) = 1149.302688
-    # This = paper_bottom - 14.434 = (PAPER_Y + paper_height) - 14.434
-    # The edge slightly overlaps the paper bottom (extends ~0.3px beyond)
-    bottom_edge_y = PAPER_Y + paper_height - 14.434259
 
     return f"""<div class="page-wrapper" style="position:relative;width:{PAGE_WIDTH}px;height:{page_height}px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
     <!-- Paper sheet with grid + left bend -->
     <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_W}px;height:{paper_height}px;">
       {paper_svg}
-    </div>
-
-    <!-- Page top edge (3D stack) -->
-    <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_W}px;height:{TOP_EDGE_H}px;">
-      {top_svg}
     </div>
 
     <!-- Spiral binding rings -->
@@ -172,11 +159,6 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     <!-- Binding holes -->
     <div style="position:absolute;left:0;top:0;width:{PAGE_WIDTH}px;height:{page_height}px;pointer-events:none;">
     {holes_html}
-    </div>
-
-    <!-- Page bottom edge (3D stack) -->
-    <div style="position:absolute;left:{PAPER_X}px;top:{bottom_edge_y}px;width:{PAPER_W}px;height:{BOTTOM_EDGE_H}px;">
-      {bottom_svg}
     </div>
 
     <!-- Content -->
