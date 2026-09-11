@@ -213,12 +213,12 @@
     <div class="page-title">5. Reading User Input &amp; Script Arguments</div>
     <div class="page-subtitle">Get input · Use arguments · Build smarter scripts</div>
   </div>
-  <span class="page-pill" style="background:var(--green);color:#fff;border-color:var(--green);"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#15264d"/><rect x="4" y="8" width="40" height="7" rx="4" fill="#1e3160"/><circle cx="9" cy="11.5" r="1.5" fill="#ff5f56"/><circle cx="14" cy="11.5" r="1.5" fill="#ffbd2e"/><circle cx="19" cy="11.5" r="1.5" fill="#27c93f"/><path d="M10 20 L16 24 L10 28" fill="none" stroke="#7ee787" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="28" x2="32" y2="28" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round"/></svg> read · $1 $2 $3 · $# · $@</span>
+  <span class="page-pill" style="background:var(--green);color:#fff;border-color:var(--green);"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg> read · $1 $2 $3 · $# · $@</span>
 </div>
 
 <div class="grid-2">
   <div class="card">
-    <div class="head"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg> 1. read: Get User Input</div>
+    <div class="head"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#FFD700"/><path d="M16 36 H32 V38 H16 Z" fill="#333333"/><path d="M18 38 H30 V40 H18 Z" fill="#333333"/><path d="M20 40 H28 V42 H20 Z" fill="#333333"/><line x1="24" y1="0" x2="24" y2="2" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/></svg> 1. read: Get User Input</div>
     <div class="pad">
       Use <code class="inline">read</code> to get input from the user.
       <div class="codeblock" style="margin-top:6px;">
@@ -226,7 +226,7 @@
         <pre><span class="c-kw">read</span> -p <span class="c-str">"Enter your name: "</span> <span class="c-var">NAME</span>
 <span class="c-kw">echo</span> <span class="c-str">"Hello, $NAME"</span></pre>
       </div>
-      <div class="small" style="margin-top:6px;"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg> <code class="inline">-p</code> shows a prompt. The value is stored in the variable.</div>
+      <div class="small" style="margin-top:6px;"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#FFD700"/><path d="M16 36 H32 V38 H16 Z" fill="#333333"/><path d="M18 38 H30 V40 H18 Z" fill="#333333"/><path d="M20 40 H28 V42 H20 Z" fill="#333333"/><line x1="24" y1="0" x2="24" y2="2" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/></svg> <code class="inline">-p</code> shows a prompt. The value is stored in the variable.</div>
     </div>
   </div>
 
@@ -251,7 +251,7 @@
 
 <div class="grid-3" style="margin-top:12px;">
   <div class="card">
-    <div class="head"><svg viewBox="0 0 48 48" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C18 8 14 16 14 24 L14 32 L20 36 L28 36 L34 32 L34 24 C34 16 30 8 24 4 Z" fill="#dc2626"/><circle cx="24" cy="20" r="4" fill="#2563eb"/><path d="M14 32 L10 40 L14 38 Z" fill="#e65100"/><path d="M34 32 L38 40 L34 38 Z" fill="#e65100"/><path d="M20 36 L24 44 L28 36 Z" fill="#f9a825"/></svg> 3. Passing Arguments</div>
+    <div class="head"><svg viewBox="0 0 48 48" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C18 8 14 16 14 24 L14 32 L20 36 L28 36 L34 32 L34 24 C34 16 30 8 24 4 Z" fill="#1B5E3F"/><path d="M24 4 C21 6 19 8 18 10 L24 4 Z" fill="#C0392B"/><circle cx="24" cy="20" r="4" fill="#FFFFFF"/><path d="M14 32 L10 40 L14 38 Z" fill="#E67E22"/><path d="M34 32 L38 40 L34 38 Z" fill="#E67E22"/><path d="M20 36 L24 44 L28 36 Z" fill="#F39C12"/><path d="M22 36 L24 42 L26 36 Z" fill="#E67E22"/></svg> 3. Passing Arguments</div>
     <div class="pad">
       Run your script with values.
       <div class="codeblock" style="margin-top:6px;">
@@ -268,7 +268,7 @@
   </div>
 
   <div class="card">
-    <div class="head red"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg> 4. Validating Arguments</div>
+    <div class="head red"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#F4C430"/><path d="M24 4 L44 40 H4 Z" fill="none" stroke="#000000" stroke-width="1.5"/><line x1="24" y1="18" x2="24" y2="28" stroke="#000000" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#000000"/></svg> 4. Validating Arguments</div>
     <div class="pad">
       Always check if arguments are provided.
       <div class="codeblock" style="margin-top:6px;">
@@ -278,7 +278,7 @@
   <span class="c-kw">exit</span> 1
 <span class="c-kw">fi</span></pre>
       </div>
-      <div class="small" style="margin-top:6px;"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg> Prevents errors and confusion.</div>
+      <div class="small" style="margin-top:6px;"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#F4C430"/><path d="M24 4 L44 40 H4 Z" fill="none" stroke="#000000" stroke-width="1.5"/><line x1="24" y1="18" x2="24" y2="28" stroke="#000000" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#000000"/></svg> Prevents errors and confusion.</div>
     </div>
   </div>
 
@@ -292,7 +292,7 @@
 
 <div class="grid-2-wide" style="margin-top:12px;">
   <div class="card">
-    <div class="head"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#15264d"/><rect x="4" y="8" width="40" height="7" rx="4" fill="#1e3160"/><circle cx="9" cy="11.5" r="1.5" fill="#ff5f56"/><circle cx="14" cy="11.5" r="1.5" fill="#ffbd2e"/><circle cx="19" cy="11.5" r="1.5" fill="#27c93f"/><path d="M10 20 L16 24 L10 28" fill="none" stroke="#7ee787" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="28" x2="32" y2="28" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round"/></svg> 6. Example: Simple Reusable DevOps Script</div>
+    <div class="head"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg> 6. Example: Simple Reusable DevOps Script</div>
     <div class="pad">
       <div class="codeblock">
         <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="filename">deploy.sh</span></div>
@@ -319,7 +319,7 @@
 
   <div class="stack">
     <div class="card">
-      <div class="head green"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#15264d"/><rect x="4" y="8" width="40" height="7" rx="4" fill="#1e3160"/><circle cx="9" cy="11.5" r="1.5" fill="#ff5f56"/><circle cx="14" cy="11.5" r="1.5" fill="#ffbd2e"/><circle cx="19" cy="11.5" r="1.5" fill="#27c93f"/><path d="M10 20 L16 24 L10 28" fill="none" stroke="#7ee787" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="28" x2="32" y2="28" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round"/></svg> Run Example</div>
+      <div class="head green"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg> Run Example</div>
       <div class="pad">
         <div class="codeblock">
           <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>

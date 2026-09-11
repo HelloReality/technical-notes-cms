@@ -23,7 +23,7 @@ Colors used:
 
 ICONS = {
     # ─── Terminal / Shell ───
-    "terminal": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#15264d"/><rect x="4" y="8" width="40" height="7" rx="4" fill="#1e3160"/><circle cx="9" cy="11.5" r="1.5" fill="#ff5f56"/><circle cx="14" cy="11.5" r="1.5" fill="#ffbd2e"/><circle cx="19" cy="11.5" r="1.5" fill="#27c93f"/><path d="M10 20 L16 24 L10 28" fill="none" stroke="#7ee787" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="28" x2="32" y2="28" stroke="#e6edf3" stroke-width="2.5" stroke-linecap="round"/></svg>''',
+    "terminal": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg>''',
 
     "shell": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="36" height="36" rx="5" fill="#1B5E3F"/><rect x="6" y="6" width="36" height="8" rx="5" fill="#164a32"/><circle cx="12" cy="10" r="1.2" fill="#ff5f56"/><circle cx="16" cy="10" r="1.2" fill="#ffbd2e"/><circle cx="20" cy="10" r="1.2" fill="#27c93f"/><text x="12" y="30" fill="#7ee787" font-family="monospace" font-size="14" font-weight="bold">$_</text></svg>''',
 
@@ -31,7 +31,7 @@ ICONS = {
     "gear": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 6 L26 12 L32 10 L33 16 L39 18 L37 24 L42 28 L37 32 L39 38 L33 40 L32 46 L26 44 L24 50 L22 44 L16 46 L15 40 L9 38 L11 32 L6 28 L11 24 L9 18 L15 16 L16 10 L22 12 Z" fill="#1B5E3F"/><circle cx="24" cy="28" r="7" fill="#f5f1e8"/><circle cx="24" cy="28" r="4" fill="#1B5E3F"/></svg>''',
 
     # ─── Lightbulb ───
-    "lightbulb": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#f9a825"/><path d="M16 36 H32 V38 H16 Z" fill="#e0a517"/><path d="M18 38 H30 V40 H18 Z" fill="#d4a017"/><path d="M20 40 H28 V42 H20 Z" fill="#b8860b"/><line x1="24" y1="0" x2="24" y2="3" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#f9a825" stroke-width="2" stroke-linecap="round"/></svg>''',
+    "lightbulb": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#FFD700"/><path d="M16 36 H32 V38 H16 Z" fill="#333333"/><path d="M18 38 H30 V40 H18 Z" fill="#333333"/><path d="M20 40 H28 V42 H20 Z" fill="#333333"/><line x1="24" y1="0" x2="24" y2="2" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/></svg>''',
 
     # ─── Folder ───
     "folder": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M6 10 H18 L22 14 H42 V38 H6 Z" fill="#f9a825"/><path d="M6 10 H18 L22 14 H42 V18 H6 Z" fill="#d4a017"/></svg>''',
@@ -46,10 +46,10 @@ ICONS = {
     "globe": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#2563eb"/><ellipse cx="24" cy="24" rx="8" ry="20" fill="none" stroke="#ffffff" stroke-width="1.5"/><line x1="4" y1="24" x2="44" y2="24" stroke="#ffffff" stroke-width="1.5"/><line x1="8" y1="14" x2="40" y2="14" stroke="#ffffff" stroke-width="1"/><line x1="8" y1="34" x2="40" y2="34" stroke="#ffffff" stroke-width="1"/><circle cx="24" cy="24" r="20" fill="none" stroke="#1e40af" stroke-width="1"/></svg>''',
 
     # ─── Rocket ───
-    "rocket": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C18 8 14 16 14 24 L14 32 L20 36 L28 36 L34 32 L34 24 C34 16 30 8 24 4 Z" fill="#dc2626"/><circle cx="24" cy="20" r="4" fill="#2563eb"/><path d="M14 32 L10 40 L14 38 Z" fill="#e65100"/><path d="M34 32 L38 40 L34 38 Z" fill="#e65100"/><path d="M20 36 L24 44 L28 36 Z" fill="#f9a825"/></svg>''',
+    "rocket": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C18 8 14 16 14 24 L14 32 L20 36 L28 36 L34 32 L34 24 C34 16 30 8 24 4 Z" fill="#1B5E3F"/><path d="M24 4 C21 6 19 8 18 10 L24 4 Z" fill="#C0392B"/><circle cx="24" cy="20" r="4" fill="#FFFFFF"/><path d="M14 32 L10 40 L14 38 Z" fill="#E67E22"/><path d="M34 32 L38 40 L34 38 Z" fill="#E67E22"/><path d="M20 36 L24 44 L28 36 Z" fill="#F39C12"/><path d="M22 36 L24 42 L26 36 Z" fill="#E67E22"/></svg>''',
 
     # ─── Warning Triangle ───
-    "warning": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#f9a825"/><line x1="24" y1="18" x2="24" y2="28" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#1c1c1c"/></svg>''',
+    "warning": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L44 40 H4 Z" fill="#F4C430"/><path d="M24 4 L44 40 H4 Z" fill="none" stroke="#000000" stroke-width="1.5"/><line x1="24" y1="18" x2="24" y2="28" stroke="#000000" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="2" fill="#000000"/></svg>''',
 
     # ─── Check in Circle ───
     "check-circle": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
@@ -109,7 +109,7 @@ ICONS = {
     "play": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="8" width="40" height="32" rx="4" fill="#dc2626"/><path d="M20 16 L20 32 L32 24 Z" fill="#ffffff"/></svg>''',
 
     # ─── Stop / Hand ───
-    "stop": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#dc2626"/><rect x="14" y="14" width="20" height="20" rx="2" fill="#ffffff"/></svg>''',
+    "stop": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#D32F2F"/><line x1="16" y1="16" x2="32" y2="32" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/><line x1="32" y1="16" x2="16" y2="32" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/></svg>''',
 
     # ─── Filter / Funnel ───
     "filter": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M6 8 H42 L28 24 V40 L20 36 V24 Z" fill="#1B5E3F"/></svg>''',
@@ -154,7 +154,7 @@ ICONS = {
     "chart": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="28" width="8" height="14" rx="1" fill="#1B5E3F"/><rect x="18" y="20" width="8" height="22" rx="1" fill="#2563eb"/><rect x="30" y="12" width="8" height="30" rx="1" fill="#f9a825"/><line x1="4" y1="42" x2="44" y2="42" stroke="#1c1c1c" stroke-width="2"/></svg>''',
 
     # ─── Terminal Cube (3D) ───
-    "cube": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L42 12 V36 L24 44 L6 36 V12 Z" fill="#2563eb"/><path d="M24 4 L42 12 L24 20 L6 12 Z" fill="#1e40af"/><path d="M24 20 L42 12 V36 L24 44 Z" fill="#1e3160"/><text x="24" y="30" fill="#7ee787" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">$_</text></svg>''',
+    "cube": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L42 12 V36 L24 44 L6 36 V12 Z" fill="#003366"/><path d="M24 4 L42 12 L24 20 L6 12 Z" fill="#0055AA"/><path d="M24 20 L42 12 V36 L24 44 Z" fill="#002288"/><path d="M24 20 L6 12 V36 L24 44 Z" fill="#004499"/><text x="24" y="32" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">$</text></svg>''',
 
     # ─── Monitor / Screen ───
     "monitor": '''<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="28" rx="3" fill="#15264d"/><rect x="8" y="10" width="32" height="20" rx="1" fill="#0d1117"/><path d="M16 18 L20 20 L16 22" fill="none" stroke="#7ee787" stroke-width="1.5" stroke-linecap="round"/><line x1="22" y1="22" x2="30" y2="22" stroke="#e6edf3" stroke-width="1.5"/><path d="M18 34 H30 V40 H18 Z" fill="#15264d"/><rect x="14" y="40" width="20" height="3" rx="1" fill="#1e3160"/></svg>''',
