@@ -39,7 +39,7 @@ SHARED_CSS = """
   /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
   /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
   .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:0;left:0;right:0;bottom:0;overflow:auto;}
+  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:hidden;}
 
   /* === Color tokens (Shell Scripting palette) === */
   :root{

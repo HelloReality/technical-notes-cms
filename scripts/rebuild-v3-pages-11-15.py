@@ -102,7 +102,7 @@ body.multi-page{
 
 /* Content lives inside polotno_template's .content div (with padding
    42px 50px 26px 78px). Make sure stacking works. */
-.content{ position:relative; z-index:2; }
+.content{ position:absolute !important; top:11px !important; left:0 !important; right:0 !important; bottom:11px !important; z-index:2; overflow:hidden; }
 
 /* ============================================================
    POLOTNO PAPER SVG BACKGROUND FIX

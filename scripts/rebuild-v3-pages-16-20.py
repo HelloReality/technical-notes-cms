@@ -119,8 +119,8 @@ body.multi-page{flex-direction:column;gap:24px;overflow:visible;}
    gets clipped by overflow:hidden). We force the SVG to be position:absolute
    so it overlays the paper as a background, letting .content flow naturally
    from the top of the paper (with the inline padding). */
-.content{position:relative;z-index:2;}
-.page-wrapper > div:first-child > svg:first-child{
+.content{position:absolute !important;top:11px !important;left:0 !important;right:0 !important;bottom:11px !important;z-index:2;overflow:hidden;}
+.page-wrapper > div:first-child > div:first-child > svg{
   position:absolute !important;
   top:0; left:0;
   width:100% !important;

@@ -146,8 +146,8 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
       <div style="position:absolute;z-index:8;top:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to bottom,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-bottom:1px solid rgba(100,80,40,0.22);box-shadow:0 1px 2px rgba(0,0,0,0.10);"></div>
       <!-- 3D page-stack bottom edge (from Linux Security Handbook) -->
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
-      <!-- Content (inside paper so padding is measured from paper edges) -->
-      <div class="content" style="position:relative;z-index:2;padding:{CONTENT_PADDING_TOP}px {CONTENT_PADDING_RIGHT}px {CONTENT_PADDING_BOTTOM}px {CONTENT_PADDING_LEFT}px;">
+      <!-- Content (inside paper, positioned between the 3D edges) -->
+      <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:hidden;padding:{CONTENT_PADDING_TOP}px {CONTENT_PADDING_RIGHT}px {CONTENT_PADDING_BOTTOM}px {CONTENT_PADDING_LEFT}px;">
         {content_html}
       </div>
     </div>

@@ -84,10 +84,10 @@ SHARED_CSS = """
    The inline padding (42px 50px 26px 78px) is preserved. */
 .content{
   position:absolute !important;
-  top:0 !important;
+  top:11px !important;
   left:0 !important;
   right:0 !important;
-  bottom:0 !important;
+  bottom:11px !important;
   --green:#1B5E3F; --green-2:#2E7D32; --green-dk:#164a32;
   --navy:#15264d; --blue:#2563eb; --red:#dc2626;
   --gold:#d4a017; --amber:#f9a825; --orange:#e65100;
