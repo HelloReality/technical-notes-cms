@@ -42,7 +42,7 @@ PROJECT_ROOT = SCRIPTS_DIR.parent
 OUTPUT_DIR = PROJECT_ROOT / "downloads" / "instagram-DcaW1UljsVk"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-PAPER_H = DEFAULT_PAPER_H  # 1139.736947 — exact Polotno height
+PAPER_H = 1424  # matches original image height at 1080px wide
 
 
 # ============================================================

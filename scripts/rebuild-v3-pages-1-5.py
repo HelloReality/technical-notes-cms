@@ -964,11 +964,11 @@ def build_page_5():
 # ============================================================
 
 PAGES = [
-    (1, build_page_1(), DEFAULT_PAPER_H, "Shell Scripting for DevOps — Handbook Cover"),
-    (2, build_page_2(), 1480, "Shell Scripting — Page 02 — What Is Shell Scripting"),
-    (3, build_page_3(), 1500, "Shell Scripting — Page 03 — Creating & Running Scripts"),
-    (4, build_page_4(), 1500, "Shell Scripting — Page 04 — Commands You Must Know First"),
-    (5, build_page_5(), 1500, "Shell Scripting — Page 05 — Reading User Input & Arguments"),
+    (1, build_page_1(), 1424, "Shell Scripting for DevOps — Handbook Cover"),
+    (2, build_page_2(), 1424, "Shell Scripting — Page 02 — What Is Shell Scripting"),
+    (3, build_page_3(), 1424, "Shell Scripting — Page 03 — Creating & Running Scripts"),
+    (4, build_page_4(), 1424, "Shell Scripting — Page 04 — Commands You Must Know First"),
+    (5, build_page_5(), 1424, "Shell Scripting — Page 05 — Reading User Input & Arguments"),
 ]
 
 

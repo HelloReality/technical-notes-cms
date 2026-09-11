@@ -36,17 +36,17 @@ PROJECT_ROOT = SCRIPTS_DIR.parent
 OUTPUT_DIR = PROJECT_ROOT / "downloads" / "instagram-DcaW1UljsVk"
 
 # Default Polotno paper height (matches reference exactly)
-DEFAULT_HEIGHT = DEFAULT_PAPER_H  # 1139.736947 px
+DEFAULT_HEIGHT = 1424  # matches original image height
 
 # Per-page paper heights — measured to fit each page's content
 # (content height + ~60-80px buffer for breathing room at the bottom).
 # The polotno_template.calc_hole_count() auto-adjusts hole/ring count.
 PAGE_HEIGHTS = {
-    16: 2150,   # ERROR HANDLING — 3-col grid + template section + key takeaway
-    17: 1520,   # NETWORKING — 9 rows + 3-card sidebar + key takeaway
-    18: 1560,   # CRON — 8 rows + 3-card sidebar + key takeaway
-    19: 1340,   # DEBUGGING — 5 rows + compare grid + 3-card sidebar + key takeaway
-    20: 2180,   # DEVOPS WORKFLOWS — 10 rows + 3-card sidebar + workflow + key takeaway
+    16: 1424,
+    17: 1424,
+    18: 1424,
+    19: 1424,
+    20: 1424,
 }
 
 

@@ -66,8 +66,9 @@ RING_SPACING = 59.5  # same as hole spacing
 TOP_EDGE_H = 13.691672
 BOTTOM_EDGE_H = 14.744878
 
-# Default paper height (matches Polotno original exactly)
-DEFAULT_PAPER_H = 1139.736947
+# Default paper height — matches the original carousel images at 1080px wide
+# Original images are 1440×1899-1901, so at 1080px wide: 1080 * 1900 / 1440 ≈ 1425px
+DEFAULT_PAPER_H = 1424
 
 # Content padding — matches the Linux Security Handbook:
 # .page{padding:42px 50px 26px 78px} → top=42, right=50, bottom=26, left=78
