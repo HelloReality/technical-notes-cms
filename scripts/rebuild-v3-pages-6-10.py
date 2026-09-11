@@ -98,7 +98,7 @@ SHARED_CSS = """
   --card-bg:#ffffff; --card-border:rgba(22,38,77,0.10);
   font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   color:var(--ink);
-  overflow:hidden;
+  overflow:auto;
 }
 
 /* ===== Brand bar (page badge top-right) ===== */
@@ -155,7 +155,7 @@ SHARED_CSS = """
 .card{
   background:var(--card-bg);
   border-radius:9px;
-  overflow:hidden;
+  overflow:auto;
   border:1px solid var(--card-border);
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   display:flex;flex-direction:column;
@@ -196,7 +196,7 @@ code.inl.red{color:var(--red);background:#fbe4e4;}
 /* Terminal block (dark) */
 .term{
   background:var(--term-bg);color:var(--term-fg);
-  border-radius:6px;overflow:hidden;
+  border-radius:6px;overflow:auto;
   font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
   font-size:10.5px;line-height:1.5;
   margin-top:5px;

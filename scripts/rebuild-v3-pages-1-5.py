@@ -39,7 +39,7 @@ SHARED_CSS = """
   /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
   /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
   .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:hidden;}
+  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:auto;}
 
   /* === Color tokens (Shell Scripting palette) === */
   :root{
@@ -77,7 +77,7 @@ SHARED_CSS = """
   .page-pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
 
   /* === Section cards === */
-  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:auto;box-shadow:0 1px 4px rgba(0,0,0,.05);}
   .card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--green-2);}
   .card .head svg{width:16px;height:16px;flex-shrink:0;}
   .card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
@@ -108,7 +108,7 @@ SHARED_CSS = """
   /* === Code (inline + block) === */
   code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;}
   code.inline{background:var(--code-bg);color:#0b3d22;border:1px solid var(--code-border);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;}
-  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.18);}
+  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:auto;box-shadow:0 4px 12px rgba(0,0,0,.18);}
   .codeblock .bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
   .codeblock .dot{width:9px;height:9px;border-radius:50%;}
   .codeblock .dot.r{background:#ff5f56;} .codeblock .dot.y{background:#ffbd2e;} .codeblock .dot.g{background:#27c93f;}

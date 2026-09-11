@@ -42,11 +42,11 @@ DEFAULT_HEIGHT = 1424  # matches original image height
 # (content height + ~60-80px buffer for breathing room at the bottom).
 # The polotno_template.calc_hole_count() auto-adjusts hole/ring count.
 PAGE_HEIGHTS = {
-    16: 1424,
-    17: 1424,
-    18: 1424,
-    19: 1424,
-    20: 1424,
+    16: 1820,
+    17: 1940,
+    18: 2300,
+    19: 2130,
+    20: 2770,
 }
 
 
@@ -119,7 +119,7 @@ body.multi-page{flex-direction:column;gap:24px;overflow:visible;}
    gets clipped by overflow:hidden). We force the SVG to be position:absolute
    so it overlays the paper as a background, letting .content flow naturally
    from the top of the paper (with the inline padding). */
-.content{position:absolute !important;top:11px !important;left:0 !important;right:0 !important;bottom:11px !important;z-index:2;overflow:hidden;}
+.content{position:absolute !important;top:11px !important;left:0 !important;right:0 !important;bottom:11px !important;z-index:2;overflow:auto;}
 .page-wrapper > div:first-child > div:first-child > svg{
   position:absolute !important;
   top:0; left:0;
@@ -226,7 +226,7 @@ code.inline{
    TERMINAL / CODE BLOCK
    ============================================================ */
 .terminal{
-  background:var(--term-bg);border-radius:7px;overflow:hidden;
+  background:var(--term-bg);border-radius:7px;overflow:auto;
   box-shadow:0 3px 12px rgba(0,0,0,.18);
   margin-top:6px;
 }
@@ -261,7 +261,7 @@ code.inline{
    ============================================================ */
 .sidebar{display:flex;flex-direction:column;gap:8px;}
 .card{
-  background:#fff;border-radius:9px;overflow:hidden;
+  background:#fff;border-radius:9px;overflow:auto;
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   border:1px solid rgba(0,0,0,.05);
 }
@@ -349,7 +349,7 @@ code.inline{
   margin-bottom:11px;
 }
 .grid-card{
-  background:#fff;border-radius:9px;overflow:hidden;
+  background:#fff;border-radius:9px;overflow:auto;
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   border:1px solid rgba(0,0,0,.05);
   display:flex;flex-direction:column;

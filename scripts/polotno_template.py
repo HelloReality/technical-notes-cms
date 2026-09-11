@@ -142,14 +142,14 @@ def page_wrapper(content_html: str, paper_height: float = DEFAULT_PAPER_H, page_
     return f"""<div class="page-wrapper" style="position:relative;width:{PAGE_WIDTH}px;height:{page_height}px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
     <!-- Paper sheet with grid + left bend + 3D edges + content (all inside paper) -->
-    <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_DESIGN_W}px;height:{paper_height}px;border-radius:14px;overflow:hidden;">
+    <div style="position:absolute;left:{PAPER_X}px;top:{PAPER_Y}px;width:{PAPER_DESIGN_W}px;height:{paper_height}px;border-radius:14px;overflow:auto;">
       <div style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;">{paper_svg}</div>
       <!-- 3D page-stack top edge (from Linux Security Handbook) -->
       <div style="position:absolute;z-index:8;top:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to bottom,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-bottom:1px solid rgba(100,80,40,0.22);box-shadow:0 1px 2px rgba(0,0,0,0.10);"></div>
       <!-- 3D page-stack bottom edge (from Linux Security Handbook) -->
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
       <!-- Content (inside paper, positioned between the 3D edges) -->
-      <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:hidden;padding:{CONTENT_PADDING_TOP}px {CONTENT_PADDING_RIGHT}px {CONTENT_PADDING_BOTTOM}px {CONTENT_PADDING_LEFT}px;">
+      <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:{CONTENT_PADDING_TOP}px {CONTENT_PADDING_RIGHT}px {CONTENT_PADDING_BOTTOM}px {CONTENT_PADDING_LEFT}px;">
         {content_html}
       </div>
     </div>

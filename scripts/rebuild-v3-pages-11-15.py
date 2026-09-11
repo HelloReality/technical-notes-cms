@@ -102,7 +102,7 @@ body.multi-page{
 
 /* Content lives inside polotno_template's .content div (with padding
    42px 50px 26px 78px). Make sure stacking works. */
-.content{ position:absolute !important; top:11px !important; left:0 !important; right:0 !important; bottom:11px !important; z-index:2; overflow:hidden; }
+.content{ position:absolute !important; top:11px !important; left:0 !important; right:0 !important; bottom:11px !important; z-index:2; overflow:auto; }
 
 /* ============================================================
    POLOTNO PAPER SVG BACKGROUND FIX
@@ -186,7 +186,7 @@ body.multi-page{
 .card{
   background:#fff;
   border-radius:8px;
-  overflow:hidden;
+  overflow:auto;
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   border:1px solid rgba(0,0,0,.05);
   display:flex;flex-direction:column;
@@ -227,7 +227,7 @@ body.multi-page{
    ============================================================ */
 .terminal{
   background:#f0ead8;border:1px solid #d8d0b8;border-radius:6px;
-  overflow:hidden;
+  overflow:auto;
   box-shadow:0 1px 4px rgba(0,0,0,.06);
   margin-top:4px;
 }
@@ -449,7 +449,7 @@ body.multi-page{
 .sidebar-card{
   background:#fff;
   border-radius:8px;
-  overflow:hidden;
+  overflow:auto;
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   border:1px solid rgba(0,0,0,.05);
   display:flex;flex-direction:column;

@@ -36,21 +36,21 @@
   <div class="page-wrapper" style="position:relative;width:1220px;height:1472px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
     <!-- Paper sheet with grid + left bend + 3D edges + content (all inside paper) -->
-    <div style="position:absolute;left:62.975306px;top:24px;width:1080px;height:1424px;border-radius:14px;overflow:hidden;">
+    <div style="position:absolute;left:62.975306px;top:24px;width:1080px;height:1424px;border-radius:14px;overflow:auto;">
       <div style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"><svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 1080 1424' preserveAspectRatio='none'><defs><clipPath id='pc'><rect width='1080' height='1424' rx='14' ry='14'/></clipPath><pattern id='grid' width='26' height='26' patternUnits='userSpaceOnUse'><rect width='26' height='1' fill='#bcc8d6'/><rect width='1' height='26' fill='#bcc8d6'/></pattern><linearGradient id='bend' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#000000' stop-opacity='0.45'/><stop offset='0.1667' stop-color='#000000' stop-opacity='0.30'/><stop offset='0.3889' stop-color='#000000' stop-opacity='0.18'/><stop offset='0.6667' stop-color='#000000' stop-opacity='0.08'/><stop offset='0.8889' stop-color='#000000' stop-opacity='0.03'/><stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient></defs><g clip-path='url(#pc)'><rect width='1080' height='1424' fill='#f5f1e8'/><rect width='1080' height='1424' fill='url(#grid)' opacity='0.5'/><rect width='18' height='1424' fill='url(#bend)'/></g></svg></div>
       <!-- 3D page-stack top edge (from Linux Security Handbook) -->
       <div style="position:absolute;z-index:8;top:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to bottom,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-bottom:1px solid rgba(100,80,40,0.22);box-shadow:0 1px 2px rgba(0,0,0,0.10);"></div>
       <!-- 3D page-stack bottom edge (from Linux Security Handbook) -->
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
       <!-- Content (inside paper, positioned between the 3D edges) -->
-      <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:hidden;padding:42px 50px 26px 78px;">
+      <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
         
 
 <style>
   /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
   /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
   .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:hidden;}
+  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:auto;}
 
   /* === Color tokens (Shell Scripting palette) === */
   :root{
@@ -88,7 +88,7 @@
   .page-pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
 
   /* === Section cards === */
-  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:auto;box-shadow:0 1px 4px rgba(0,0,0,.05);}
   .card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--green-2);}
   .card .head svg{width:16px;height:16px;flex-shrink:0;}
   .card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
@@ -119,7 +119,7 @@
   /* === Code (inline + block) === */
   code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;}
   code.inline{background:var(--code-bg);color:#0b3d22;border:1px solid var(--code-border);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;}
-  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.18);}
+  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:auto;box-shadow:0 4px 12px rgba(0,0,0,.18);}
   .codeblock .bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
   .codeblock .dot{width:9px;height:9px;border-radius:50%;}
   .codeblock .dot.r{background:#ff5f56;} .codeblock .dot.y{background:#ffbd2e;} .codeblock .dot.g{background:#27c93f;}
