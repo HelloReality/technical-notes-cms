@@ -5,15 +5,189 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shell Scripting for DevOps Handbook — 20 Pages</title>
 <style>
-  * { box-sizing:border-box;margin:0;padding:0; }
-  html, body { background:#cfc9bb; }
-  body { font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; color:#1c1c1c; display:flex;flex-direction:column;align-items:center; gap:24px; padding:24px 48px; }
-  body.multi-page { flex-direction:column; gap:24px; overflow:visible; }
-  .page-wrapper { position:relative; overflow:visible; }
-  @media print { html, body { background:#fff;padding:0;gap:0; } .page-wrapper { page-break-after:always; } .page-wrapper:last-child { page-break-after:auto; } }
+
+/* ============================================================
+   UNIFIED CSS — shared by all Shell Scripting handbook pages
+   ============================================================ */
+
+/* --- Root variables --- */
+:root{
+  --paper:#f5f1e8;--paper-2:#efe9dd;--grid-line:#bcc8d6;
+  --navy:#15264d;--navy-2:#1e3160;--ink:#1c1c1c;--ink-2:#3a3f47;
+  --green:#1B5E3F;--green-2:#164a32;--green-soft:#cdf3da;--green-light:#e8f5ee;
+  --blue:#2563eb;--blue-soft:#cfe0ff;
+  --purple:#7c3aed;--purple-soft:#e2d4ff;
+  --red:#dc2626;--red-soft:#ffd4d4;
+  --gold:#d4a017;--gold-soft:#fce9b6;--amber:#f9a825;
+  --orange:#e65100;--teal:#0d7377;
+  --term-bg:#0d1117;--term-fg:#e6edf3;--term-green:#7ee787;
+  --card-bg:#fff;--card-border:rgba(0,0,0,.05);
+}
+
+/* --- Content positioning (between 3D edges) --- */
+.page-wrapper > div:first-of-type > .content{
+  position:absolute !important;top:11px !important;left:0 !important;
+  right:0 !important;bottom:11px !important;z-index:2;overflow:auto;
+}
+.page-wrapper > div:first-of-type > div:first-of-type > svg{
+  position:absolute !important;top:0;left:0;width:100% !important;
+  height:100% !important;z-index:0;pointer-events:none;
+}
+
+/* --- Brand bar --- */
+.brand-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.crumb{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.badge{background:var(--green);color:#fff;padding:5px 14px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:1px;}
+
+/* --- Page title --- */
+.page-title{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+.page-title h1{font-size:30px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:-.4px;line-height:1.1;margin:0;}
+.page-title .num{color:var(--green-2);}
+.page-title .ico{flex-shrink:0;display:inline-flex;width:42px;height:42px;}
+.page-subtitle{font-size:12.5px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:1.4px;text-align:center;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--green);position:relative;}
+.page-subtitle::after{content:"";position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:var(--green);border-radius:50%;transform:translateX(-50%);}
+
+/* --- Body layout --- */
+.body{display:grid;grid-template-columns:1.85fr 1fr;gap:16px;margin-bottom:14px;}
+.body.single{grid-template-columns:1fr;}
+.split-2col{display:grid;grid-template-columns:1fr 1.1fr;gap:10px;margin-bottom:8px;}
+.right-stack{display:flex;flex-direction:column;gap:7px;}
+.left-stack{display:flex;flex-direction:column;gap:11px;}
+
+/* --- Grid layouts --- */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.single{grid-template-columns:1fr;}
+
+/* --- Cards --- */
+.card{background:#fff;border-radius:9px;overflow:auto;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid var(--card-border);}
+.card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+.card .head svg{width:16px;height:16px;flex-shrink:0;}
+.card .head .num{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;}
+.card .body-pad{padding:9px 12px;}
+.card .pad{padding:10px 12px;font-size:12px;line-height:1.45;color:var(--ink);}
+
+/* --- Sidebar cards --- */
+.sidebar-card{background:#fff;border-radius:8px;overflow:auto;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid var(--card-border);}
+.sidebar-card .head{background:var(--navy);color:#fff;padding:7px 12px;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+.sidebar-card .head svg{width:16px;height:16px;flex-shrink:0;}
+.sidebar-card .body-pad{padding:9px 12px;}
+
+/* --- Terminal / code blocks --- */
+.terminal{background:var(--term-bg);border-radius:7px;overflow:auto;box-shadow:0 3px 12px rgba(0,0,0,.18);margin-top:4px;}
+.terminal .term-bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
+.terminal .term-dot{width:8px;height:8px;border-radius:50%;}
+.terminal .dot-red{background:#ff5f56;}
+.terminal .dot-amber{background:#ffbd2e;}
+.terminal .dot-green{background:#27c93f;}
+.terminal .term-title{margin-left:auto;color:#8b949e;font-size:9.5px;font-family:"JetBrains Mono",monospace;}
+.terminal .term-body{padding:8px 12px;font-family:"JetBrains Mono","Fira Code",monospace;font-size:10.5px;line-height:1.5;color:var(--term-fg);}
+.terminal .term-body .cmd{color:#79c0ff;}
+.terminal .term-body .str{color:#f2cc60;}
+.terminal .term-body .kw{color:#ff7b72;font-weight:600;}
+.terminal .term-body .prompt{color:var(--term-green);}
+.terminal .term-body .comment{color:#8b949e;font-style:italic;}
+.terminal .term-body .out{color:var(--term-fg);}
+
+/* --- Code light blocks (beige code boxes) --- */
+.code-light{background:#f4f1e7;border:1px solid #d8d3c0;border-radius:6px;padding:6px 9px;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ink);line-height:1.4;margin:4px 0;}
+
+/* --- Inline code --- */
+.inline{font-family:"JetBrains Mono","Fira Code",monospace;font-size:10px;background:#efe9dd;padding:1px 4px;border-radius:3px;color:var(--green);font-weight:600;}
+
+/* --- Tables --- */
+.tbl{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:4px;}
+.tbl th{background:var(--green);color:#fff;padding:6px 9px;text-align:left;font-weight:700;font-size:10px;letter-spacing:.3px;text-transform:uppercase;}
+.tbl td{padding:5px 9px;border-bottom:1px solid #e0d8c8;color:var(--ink-2);vertical-align:top;}
+.tbl td code{font-family:"JetBrains Mono",monospace;font-size:10px;background:#e8e4d4;padding:1px 4px;border-radius:3px;color:var(--green);display:inline-block;vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+
+/* --- Callouts --- */
+.callout{display:flex;gap:9px;align-items:flex-start;border-radius:8px;padding:8px 12px;font-size:11px;line-height:1.45;margin:4px 0;}
+.callout.warn{background:#fff4e0;border-left:3px solid var(--orange);color:var(--ink-2);}
+.callout.tip{background:var(--green-light);border-left:3px solid var(--green);color:var(--ink-2);}
+.callout.danger{background:var(--red-soft);border-left:3px solid var(--red);color:var(--ink-2);}
+.callout.note{background:var(--green-soft);border-left:3px solid var(--green);color:var(--ink-2);}
+.callout .ico{flex-shrink:0;width:18px;height:18px;margin-top:1px;}
+
+/* --- Example rows --- */
+.example-row{padding:5px 0;border-bottom:1px dashed rgba(22,38,77,.10);}
+.example-row:last-child{border-bottom:none;}
+.example-row .label{font-size:9.5px;color:var(--ink-2);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;}
+.example-row .desc{font-size:10px;color:var(--ink-2);line-height:1.4;margin-top:3px;}
+
+/* --- Numbered steps --- */
+.steps{display:flex;flex-direction:column;gap:5px;}
+.step{display:flex;gap:9px;align-items:flex-start;font-size:11px;color:var(--ink-2);line-height:1.4;}
+.step .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;font-family:monospace;}
+
+/* --- Compare grids --- */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.compare .col{border-radius:7px;padding:7px 9px;font-size:10px;line-height:1.4;background:#fff;border:1px solid #e0d8c8;}
+.compare .col h4{font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:5px;}
+.compare .col.left{background:#fce9b6;}
+.compare .col.left h4{color:var(--orange);}
+.compare .col.right{background:var(--green-light);}
+.compare .col.right h4{color:var(--green);}
+
+/* --- Bottom bar (key takeaway / best practices) --- */
+.bottom-bar{background:var(--navy);color:#fff;border-radius:8px;padding:8px 12px;margin-top:4px;}
+.bottom-bar .head{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.bottom-bar .head svg{width:18px;height:18px;}
+.bp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.bp-item{font-size:10px;color:#e6edf3;line-height:1.4;padding:3px 0;display:flex;align-items:flex-start;gap:6px;}
+
+/* --- Key takeaway --- */
+.key-takeaway{display:flex;align-items:center;gap:10px;background:var(--green);color:#fff;border-radius:8px;padding:10px 14px;margin-top:6px;}
+.key-takeaway .kt-ico{flex-shrink:0;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;}
+.key-takeaway .kt-text{flex:1;font-size:12px;line-height:1.5;}
+
+/* --- Rows (icon + heading + text) --- */
+.rows{display:flex;flex-direction:column;gap:8px;}
+.row{display:flex;gap:11px;align-items:flex-start;background:rgba(255,255,255,.55);border-radius:9px;padding:8px 11px;border-left:3px solid var(--green);}
+.row .ico{flex-shrink:0;width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--green-light);}
+.row .ico svg{width:24px;height:24px;}
+.row .text{flex:1;min-width:0;}
+.row .text h3{font-size:13px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px;}
+.row .text p{font-size:12px;color:var(--ink-2);line-height:1.45;}
+
+/* --- Workflow strip --- */
+.workflow{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:2px solid var(--green-light);border-radius:10px;padding:10px 14px;margin-top:8px;}
+.wf-step{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;}
+.wf-arrow{color:var(--green);font-weight:800;font-size:15px;}
+.wf-check{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;}
+
+/* --- Head color variants --- */
+.head-green .head{background:var(--green);}
+.head-blue .head{background:var(--blue);}
+.head-purple .head{background:var(--purple);}
+.head-red .head{background:var(--red);}
+.head-gold .head{background:var(--gold);}
+.head-teal .head{background:var(--teal);}
+.head-navy .head{background:var(--navy);}
+.head-orange .head{background:var(--orange);}
+
+/* --- Misc --- */
+.mono{font-family:"JetBrains Mono","Fira Code","Consolas",monospace;font-size:10px;color:var(--navy);background:#eef0f5;padding:1px 4px;border-radius:3px;}
+.muted{color:var(--ink-2);}
+.small{font-size:10.5px;color:var(--ink-2);}
+.lead{font-size:11.5px;color:var(--ink-2);margin:4px 0 8px 0;line-height:1.45;}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:800;background:var(--green-soft);color:var(--green);}
+.star{flex-shrink:0;width:25px;height:25px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+
+
+/* Page wrapper and body */
+* { box-sizing:border-box;margin:0;padding:0; }
+html, body { background:#cfc9bb; }
+body { font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; color:#1c1c1c; display:flex;flex-direction:column;align-items:center; gap:24px; padding:24px 48px; }
+body.multi-page { flex-direction:column; gap:24px; overflow:visible; }
+.page-wrapper { position:relative; overflow:visible; }
+@media print { html, body { background:#fff;padding:0;gap:0; } .page-wrapper { page-break-after:always; } .page-wrapper:last-child { page-break-after:auto; } }
 </style>
 </head>
 <body class="multi-page">
+
 <div class="page-wrapper" style="position:relative;width:1220px;height:1472px;overflow:visible;box-shadow:0 22px 60px rgba(0,0,0,0.28);">
 
     <!-- Paper sheet with grid + left bend + 3D edges + content (all inside paper) -->
@@ -27,162 +201,7 @@
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
         
 
-<style>
-  /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
-  /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
-  .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:auto;}
 
-  /* === Color tokens (Shell Scripting palette) === */
-  :root{
-    --green:#1B5E3F;
-    --green-2:#164a32;
-    --green-soft:#e8f3ec;
-    --navy:#15264d;
-    --navy-2:#1e3160;
-    --blue:#2563eb;
-    --blue-soft:#dbeafe;
-    --purple:#7c3aed;
-    --red:#dc2626;
-    --red-soft:#fde8e8;
-    --gold:#d4a017;
-    --gold-soft:#fdf2cc;
-    --orange:#e65100;
-    --teal:#0d7377;
-    --amber:#f9a825;
-    --paper:#f5f1e8;
-    --ink:#1c1c1c;
-    --ink-2:#3a3f47;
-    --grid:#bcc8d6;
-    --term-bg:#0d1117;
-    --term-fg:#e6edf3;
-    --code-bg:#f3f4f6;
-    --code-border:#d6d3c5;
-  }
-  .content{font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
-  .content *{box-sizing:border-box;}
-
-  /* === Page header (title row) === */
-  .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px;}
-  .page-title{font-size:30px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.4px;line-height:1.05;}
-  .page-subtitle{font-size:13px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.8px;margin-top:6px;}
-  .page-pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
-
-  /* === Section cards === */
-  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:auto;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  .card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--green-2);}
-  .card .head svg{width:16px;height:16px;flex-shrink:0;}
-  .card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
-  .card .head.blue{background:var(--blue);border-bottom-color:#1e40af;}
-  .card .head.red{background:var(--red);border-bottom-color:#a01818;}
-  .card .head.amber{background:var(--amber);border-bottom-color:#c87f00;color:#1c1c1c;}
-  .card .head.purple{background:var(--purple);border-bottom-color:#5b22b8;}
-  .card .pad{padding:10px 12px;font-size:12px;line-height:1.45;color:var(--ink);}
-
-  /* === Grids === */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-  .grid-2-wide{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;}
-  .stack{display:flex;flex-direction:column;gap:10px;}
-
-  /* === Lists === */
-  ul.tick,ul.bullet{list-style:none;padding:0;margin:0;}
-  ul.tick li,ul.bullet li{position:relative;padding-left:22px;margin:5px 0;font-size:12px;line-height:1.4;color:var(--ink);}
-  ul.tick li svg{position:absolute;left:0;top:1px;width:15px;height:15px;}
-  ul.bullet li::before{content:"";position:absolute;left:6px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--green);}
-
-  /* === Numbered steps === */
-  .step{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:12px;line-height:1.4;}
-  .step .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-  .step .body{flex:1;}
-  .step .body strong{color:var(--green);text-transform:uppercase;letter-spacing:.4px;font-size:11px;}
-
-  /* === Code (inline + block) === */
-  code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;}
-  code.inline{background:var(--code-bg);color:#0b3d22;border:1px solid var(--code-border);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;}
-  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:auto;box-shadow:0 4px 12px rgba(0,0,0,.18);}
-  .codeblock .bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
-  .codeblock .dot{width:9px;height:9px;border-radius:50%;}
-  .codeblock .dot.r{background:#ff5f56;} .codeblock .dot.y{background:#ffbd2e;} .codeblock .dot.g{background:#27c93f;}
-  .codeblock .filename{margin-left:6px;color:#8b949e;font-size:10px;font-family:monospace;}
-  .codeblock pre{margin:0;padding:10px 12px;font-family:"JetBrains Mono",Menlo,Consolas,monospace;font-size:11.5px;line-height:1.55;white-space:pre;overflow-x:auto;}
-  .codeblock .c-cmt{color:#8b949e;font-style:italic;}
-  .codeblock .c-kw{color:#ff7b72;}
-  .codeblock .c-str{color:#a5d6ff;}
-  .codeblock .c-var{color:#ffa657;}
-  .codeblock .c-num{color:#79c0ff;}
-
-  /* === Tables === */
-  table.tbl{width:100%;border-collapse:collapse;font-size:11px;}
-  table.tbl th{background:var(--green-soft);color:var(--green);font-weight:700;text-align:left;padding:6px 8px;border:1px solid rgba(27,94,63,.2);text-transform:uppercase;letter-spacing:.5px;font-size:10px;}
-  table.tbl td{padding:5px 8px;border:1px solid rgba(27,94,63,.18);vertical-align:top;color:var(--ink);}
-  table.tbl tr:nth-child(even) td{background:#faf9f3;}
-
-  /* === Callout boxes === */
-  .callout{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;display:flex;gap:9px;align-items:flex-start;}
-  .callout svg{width:18px;height:18px;flex-shrink:0;}
-  .callout.tip{background:#eef6ff;border:1px solid rgba(37,99,235,.35);color:#1c3a73;}
-  .callout.warn{background:#fff8e1;border:1px solid var(--amber);color:#7a5b00;}
-  .callout.danger{background:var(--red-soft);border:1px solid var(--red);color:#7a1212;}
-  .callout.note{background:var(--green-soft);border:1px solid var(--green);color:#0d3a23;}
-  .callout .lab{font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-size:10px;margin-right:4px;}
-
-  /* === Diagram arrows === */
-  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-  .flow .chip{background:#fff;border:1.5px solid var(--green);color:var(--green);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
-  .flow .chip svg{width:14px;height:14px;}
-  .flow .arr{color:var(--green);font-weight:800;font-size:14px;}
-
-  /* === Cover (page 1) === */
-  .cover{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6px;}
-  .cover .brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-  .cover .brand .vq{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--green);color:#fff;border-radius:8px;font-weight:900;font-size:18px;letter-spacing:-1px;}
-  .cover .badge-row{display:flex;justify-content:center;gap:10px;margin:8px 0 14px 0;}
-  .cover .badge{background:var(--green);color:#fff;border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-  .cover h1{font-size:54px;font-weight:900;color:var(--green);line-height:1;margin:0;letter-spacing:-1px;text-transform:uppercase;}
-  .cover h1 .for{display:block;font-size:18px;font-weight:700;color:var(--ink-2);margin:6px 0;letter-spacing:6px;}
-  .cover .banner{display:inline-block;background:var(--green);color:#fff;font-size:38px;font-weight:900;letter-spacing:3px;padding:8px 28px;border-radius:6px;margin-top:8px;}
-  .cover .subtitle{display:inline-block;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 18px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:14px;}
-  .cover .hero-grid{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:center;margin-top:18px;width:100%;}
-  .cover .hero-grid .left,.cover .hero-grid .right{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .icon-circle{width:80px;height:80px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(27,94,63,.15);}
-  .cover .hero-grid .icon-circle svg{width:48px;height:48px;}
-  .cover .hero-grid .center{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .center .term-card{background:var(--term-bg);border-radius:10px;padding:14px 16px;width:100%;box-shadow:0 8px 18px rgba(0,0,0,.25);}
-  .cover .hero-grid .center .term-card .term-bar{display:flex;gap:5px;margin-bottom:8px;}
-  .cover .hero-grid .center .term-card .term-bar span{width:9px;height:9px;border-radius:50%;}
-  .cover .hero-grid .center .term-card pre{margin:0;color:var(--term-fg);font-family:"JetBrains Mono",monospace;font-size:13px;}
-  .cover .hero-grid .center .term-card .prompt{color:#7ee787;}
-  .cover .hero-grid .center .cloud-card{background:#fff;border:2px dashed var(--blue);border-radius:50px;padding:8px 22px;display:flex;align-items:center;gap:10px;}
-  .cover .hero-grid .center .cloud-card svg{width:32px;height:32px;}
-  .cover .value-list{display:flex;flex-direction:column;gap:7px;width:100%;}
-  .cover .value-list .vi{display:flex;align-items:center;gap:8px;background:var(--green-soft);border:1.5px solid var(--green);border-radius:8px;padding:6px 10px;}
-  .cover .value-list .vi svg{width:18px;height:18px;flex-shrink:0;}
-  .cover .value-list .vi span{font-size:13px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .cover .features{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;margin-top:18px;}
-  .cover .feature{background:#fff;border:1.5px solid var(--green);border-radius:8px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
-  .cover .feature svg{width:26px;height:26px;}
-  .cover .feature span{font-size:10px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;line-height:1.1;}
-
-  /* === Command row (Section 1, page 4 style) === */
-  .cmd-row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px dashed rgba(27,94,63,.18);}
-  .cmd-row:last-child{border-bottom:none;}
-  .cmd-row .cmd{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;color:var(--green);background:var(--green-soft);border:1px solid rgba(27,94,63,.25);border-radius:4px;padding:2px 6px;text-align:center;}
-  .cmd-row .desc{font-size:11.5px;color:var(--ink-2);line-height:1.35;}
-  .cmd-row .desc code.inline{display:inline-block;margin-left:4px;}
-
-  /* === Inline mini-icons === */
-  .ico-inline{display:inline-flex;vertical-align:middle;width:16px;height:16px;margin-right:4px;}
-
-  /* === Header bar (small page identifier) === */
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .topbar .brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .topbar .brand .dot{width:10px;height:10px;background:var(--green);border-radius:2px;}
-
-  .lead{font-size:11.5px;color:var(--ink-2);margin:4px 0 8px 0;line-height:1.45;}
-  .small{font-size:10.5px;color:var(--ink-2);}
-  .nowrap{white-space:nowrap;}
-</style>
 
 <div class="cover">
   <div class="brand"><span class="vq">$_</span><span>Shell · DevOps · Handbook</span></div>
@@ -301,162 +320,7 @@
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
         
 
-<style>
-  /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
-  /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
-  .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:auto;}
 
-  /* === Color tokens (Shell Scripting palette) === */
-  :root{
-    --green:#1B5E3F;
-    --green-2:#164a32;
-    --green-soft:#e8f3ec;
-    --navy:#15264d;
-    --navy-2:#1e3160;
-    --blue:#2563eb;
-    --blue-soft:#dbeafe;
-    --purple:#7c3aed;
-    --red:#dc2626;
-    --red-soft:#fde8e8;
-    --gold:#d4a017;
-    --gold-soft:#fdf2cc;
-    --orange:#e65100;
-    --teal:#0d7377;
-    --amber:#f9a825;
-    --paper:#f5f1e8;
-    --ink:#1c1c1c;
-    --ink-2:#3a3f47;
-    --grid:#bcc8d6;
-    --term-bg:#0d1117;
-    --term-fg:#e6edf3;
-    --code-bg:#f3f4f6;
-    --code-border:#d6d3c5;
-  }
-  .content{font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
-  .content *{box-sizing:border-box;}
-
-  /* === Page header (title row) === */
-  .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px;}
-  .page-title{font-size:30px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.4px;line-height:1.05;}
-  .page-subtitle{font-size:13px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.8px;margin-top:6px;}
-  .page-pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
-
-  /* === Section cards === */
-  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:auto;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  .card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--green-2);}
-  .card .head svg{width:16px;height:16px;flex-shrink:0;}
-  .card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
-  .card .head.blue{background:var(--blue);border-bottom-color:#1e40af;}
-  .card .head.red{background:var(--red);border-bottom-color:#a01818;}
-  .card .head.amber{background:var(--amber);border-bottom-color:#c87f00;color:#1c1c1c;}
-  .card .head.purple{background:var(--purple);border-bottom-color:#5b22b8;}
-  .card .pad{padding:10px 12px;font-size:12px;line-height:1.45;color:var(--ink);}
-
-  /* === Grids === */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-  .grid-2-wide{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;}
-  .stack{display:flex;flex-direction:column;gap:10px;}
-
-  /* === Lists === */
-  ul.tick,ul.bullet{list-style:none;padding:0;margin:0;}
-  ul.tick li,ul.bullet li{position:relative;padding-left:22px;margin:5px 0;font-size:12px;line-height:1.4;color:var(--ink);}
-  ul.tick li svg{position:absolute;left:0;top:1px;width:15px;height:15px;}
-  ul.bullet li::before{content:"";position:absolute;left:6px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--green);}
-
-  /* === Numbered steps === */
-  .step{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:12px;line-height:1.4;}
-  .step .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-  .step .body{flex:1;}
-  .step .body strong{color:var(--green);text-transform:uppercase;letter-spacing:.4px;font-size:11px;}
-
-  /* === Code (inline + block) === */
-  code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;}
-  code.inline{background:var(--code-bg);color:#0b3d22;border:1px solid var(--code-border);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;}
-  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:auto;box-shadow:0 4px 12px rgba(0,0,0,.18);}
-  .codeblock .bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
-  .codeblock .dot{width:9px;height:9px;border-radius:50%;}
-  .codeblock .dot.r{background:#ff5f56;} .codeblock .dot.y{background:#ffbd2e;} .codeblock .dot.g{background:#27c93f;}
-  .codeblock .filename{margin-left:6px;color:#8b949e;font-size:10px;font-family:monospace;}
-  .codeblock pre{margin:0;padding:10px 12px;font-family:"JetBrains Mono",Menlo,Consolas,monospace;font-size:11.5px;line-height:1.55;white-space:pre;overflow-x:auto;}
-  .codeblock .c-cmt{color:#8b949e;font-style:italic;}
-  .codeblock .c-kw{color:#ff7b72;}
-  .codeblock .c-str{color:#a5d6ff;}
-  .codeblock .c-var{color:#ffa657;}
-  .codeblock .c-num{color:#79c0ff;}
-
-  /* === Tables === */
-  table.tbl{width:100%;border-collapse:collapse;font-size:11px;}
-  table.tbl th{background:var(--green-soft);color:var(--green);font-weight:700;text-align:left;padding:6px 8px;border:1px solid rgba(27,94,63,.2);text-transform:uppercase;letter-spacing:.5px;font-size:10px;}
-  table.tbl td{padding:5px 8px;border:1px solid rgba(27,94,63,.18);vertical-align:top;color:var(--ink);}
-  table.tbl tr:nth-child(even) td{background:#faf9f3;}
-
-  /* === Callout boxes === */
-  .callout{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;display:flex;gap:9px;align-items:flex-start;}
-  .callout svg{width:18px;height:18px;flex-shrink:0;}
-  .callout.tip{background:#eef6ff;border:1px solid rgba(37,99,235,.35);color:#1c3a73;}
-  .callout.warn{background:#fff8e1;border:1px solid var(--amber);color:#7a5b00;}
-  .callout.danger{background:var(--red-soft);border:1px solid var(--red);color:#7a1212;}
-  .callout.note{background:var(--green-soft);border:1px solid var(--green);color:#0d3a23;}
-  .callout .lab{font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-size:10px;margin-right:4px;}
-
-  /* === Diagram arrows === */
-  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-  .flow .chip{background:#fff;border:1.5px solid var(--green);color:var(--green);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
-  .flow .chip svg{width:14px;height:14px;}
-  .flow .arr{color:var(--green);font-weight:800;font-size:14px;}
-
-  /* === Cover (page 1) === */
-  .cover{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6px;}
-  .cover .brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-  .cover .brand .vq{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--green);color:#fff;border-radius:8px;font-weight:900;font-size:18px;letter-spacing:-1px;}
-  .cover .badge-row{display:flex;justify-content:center;gap:10px;margin:8px 0 14px 0;}
-  .cover .badge{background:var(--green);color:#fff;border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-  .cover h1{font-size:54px;font-weight:900;color:var(--green);line-height:1;margin:0;letter-spacing:-1px;text-transform:uppercase;}
-  .cover h1 .for{display:block;font-size:18px;font-weight:700;color:var(--ink-2);margin:6px 0;letter-spacing:6px;}
-  .cover .banner{display:inline-block;background:var(--green);color:#fff;font-size:38px;font-weight:900;letter-spacing:3px;padding:8px 28px;border-radius:6px;margin-top:8px;}
-  .cover .subtitle{display:inline-block;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 18px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:14px;}
-  .cover .hero-grid{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:center;margin-top:18px;width:100%;}
-  .cover .hero-grid .left,.cover .hero-grid .right{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .icon-circle{width:80px;height:80px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(27,94,63,.15);}
-  .cover .hero-grid .icon-circle svg{width:48px;height:48px;}
-  .cover .hero-grid .center{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .center .term-card{background:var(--term-bg);border-radius:10px;padding:14px 16px;width:100%;box-shadow:0 8px 18px rgba(0,0,0,.25);}
-  .cover .hero-grid .center .term-card .term-bar{display:flex;gap:5px;margin-bottom:8px;}
-  .cover .hero-grid .center .term-card .term-bar span{width:9px;height:9px;border-radius:50%;}
-  .cover .hero-grid .center .term-card pre{margin:0;color:var(--term-fg);font-family:"JetBrains Mono",monospace;font-size:13px;}
-  .cover .hero-grid .center .term-card .prompt{color:#7ee787;}
-  .cover .hero-grid .center .cloud-card{background:#fff;border:2px dashed var(--blue);border-radius:50px;padding:8px 22px;display:flex;align-items:center;gap:10px;}
-  .cover .hero-grid .center .cloud-card svg{width:32px;height:32px;}
-  .cover .value-list{display:flex;flex-direction:column;gap:7px;width:100%;}
-  .cover .value-list .vi{display:flex;align-items:center;gap:8px;background:var(--green-soft);border:1.5px solid var(--green);border-radius:8px;padding:6px 10px;}
-  .cover .value-list .vi svg{width:18px;height:18px;flex-shrink:0;}
-  .cover .value-list .vi span{font-size:13px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .cover .features{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;margin-top:18px;}
-  .cover .feature{background:#fff;border:1.5px solid var(--green);border-radius:8px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
-  .cover .feature svg{width:26px;height:26px;}
-  .cover .feature span{font-size:10px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;line-height:1.1;}
-
-  /* === Command row (Section 1, page 4 style) === */
-  .cmd-row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px dashed rgba(27,94,63,.18);}
-  .cmd-row:last-child{border-bottom:none;}
-  .cmd-row .cmd{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;color:var(--green);background:var(--green-soft);border:1px solid rgba(27,94,63,.25);border-radius:4px;padding:2px 6px;text-align:center;}
-  .cmd-row .desc{font-size:11.5px;color:var(--ink-2);line-height:1.35;}
-  .cmd-row .desc code.inline{display:inline-block;margin-left:4px;}
-
-  /* === Inline mini-icons === */
-  .ico-inline{display:inline-flex;vertical-align:middle;width:16px;height:16px;margin-right:4px;}
-
-  /* === Header bar (small page identifier) === */
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .topbar .brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .topbar .brand .dot{width:10px;height:10px;background:var(--green);border-radius:2px;}
-
-  .lead{font-size:11.5px;color:var(--ink-2);margin:4px 0 8px 0;line-height:1.45;}
-  .small{font-size:10.5px;color:var(--ink-2);}
-  .nowrap{white-space:nowrap;}
-</style>
 
 <div class="topbar">
   <div class="brand"><span class="dot"></span>Shell Scripting · DevOps Handbook</div>
@@ -636,162 +500,7 @@
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
         
 
-<style>
-  /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
-  /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
-  .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:auto;}
 
-  /* === Color tokens (Shell Scripting palette) === */
-  :root{
-    --green:#1B5E3F;
-    --green-2:#164a32;
-    --green-soft:#e8f3ec;
-    --navy:#15264d;
-    --navy-2:#1e3160;
-    --blue:#2563eb;
-    --blue-soft:#dbeafe;
-    --purple:#7c3aed;
-    --red:#dc2626;
-    --red-soft:#fde8e8;
-    --gold:#d4a017;
-    --gold-soft:#fdf2cc;
-    --orange:#e65100;
-    --teal:#0d7377;
-    --amber:#f9a825;
-    --paper:#f5f1e8;
-    --ink:#1c1c1c;
-    --ink-2:#3a3f47;
-    --grid:#bcc8d6;
-    --term-bg:#0d1117;
-    --term-fg:#e6edf3;
-    --code-bg:#f3f4f6;
-    --code-border:#d6d3c5;
-  }
-  .content{font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
-  .content *{box-sizing:border-box;}
-
-  /* === Page header (title row) === */
-  .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px;}
-  .page-title{font-size:30px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.4px;line-height:1.05;}
-  .page-subtitle{font-size:13px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.8px;margin-top:6px;}
-  .page-pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
-
-  /* === Section cards === */
-  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:auto;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  .card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--green-2);}
-  .card .head svg{width:16px;height:16px;flex-shrink:0;}
-  .card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
-  .card .head.blue{background:var(--blue);border-bottom-color:#1e40af;}
-  .card .head.red{background:var(--red);border-bottom-color:#a01818;}
-  .card .head.amber{background:var(--amber);border-bottom-color:#c87f00;color:#1c1c1c;}
-  .card .head.purple{background:var(--purple);border-bottom-color:#5b22b8;}
-  .card .pad{padding:10px 12px;font-size:12px;line-height:1.45;color:var(--ink);}
-
-  /* === Grids === */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-  .grid-2-wide{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;}
-  .stack{display:flex;flex-direction:column;gap:10px;}
-
-  /* === Lists === */
-  ul.tick,ul.bullet{list-style:none;padding:0;margin:0;}
-  ul.tick li,ul.bullet li{position:relative;padding-left:22px;margin:5px 0;font-size:12px;line-height:1.4;color:var(--ink);}
-  ul.tick li svg{position:absolute;left:0;top:1px;width:15px;height:15px;}
-  ul.bullet li::before{content:"";position:absolute;left:6px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--green);}
-
-  /* === Numbered steps === */
-  .step{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:12px;line-height:1.4;}
-  .step .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-  .step .body{flex:1;}
-  .step .body strong{color:var(--green);text-transform:uppercase;letter-spacing:.4px;font-size:11px;}
-
-  /* === Code (inline + block) === */
-  code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;}
-  code.inline{background:var(--code-bg);color:#0b3d22;border:1px solid var(--code-border);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;}
-  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:auto;box-shadow:0 4px 12px rgba(0,0,0,.18);}
-  .codeblock .bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
-  .codeblock .dot{width:9px;height:9px;border-radius:50%;}
-  .codeblock .dot.r{background:#ff5f56;} .codeblock .dot.y{background:#ffbd2e;} .codeblock .dot.g{background:#27c93f;}
-  .codeblock .filename{margin-left:6px;color:#8b949e;font-size:10px;font-family:monospace;}
-  .codeblock pre{margin:0;padding:10px 12px;font-family:"JetBrains Mono",Menlo,Consolas,monospace;font-size:11.5px;line-height:1.55;white-space:pre;overflow-x:auto;}
-  .codeblock .c-cmt{color:#8b949e;font-style:italic;}
-  .codeblock .c-kw{color:#ff7b72;}
-  .codeblock .c-str{color:#a5d6ff;}
-  .codeblock .c-var{color:#ffa657;}
-  .codeblock .c-num{color:#79c0ff;}
-
-  /* === Tables === */
-  table.tbl{width:100%;border-collapse:collapse;font-size:11px;}
-  table.tbl th{background:var(--green-soft);color:var(--green);font-weight:700;text-align:left;padding:6px 8px;border:1px solid rgba(27,94,63,.2);text-transform:uppercase;letter-spacing:.5px;font-size:10px;}
-  table.tbl td{padding:5px 8px;border:1px solid rgba(27,94,63,.18);vertical-align:top;color:var(--ink);}
-  table.tbl tr:nth-child(even) td{background:#faf9f3;}
-
-  /* === Callout boxes === */
-  .callout{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;display:flex;gap:9px;align-items:flex-start;}
-  .callout svg{width:18px;height:18px;flex-shrink:0;}
-  .callout.tip{background:#eef6ff;border:1px solid rgba(37,99,235,.35);color:#1c3a73;}
-  .callout.warn{background:#fff8e1;border:1px solid var(--amber);color:#7a5b00;}
-  .callout.danger{background:var(--red-soft);border:1px solid var(--red);color:#7a1212;}
-  .callout.note{background:var(--green-soft);border:1px solid var(--green);color:#0d3a23;}
-  .callout .lab{font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-size:10px;margin-right:4px;}
-
-  /* === Diagram arrows === */
-  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-  .flow .chip{background:#fff;border:1.5px solid var(--green);color:var(--green);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
-  .flow .chip svg{width:14px;height:14px;}
-  .flow .arr{color:var(--green);font-weight:800;font-size:14px;}
-
-  /* === Cover (page 1) === */
-  .cover{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6px;}
-  .cover .brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-  .cover .brand .vq{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--green);color:#fff;border-radius:8px;font-weight:900;font-size:18px;letter-spacing:-1px;}
-  .cover .badge-row{display:flex;justify-content:center;gap:10px;margin:8px 0 14px 0;}
-  .cover .badge{background:var(--green);color:#fff;border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-  .cover h1{font-size:54px;font-weight:900;color:var(--green);line-height:1;margin:0;letter-spacing:-1px;text-transform:uppercase;}
-  .cover h1 .for{display:block;font-size:18px;font-weight:700;color:var(--ink-2);margin:6px 0;letter-spacing:6px;}
-  .cover .banner{display:inline-block;background:var(--green);color:#fff;font-size:38px;font-weight:900;letter-spacing:3px;padding:8px 28px;border-radius:6px;margin-top:8px;}
-  .cover .subtitle{display:inline-block;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 18px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:14px;}
-  .cover .hero-grid{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:center;margin-top:18px;width:100%;}
-  .cover .hero-grid .left,.cover .hero-grid .right{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .icon-circle{width:80px;height:80px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(27,94,63,.15);}
-  .cover .hero-grid .icon-circle svg{width:48px;height:48px;}
-  .cover .hero-grid .center{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .center .term-card{background:var(--term-bg);border-radius:10px;padding:14px 16px;width:100%;box-shadow:0 8px 18px rgba(0,0,0,.25);}
-  .cover .hero-grid .center .term-card .term-bar{display:flex;gap:5px;margin-bottom:8px;}
-  .cover .hero-grid .center .term-card .term-bar span{width:9px;height:9px;border-radius:50%;}
-  .cover .hero-grid .center .term-card pre{margin:0;color:var(--term-fg);font-family:"JetBrains Mono",monospace;font-size:13px;}
-  .cover .hero-grid .center .term-card .prompt{color:#7ee787;}
-  .cover .hero-grid .center .cloud-card{background:#fff;border:2px dashed var(--blue);border-radius:50px;padding:8px 22px;display:flex;align-items:center;gap:10px;}
-  .cover .hero-grid .center .cloud-card svg{width:32px;height:32px;}
-  .cover .value-list{display:flex;flex-direction:column;gap:7px;width:100%;}
-  .cover .value-list .vi{display:flex;align-items:center;gap:8px;background:var(--green-soft);border:1.5px solid var(--green);border-radius:8px;padding:6px 10px;}
-  .cover .value-list .vi svg{width:18px;height:18px;flex-shrink:0;}
-  .cover .value-list .vi span{font-size:13px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .cover .features{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;margin-top:18px;}
-  .cover .feature{background:#fff;border:1.5px solid var(--green);border-radius:8px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
-  .cover .feature svg{width:26px;height:26px;}
-  .cover .feature span{font-size:10px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;line-height:1.1;}
-
-  /* === Command row (Section 1, page 4 style) === */
-  .cmd-row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px dashed rgba(27,94,63,.18);}
-  .cmd-row:last-child{border-bottom:none;}
-  .cmd-row .cmd{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;color:var(--green);background:var(--green-soft);border:1px solid rgba(27,94,63,.25);border-radius:4px;padding:2px 6px;text-align:center;}
-  .cmd-row .desc{font-size:11.5px;color:var(--ink-2);line-height:1.35;}
-  .cmd-row .desc code.inline{display:inline-block;margin-left:4px;}
-
-  /* === Inline mini-icons === */
-  .ico-inline{display:inline-flex;vertical-align:middle;width:16px;height:16px;margin-right:4px;}
-
-  /* === Header bar (small page identifier) === */
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .topbar .brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .topbar .brand .dot{width:10px;height:10px;background:var(--green);border-radius:2px;}
-
-  .lead{font-size:11.5px;color:var(--ink-2);margin:4px 0 8px 0;line-height:1.45;}
-  .small{font-size:10.5px;color:var(--ink-2);}
-  .nowrap{white-space:nowrap;}
-</style>
 
 <div class="topbar">
   <div class="brand"><span class="dot"></span>Shell Scripting · DevOps Handbook</div>
@@ -995,162 +704,7 @@
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
         
 
-<style>
-  /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
-  /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
-  .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:auto;}
 
-  /* === Color tokens (Shell Scripting palette) === */
-  :root{
-    --green:#1B5E3F;
-    --green-2:#164a32;
-    --green-soft:#e8f3ec;
-    --navy:#15264d;
-    --navy-2:#1e3160;
-    --blue:#2563eb;
-    --blue-soft:#dbeafe;
-    --purple:#7c3aed;
-    --red:#dc2626;
-    --red-soft:#fde8e8;
-    --gold:#d4a017;
-    --gold-soft:#fdf2cc;
-    --orange:#e65100;
-    --teal:#0d7377;
-    --amber:#f9a825;
-    --paper:#f5f1e8;
-    --ink:#1c1c1c;
-    --ink-2:#3a3f47;
-    --grid:#bcc8d6;
-    --term-bg:#0d1117;
-    --term-fg:#e6edf3;
-    --code-bg:#f3f4f6;
-    --code-border:#d6d3c5;
-  }
-  .content{font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
-  .content *{box-sizing:border-box;}
-
-  /* === Page header (title row) === */
-  .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px;}
-  .page-title{font-size:30px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.4px;line-height:1.05;}
-  .page-subtitle{font-size:13px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.8px;margin-top:6px;}
-  .page-pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
-
-  /* === Section cards === */
-  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:auto;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  .card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--green-2);}
-  .card .head svg{width:16px;height:16px;flex-shrink:0;}
-  .card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
-  .card .head.blue{background:var(--blue);border-bottom-color:#1e40af;}
-  .card .head.red{background:var(--red);border-bottom-color:#a01818;}
-  .card .head.amber{background:var(--amber);border-bottom-color:#c87f00;color:#1c1c1c;}
-  .card .head.purple{background:var(--purple);border-bottom-color:#5b22b8;}
-  .card .pad{padding:10px 12px;font-size:12px;line-height:1.45;color:var(--ink);}
-
-  /* === Grids === */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-  .grid-2-wide{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;}
-  .stack{display:flex;flex-direction:column;gap:10px;}
-
-  /* === Lists === */
-  ul.tick,ul.bullet{list-style:none;padding:0;margin:0;}
-  ul.tick li,ul.bullet li{position:relative;padding-left:22px;margin:5px 0;font-size:12px;line-height:1.4;color:var(--ink);}
-  ul.tick li svg{position:absolute;left:0;top:1px;width:15px;height:15px;}
-  ul.bullet li::before{content:"";position:absolute;left:6px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--green);}
-
-  /* === Numbered steps === */
-  .step{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:12px;line-height:1.4;}
-  .step .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-  .step .body{flex:1;}
-  .step .body strong{color:var(--green);text-transform:uppercase;letter-spacing:.4px;font-size:11px;}
-
-  /* === Code (inline + block) === */
-  code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;}
-  code.inline{background:var(--code-bg);color:#0b3d22;border:1px solid var(--code-border);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;}
-  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:auto;box-shadow:0 4px 12px rgba(0,0,0,.18);}
-  .codeblock .bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
-  .codeblock .dot{width:9px;height:9px;border-radius:50%;}
-  .codeblock .dot.r{background:#ff5f56;} .codeblock .dot.y{background:#ffbd2e;} .codeblock .dot.g{background:#27c93f;}
-  .codeblock .filename{margin-left:6px;color:#8b949e;font-size:10px;font-family:monospace;}
-  .codeblock pre{margin:0;padding:10px 12px;font-family:"JetBrains Mono",Menlo,Consolas,monospace;font-size:11.5px;line-height:1.55;white-space:pre;overflow-x:auto;}
-  .codeblock .c-cmt{color:#8b949e;font-style:italic;}
-  .codeblock .c-kw{color:#ff7b72;}
-  .codeblock .c-str{color:#a5d6ff;}
-  .codeblock .c-var{color:#ffa657;}
-  .codeblock .c-num{color:#79c0ff;}
-
-  /* === Tables === */
-  table.tbl{width:100%;border-collapse:collapse;font-size:11px;}
-  table.tbl th{background:var(--green-soft);color:var(--green);font-weight:700;text-align:left;padding:6px 8px;border:1px solid rgba(27,94,63,.2);text-transform:uppercase;letter-spacing:.5px;font-size:10px;}
-  table.tbl td{padding:5px 8px;border:1px solid rgba(27,94,63,.18);vertical-align:top;color:var(--ink);}
-  table.tbl tr:nth-child(even) td{background:#faf9f3;}
-
-  /* === Callout boxes === */
-  .callout{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;display:flex;gap:9px;align-items:flex-start;}
-  .callout svg{width:18px;height:18px;flex-shrink:0;}
-  .callout.tip{background:#eef6ff;border:1px solid rgba(37,99,235,.35);color:#1c3a73;}
-  .callout.warn{background:#fff8e1;border:1px solid var(--amber);color:#7a5b00;}
-  .callout.danger{background:var(--red-soft);border:1px solid var(--red);color:#7a1212;}
-  .callout.note{background:var(--green-soft);border:1px solid var(--green);color:#0d3a23;}
-  .callout .lab{font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-size:10px;margin-right:4px;}
-
-  /* === Diagram arrows === */
-  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-  .flow .chip{background:#fff;border:1.5px solid var(--green);color:var(--green);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
-  .flow .chip svg{width:14px;height:14px;}
-  .flow .arr{color:var(--green);font-weight:800;font-size:14px;}
-
-  /* === Cover (page 1) === */
-  .cover{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6px;}
-  .cover .brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-  .cover .brand .vq{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--green);color:#fff;border-radius:8px;font-weight:900;font-size:18px;letter-spacing:-1px;}
-  .cover .badge-row{display:flex;justify-content:center;gap:10px;margin:8px 0 14px 0;}
-  .cover .badge{background:var(--green);color:#fff;border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-  .cover h1{font-size:54px;font-weight:900;color:var(--green);line-height:1;margin:0;letter-spacing:-1px;text-transform:uppercase;}
-  .cover h1 .for{display:block;font-size:18px;font-weight:700;color:var(--ink-2);margin:6px 0;letter-spacing:6px;}
-  .cover .banner{display:inline-block;background:var(--green);color:#fff;font-size:38px;font-weight:900;letter-spacing:3px;padding:8px 28px;border-radius:6px;margin-top:8px;}
-  .cover .subtitle{display:inline-block;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 18px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:14px;}
-  .cover .hero-grid{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:center;margin-top:18px;width:100%;}
-  .cover .hero-grid .left,.cover .hero-grid .right{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .icon-circle{width:80px;height:80px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(27,94,63,.15);}
-  .cover .hero-grid .icon-circle svg{width:48px;height:48px;}
-  .cover .hero-grid .center{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .center .term-card{background:var(--term-bg);border-radius:10px;padding:14px 16px;width:100%;box-shadow:0 8px 18px rgba(0,0,0,.25);}
-  .cover .hero-grid .center .term-card .term-bar{display:flex;gap:5px;margin-bottom:8px;}
-  .cover .hero-grid .center .term-card .term-bar span{width:9px;height:9px;border-radius:50%;}
-  .cover .hero-grid .center .term-card pre{margin:0;color:var(--term-fg);font-family:"JetBrains Mono",monospace;font-size:13px;}
-  .cover .hero-grid .center .term-card .prompt{color:#7ee787;}
-  .cover .hero-grid .center .cloud-card{background:#fff;border:2px dashed var(--blue);border-radius:50px;padding:8px 22px;display:flex;align-items:center;gap:10px;}
-  .cover .hero-grid .center .cloud-card svg{width:32px;height:32px;}
-  .cover .value-list{display:flex;flex-direction:column;gap:7px;width:100%;}
-  .cover .value-list .vi{display:flex;align-items:center;gap:8px;background:var(--green-soft);border:1.5px solid var(--green);border-radius:8px;padding:6px 10px;}
-  .cover .value-list .vi svg{width:18px;height:18px;flex-shrink:0;}
-  .cover .value-list .vi span{font-size:13px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .cover .features{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;margin-top:18px;}
-  .cover .feature{background:#fff;border:1.5px solid var(--green);border-radius:8px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
-  .cover .feature svg{width:26px;height:26px;}
-  .cover .feature span{font-size:10px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;line-height:1.1;}
-
-  /* === Command row (Section 1, page 4 style) === */
-  .cmd-row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px dashed rgba(27,94,63,.18);}
-  .cmd-row:last-child{border-bottom:none;}
-  .cmd-row .cmd{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;color:var(--green);background:var(--green-soft);border:1px solid rgba(27,94,63,.25);border-radius:4px;padding:2px 6px;text-align:center;}
-  .cmd-row .desc{font-size:11.5px;color:var(--ink-2);line-height:1.35;}
-  .cmd-row .desc code.inline{display:inline-block;margin-left:4px;}
-
-  /* === Inline mini-icons === */
-  .ico-inline{display:inline-flex;vertical-align:middle;width:16px;height:16px;margin-right:4px;}
-
-  /* === Header bar (small page identifier) === */
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .topbar .brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .topbar .brand .dot{width:10px;height:10px;background:var(--green);border-radius:2px;}
-
-  .lead{font-size:11.5px;color:var(--ink-2);margin:4px 0 8px 0;line-height:1.45;}
-  .small{font-size:10.5px;color:var(--ink-2);}
-  .nowrap{white-space:nowrap;}
-</style>
 
 <div class="topbar">
   <div class="brand"><span class="dot"></span>Shell Scripting · DevOps Handbook</div>
@@ -1298,162 +852,7 @@
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
         
 
-<style>
-  /* === FIX: Polotno SVG paper must be absolute so .content overlays it === */
-  /* Without this, the static SVG (1080x paper_h) pushes .content below the paper. */
-  .page-wrapper > div:first-of-type > svg{position:absolute !important;top:0;left:0;}
-  .page-wrapper > div:first-of-type > .content{position:absolute;top:11px;left:0;right:0;bottom:11px;overflow:auto;}
 
-  /* === Color tokens (Shell Scripting palette) === */
-  :root{
-    --green:#1B5E3F;
-    --green-2:#164a32;
-    --green-soft:#e8f3ec;
-    --navy:#15264d;
-    --navy-2:#1e3160;
-    --blue:#2563eb;
-    --blue-soft:#dbeafe;
-    --purple:#7c3aed;
-    --red:#dc2626;
-    --red-soft:#fde8e8;
-    --gold:#d4a017;
-    --gold-soft:#fdf2cc;
-    --orange:#e65100;
-    --teal:#0d7377;
-    --amber:#f9a825;
-    --paper:#f5f1e8;
-    --ink:#1c1c1c;
-    --ink-2:#3a3f47;
-    --grid:#bcc8d6;
-    --term-bg:#0d1117;
-    --term-fg:#e6edf3;
-    --code-bg:#f3f4f6;
-    --code-border:#d6d3c5;
-  }
-  .content{font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
-  .content *{box-sizing:border-box;}
-
-  /* === Page header (title row) === */
-  .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px;}
-  .page-title{font-size:30px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.4px;line-height:1.05;}
-  .page-subtitle{font-size:13px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.8px;margin-top:6px;}
-  .page-pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
-
-  /* === Section cards === */
-  .card{background:#fff;border:1px solid rgba(27,94,63,.18);border-radius:10px;overflow:auto;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-  .card .head{background:var(--green);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--green-2);}
-  .card .head svg{width:16px;height:16px;flex-shrink:0;}
-  .card .head.navy{background:var(--navy);border-bottom-color:var(--navy-2);}
-  .card .head.blue{background:var(--blue);border-bottom-color:#1e40af;}
-  .card .head.red{background:var(--red);border-bottom-color:#a01818;}
-  .card .head.amber{background:var(--amber);border-bottom-color:#c87f00;color:#1c1c1c;}
-  .card .head.purple{background:var(--purple);border-bottom-color:#5b22b8;}
-  .card .pad{padding:10px 12px;font-size:12px;line-height:1.45;color:var(--ink);}
-
-  /* === Grids === */
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-  .grid-2-wide{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;}
-  .stack{display:flex;flex-direction:column;gap:10px;}
-
-  /* === Lists === */
-  ul.tick,ul.bullet{list-style:none;padding:0;margin:0;}
-  ul.tick li,ul.bullet li{position:relative;padding-left:22px;margin:5px 0;font-size:12px;line-height:1.4;color:var(--ink);}
-  ul.tick li svg{position:absolute;left:0;top:1px;width:15px;height:15px;}
-  ul.bullet li::before{content:"";position:absolute;left:6px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--green);}
-
-  /* === Numbered steps === */
-  .step{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:12px;line-height:1.4;}
-  .step .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-  .step .body{flex:1;}
-  .step .body strong{color:var(--green);text-transform:uppercase;letter-spacing:.4px;font-size:11px;}
-
-  /* === Code (inline + block) === */
-  code,.mono{font-family:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;}
-  code.inline{background:var(--code-bg);color:#0b3d22;border:1px solid var(--code-border);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;}
-  .codeblock{background:var(--term-bg);color:var(--term-fg);border-radius:8px;overflow:auto;box-shadow:0 4px 12px rgba(0,0,0,.18);}
-  .codeblock .bar{background:#1c2230;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2c3340;}
-  .codeblock .dot{width:9px;height:9px;border-radius:50%;}
-  .codeblock .dot.r{background:#ff5f56;} .codeblock .dot.y{background:#ffbd2e;} .codeblock .dot.g{background:#27c93f;}
-  .codeblock .filename{margin-left:6px;color:#8b949e;font-size:10px;font-family:monospace;}
-  .codeblock pre{margin:0;padding:10px 12px;font-family:"JetBrains Mono",Menlo,Consolas,monospace;font-size:11.5px;line-height:1.55;white-space:pre;overflow-x:auto;}
-  .codeblock .c-cmt{color:#8b949e;font-style:italic;}
-  .codeblock .c-kw{color:#ff7b72;}
-  .codeblock .c-str{color:#a5d6ff;}
-  .codeblock .c-var{color:#ffa657;}
-  .codeblock .c-num{color:#79c0ff;}
-
-  /* === Tables === */
-  table.tbl{width:100%;border-collapse:collapse;font-size:11px;}
-  table.tbl th{background:var(--green-soft);color:var(--green);font-weight:700;text-align:left;padding:6px 8px;border:1px solid rgba(27,94,63,.2);text-transform:uppercase;letter-spacing:.5px;font-size:10px;}
-  table.tbl td{padding:5px 8px;border:1px solid rgba(27,94,63,.18);vertical-align:top;color:var(--ink);}
-  table.tbl tr:nth-child(even) td{background:#faf9f3;}
-
-  /* === Callout boxes === */
-  .callout{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;display:flex;gap:9px;align-items:flex-start;}
-  .callout svg{width:18px;height:18px;flex-shrink:0;}
-  .callout.tip{background:#eef6ff;border:1px solid rgba(37,99,235,.35);color:#1c3a73;}
-  .callout.warn{background:#fff8e1;border:1px solid var(--amber);color:#7a5b00;}
-  .callout.danger{background:var(--red-soft);border:1px solid var(--red);color:#7a1212;}
-  .callout.note{background:var(--green-soft);border:1px solid var(--green);color:#0d3a23;}
-  .callout .lab{font-weight:800;text-transform:uppercase;letter-spacing:.6px;font-size:10px;margin-right:4px;}
-
-  /* === Diagram arrows === */
-  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-  .flow .chip{background:#fff;border:1.5px solid var(--green);color:var(--green);border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;}
-  .flow .chip svg{width:14px;height:14px;}
-  .flow .arr{color:var(--green);font-weight:800;font-size:14px;}
-
-  /* === Cover (page 1) === */
-  .cover{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6px;}
-  .cover .brand{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-  .cover .brand .vq{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--green);color:#fff;border-radius:8px;font-weight:900;font-size:18px;letter-spacing:-1px;}
-  .cover .badge-row{display:flex;justify-content:center;gap:10px;margin:8px 0 14px 0;}
-  .cover .badge{background:var(--green);color:#fff;border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-  .cover h1{font-size:54px;font-weight:900;color:var(--green);line-height:1;margin:0;letter-spacing:-1px;text-transform:uppercase;}
-  .cover h1 .for{display:block;font-size:18px;font-weight:700;color:var(--ink-2);margin:6px 0;letter-spacing:6px;}
-  .cover .banner{display:inline-block;background:var(--green);color:#fff;font-size:38px;font-weight:900;letter-spacing:3px;padding:8px 28px;border-radius:6px;margin-top:8px;}
-  .cover .subtitle{display:inline-block;border:2px solid var(--green);color:var(--green);background:#fff;border-radius:999px;padding:5px 18px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:14px;}
-  .cover .hero-grid{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:center;margin-top:18px;width:100%;}
-  .cover .hero-grid .left,.cover .hero-grid .right{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .icon-circle{width:80px;height:80px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(27,94,63,.15);}
-  .cover .hero-grid .icon-circle svg{width:48px;height:48px;}
-  .cover .hero-grid .center{display:flex;flex-direction:column;align-items:center;gap:14px;}
-  .cover .hero-grid .center .term-card{background:var(--term-bg);border-radius:10px;padding:14px 16px;width:100%;box-shadow:0 8px 18px rgba(0,0,0,.25);}
-  .cover .hero-grid .center .term-card .term-bar{display:flex;gap:5px;margin-bottom:8px;}
-  .cover .hero-grid .center .term-card .term-bar span{width:9px;height:9px;border-radius:50%;}
-  .cover .hero-grid .center .term-card pre{margin:0;color:var(--term-fg);font-family:"JetBrains Mono",monospace;font-size:13px;}
-  .cover .hero-grid .center .term-card .prompt{color:#7ee787;}
-  .cover .hero-grid .center .cloud-card{background:#fff;border:2px dashed var(--blue);border-radius:50px;padding:8px 22px;display:flex;align-items:center;gap:10px;}
-  .cover .hero-grid .center .cloud-card svg{width:32px;height:32px;}
-  .cover .value-list{display:flex;flex-direction:column;gap:7px;width:100%;}
-  .cover .value-list .vi{display:flex;align-items:center;gap:8px;background:var(--green-soft);border:1.5px solid var(--green);border-radius:8px;padding:6px 10px;}
-  .cover .value-list .vi svg{width:18px;height:18px;flex-shrink:0;}
-  .cover .value-list .vi span{font-size:13px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .cover .features{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;margin-top:18px;}
-  .cover .feature{background:#fff;border:1.5px solid var(--green);border-radius:8px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
-  .cover .feature svg{width:26px;height:26px;}
-  .cover .feature span{font-size:10px;font-weight:800;color:var(--green);letter-spacing:.5px;text-transform:uppercase;line-height:1.1;}
-
-  /* === Command row (Section 1, page 4 style) === */
-  .cmd-row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px dashed rgba(27,94,63,.18);}
-  .cmd-row:last-child{border-bottom:none;}
-  .cmd-row .cmd{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;color:var(--green);background:var(--green-soft);border:1px solid rgba(27,94,63,.25);border-radius:4px;padding:2px 6px;text-align:center;}
-  .cmd-row .desc{font-size:11.5px;color:var(--ink-2);line-height:1.35;}
-  .cmd-row .desc code.inline{display:inline-block;margin-left:4px;}
-
-  /* === Inline mini-icons === */
-  .ico-inline{display:inline-flex;vertical-align:middle;width:16px;height:16px;margin-right:4px;}
-
-  /* === Header bar (small page identifier) === */
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .topbar .brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;}
-  .topbar .brand .dot{width:10px;height:10px;background:var(--green);border-radius:2px;}
-
-  .lead{font-size:11.5px;color:var(--ink-2);margin:4px 0 8px 0;line-height:1.45;}
-  .small{font-size:10.5px;color:var(--ink-2);}
-  .nowrap{white-space:nowrap;}
-</style>
 
 <div class="topbar">
   <div class="brand"><span class="dot"></span>Shell Scripting · DevOps Handbook</div>
@@ -1669,289 +1068,7 @@
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
       <!-- Content (inside paper, positioned between the 3D edges) -->
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
-        <style>
-/* ===== Override polotno_template's .content positioning =====
-   The template ships .content as position:relative, which causes it to be
-   pushed BELOW the inline paper-svg (which takes a full line-box height).
-   Force absolute so content overlays the paper SVG inside the .paper div.
-   The inline padding (42px 50px 26px 78px) is preserved. */
-.content{
-  position:absolute !important;
-  top:11px !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:11px !important;
-  --green:#1B5E3F; --green-2:#2E7D32; --green-dk:#164a32;
-  --navy:#15264d; --blue:#2563eb; --red:#dc2626;
-  --gold:#d4a017; --amber:#f9a825; --orange:#e65100;
-  --purple:#7c3aed; --teal:#0d7377;
-  --ink:#1c1c1c; --ink-2:#3a3f47;
-  --paper:#f5f1e8;
-  --term-bg:#0d1117; --term-fg:#e6edf3;
-  --card-bg:#ffffff; --card-border:rgba(22,38,77,0.10);
-  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:var(--ink);
-  overflow:auto;
-}
-
-/* ===== Brand bar (page badge top-right) ===== */
-.brand-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;
-}
-.brand-bar .crumb{
-  font-size:11px;font-weight:700;letter-spacing:1.6px;
-  color:var(--green);text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
-}
-.brand-bar .badge{
-  background:#fff;color:var(--green);
-  padding:5px 13px;border-radius:999px;
-  border:2px solid var(--green);
-  font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
-}
-
-/* ===== Page title row ===== */
-.page-title{
-  display:flex;align-items:center;justify-content:center;gap:13px;
-  margin:2px 0 4px;
-}
-.page-title .ico{flex-shrink:0;display:flex;align-items:center;gap:6px;}
-.page-title .ico svg{width:38px;height:38px;display:block;}
-.page-title h1{
-  font-size:30px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:-.4px;line-height:1.05;
-  text-align:center;margin:0;
-}
-.page-subtitle{
-  font-size:12px;font-weight:700;color:var(--ink-2);
-  text-transform:uppercase;letter-spacing:1.4px;text-align:center;
-  margin:0 0 14px;
-  padding-bottom:8px;
-  border-bottom:2px solid var(--green);
-  position:relative;
-}
-.page-subtitle::after{
-  content:"";position:absolute;left:50%;bottom:-5px;
-  width:9px;height:9px;background:var(--green);
-  border-radius:50%;transform:translateX(-50%);
-}
-
-/* ===== Grids ===== */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.grid-2-uneven{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;}
-.col-stack{display:flex;flex-direction:column;gap:11px;}
-.row-stack{display:flex;flex-direction:column;gap:12px;}
-
-/* ===== Card ===== */
-.card{
-  background:var(--card-bg);
-  border-radius:9px;
-  overflow:auto;
-  border:1px solid var(--card-border);
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-  display:flex;flex-direction:column;
-}
-.card .head{
-  background:var(--green);color:#fff;
-  padding:6px 11px;
-  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
-  display:flex;align-items:center;gap:7px;
-  border-bottom:2px solid var(--green-dk);
-}
-.card .head svg{width:15px;height:15px;flex-shrink:0;}
-.card .head.navy{background:var(--navy);border-bottom-color:#0a1838;}
-.card .head.red{background:var(--red);border-bottom-color:#9a1818;}
-.card .head.gold{background:var(--gold);border-bottom-color:#8a6810;color:#1c1c1c;}
-.card .head.amber{background:var(--amber);border-bottom-color:#a06b10;color:#1c1c1c;}
-.card .head.purple{background:var(--purple);border-bottom-color:#4a1f8a;}
-.card .head.blue{background:var(--blue);border-bottom-color:#163b8e;}
-.card .head.teal{background:var(--teal);border-bottom-color:#054a4d;}
-.card .head.orange{background:var(--orange);border-bottom-color:#8a2f00;}
-.card .pad{padding:9px 11px;flex:1;}
-.card .pad.tight{padding:7px 9px;}
-.card .pad h4{
-  font-size:11px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;
-}
-
-/* ===== Inline + block code ===== */
-code.inl{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;font-weight:600;color:var(--green);
-  background:#e6efe8;padding:1px 4px;border-radius:3px;
-  white-space:nowrap;
-}
-code.inl.navy{color:var(--navy);background:#e9ecf5;}
-code.inl.red{color:var(--red);background:#fbe4e4;}
-
-/* Terminal block (dark) */
-.term{
-  background:var(--term-bg);color:var(--term-fg);
-  border-radius:6px;overflow:auto;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;
-  margin-top:5px;
-  box-shadow:0 2px 8px rgba(0,0,0,.20);
-}
-.term .bar{
-  background:#1c2230;padding:4px 9px;
-  display:flex;align-items:center;gap:5px;
-}
-.term .dot{width:8px;height:8px;border-radius:50%;}
-.term .dot.r{background:#ff5f56;}
-.term .dot.y{background:#ffbd2e;}
-.term .dot.g{background:#27c93f;}
-.term .ttl{margin-left:auto;color:#8b949e;font-size:9px;font-family:monospace;}
-.term .body{padding:6px 9px;white-space:pre;overflow-x:auto;}
-.term .k{color:#79c0ff;}     /* keywords */
-.term .s{color:#7ee787;}     /* strings */
-.term .c{color:#8b949e;}     /* comments */
-.term .v{color:#f2cc60;}     /* variables */
-.term .o{color:#e6edf3;}     /* operators / plain */
-.term .r{color:#ff7b72;}     /* red words (if/then/exit etc.) */
-
-/* Light code block (off-white) */
-.code-light{
-  background:#f4f1e7;border:1px solid #d8d3c0;border-radius:6px;
-  padding:6px 9px;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;color:var(--ink);
-  white-space:pre;overflow-x:auto;margin-top:5px;
-}
-.code-light .k{color:#a52a2a;font-weight:700;}
-.code-light .s{color:var(--green);font-weight:600;}
-.code-light .v{color:#b8860b;}
-.code-light .c{color:#8b949e;font-style:italic;}
-
-/* ===== Bullet list ===== */
-ul.bul{
-  list-style:none;padding:0;margin:4px 0 0;
-  display:flex;flex-direction:column;gap:4px;
-}
-ul.bul li{
-  position:relative;padding-left:16px;
-  font-size:11px;line-height:1.45;color:var(--ink);
-}
-ul.bul li::before{
-  content:"";position:absolute;left:0;top:5px;
-  width:6px;height:6px;border-radius:50%;background:var(--green);
-}
-ul.bul.ck li{padding-left:20px;}
-ul.bul.ck li::before{
-  content:"";position:absolute;left:0;top:1px;width:13px;height:13px;
-  background:var(--green);border-radius:50%;
-  background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='white'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='5,13%2010,18%2019,7'/%3E%3C/svg%3E");
-  background-size:9px 9px;background-repeat:no-repeat;background-position:center;
-  border-radius:50%;
-}
-
-/* ===== Data tables ===== */
-table.dt{
-  width:100%;border-collapse:collapse;
-  font-size:10.5px;
-}
-table.dt th,table.dt td{
-  text-align:left;padding:4px 7px;
-  border-bottom:1px solid #e6e2d2;
-  vertical-align:top;
-}
-table.dt th{
-  background:var(--green);color:#fff;
-  font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-table.dt td code,table.dt td .mono{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10px;color:var(--navy);background:#eef0f6;
-  padding:1px 4px;border-radius:3px;white-space:nowrap;
-}
-
-/* ===== Output pill ===== */
-.out{
-  display:inline-flex;align-items:center;gap:5px;
-  background:#e6efe8;border:1px solid #b8d6c0;
-  border-radius:5px;padding:2px 7px;
-  font-size:10.5px;color:var(--green);font-weight:700;
-  margin-top:4px;
-}
-.out svg{width:10px;height:10px;}
-.out b{color:var(--green-2);}
-
-/* ===== Status badges (success / failure pills) ===== */
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 8px;border-radius:999px;
-  font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-.pill.ok{background:#e6f4ea;color:var(--green-2);border:1px solid #b8d6c0;}
-.pill.no{background:#fce8e8;color:var(--red);border:1px solid #f3c2c2;}
-
-/* ===== Tip bar (bottom of page, no social footer) ===== */
-.tip-bar{
-  margin-top:12px;
-  background:linear-gradient(90deg,var(--green) 0%, var(--green-2) 100%);
-  color:#fff;border-radius:9px;
-  padding:9px 14px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 3px 10px rgba(22,38,77,.20);
-}
-.tip-bar .star{
-  flex-shrink:0;width:25px;height:25px;
-  background:#fff;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-}
-.tip-bar .star svg{width:16px;height:16px;display:block;}
-.tip-bar .txt{font-size:11.5px;font-weight:700;line-height:1.35;}
-.tip-bar .txt b{font-weight:900;letter-spacing:.4px;}
-.tip-bar .code-pill{
-  margin-left:auto;flex-shrink:0;
-  background:#0d1117;color:#e6edf3;
-  padding:4px 9px;border-radius:5px;
-  font-family:"JetBrains Mono","Fira Code",monospace;
-  font-size:10.5px;font-weight:700;
-}
-
-/* ===== Section header (used in single-col pages) ===== */
-.sec-head{
-  display:flex;align-items:center;gap:9px;
-  background:#fff;border:1px solid var(--card-border);
-  border-left:4px solid var(--green);
-  border-radius:7px;
-  padding:7px 13px;margin-bottom:7px;
-}
-.sec-head .num{
-  flex-shrink:0;width:24px;height:24px;border-radius:50%;
-  background:var(--green);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11.5px;font-weight:800;
-}
-.sec-head h3{
-  font-size:12.5px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.5px;margin:0;
-}
-
-/* ===== Centered single-column container ===== */
-.single-wrap{
-  max-width:880px;margin:0 auto;
-  display:flex;flex-direction:column;gap:11px;
-}
-
-/* ===== Small inline arrow ===== */
-.arrow{
-  display:inline-flex;align-items:center;gap:3px;
-  color:var(--green);font-weight:700;font-size:10.5px;
-}
-.arrow::after{content:"→";font-weight:900;}
-
-/* ===== Tiny section break ===== */
-.brk{height:5px;}
-
-/* ===== Specific helpers ===== */
-.center{text-align:center;}
-.muted{color:var(--ink-2);}
-.small{font-size:10.5px;}
-</style><div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 4</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>4. Variables and Environment Variables</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L42 12 V36 L24 44 L6 36 V12 Z" fill="#003366"/><path d="M24 4 L42 12 L24 20 L6 12 Z" fill="#0055AA"/><path d="M24 20 L42 12 V36 L24 44 Z" fill="#002288"/><path d="M24 20 L6 12 V36 L24 44 Z" fill="#004499"/><text x="24" y="32" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">$</text></svg></div></div><div class="page-subtitle">Store data. Reuse. Automate.</div><div class="row-stack">
+        <div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 4</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>4. Variables and Environment Variables</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 L42 12 V36 L24 44 L6 36 V12 Z" fill="#003366"/><path d="M24 4 L42 12 L24 20 L6 12 Z" fill="#0055AA"/><path d="M24 20 L42 12 V36 L24 44 Z" fill="#002288"/><path d="M24 20 L6 12 V36 L24 44 Z" fill="#004499"/><text x="24" y="32" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">$</text></svg></div></div><div class="page-subtitle">Store data. Reuse. Automate.</div><div class="row-stack">
     <div class="grid-3">
       <div class="card"><div class="head "><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M36 4 L44 12 L16 40 L4 44 L8 32 Z" fill="#f9a825"/><path d="M36 4 L44 12 L38 18 L30 10 Z" fill="#d4a017"/><line x1="8" y1="32" x2="16" y2="40" stroke="#e0a517" stroke-width="2"/></svg><span>1. Creating Variables</span></div><div class="pad "><ul class="bul"><li>No spaces around <code class="inl">=</code> sign.</li></ul><div class="code-light"><span class="v">NAME</span>=<span class="s">DevOps</span>
 <span class="v">COUNT</span>=<span class="s">5</span></div></div></div>
@@ -2063,289 +1180,7 @@ table.dt td code,table.dt td .mono{
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
       <!-- Content (inside paper, positioned between the 3D edges) -->
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
-        <style>
-/* ===== Override polotno_template's .content positioning =====
-   The template ships .content as position:relative, which causes it to be
-   pushed BELOW the inline paper-svg (which takes a full line-box height).
-   Force absolute so content overlays the paper SVG inside the .paper div.
-   The inline padding (42px 50px 26px 78px) is preserved. */
-.content{
-  position:absolute !important;
-  top:11px !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:11px !important;
-  --green:#1B5E3F; --green-2:#2E7D32; --green-dk:#164a32;
-  --navy:#15264d; --blue:#2563eb; --red:#dc2626;
-  --gold:#d4a017; --amber:#f9a825; --orange:#e65100;
-  --purple:#7c3aed; --teal:#0d7377;
-  --ink:#1c1c1c; --ink-2:#3a3f47;
-  --paper:#f5f1e8;
-  --term-bg:#0d1117; --term-fg:#e6edf3;
-  --card-bg:#ffffff; --card-border:rgba(22,38,77,0.10);
-  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:var(--ink);
-  overflow:auto;
-}
-
-/* ===== Brand bar (page badge top-right) ===== */
-.brand-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;
-}
-.brand-bar .crumb{
-  font-size:11px;font-weight:700;letter-spacing:1.6px;
-  color:var(--green);text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
-}
-.brand-bar .badge{
-  background:#fff;color:var(--green);
-  padding:5px 13px;border-radius:999px;
-  border:2px solid var(--green);
-  font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
-}
-
-/* ===== Page title row ===== */
-.page-title{
-  display:flex;align-items:center;justify-content:center;gap:13px;
-  margin:2px 0 4px;
-}
-.page-title .ico{flex-shrink:0;display:flex;align-items:center;gap:6px;}
-.page-title .ico svg{width:38px;height:38px;display:block;}
-.page-title h1{
-  font-size:30px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:-.4px;line-height:1.05;
-  text-align:center;margin:0;
-}
-.page-subtitle{
-  font-size:12px;font-weight:700;color:var(--ink-2);
-  text-transform:uppercase;letter-spacing:1.4px;text-align:center;
-  margin:0 0 14px;
-  padding-bottom:8px;
-  border-bottom:2px solid var(--green);
-  position:relative;
-}
-.page-subtitle::after{
-  content:"";position:absolute;left:50%;bottom:-5px;
-  width:9px;height:9px;background:var(--green);
-  border-radius:50%;transform:translateX(-50%);
-}
-
-/* ===== Grids ===== */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.grid-2-uneven{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;}
-.col-stack{display:flex;flex-direction:column;gap:11px;}
-.row-stack{display:flex;flex-direction:column;gap:12px;}
-
-/* ===== Card ===== */
-.card{
-  background:var(--card-bg);
-  border-radius:9px;
-  overflow:auto;
-  border:1px solid var(--card-border);
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-  display:flex;flex-direction:column;
-}
-.card .head{
-  background:var(--green);color:#fff;
-  padding:6px 11px;
-  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
-  display:flex;align-items:center;gap:7px;
-  border-bottom:2px solid var(--green-dk);
-}
-.card .head svg{width:15px;height:15px;flex-shrink:0;}
-.card .head.navy{background:var(--navy);border-bottom-color:#0a1838;}
-.card .head.red{background:var(--red);border-bottom-color:#9a1818;}
-.card .head.gold{background:var(--gold);border-bottom-color:#8a6810;color:#1c1c1c;}
-.card .head.amber{background:var(--amber);border-bottom-color:#a06b10;color:#1c1c1c;}
-.card .head.purple{background:var(--purple);border-bottom-color:#4a1f8a;}
-.card .head.blue{background:var(--blue);border-bottom-color:#163b8e;}
-.card .head.teal{background:var(--teal);border-bottom-color:#054a4d;}
-.card .head.orange{background:var(--orange);border-bottom-color:#8a2f00;}
-.card .pad{padding:9px 11px;flex:1;}
-.card .pad.tight{padding:7px 9px;}
-.card .pad h4{
-  font-size:11px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;
-}
-
-/* ===== Inline + block code ===== */
-code.inl{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;font-weight:600;color:var(--green);
-  background:#e6efe8;padding:1px 4px;border-radius:3px;
-  white-space:nowrap;
-}
-code.inl.navy{color:var(--navy);background:#e9ecf5;}
-code.inl.red{color:var(--red);background:#fbe4e4;}
-
-/* Terminal block (dark) */
-.term{
-  background:var(--term-bg);color:var(--term-fg);
-  border-radius:6px;overflow:auto;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;
-  margin-top:5px;
-  box-shadow:0 2px 8px rgba(0,0,0,.20);
-}
-.term .bar{
-  background:#1c2230;padding:4px 9px;
-  display:flex;align-items:center;gap:5px;
-}
-.term .dot{width:8px;height:8px;border-radius:50%;}
-.term .dot.r{background:#ff5f56;}
-.term .dot.y{background:#ffbd2e;}
-.term .dot.g{background:#27c93f;}
-.term .ttl{margin-left:auto;color:#8b949e;font-size:9px;font-family:monospace;}
-.term .body{padding:6px 9px;white-space:pre;overflow-x:auto;}
-.term .k{color:#79c0ff;}     /* keywords */
-.term .s{color:#7ee787;}     /* strings */
-.term .c{color:#8b949e;}     /* comments */
-.term .v{color:#f2cc60;}     /* variables */
-.term .o{color:#e6edf3;}     /* operators / plain */
-.term .r{color:#ff7b72;}     /* red words (if/then/exit etc.) */
-
-/* Light code block (off-white) */
-.code-light{
-  background:#f4f1e7;border:1px solid #d8d3c0;border-radius:6px;
-  padding:6px 9px;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;color:var(--ink);
-  white-space:pre;overflow-x:auto;margin-top:5px;
-}
-.code-light .k{color:#a52a2a;font-weight:700;}
-.code-light .s{color:var(--green);font-weight:600;}
-.code-light .v{color:#b8860b;}
-.code-light .c{color:#8b949e;font-style:italic;}
-
-/* ===== Bullet list ===== */
-ul.bul{
-  list-style:none;padding:0;margin:4px 0 0;
-  display:flex;flex-direction:column;gap:4px;
-}
-ul.bul li{
-  position:relative;padding-left:16px;
-  font-size:11px;line-height:1.45;color:var(--ink);
-}
-ul.bul li::before{
-  content:"";position:absolute;left:0;top:5px;
-  width:6px;height:6px;border-radius:50%;background:var(--green);
-}
-ul.bul.ck li{padding-left:20px;}
-ul.bul.ck li::before{
-  content:"";position:absolute;left:0;top:1px;width:13px;height:13px;
-  background:var(--green);border-radius:50%;
-  background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='white'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='5,13%2010,18%2019,7'/%3E%3C/svg%3E");
-  background-size:9px 9px;background-repeat:no-repeat;background-position:center;
-  border-radius:50%;
-}
-
-/* ===== Data tables ===== */
-table.dt{
-  width:100%;border-collapse:collapse;
-  font-size:10.5px;
-}
-table.dt th,table.dt td{
-  text-align:left;padding:4px 7px;
-  border-bottom:1px solid #e6e2d2;
-  vertical-align:top;
-}
-table.dt th{
-  background:var(--green);color:#fff;
-  font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-table.dt td code,table.dt td .mono{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10px;color:var(--navy);background:#eef0f6;
-  padding:1px 4px;border-radius:3px;white-space:nowrap;
-}
-
-/* ===== Output pill ===== */
-.out{
-  display:inline-flex;align-items:center;gap:5px;
-  background:#e6efe8;border:1px solid #b8d6c0;
-  border-radius:5px;padding:2px 7px;
-  font-size:10.5px;color:var(--green);font-weight:700;
-  margin-top:4px;
-}
-.out svg{width:10px;height:10px;}
-.out b{color:var(--green-2);}
-
-/* ===== Status badges (success / failure pills) ===== */
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 8px;border-radius:999px;
-  font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-.pill.ok{background:#e6f4ea;color:var(--green-2);border:1px solid #b8d6c0;}
-.pill.no{background:#fce8e8;color:var(--red);border:1px solid #f3c2c2;}
-
-/* ===== Tip bar (bottom of page, no social footer) ===== */
-.tip-bar{
-  margin-top:12px;
-  background:linear-gradient(90deg,var(--green) 0%, var(--green-2) 100%);
-  color:#fff;border-radius:9px;
-  padding:9px 14px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 3px 10px rgba(22,38,77,.20);
-}
-.tip-bar .star{
-  flex-shrink:0;width:25px;height:25px;
-  background:#fff;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-}
-.tip-bar .star svg{width:16px;height:16px;display:block;}
-.tip-bar .txt{font-size:11.5px;font-weight:700;line-height:1.35;}
-.tip-bar .txt b{font-weight:900;letter-spacing:.4px;}
-.tip-bar .code-pill{
-  margin-left:auto;flex-shrink:0;
-  background:#0d1117;color:#e6edf3;
-  padding:4px 9px;border-radius:5px;
-  font-family:"JetBrains Mono","Fira Code",monospace;
-  font-size:10.5px;font-weight:700;
-}
-
-/* ===== Section header (used in single-col pages) ===== */
-.sec-head{
-  display:flex;align-items:center;gap:9px;
-  background:#fff;border:1px solid var(--card-border);
-  border-left:4px solid var(--green);
-  border-radius:7px;
-  padding:7px 13px;margin-bottom:7px;
-}
-.sec-head .num{
-  flex-shrink:0;width:24px;height:24px;border-radius:50%;
-  background:var(--green);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11.5px;font-weight:800;
-}
-.sec-head h3{
-  font-size:12.5px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.5px;margin:0;
-}
-
-/* ===== Centered single-column container ===== */
-.single-wrap{
-  max-width:880px;margin:0 auto;
-  display:flex;flex-direction:column;gap:11px;
-}
-
-/* ===== Small inline arrow ===== */
-.arrow{
-  display:inline-flex;align-items:center;gap:3px;
-  color:var(--green);font-weight:700;font-size:10.5px;
-}
-.arrow::after{content:"→";font-weight:900;}
-
-/* ===== Tiny section break ===== */
-.brk{height:5px;}
-
-/* ===== Specific helpers ===== */
-.center{text-align:center;}
-.muted{color:var(--ink-2);}
-.small{font-size:10.5px;}
-</style><div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 6</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>6. Exit Codes and Command Success</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="page-subtitle">Every command returns a status.</div><div class="row-stack">
+        <div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 6</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>6. Exit Codes and Command Success</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><path d="M14 24 L20 30 L34 16" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="page-subtitle">Every command returns a status.</div><div class="row-stack">
     <div class="grid-2-uneven">
       <div class="card"><div class="head "><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="20" fill="#1B5E3F"/><text x="24" y="32" fill="#ffffff" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle">?</text></svg><span>1. What Exit Codes Mean</span></div><div class="pad "><p class="small">After any command runs, the system returns a number called an <b>exit code</b>. It tells you if the command succeeded or failed.</p><div class="code-light"><span class="k">echo</span> $?</div><div class="small muted" style="margin-top:4px;">Shows the exit code of the last command.</div></div></div>
 
@@ -2449,289 +1284,7 @@ table.dt td code,table.dt td .mono{
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
       <!-- Content (inside paper, positioned between the 3D edges) -->
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
-        <style>
-/* ===== Override polotno_template's .content positioning =====
-   The template ships .content as position:relative, which causes it to be
-   pushed BELOW the inline paper-svg (which takes a full line-box height).
-   Force absolute so content overlays the paper SVG inside the .paper div.
-   The inline padding (42px 50px 26px 78px) is preserved. */
-.content{
-  position:absolute !important;
-  top:11px !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:11px !important;
-  --green:#1B5E3F; --green-2:#2E7D32; --green-dk:#164a32;
-  --navy:#15264d; --blue:#2563eb; --red:#dc2626;
-  --gold:#d4a017; --amber:#f9a825; --orange:#e65100;
-  --purple:#7c3aed; --teal:#0d7377;
-  --ink:#1c1c1c; --ink-2:#3a3f47;
-  --paper:#f5f1e8;
-  --term-bg:#0d1117; --term-fg:#e6edf3;
-  --card-bg:#ffffff; --card-border:rgba(22,38,77,0.10);
-  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:var(--ink);
-  overflow:auto;
-}
-
-/* ===== Brand bar (page badge top-right) ===== */
-.brand-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;
-}
-.brand-bar .crumb{
-  font-size:11px;font-weight:700;letter-spacing:1.6px;
-  color:var(--green);text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
-}
-.brand-bar .badge{
-  background:#fff;color:var(--green);
-  padding:5px 13px;border-radius:999px;
-  border:2px solid var(--green);
-  font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
-}
-
-/* ===== Page title row ===== */
-.page-title{
-  display:flex;align-items:center;justify-content:center;gap:13px;
-  margin:2px 0 4px;
-}
-.page-title .ico{flex-shrink:0;display:flex;align-items:center;gap:6px;}
-.page-title .ico svg{width:38px;height:38px;display:block;}
-.page-title h1{
-  font-size:30px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:-.4px;line-height:1.05;
-  text-align:center;margin:0;
-}
-.page-subtitle{
-  font-size:12px;font-weight:700;color:var(--ink-2);
-  text-transform:uppercase;letter-spacing:1.4px;text-align:center;
-  margin:0 0 14px;
-  padding-bottom:8px;
-  border-bottom:2px solid var(--green);
-  position:relative;
-}
-.page-subtitle::after{
-  content:"";position:absolute;left:50%;bottom:-5px;
-  width:9px;height:9px;background:var(--green);
-  border-radius:50%;transform:translateX(-50%);
-}
-
-/* ===== Grids ===== */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.grid-2-uneven{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;}
-.col-stack{display:flex;flex-direction:column;gap:11px;}
-.row-stack{display:flex;flex-direction:column;gap:12px;}
-
-/* ===== Card ===== */
-.card{
-  background:var(--card-bg);
-  border-radius:9px;
-  overflow:auto;
-  border:1px solid var(--card-border);
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-  display:flex;flex-direction:column;
-}
-.card .head{
-  background:var(--green);color:#fff;
-  padding:6px 11px;
-  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
-  display:flex;align-items:center;gap:7px;
-  border-bottom:2px solid var(--green-dk);
-}
-.card .head svg{width:15px;height:15px;flex-shrink:0;}
-.card .head.navy{background:var(--navy);border-bottom-color:#0a1838;}
-.card .head.red{background:var(--red);border-bottom-color:#9a1818;}
-.card .head.gold{background:var(--gold);border-bottom-color:#8a6810;color:#1c1c1c;}
-.card .head.amber{background:var(--amber);border-bottom-color:#a06b10;color:#1c1c1c;}
-.card .head.purple{background:var(--purple);border-bottom-color:#4a1f8a;}
-.card .head.blue{background:var(--blue);border-bottom-color:#163b8e;}
-.card .head.teal{background:var(--teal);border-bottom-color:#054a4d;}
-.card .head.orange{background:var(--orange);border-bottom-color:#8a2f00;}
-.card .pad{padding:9px 11px;flex:1;}
-.card .pad.tight{padding:7px 9px;}
-.card .pad h4{
-  font-size:11px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;
-}
-
-/* ===== Inline + block code ===== */
-code.inl{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;font-weight:600;color:var(--green);
-  background:#e6efe8;padding:1px 4px;border-radius:3px;
-  white-space:nowrap;
-}
-code.inl.navy{color:var(--navy);background:#e9ecf5;}
-code.inl.red{color:var(--red);background:#fbe4e4;}
-
-/* Terminal block (dark) */
-.term{
-  background:var(--term-bg);color:var(--term-fg);
-  border-radius:6px;overflow:auto;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;
-  margin-top:5px;
-  box-shadow:0 2px 8px rgba(0,0,0,.20);
-}
-.term .bar{
-  background:#1c2230;padding:4px 9px;
-  display:flex;align-items:center;gap:5px;
-}
-.term .dot{width:8px;height:8px;border-radius:50%;}
-.term .dot.r{background:#ff5f56;}
-.term .dot.y{background:#ffbd2e;}
-.term .dot.g{background:#27c93f;}
-.term .ttl{margin-left:auto;color:#8b949e;font-size:9px;font-family:monospace;}
-.term .body{padding:6px 9px;white-space:pre;overflow-x:auto;}
-.term .k{color:#79c0ff;}     /* keywords */
-.term .s{color:#7ee787;}     /* strings */
-.term .c{color:#8b949e;}     /* comments */
-.term .v{color:#f2cc60;}     /* variables */
-.term .o{color:#e6edf3;}     /* operators / plain */
-.term .r{color:#ff7b72;}     /* red words (if/then/exit etc.) */
-
-/* Light code block (off-white) */
-.code-light{
-  background:#f4f1e7;border:1px solid #d8d3c0;border-radius:6px;
-  padding:6px 9px;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;color:var(--ink);
-  white-space:pre;overflow-x:auto;margin-top:5px;
-}
-.code-light .k{color:#a52a2a;font-weight:700;}
-.code-light .s{color:var(--green);font-weight:600;}
-.code-light .v{color:#b8860b;}
-.code-light .c{color:#8b949e;font-style:italic;}
-
-/* ===== Bullet list ===== */
-ul.bul{
-  list-style:none;padding:0;margin:4px 0 0;
-  display:flex;flex-direction:column;gap:4px;
-}
-ul.bul li{
-  position:relative;padding-left:16px;
-  font-size:11px;line-height:1.45;color:var(--ink);
-}
-ul.bul li::before{
-  content:"";position:absolute;left:0;top:5px;
-  width:6px;height:6px;border-radius:50%;background:var(--green);
-}
-ul.bul.ck li{padding-left:20px;}
-ul.bul.ck li::before{
-  content:"";position:absolute;left:0;top:1px;width:13px;height:13px;
-  background:var(--green);border-radius:50%;
-  background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='white'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='5,13%2010,18%2019,7'/%3E%3C/svg%3E");
-  background-size:9px 9px;background-repeat:no-repeat;background-position:center;
-  border-radius:50%;
-}
-
-/* ===== Data tables ===== */
-table.dt{
-  width:100%;border-collapse:collapse;
-  font-size:10.5px;
-}
-table.dt th,table.dt td{
-  text-align:left;padding:4px 7px;
-  border-bottom:1px solid #e6e2d2;
-  vertical-align:top;
-}
-table.dt th{
-  background:var(--green);color:#fff;
-  font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-table.dt td code,table.dt td .mono{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10px;color:var(--navy);background:#eef0f6;
-  padding:1px 4px;border-radius:3px;white-space:nowrap;
-}
-
-/* ===== Output pill ===== */
-.out{
-  display:inline-flex;align-items:center;gap:5px;
-  background:#e6efe8;border:1px solid #b8d6c0;
-  border-radius:5px;padding:2px 7px;
-  font-size:10.5px;color:var(--green);font-weight:700;
-  margin-top:4px;
-}
-.out svg{width:10px;height:10px;}
-.out b{color:var(--green-2);}
-
-/* ===== Status badges (success / failure pills) ===== */
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 8px;border-radius:999px;
-  font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-.pill.ok{background:#e6f4ea;color:var(--green-2);border:1px solid #b8d6c0;}
-.pill.no{background:#fce8e8;color:var(--red);border:1px solid #f3c2c2;}
-
-/* ===== Tip bar (bottom of page, no social footer) ===== */
-.tip-bar{
-  margin-top:12px;
-  background:linear-gradient(90deg,var(--green) 0%, var(--green-2) 100%);
-  color:#fff;border-radius:9px;
-  padding:9px 14px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 3px 10px rgba(22,38,77,.20);
-}
-.tip-bar .star{
-  flex-shrink:0;width:25px;height:25px;
-  background:#fff;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-}
-.tip-bar .star svg{width:16px;height:16px;display:block;}
-.tip-bar .txt{font-size:11.5px;font-weight:700;line-height:1.35;}
-.tip-bar .txt b{font-weight:900;letter-spacing:.4px;}
-.tip-bar .code-pill{
-  margin-left:auto;flex-shrink:0;
-  background:#0d1117;color:#e6edf3;
-  padding:4px 9px;border-radius:5px;
-  font-family:"JetBrains Mono","Fira Code",monospace;
-  font-size:10.5px;font-weight:700;
-}
-
-/* ===== Section header (used in single-col pages) ===== */
-.sec-head{
-  display:flex;align-items:center;gap:9px;
-  background:#fff;border:1px solid var(--card-border);
-  border-left:4px solid var(--green);
-  border-radius:7px;
-  padding:7px 13px;margin-bottom:7px;
-}
-.sec-head .num{
-  flex-shrink:0;width:24px;height:24px;border-radius:50%;
-  background:var(--green);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11.5px;font-weight:800;
-}
-.sec-head h3{
-  font-size:12.5px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.5px;margin:0;
-}
-
-/* ===== Centered single-column container ===== */
-.single-wrap{
-  max-width:880px;margin:0 auto;
-  display:flex;flex-direction:column;gap:11px;
-}
-
-/* ===== Small inline arrow ===== */
-.arrow{
-  display:inline-flex;align-items:center;gap:3px;
-  color:var(--green);font-weight:700;font-size:10.5px;
-}
-.arrow::after{content:"→";font-weight:900;}
-
-/* ===== Tiny section break ===== */
-.brk{height:5px;}
-
-/* ===== Specific helpers ===== */
-.center{text-align:center;}
-.muted{color:var(--ink-2);}
-.small{font-size:10.5px;}
-</style><div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 7</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>7. Conditional Statements</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M18 12 L8 24 L18 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12 L40 24 L30 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line x1="26" y1="10" x2="22" y2="38" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/></svg></div></div><div class="page-subtitle">Make smart decisions in your scripts.</div><div class="row-stack">
+        <div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 7</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>7. Conditional Statements</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M18 12 L8 24 L18 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12 L40 24 L30 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line x1="26" y1="10" x2="22" y2="38" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/></svg></div></div><div class="page-subtitle">Make smart decisions in your scripts.</div><div class="row-stack">
     <div class="grid-2-uneven">
       <div class="card"><div class="head "><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M18 12 L8 24 L18 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12 L40 24 L30 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line x1="26" y1="10" x2="22" y2="38" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/></svg><span>1. Basic Syntax</span></div><div class="pad "><div class="code-light"><span class="k">if</span> [ condition ]; <span class="k">then</span>
     commands
@@ -2852,289 +1405,7 @@ table.dt td code,table.dt td .mono{
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
       <!-- Content (inside paper, positioned between the 3D edges) -->
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
-        <style>
-/* ===== Override polotno_template's .content positioning =====
-   The template ships .content as position:relative, which causes it to be
-   pushed BELOW the inline paper-svg (which takes a full line-box height).
-   Force absolute so content overlays the paper SVG inside the .paper div.
-   The inline padding (42px 50px 26px 78px) is preserved. */
-.content{
-  position:absolute !important;
-  top:11px !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:11px !important;
-  --green:#1B5E3F; --green-2:#2E7D32; --green-dk:#164a32;
-  --navy:#15264d; --blue:#2563eb; --red:#dc2626;
-  --gold:#d4a017; --amber:#f9a825; --orange:#e65100;
-  --purple:#7c3aed; --teal:#0d7377;
-  --ink:#1c1c1c; --ink-2:#3a3f47;
-  --paper:#f5f1e8;
-  --term-bg:#0d1117; --term-fg:#e6edf3;
-  --card-bg:#ffffff; --card-border:rgba(22,38,77,0.10);
-  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:var(--ink);
-  overflow:auto;
-}
-
-/* ===== Brand bar (page badge top-right) ===== */
-.brand-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;
-}
-.brand-bar .crumb{
-  font-size:11px;font-weight:700;letter-spacing:1.6px;
-  color:var(--green);text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
-}
-.brand-bar .badge{
-  background:#fff;color:var(--green);
-  padding:5px 13px;border-radius:999px;
-  border:2px solid var(--green);
-  font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
-}
-
-/* ===== Page title row ===== */
-.page-title{
-  display:flex;align-items:center;justify-content:center;gap:13px;
-  margin:2px 0 4px;
-}
-.page-title .ico{flex-shrink:0;display:flex;align-items:center;gap:6px;}
-.page-title .ico svg{width:38px;height:38px;display:block;}
-.page-title h1{
-  font-size:30px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:-.4px;line-height:1.05;
-  text-align:center;margin:0;
-}
-.page-subtitle{
-  font-size:12px;font-weight:700;color:var(--ink-2);
-  text-transform:uppercase;letter-spacing:1.4px;text-align:center;
-  margin:0 0 14px;
-  padding-bottom:8px;
-  border-bottom:2px solid var(--green);
-  position:relative;
-}
-.page-subtitle::after{
-  content:"";position:absolute;left:50%;bottom:-5px;
-  width:9px;height:9px;background:var(--green);
-  border-radius:50%;transform:translateX(-50%);
-}
-
-/* ===== Grids ===== */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.grid-2-uneven{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;}
-.col-stack{display:flex;flex-direction:column;gap:11px;}
-.row-stack{display:flex;flex-direction:column;gap:12px;}
-
-/* ===== Card ===== */
-.card{
-  background:var(--card-bg);
-  border-radius:9px;
-  overflow:auto;
-  border:1px solid var(--card-border);
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-  display:flex;flex-direction:column;
-}
-.card .head{
-  background:var(--green);color:#fff;
-  padding:6px 11px;
-  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
-  display:flex;align-items:center;gap:7px;
-  border-bottom:2px solid var(--green-dk);
-}
-.card .head svg{width:15px;height:15px;flex-shrink:0;}
-.card .head.navy{background:var(--navy);border-bottom-color:#0a1838;}
-.card .head.red{background:var(--red);border-bottom-color:#9a1818;}
-.card .head.gold{background:var(--gold);border-bottom-color:#8a6810;color:#1c1c1c;}
-.card .head.amber{background:var(--amber);border-bottom-color:#a06b10;color:#1c1c1c;}
-.card .head.purple{background:var(--purple);border-bottom-color:#4a1f8a;}
-.card .head.blue{background:var(--blue);border-bottom-color:#163b8e;}
-.card .head.teal{background:var(--teal);border-bottom-color:#054a4d;}
-.card .head.orange{background:var(--orange);border-bottom-color:#8a2f00;}
-.card .pad{padding:9px 11px;flex:1;}
-.card .pad.tight{padding:7px 9px;}
-.card .pad h4{
-  font-size:11px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;
-}
-
-/* ===== Inline + block code ===== */
-code.inl{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;font-weight:600;color:var(--green);
-  background:#e6efe8;padding:1px 4px;border-radius:3px;
-  white-space:nowrap;
-}
-code.inl.navy{color:var(--navy);background:#e9ecf5;}
-code.inl.red{color:var(--red);background:#fbe4e4;}
-
-/* Terminal block (dark) */
-.term{
-  background:var(--term-bg);color:var(--term-fg);
-  border-radius:6px;overflow:auto;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;
-  margin-top:5px;
-  box-shadow:0 2px 8px rgba(0,0,0,.20);
-}
-.term .bar{
-  background:#1c2230;padding:4px 9px;
-  display:flex;align-items:center;gap:5px;
-}
-.term .dot{width:8px;height:8px;border-radius:50%;}
-.term .dot.r{background:#ff5f56;}
-.term .dot.y{background:#ffbd2e;}
-.term .dot.g{background:#27c93f;}
-.term .ttl{margin-left:auto;color:#8b949e;font-size:9px;font-family:monospace;}
-.term .body{padding:6px 9px;white-space:pre;overflow-x:auto;}
-.term .k{color:#79c0ff;}     /* keywords */
-.term .s{color:#7ee787;}     /* strings */
-.term .c{color:#8b949e;}     /* comments */
-.term .v{color:#f2cc60;}     /* variables */
-.term .o{color:#e6edf3;}     /* operators / plain */
-.term .r{color:#ff7b72;}     /* red words (if/then/exit etc.) */
-
-/* Light code block (off-white) */
-.code-light{
-  background:#f4f1e7;border:1px solid #d8d3c0;border-radius:6px;
-  padding:6px 9px;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;color:var(--ink);
-  white-space:pre;overflow-x:auto;margin-top:5px;
-}
-.code-light .k{color:#a52a2a;font-weight:700;}
-.code-light .s{color:var(--green);font-weight:600;}
-.code-light .v{color:#b8860b;}
-.code-light .c{color:#8b949e;font-style:italic;}
-
-/* ===== Bullet list ===== */
-ul.bul{
-  list-style:none;padding:0;margin:4px 0 0;
-  display:flex;flex-direction:column;gap:4px;
-}
-ul.bul li{
-  position:relative;padding-left:16px;
-  font-size:11px;line-height:1.45;color:var(--ink);
-}
-ul.bul li::before{
-  content:"";position:absolute;left:0;top:5px;
-  width:6px;height:6px;border-radius:50%;background:var(--green);
-}
-ul.bul.ck li{padding-left:20px;}
-ul.bul.ck li::before{
-  content:"";position:absolute;left:0;top:1px;width:13px;height:13px;
-  background:var(--green);border-radius:50%;
-  background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='white'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='5,13%2010,18%2019,7'/%3E%3C/svg%3E");
-  background-size:9px 9px;background-repeat:no-repeat;background-position:center;
-  border-radius:50%;
-}
-
-/* ===== Data tables ===== */
-table.dt{
-  width:100%;border-collapse:collapse;
-  font-size:10.5px;
-}
-table.dt th,table.dt td{
-  text-align:left;padding:4px 7px;
-  border-bottom:1px solid #e6e2d2;
-  vertical-align:top;
-}
-table.dt th{
-  background:var(--green);color:#fff;
-  font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-table.dt td code,table.dt td .mono{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10px;color:var(--navy);background:#eef0f6;
-  padding:1px 4px;border-radius:3px;white-space:nowrap;
-}
-
-/* ===== Output pill ===== */
-.out{
-  display:inline-flex;align-items:center;gap:5px;
-  background:#e6efe8;border:1px solid #b8d6c0;
-  border-radius:5px;padding:2px 7px;
-  font-size:10.5px;color:var(--green);font-weight:700;
-  margin-top:4px;
-}
-.out svg{width:10px;height:10px;}
-.out b{color:var(--green-2);}
-
-/* ===== Status badges (success / failure pills) ===== */
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 8px;border-radius:999px;
-  font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-.pill.ok{background:#e6f4ea;color:var(--green-2);border:1px solid #b8d6c0;}
-.pill.no{background:#fce8e8;color:var(--red);border:1px solid #f3c2c2;}
-
-/* ===== Tip bar (bottom of page, no social footer) ===== */
-.tip-bar{
-  margin-top:12px;
-  background:linear-gradient(90deg,var(--green) 0%, var(--green-2) 100%);
-  color:#fff;border-radius:9px;
-  padding:9px 14px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 3px 10px rgba(22,38,77,.20);
-}
-.tip-bar .star{
-  flex-shrink:0;width:25px;height:25px;
-  background:#fff;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-}
-.tip-bar .star svg{width:16px;height:16px;display:block;}
-.tip-bar .txt{font-size:11.5px;font-weight:700;line-height:1.35;}
-.tip-bar .txt b{font-weight:900;letter-spacing:.4px;}
-.tip-bar .code-pill{
-  margin-left:auto;flex-shrink:0;
-  background:#0d1117;color:#e6edf3;
-  padding:4px 9px;border-radius:5px;
-  font-family:"JetBrains Mono","Fira Code",monospace;
-  font-size:10.5px;font-weight:700;
-}
-
-/* ===== Section header (used in single-col pages) ===== */
-.sec-head{
-  display:flex;align-items:center;gap:9px;
-  background:#fff;border:1px solid var(--card-border);
-  border-left:4px solid var(--green);
-  border-radius:7px;
-  padding:7px 13px;margin-bottom:7px;
-}
-.sec-head .num{
-  flex-shrink:0;width:24px;height:24px;border-radius:50%;
-  background:var(--green);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11.5px;font-weight:800;
-}
-.sec-head h3{
-  font-size:12.5px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.5px;margin:0;
-}
-
-/* ===== Centered single-column container ===== */
-.single-wrap{
-  max-width:880px;margin:0 auto;
-  display:flex;flex-direction:column;gap:11px;
-}
-
-/* ===== Small inline arrow ===== */
-.arrow{
-  display:inline-flex;align-items:center;gap:3px;
-  color:var(--green);font-weight:700;font-size:10.5px;
-}
-.arrow::after{content:"→";font-weight:900;}
-
-/* ===== Tiny section break ===== */
-.brk{height:5px;}
-
-/* ===== Specific helpers ===== */
-.center{text-align:center;}
-.muted{color:var(--ink-2);}
-.small{font-size:10.5px;}
-</style><div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 8</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>8. Logical Operators and Multiple Conditions</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="10" r="5" fill="#1B5E3F"/><circle cx="14" cy="38" r="5" fill="#1B5E3F"/><circle cx="34" cy="14" r="5" fill="#2563eb"/><line x1="14" y1="15" x2="14" y2="33" stroke="#1B5E3F" stroke-width="3"/><path d="M14 24 C14 18 24 14 29 14" fill="none" stroke="#2563eb" stroke-width="3"/></svg></div></div><div class="page-subtitle">Combine tests. Make smarter decisions.</div><div class="single-wrap">
+        <div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 8</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="40" height="30" rx="4" fill="#003366"/><rect x="4" y="6" width="40" height="6" rx="4" fill="#002244"/><circle cx="9" cy="9" r="1.2" fill="#ff5f56"/><circle cx="13" cy="9" r="1.2" fill="#ffbd2e"/><circle cx="17" cy="9" r="1.2" fill="#27c93f"/><rect x="8" y="15" width="32" height="17" rx="2" fill="#1a3a5c"/><path d="M12 20 L17 23 L12 26" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="26" x2="32" y2="26" stroke="#e6edf3" stroke-width="2" stroke-linecap="round"/><rect x="18" y="36" width="12" height="3" rx="1" fill="#003366"/><rect x="14" y="39" width="20" height="3" rx="1" fill="#003366"/></svg></div><h1>8. Logical Operators and Multiple Conditions</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="10" r="5" fill="#1B5E3F"/><circle cx="14" cy="38" r="5" fill="#1B5E3F"/><circle cx="34" cy="14" r="5" fill="#2563eb"/><line x1="14" y1="15" x2="14" y2="33" stroke="#1B5E3F" stroke-width="3"/><path d="M14 24 C14 18 24 14 29 14" fill="none" stroke="#2563eb" stroke-width="3"/></svg></div></div><div class="page-subtitle">Combine tests. Make smarter decisions.</div><div class="single-wrap">
     <div class="card"><div class="head "><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M18 12 L8 24 L18 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 12 L40 24 L30 36" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line x1="26" y1="10" x2="22" y2="38" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/></svg><span>1. Logical Operators</span></div><div class="pad "><table class="dt"><tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Description</th></tr><tr><td><code>&amp;&amp;</code></td><td>AND</td><td><code>if [ $a -gt 5 ] &amp;&amp; [ $b -lt 10 ]</code></td><td>Both conditions must be true.</td></tr><tr><td><code>||</code></td><td>OR</td><td><code>if [ $a -gt 5 ] || [ $b -lt 10 ]</code></td><td>At least one condition must be true.</td></tr><tr><td><code>!</code></td><td>NOT</td><td><code>if ! [ -f file.txt ]</code></td><td>Reverses the result.</td></tr></table></div></div>
     
     <div class="card"><div class="head amber"><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#FFD700"/><path d="M16 36 H32 V38 H16 Z" fill="#333333"/><path d="M18 38 H30 V40 H18 Z" fill="#333333"/><path d="M20 40 H28 V42 H20 Z" fill="#333333"/><line x1="24" y1="0" x2="24" y2="2" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/></svg><span>2. Short-Circuit Execution</span></div><div class="pad "><div class="grid-3" style="margin-top:4px;"><div style="background:#eef5ee;border:1px solid #c2ddc8;border-radius:8px;padding:8px 10px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div style="width:22px;height:22px;border-radius:50%;background:#1B5E3F;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">&amp;&amp;</div><b style="color:#1B5E3F">AND</b></div><div class="small">If the first condition is false, the second is NOT executed.</div></div><div style="background:#eef5ee;border:1px solid #c2ddc8;border-radius:8px;padding:8px 10px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div style="width:22px;height:22px;border-radius:50%;background:#1B5E3F;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;">||</div><b style="color:#1B5E3F">OR</b></div><div class="small">If the first condition is true, the second is NOT executed.</div></div><div style="background:#eef5ee;border:1px solid #c2ddc8;border-radius:8px;padding:8px 10px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div style="width:22px;height:22px;border-radius:50%;background:#1B5E3F;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">!</div><b style="color:#1B5E3F">NOT</b></div><div class="small">Flips true to false, and false to true.</div></div></div><div style="display:flex;align-items:center;gap:6px;margin-top:8px;background:#fdf6e3;border:1px solid #e8d68a;border-radius:6px;padding:6px 10px;"><svg viewBox="0 0 48 48" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M24 4 C16 4 10 10 10 18 C10 24 13 28 16 31 V36 H32 V31 C35 28 38 24 38 18 C38 10 32 4 24 4 Z" fill="#FFD700"/><path d="M16 36 H32 V38 H16 Z" fill="#333333"/><path d="M18 38 H30 V40 H18 Z" fill="#333333"/><path d="M20 40 H28 V42 H20 Z" fill="#333333"/><line x1="24" y1="0" x2="24" y2="2" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="10" x2="6" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="10" x2="42" y2="8" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="20" x2="1" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/><line x1="44" y1="20" x2="47" y2="20" stroke="#F39C12" stroke-width="2" stroke-linecap="round"/></svg><span class="small"><b>Insight:</b> Saves time and prevents unnecessary checks.</span></div></div></div>
@@ -3262,289 +1533,7 @@ table.dt td code,table.dt td .mono{
       <div style="position:absolute;z-index:8;bottom:0;left:0;right:0;height:11px;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(140,120,80,0.12) 2px,rgba(140,120,80,0.12) 2.4px),linear-gradient(to top,#fbf8ef 0%,#f7f3e8 55%,#f5f1e8 100%);border-top:1px solid rgba(100,80,40,0.22);box-shadow:0 -1px 2px rgba(0,0,0,0.10);"></div>
       <!-- Content (inside paper, positioned between the 3D edges) -->
       <div class="content" style="position:absolute;z-index:2;top:11px;left:0;right:0;bottom:11px;overflow:auto;padding:42px 50px 26px 78px;">
-        <style>
-/* ===== Override polotno_template's .content positioning =====
-   The template ships .content as position:relative, which causes it to be
-   pushed BELOW the inline paper-svg (which takes a full line-box height).
-   Force absolute so content overlays the paper SVG inside the .paper div.
-   The inline padding (42px 50px 26px 78px) is preserved. */
-.content{
-  position:absolute !important;
-  top:11px !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:11px !important;
-  --green:#1B5E3F; --green-2:#2E7D32; --green-dk:#164a32;
-  --navy:#15264d; --blue:#2563eb; --red:#dc2626;
-  --gold:#d4a017; --amber:#f9a825; --orange:#e65100;
-  --purple:#7c3aed; --teal:#0d7377;
-  --ink:#1c1c1c; --ink-2:#3a3f47;
-  --paper:#f5f1e8;
-  --term-bg:#0d1117; --term-fg:#e6edf3;
-  --card-bg:#ffffff; --card-border:rgba(22,38,77,0.10);
-  font-family:"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:var(--ink);
-  overflow:auto;
-}
-
-/* ===== Brand bar (page badge top-right) ===== */
-.brand-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;
-}
-.brand-bar .crumb{
-  font-size:11px;font-weight:700;letter-spacing:1.6px;
-  color:var(--green);text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
-}
-.brand-bar .badge{
-  background:#fff;color:var(--green);
-  padding:5px 13px;border-radius:999px;
-  border:2px solid var(--green);
-  font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
-}
-
-/* ===== Page title row ===== */
-.page-title{
-  display:flex;align-items:center;justify-content:center;gap:13px;
-  margin:2px 0 4px;
-}
-.page-title .ico{flex-shrink:0;display:flex;align-items:center;gap:6px;}
-.page-title .ico svg{width:38px;height:38px;display:block;}
-.page-title h1{
-  font-size:30px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:-.4px;line-height:1.05;
-  text-align:center;margin:0;
-}
-.page-subtitle{
-  font-size:12px;font-weight:700;color:var(--ink-2);
-  text-transform:uppercase;letter-spacing:1.4px;text-align:center;
-  margin:0 0 14px;
-  padding-bottom:8px;
-  border-bottom:2px solid var(--green);
-  position:relative;
-}
-.page-subtitle::after{
-  content:"";position:absolute;left:50%;bottom:-5px;
-  width:9px;height:9px;background:var(--green);
-  border-radius:50%;transform:translateX(-50%);
-}
-
-/* ===== Grids ===== */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.grid-2-uneven{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;}
-.col-stack{display:flex;flex-direction:column;gap:11px;}
-.row-stack{display:flex;flex-direction:column;gap:12px;}
-
-/* ===== Card ===== */
-.card{
-  background:var(--card-bg);
-  border-radius:9px;
-  overflow:auto;
-  border:1px solid var(--card-border);
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-  display:flex;flex-direction:column;
-}
-.card .head{
-  background:var(--green);color:#fff;
-  padding:6px 11px;
-  font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
-  display:flex;align-items:center;gap:7px;
-  border-bottom:2px solid var(--green-dk);
-}
-.card .head svg{width:15px;height:15px;flex-shrink:0;}
-.card .head.navy{background:var(--navy);border-bottom-color:#0a1838;}
-.card .head.red{background:var(--red);border-bottom-color:#9a1818;}
-.card .head.gold{background:var(--gold);border-bottom-color:#8a6810;color:#1c1c1c;}
-.card .head.amber{background:var(--amber);border-bottom-color:#a06b10;color:#1c1c1c;}
-.card .head.purple{background:var(--purple);border-bottom-color:#4a1f8a;}
-.card .head.blue{background:var(--blue);border-bottom-color:#163b8e;}
-.card .head.teal{background:var(--teal);border-bottom-color:#054a4d;}
-.card .head.orange{background:var(--orange);border-bottom-color:#8a2f00;}
-.card .pad{padding:9px 11px;flex:1;}
-.card .pad.tight{padding:7px 9px;}
-.card .pad h4{
-  font-size:11px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;
-}
-
-/* ===== Inline + block code ===== */
-code.inl{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;font-weight:600;color:var(--green);
-  background:#e6efe8;padding:1px 4px;border-radius:3px;
-  white-space:nowrap;
-}
-code.inl.navy{color:var(--navy);background:#e9ecf5;}
-code.inl.red{color:var(--red);background:#fbe4e4;}
-
-/* Terminal block (dark) */
-.term{
-  background:var(--term-bg);color:var(--term-fg);
-  border-radius:6px;overflow:auto;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;
-  margin-top:5px;
-  box-shadow:0 2px 8px rgba(0,0,0,.20);
-}
-.term .bar{
-  background:#1c2230;padding:4px 9px;
-  display:flex;align-items:center;gap:5px;
-}
-.term .dot{width:8px;height:8px;border-radius:50%;}
-.term .dot.r{background:#ff5f56;}
-.term .dot.y{background:#ffbd2e;}
-.term .dot.g{background:#27c93f;}
-.term .ttl{margin-left:auto;color:#8b949e;font-size:9px;font-family:monospace;}
-.term .body{padding:6px 9px;white-space:pre;overflow-x:auto;}
-.term .k{color:#79c0ff;}     /* keywords */
-.term .s{color:#7ee787;}     /* strings */
-.term .c{color:#8b949e;}     /* comments */
-.term .v{color:#f2cc60;}     /* variables */
-.term .o{color:#e6edf3;}     /* operators / plain */
-.term .r{color:#ff7b72;}     /* red words (if/then/exit etc.) */
-
-/* Light code block (off-white) */
-.code-light{
-  background:#f4f1e7;border:1px solid #d8d3c0;border-radius:6px;
-  padding:6px 9px;
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10.5px;line-height:1.5;color:var(--ink);
-  white-space:pre;overflow-x:auto;margin-top:5px;
-}
-.code-light .k{color:#a52a2a;font-weight:700;}
-.code-light .s{color:var(--green);font-weight:600;}
-.code-light .v{color:#b8860b;}
-.code-light .c{color:#8b949e;font-style:italic;}
-
-/* ===== Bullet list ===== */
-ul.bul{
-  list-style:none;padding:0;margin:4px 0 0;
-  display:flex;flex-direction:column;gap:4px;
-}
-ul.bul li{
-  position:relative;padding-left:16px;
-  font-size:11px;line-height:1.45;color:var(--ink);
-}
-ul.bul li::before{
-  content:"";position:absolute;left:0;top:5px;
-  width:6px;height:6px;border-radius:50%;background:var(--green);
-}
-ul.bul.ck li{padding-left:20px;}
-ul.bul.ck li::before{
-  content:"";position:absolute;left:0;top:1px;width:13px;height:13px;
-  background:var(--green);border-radius:50%;
-  background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='white'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='5,13%2010,18%2019,7'/%3E%3C/svg%3E");
-  background-size:9px 9px;background-repeat:no-repeat;background-position:center;
-  border-radius:50%;
-}
-
-/* ===== Data tables ===== */
-table.dt{
-  width:100%;border-collapse:collapse;
-  font-size:10.5px;
-}
-table.dt th,table.dt td{
-  text-align:left;padding:4px 7px;
-  border-bottom:1px solid #e6e2d2;
-  vertical-align:top;
-}
-table.dt th{
-  background:var(--green);color:#fff;
-  font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-table.dt td code,table.dt td .mono{
-  font-family:"JetBrains Mono","Fira Code","Consolas",monospace;
-  font-size:10px;color:var(--navy);background:#eef0f6;
-  padding:1px 4px;border-radius:3px;white-space:nowrap;
-}
-
-/* ===== Output pill ===== */
-.out{
-  display:inline-flex;align-items:center;gap:5px;
-  background:#e6efe8;border:1px solid #b8d6c0;
-  border-radius:5px;padding:2px 7px;
-  font-size:10.5px;color:var(--green);font-weight:700;
-  margin-top:4px;
-}
-.out svg{width:10px;height:10px;}
-.out b{color:var(--green-2);}
-
-/* ===== Status badges (success / failure pills) ===== */
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 8px;border-radius:999px;
-  font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
-}
-.pill.ok{background:#e6f4ea;color:var(--green-2);border:1px solid #b8d6c0;}
-.pill.no{background:#fce8e8;color:var(--red);border:1px solid #f3c2c2;}
-
-/* ===== Tip bar (bottom of page, no social footer) ===== */
-.tip-bar{
-  margin-top:12px;
-  background:linear-gradient(90deg,var(--green) 0%, var(--green-2) 100%);
-  color:#fff;border-radius:9px;
-  padding:9px 14px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:0 3px 10px rgba(22,38,77,.20);
-}
-.tip-bar .star{
-  flex-shrink:0;width:25px;height:25px;
-  background:#fff;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-}
-.tip-bar .star svg{width:16px;height:16px;display:block;}
-.tip-bar .txt{font-size:11.5px;font-weight:700;line-height:1.35;}
-.tip-bar .txt b{font-weight:900;letter-spacing:.4px;}
-.tip-bar .code-pill{
-  margin-left:auto;flex-shrink:0;
-  background:#0d1117;color:#e6edf3;
-  padding:4px 9px;border-radius:5px;
-  font-family:"JetBrains Mono","Fira Code",monospace;
-  font-size:10.5px;font-weight:700;
-}
-
-/* ===== Section header (used in single-col pages) ===== */
-.sec-head{
-  display:flex;align-items:center;gap:9px;
-  background:#fff;border:1px solid var(--card-border);
-  border-left:4px solid var(--green);
-  border-radius:7px;
-  padding:7px 13px;margin-bottom:7px;
-}
-.sec-head .num{
-  flex-shrink:0;width:24px;height:24px;border-radius:50%;
-  background:var(--green);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11.5px;font-weight:800;
-}
-.sec-head h3{
-  font-size:12.5px;font-weight:800;color:var(--green);
-  text-transform:uppercase;letter-spacing:.5px;margin:0;
-}
-
-/* ===== Centered single-column container ===== */
-.single-wrap{
-  max-width:880px;margin:0 auto;
-  display:flex;flex-direction:column;gap:11px;
-}
-
-/* ===== Small inline arrow ===== */
-.arrow{
-  display:inline-flex;align-items:center;gap:3px;
-  color:var(--green);font-weight:700;font-size:10.5px;
-}
-.arrow::after{content:"→";font-weight:900;}
-
-/* ===== Tiny section break ===== */
-.brk{height:5px;}
-
-/* ===== Specific helpers ===== */
-.center{text-align:center;}
-.muted{color:var(--ink-2);}
-.small{font-size:10.5px;}
-</style><div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 9</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M40 24 C40 32 33 40 24 40 C16 40 9 33 8 25" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><path d="M8 24 C8 16 15 8 24 8 C32 8 39 15 40 23" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><path d="M34 6 L40 23 L23 18" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 42 L8 25 L25 30" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1>9. Loops for Automation</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M24 6 L26 12 L32 10 L33 16 L39 18 L37 24 L42 28 L37 32 L39 38 L33 40 L32 46 L26 44 L24 50 L22 44 L16 46 L15 40 L9 38 L11 32 L6 28 L11 24 L9 18 L15 16 L16 10 L22 12 Z" fill="#1B5E3F"/><circle cx="24" cy="28" r="7" fill="#f5f1e8"/><circle cx="24" cy="28" r="4" fill="#1B5E3F"/></svg></div></div><div class="page-subtitle">Repeat tasks. Save time. Eliminate manual work.</div><div class="grid-2">
+        <div class="brand-bar"><div class="crumb">Shell Scripting · DevOps Handbook</div><div class="badge">Page 9</div></div><div class="page-title"><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M40 24 C40 32 33 40 24 40 C16 40 9 33 8 25" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><path d="M8 24 C8 16 15 8 24 8 C32 8 39 15 40 23" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><path d="M34 6 L40 23 L23 18" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 42 L8 25 L25 30" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1>9. Loops for Automation</h1><div class="ico"><svg viewBox="0 0 48 48" width="42" height="42" xmlns="http://www.w3.org/2000/svg"><path d="M24 6 L26 12 L32 10 L33 16 L39 18 L37 24 L42 28 L37 32 L39 38 L33 40 L32 46 L26 44 L24 50 L22 44 L16 46 L15 40 L9 38 L11 32 L6 28 L11 24 L9 18 L15 16 L16 10 L22 12 Z" fill="#1B5E3F"/><circle cx="24" cy="28" r="7" fill="#f5f1e8"/><circle cx="24" cy="28" r="4" fill="#1B5E3F"/></svg></div></div><div class="page-subtitle">Repeat tasks. Save time. Eliminate manual work.</div><div class="grid-2">
     <div class="col-stack">
 
       <div class="card"><div class="head "><svg viewBox="0 0 48 48" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="24" x2="38" y2="24" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round"/><path d="M30 14 L42 24 L30 34" fill="none" stroke="#1B5E3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>1. For Loops</span></div><div class="pad "><ul class="bul"><li>Loop through a list of items.</li></ul><div class="term"><div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">bash</span></div><div class="body"><span class="k">for</span> item <span class="k">in</span> a b c; <span class="k">do</span>
@@ -5014,5 +3003,6 @@ echo "He said "hi""  # bad</div>
     </div>
 
   </div>
+
 </body>
 </html>
